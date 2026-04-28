@@ -32,6 +32,10 @@ export default function Gerant() {
   const [restoForm, setRestoForm] = useState({nom:'',adresse:''})
   const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:''})
   const [toast, setToast] = useState('')
+  async function deconnexion(){
+  await supabase.auth.signOut()
+  window.location.href = '/login'
+  }
   const [showRestoSwitch, setShowRestoSwitch] = useState(false)
   const today = fmtDate(new Date())
 
@@ -226,7 +230,8 @@ export default function Gerant() {
         <div style={{marginTop:'auto',paddingTop:12,borderTop:'1px solid var(--border)'}}>
           <div style={{display:'flex',alignItems:'center',gap:9,padding:'8px 10px'}}>
             <div style={{width:30,height:30,borderRadius:'50%',background:'var(--accent-bg)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>GM</div>
-            <div><div style={{fontSize:12,fontWeight:700}}>Gérant</div><div style={{fontSize:10,color:'var(--text3)'}}>Admin • {restaurants.length} restaurant{restaurants.length>1?'s':''}</div></div>
+            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700}}>Gérant</div><div style={{fontSize:10,color:'var(--text3)'}}>Admin • {restaurants.length} restaurant{restaurants.length>1?'s':''}</div></div>
+          <button onClick={deconnexion} style={{width:28,height:28,borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',cursor:'pointer',fontSize:16}}>↩</button>
           </div>
         </div>
       </div>
@@ -498,3 +503,4 @@ export default function Gerant() {
     </div>
   )
 }
+// déconnexion ajoutée via patch
