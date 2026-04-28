@@ -243,7 +243,7 @@ export default function Gerant() {
         {/* TOPBAR */}
         <div style={{height:56,background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',padding:'0 20px',gap:10}}>
           <span style={{fontSize:16,fontWeight:800,flex:1}}>
-            {view==='planning'?'Planning':view==='presences'?'Présences du jour':'Équipe'}
+            {view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='parametres'?'Paramètres':'Équipe'}
             <span style={{fontSize:12,fontWeight:400,color:'var(--text3)',marginLeft:8}}>{currentResto.nom}</span>
           </span>
           {view==='planning' && <>
