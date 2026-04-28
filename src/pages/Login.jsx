@@ -1,26 +1,44 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  async function handleLogin(e) {
+  // Vérifie si déjà connecté au chargement
+  useEffect(()=>{
+    supabase.auth.getSession().then(async({data})=>{
+      if(data.session){
+        const {data:profil} = await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
+        if(profil?.role==='gerant') navigate('/gerant')
+        else navigate('/moi')
+      } else {
+        setLoading(false)
+      }
+    })
+  },[])
+
+  async function handleLogin(e){
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) { setError('Email ou mot de passe incorrect'); setLoading(false); return }
-    // Vérifie le rôle dans la table profils
-    const { data: profil } = await supabase.from('profils').select('*').eq('user_id', data.user.id).single()
-    if (profil?.role === 'gerant') navigate('/gerant')
+    const {data,error} = await supabase.auth.signInWithPassword({email,password})
+    if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
+    const {data:profil} = await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
+    if(profil?.role==='gerant') navigate('/gerant')
     else navigate('/moi')
     setLoading(false)
   }
+
+  if(loading) return (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>
+      Chargement...
+    </div>
+  )
 
   return (
     <div style={{minHeight:'100vh',background:'var(--bg)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,fontFamily:'var(--font)'}}>
@@ -46,9 +64,9 @@ export default function Login() {
               onFocus={e=>e.target.style.borderColor='var(--accent)'}
               onBlur={e=>e.target.style.borderColor='var(--border2)'}/>
             </div>
-            {error && <div style={{padding:'10px 14px',background:'var(--red-bg)',border:'1px solid rgba(255,59,48,.2)',borderRadius:10,fontSize:13,color:'var(--red)',marginBottom:16,fontWeight:600}}>{error}</div>}
-            <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:15,fontWeight:700,cursor:loading?'wait':'pointer',opacity:loading?.7:1,transition:'all .15s'}}>
-              {loading ? 'Connexion...' : 'Se connecter'}
+            {error&&<div style={{padding:'10px 14px',background:'var(--red-bg)',border:'1px solid rgba(255,59,48,.2)',borderRadius:10,fontSize:13,color:'var(--red)',marginBottom:16,fontWeight:600}}>{error}</div>}
+            <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:15,fontWeight:700,cursor:loading?'wait':'pointer',opacity:loading?.7:1}}>
+              Se connecter
             </button>
           </form>
         </div>
