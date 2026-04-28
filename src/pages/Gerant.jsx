@@ -102,6 +102,14 @@ export default function Gerant() {
     showToast('Restaurant ajouté !')
   }
 
+  async function supprimerEmploye(empId){
+    await supabase.from('shifts').delete().eq('employe_id',empId)
+    await supabase.from('pointages').delete().eq('employe_id',empId)
+    await supabase.from('employes').delete().eq('id',empId)
+    loadAll()
+    showToast('Employé supprimé')
+  }
+
   async function saveCorrection(){
     const p = getPointage(correctModal.empId)
     if(!p){
@@ -306,6 +314,7 @@ export default function Gerant() {
                     <div style={{fontSize:12,color:'var(--text2)',marginTop:3}}>{emp.role}</div>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:12,paddingTop:12,borderTop:'1px solid var(--border)'}}>
                       <span style={{fontSize:12,color:'var(--text2)'}}>{sc} shift{sc>1?'s':''}/sem</span>
+                      <button onClick={(e)=>{e.stopPropagation();supprimerEmploye(emp.id)}} style={{width:24,height:24,borderRadius:6,border:'none',background:'var(--red-bg)',color:'var(--red)',cursor:'pointer',fontSize:14,display:'flex',alignItems:'center',justifyContent:'center'}}>−</button>
                       <span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,background:isPresent(emp.id)?'var(--green-bg)':'var(--bg)',color:isPresent(emp.id)?'#1a6b35':'var(--text3)'}}>{isPresent(emp.id)?'Présent':'—'}</span>
                     </div>
                   </div>
