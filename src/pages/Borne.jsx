@@ -25,12 +25,19 @@ export default function Borne() {
   const [pinError, setPinError] = useState(false)
   const [showAdmin, setShowAdmin] = useState(false)
   const [showRestoSelect, setShowRestoSelect] = useState(false)
+  // NOUVEAU — état déverrouillage borne
+  const [unlocked, setUnlocked] = useState(false)
+  const [unlockPin, setUnlockPin] = useState('')
+  const [unlockError, setUnlockError] = useState(false)
+  const [unlockShake, setUnlockShake] = useState(false)
   const today = new Date().toISOString().split('T')[0]
 
   useEffect(()=>{
-    // Récupère le resto depuis l'URL ?resto=ID
     const params = new URLSearchParams(window.location.search)
     const restoId = params.get('resto')
+    // Vérifie si déjà déverrouillé en session
+    const session = sessionStorage.getItem('borne_unlocked_'+restoId)
+    if(session === 'true') setUnlocked(true)
     loadRestaurants(restoId)
     const n = new Date()
     setDate(n.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}))
@@ -38,7 +45,7 @@ export default function Borne() {
     return()=>clearInterval(t)
   },[])
 
-  useEffect(()=>{if(restaurant){loadEmployes();loadPointages()}},[restaurant])
+  useEffect(()=>{if(restaurant&&unlocked){loadEmployes();loadPointages()}},[restaurant,unlocked])
 
   async function loadRestaurants(restoId){
     const {data} = await supabase.from('restaurants').select('*').eq('actif',true).order('nom')
@@ -47,7 +54,6 @@ export default function Borne() {
       const found = data?.find(r=>r.id===restoId)
       if(found){setRestaurant(found);return}
     }
-    // Si pas d'ID dans l'URL → affiche le sélecteur
     if(data?.length===1){
       setRestaurant(data[0])
       window.history.replaceState(null,'',`?resto=${data[0].id}`)
@@ -59,6 +65,8 @@ export default function Borne() {
   function selectResto(r){
     setRestaurant(r)
     setShowRestoSelect(false)
+    setUnlocked(false)
+    setUnlockPin('')
     window.history.replaceState(null,'',`?resto=${r.id}`)
   }
 
@@ -72,6 +80,27 @@ export default function Borne() {
     const map={}
     data?.forEach(p=>{map[p.employe_id]=p})
     setPointages(map)
+  }
+
+  // DÉVERROUILLAGE BORNE
+  function unlockKey(k){
+    if(unlockPin.length>=4)return
+    const next = unlockPin+k
+    setUnlockPin(next)
+    if(next.length===4) setTimeout(()=>checkUnlock(next),120)
+  }
+
+  function checkUnlock(input){
+    if(input===restaurant.pin_borne){
+      setUnlocked(true)
+      setUnlockPin('')
+      setUnlockError(false)
+      sessionStorage.setItem('borne_unlocked_'+restaurant.id,'true')
+    } else {
+      setUnlockError(true)
+      setUnlockShake(true)
+      setTimeout(()=>{setUnlockPin('');setUnlockError(false);setUnlockShake(false)},900)
+    }
   }
 
   async function doBadge(emp){
@@ -126,7 +155,7 @@ export default function Borne() {
     return p&&p.heure_arrivee&&!p.heure_depart
   }).length
 
-  // SELECTEUR DE RESTAURANT (si plusieurs et pas d'URL)
+  // ECRAN SELECTION RESTAURANT
   if(showRestoSelect) return (
     <div style={{minHeight:'100vh',background:'var(--bg)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,fontFamily:'var(--font)'}}>
       <div style={{width:'100%',maxWidth:400,textAlign:'center'}}>
@@ -135,19 +164,13 @@ export default function Borne() {
         <div style={{fontSize:14,color:'var(--text2)',marginBottom:28}}>Cette borne est associée à quel établissement ?</div>
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
           {restaurants.map(r=>(
-            <button key={r.id} onClick={()=>selectResto(r)} style={{
-              padding:'16px 20px',background:'var(--surface)',border:'1.5px solid var(--border)',
-              borderRadius:14,cursor:'pointer',textAlign:'left',transition:'all .15s',width:'100%'
-            }}
+            <button key={r.id} onClick={()=>selectResto(r)} style={{padding:'16px 20px',background:'var(--surface)',border:'1.5px solid var(--border)',borderRadius:14,cursor:'pointer',textAlign:'left',width:'100%'}}
             onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--accent)';e.currentTarget.style.background='var(--accent-bg)'}}
             onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.background='var(--surface)'}}>
-              <div style={{fontSize:15,fontWeight:700,color:'var(--text)'}}>{r.nom}</div>
+              <div style={{fontSize:15,fontWeight:700}}>{r.nom}</div>
               {r.adresse&&<div style={{fontSize:12,color:'var(--text2)',marginTop:3}}>{r.adresse}</div>}
             </button>
           ))}
-        </div>
-        <div style={{marginTop:20,fontSize:12,color:'var(--text3)'}}>
-          💡 L'URL sera mémorisée pour cette tablette
         </div>
       </div>
     </div>
@@ -157,6 +180,62 @@ export default function Borne() {
     <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>Chargement...</div>
   )
 
+  // ECRAN DEVERROUILLAGE PIN
+  if(!unlocked) return (
+    <div style={{minHeight:'100vh',background:'#1d1d1f',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,fontFamily:'var(--font)'}}>
+      <div style={{width:'100%',maxWidth:340,textAlign:'center'}}>
+        <div style={{fontSize:48,marginBottom:16}}>🔒</div>
+        <div style={{fontSize:22,fontWeight:800,color:'white',marginBottom:6}}>{restaurant.nom}</div>
+        <div style={{fontSize:14,color:'rgba(255,255,255,.5)',marginBottom:36}}>Entrez le code PIN de la borne</div>
+
+        {/* DOTS */}
+        <div style={{display:'flex',justifyContent:'center',gap:16,marginBottom:32,animation:unlockShake?'shake .3s ease':'none'}}>
+          {[0,1,2,3].map(i=>(
+            <div key={i} style={{
+              width:18,height:18,borderRadius:'50%',
+              background:unlockError?'#ff3b30':i<unlockPin.length?'white':'rgba(255,255,255,.2)',
+              transition:'all .15s',
+              boxShadow:i<unlockPin.length&&!unlockError?'0 0 0 4px rgba(255,255,255,.1)':'none'
+            }}></div>
+          ))}
+        </div>
+
+        {unlockError&&<div style={{fontSize:13,color:'#ff3b30',fontWeight:600,marginBottom:12}}>Code incorrect — réessayez</div>}
+
+        {/* CLAVIER */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,maxWidth:280,margin:'0 auto'}}>
+          {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((k,i)=>(
+            <button key={i} onClick={()=>k==='⌫'?setUnlockPin(p=>p.slice(0,-1)):k?unlockKey(k):null} style={{
+              height:72,borderRadius:16,
+              border:'none',
+              background:k?'rgba(255,255,255,.1)':'transparent',
+              color:'white',fontSize:k==='⌫'?20:26,fontWeight:500,
+              cursor:k?'pointer':'default',
+              transition:'all .13s',
+              display:'flex',alignItems:'center',justifyContent:'center'
+            }}
+            onMouseEnter={e=>{if(k)e.currentTarget.style.background='rgba(255,255,255,.2)'}}
+            onMouseLeave={e=>{if(k)e.currentTarget.style.background='rgba(255,255,255,.1)'}}>
+              {k}
+            </button>
+          ))}
+        </div>
+
+        <div style={{marginTop:32,fontSize:12,color:'rgba(255,255,255,.3)'}}>
+          Ce code est défini par le gérant du restaurant
+        </div>
+      </div>
+      <style>{`
+        @keyframes shake {
+          0%,100%{transform:translateX(0)}
+          25%{transform:translateX(-8px)}
+          75%{transform:translateX(8px)}
+        }
+      `}</style>
+    </div>
+  )
+
+  // BORNE PRINCIPALE (déverrouillée)
   return (
     <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',background:'var(--bg)',fontFamily:'var(--font)'}}>
 
@@ -165,8 +244,8 @@ export default function Borne() {
         <div>
           <div style={{fontSize:18,fontWeight:800}}>{restaurant.nom}</div>
           <div style={{display:'flex',alignItems:'center',gap:6,marginTop:4}}>
-            <div style={{width:7,height:7,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 0 3px rgba(52,199,89,.2)',animation:'pulse 2s infinite'}}></div>
-            <span style={{fontSize:12,fontWeight:700,color:'#1a6b35'}}>Borne active</span>
+            <div style={{width:7,height:7,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 0 3px rgba(52,199,89,.2)'}}></div>
+            <span style={{fontSize:12,fontWeight:700,color:'#1a6b35'}}>Borne active • déverrouillée</span>
           </div>
         </div>
         <div style={{textAlign:'right'}}>
@@ -195,7 +274,7 @@ export default function Borne() {
         ))}
       </div>
 
-      {/* GRID */}
+      {/* GRID EMPLOYES */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,padding:'0 28px 20px',flex:1}}>
         {filtered.map((emp,i)=>{
           const c=COLORS[i%COLORS.length]
@@ -237,9 +316,14 @@ export default function Borne() {
         <div style={{fontSize:13,color:'var(--text2)'}}>
           <strong style={{color:'var(--green)'}}>{presentCount}</strong> présent{presentCount>1?'s':''} sur {employes.length} employés
         </div>
-        <button onClick={()=>setShowPin(true)} style={{fontSize:13,fontWeight:600,color:'var(--text2)',background:'#f5f5f7',border:'1px solid var(--border2)',borderRadius:10,padding:'8px 16px',display:'flex',alignItems:'center',gap:6,cursor:'pointer'}}>
-          🔒 Accès gérant
-        </button>
+        <div style={{display:'flex',gap:8}}>
+          <button onClick={()=>{setUnlocked(false);sessionStorage.removeItem('borne_unlocked_'+restaurant.id)}} style={{fontSize:12,fontWeight:600,color:'var(--text3)',background:'transparent',border:'1px solid var(--border)',borderRadius:8,padding:'6px 12px',cursor:'pointer'}}>
+            🔒 Verrouiller
+          </button>
+          <button onClick={()=>setShowPin(true)} style={{fontSize:13,fontWeight:600,color:'var(--text2)',background:'#f5f5f7',border:'1px solid var(--border2)',borderRadius:10,padding:'8px 16px',display:'flex',alignItems:'center',gap:6,cursor:'pointer'}}>
+            ⚙️ Accès gérant
+          </button>
+        </div>
       </div>
 
       {/* CONFIRM MODAL */}
@@ -267,12 +351,12 @@ export default function Borne() {
         </div>
       )}
 
-      {/* PIN MODAL */}
+      {/* PIN GERANT MODAL */}
       {showPin&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(10px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
           <div style={{background:'var(--surface)',borderRadius:28,padding:'30px 26px',width:340,textAlign:'center',boxShadow:'0 12px 50px rgba(0,0,0,.18)'}}>
             <div style={{fontSize:20,fontWeight:800,marginBottom:6}}>Accès gérant</div>
-            <div style={{fontSize:13,color:'var(--text2)',marginBottom:24}}>Code PIN à 4 chiffres</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:24}}>Code PIN gérant à 4 chiffres</div>
             <div style={{display:'flex',justifyContent:'center',gap:12,marginBottom:28}}>
               {[0,1,2,3].map(i=>(
                 <div key={i} style={{width:16,height:16,borderRadius:'50%',background:pinError?'var(--red)':i<pin.length?'var(--text)':'var(--border2)',transition:'all .15s'}}></div>
@@ -304,7 +388,7 @@ export default function Borne() {
               <button onClick={()=>setShowAdmin(false)} style={{width:32,height:32,borderRadius:'50%',border:'none',background:'var(--bg)',color:'var(--text2)',fontSize:18,cursor:'pointer'}}>×</button>
             </div>
             <div style={{padding:'20px 24px',overflowY:'auto',flex:1}}>
-              <div style={{fontSize:11,fontWeight:700,color:'var(--text3)',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:10}}>Corriger les pointages</div>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--text3)',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:10}}>Corriger les pointages du jour</div>
               {employes.map((emp,i)=>{
                 const c=COLORS[i%COLORS.length]
                 const p=pointages[emp.id]
@@ -325,7 +409,6 @@ export default function Borne() {
                   </div>
                 )
               })}
-              {/* CHANGER DE RESTAURANT */}
               {restaurants.length>1&&(
                 <div style={{marginTop:20}}>
                   <div style={{fontSize:11,fontWeight:700,color:'var(--text3)',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:10}}>Changer de restaurant</div>
