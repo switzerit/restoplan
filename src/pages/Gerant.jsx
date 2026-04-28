@@ -442,7 +442,7 @@ export default function Gerant() {
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
             <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Nouvel employé</div>
             <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour {currentResto.nom}</div>
-            {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'},{f:'password',l:'Mot de passe temporaire',t:'password',ph:'Min. 6 caractères (modifiable par l'employé)'},{f:'password',l:'Mot de passe',t:'password',ph:'Min. 6 caractères'}].map(({f,l,t,ph})=>(
+            {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'},{f:'password',l:'Mot de passe temporaire',t:'password',ph:'Min. 6 caractères'}].map(({f,l,t,ph})=>(
               <div key={f} style={{marginBottom:12}}>
                 <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
                 <input type={t} placeholder={ph} value={empForm[f]} onChange={e=>setEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
