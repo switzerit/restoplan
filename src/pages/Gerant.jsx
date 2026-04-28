@@ -388,6 +388,7 @@ export default function Gerant() {
         )}
       </div>
 
+      
       {/* MODAL CORRECTION POINTAGE */}
       {correctModal && (
         <div onClick={()=>setCorrectModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
@@ -566,6 +567,10 @@ export default function Gerant() {
   </div>
 )}
 {toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
+    </div>
+  )
+}
+// déconnexion ajoutée via patch{toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
     </div>
   )
 }
