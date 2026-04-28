@@ -87,7 +87,8 @@ export default function Gerant() {
 
   async function addEmploye(){
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
-    await supabase.from('employes').insert({...empForm,restaurant_id:currentResto.id})
+    const {error} = await supabase.from("employes").insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id})
+    if(error){showToast("Erreur: "+error.message);return}
     setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
     loadAll();showToast(empForm.prenom+' ajouté !')
   }
