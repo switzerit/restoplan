@@ -215,7 +215,6 @@ export default function Gerant() {
           {id:'planning',icon:'📅',label:'Planning'},
           {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
 	  {id:'employes',icon:'👤',label:'Équipe'},
-          {id:'parametres',icon:'⚙️',label:'Paramètres'},
 	  {id:'parametres',icon:'⚙️',label:'Paramètres'},
         ].map(item=>(
           <button key={item.id} onClick={()=>setView(item.id)} style={{
