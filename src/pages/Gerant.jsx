@@ -501,6 +501,118 @@ export default function Gerant() {
         </div>
       )}
 
+{/* MODAL CORRECTION POINTAGE */}
+      {correctModal && (
+        <div onClick={()=>setCorrectModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
+            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Corriger le pointage</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{correctModal.nom} — {new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Heure d'arrivée</label>
+                <input type="time" value={correctForm.heure_arrivee} onChange={e=>setCorrectForm(f=>({...f,heure_arrivee:e.target.value}))}
+                style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Heure de départ</label>
+                <input type="time" value={correctForm.heure_depart} onChange={e=>setCorrectForm(f=>({...f,heure_depart:e.target.value}))}
+                style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+            </div>
+            <div style={{padding:'10px 12px',background:'var(--accent-bg)',borderRadius:10,marginBottom:16,fontSize:12,color:'var(--accent)'}}>
+              💡 Laisse un champ vide si l'employé n'est pas encore arrivé ou parti
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setCorrectModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={saveCorrection} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
+            </div>
+            <button onClick={supprimerPointage} style={{width:'100%',padding:9,borderRadius:10,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:13,fontWeight:700,cursor:'pointer',marginTop:8}}>Supprimer ce pointage</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SHIFT */}
+      {shiftModal && (
+        <div onClick={()=>setShiftModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
+            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>{shiftModal.existing?'Modifier':'Nouveau'} shift</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>
+              {employes.find(e=>e.id===shiftModal.empId)?.prenom} — {DAYS[shiftModal.dayIdx]} {fmtLabel(addDays(weekStart,shiftModal.dayIdx))}
+            </div>
+            <div style={{marginBottom:12}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Poste</label>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6}}>
+                {POSTES.map(p=>{
+                  const sc=shiftColors[p];const sel=form.poste===p
+                  return <button key={p} onClick={()=>setForm(f=>({...f,poste:p}))} style={{padding:'9px 4px',borderRadius:8,border:`2px solid ${sel?sc.border:'var(--border)'}`,background:sel?sc.bg:'var(--bg)',cursor:'pointer',fontSize:11,fontWeight:700,color:sel?sc.color:'var(--text2)',transition:'all .13s'}}>{p[0].toUpperCase()+p.slice(1)}</button>
+                })}
+              </div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+              {['heure_debut','heure_fin'].map(f=>(
+                <div key={f}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{f==='heure_debut'?'Début':'Fin'}</label>
+                  <input type="time" value={form[f]} onChange={e=>setForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+                </div>
+              ))}
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setShiftModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={saveShift} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
+            </div>
+            {shiftModal.existing&&<button onClick={deleteShift} style={{width:'100%',padding:9,borderRadius:10,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:13,fontWeight:700,cursor:'pointer',marginTop:8}}>Supprimer ce shift</button>}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EMPLOYE */}
+      {empModal && (
+        <div onClick={()=>setEmpModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
+            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Nouvel employé</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour {currentResto.nom}</div>
+            {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'}].map(({f,l,t,ph})=>(
+              <div key={f} style={{marginBottom:12}}>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
+                <input type={t} placeholder={ph} value={empForm[f]} onChange={e=>setEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+            ))}
+            <div style={{marginBottom:16}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Poste</label>
+              <select value={empForm.role} onChange={e=>setEmpForm(f=>({...f,role:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                {['Chef de cuisine','Second cuisine','Commis cuisine','Serveur / Serveuse','Chef de rang','Barman / Barmaid','Plongeur'].map(r=><option key={r}>{r}</option>)}
+              </select>
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setEmpModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={addEmploye} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Créer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL RESTAURANT */}
+      {restoModal && (
+        <div onClick={()=>setRestoModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
+            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Nouveau restaurant</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Il sera ajouté à votre compte</div>
+            <div style={{marginBottom:12}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Nom du restaurant</label>
+              <input type="text" placeholder="ex. Le Bistrot du Vieux Port" value={restoForm.nom} onChange={e=>setRestoForm(f=>({...f,nom:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+            </div>
+            <div style={{marginBottom:16}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Adresse</label>
+              <input type="text" placeholder="ex. 12 rue du Port, Marseille" value={restoForm.adresse} onChange={e=>setRestoForm(f=>({...f,adresse:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setRestoModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={addRestaurant} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Créer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {view==='parametres' && (
   <div style={{flex:1,overflow:'auto',padding:20}}>
     <div style={{maxWidth:500}}>
