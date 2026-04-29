@@ -130,20 +130,21 @@ export default function Gerant() {
   }
 
   async function saveCorrection(){
-    const p = getPointage(correctModal.empId)
-    if(!p){
-      await supabase.from('pointages').insert({employe_id:correctModal.empId,date:today,heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null,restaurant_id:currentResto.id})
+    const dateToUse = correctForm.date || today
+    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).maybeSingle()
+    if(!existing){
+      await supabase.from('pointages').insert({employe_id:correctModal.empId,date:dateToUse,heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null,restaurant_id:currentResto.id})
     } else {
-      await supabase.from('pointages').update({heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null}).eq('id',p.id)
+      await supabase.from('pointages').update({heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null}).eq('id',existing.id)
     }
-    setCorrectModal(null);loadAll();showToast('Pointage corrigé')
+    setCorrectModal(null);loadAll();showToast('Pointage enregistre')
   }
 
   async function supprimerPointage(){
     const dateToUse = correctForm.date || today
-    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).single()
+    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).maybeSingle()
     if(existing) await supabase.from('pointages').delete().eq('id',existing.id)
-    setCorrectModal(null);loadAll();showToast('Pointage supprimé')
+    setCorrectModal(null);loadAll();showToast('Pointage supprime')
   }
 
   async function deconnexion(){
