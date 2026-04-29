@@ -509,17 +509,31 @@ export default function Gerant() {
               {employes.map((emp,i)=>{
                 const c=COLORS[i%COLORS.length]
                 const sc=shifts.filter(s=>s.employe_id===emp.id).length
+                const hasAccount=profilsMap[emp.id]
                 return (
-                  <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:18,cursor:'pointer',transition:'all .18s'}}
+                  <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:16,transition:'all .18s'}}
                   onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--border2)';e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,.07)'}}
                   onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.boxShadow='none'}}>
-                    <div style={{width:48,height:48,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,marginBottom:12}}>{ini(emp.prenom,emp.nom)}</div>
-                    <div style={{fontSize:14,fontWeight:800}}>{emp.prenom} {emp.nom}</div>
-                    <div style={{fontSize:12,color:'var(--text2)',marginTop:3}}>{emp.role}</div>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:12,paddingTop:12,borderTop:'1px solid var(--border)'}}>
-                      <span style={{fontSize:12,color:'var(--text2)'}}>{sc} shift{sc>1?'s':''}/sem</span>
-                      <button onClick={(e)=>{e.stopPropagation();supprimerEmploye(emp.id)}} style={{width:24,height:24,borderRadius:6,border:'none',background:'var(--red-bg)',color:'var(--red)',cursor:'pointer',fontSize:14,display:'flex',alignItems:'center',justifyContent:'center'}}>−</button>
-                      <span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,background:isPresent(emp.id)?'var(--green-bg)':'var(--bg)',color:isPresent(emp.id)?'#1a6b35':'var(--text3)'}}>{isPresent(emp.id)?'Présent':'—'}</span>
+                    <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:10}}>
+                      <div style={{width:40,height:40,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:13,fontWeight:800,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {emp.nom}</div>
+                        <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{emp.role}</div>
+                        <div style={{marginTop:4}}>
+                          {hasAccount
+                            ? <span style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,background:'var(--green-bg)',color:'#1a6b35'}}>✓ Compte app</span>
+                            : <span style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,background:'var(--bg)',color:'var(--text3)'}}>Sans compte</span>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',paddingTop:8,borderTop:'1px solid var(--border)',marginBottom:8}}>
+                      <span style={{fontSize:11,color:'var(--text2)'}}>{sc} shift{sc>1?'s':''}/sem</span>
+                      <span style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:isPresent(emp.id)?'var(--green-bg)':'var(--bg)',color:isPresent(emp.id)?'#1a6b35':'var(--text3)'}}>{isPresent(emp.id)?'Présent':'—'}</span>
+                    </div>
+                    <div style={{display:'flex',gap:6}}>
+                      <button onClick={()=>openEditEmp(emp)} style={{flex:1,padding:'6px 0',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️ Modifier</button>
+                      <button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'6px 10px',borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:11,fontWeight:600,cursor:'pointer'}}>🗑️</button>
                     </div>
                   </div>
                 )
