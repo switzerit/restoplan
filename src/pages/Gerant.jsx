@@ -38,6 +38,9 @@ export default function Gerant() {
   const [exportForm, setExportForm] = useState({debut:'',fin:''})
   const [addPointageModal, setAddPointageModal] = useState(null)
   const [addPointageForm, setAddPointageForm] = useState({date:'',heure_arrivee:'',heure_depart:''})
+  const [editEmpModal, setEditEmpModal] = useState(null)
+  const [editEmpForm, setEditEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:''})
+  const [profilsMap, setProfilsMap] = useState({})
   const today = fmtDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
@@ -68,6 +71,13 @@ export default function Gerant() {
     setEmployes(e||[])
     const {data:p} = await supabase.from('pointages').select('*').eq('date',dateToLoad).eq('restaurant_id',currentResto.id)
     setPointages(p||[])
+    // Charger les profils pour savoir qui a un compte app
+    if(e&&e.length>0){
+      const {data:profils} = await supabase.from('profils').select('employe_id').in('employe_id',e.map(emp=>emp.id))
+      const map={}
+      profils?.forEach(p=>map[p.employe_id]=true)
+      setProfilsMap(map)
+    }
     loadShifts()
   }
 
@@ -119,6 +129,38 @@ export default function Gerant() {
     if(data?.[0]) setCurrentResto(data[0])
     localStorage.setItem('restoplan_current_resto',data[0].id)
     showToast('Restaurant ajouté !')
+  }
+
+  function openEditEmp(emp){
+    setEditEmpForm({prenom:emp.prenom,nom:emp.nom,email:emp.email,role:emp.role,password:''})
+    setEditEmpModal(emp)
+  }
+
+  async function updateEmploye(){
+    const {error} = await supabase.from('employes').update({
+      prenom:editEmpForm.prenom,
+      nom:editEmpForm.nom,
+      email:editEmpForm.email,
+      role:editEmpForm.role
+    }).eq('id',editEmpModal.id)
+    if(error){showToast('Erreur: '+error.message);return}
+    // Si mot de passe fourni et pas encore de compte, créer le compte
+    if(editEmpForm.password && editEmpForm.password.length>=6 && !profilsMap[editEmpModal.id]){
+      const {data,error:fnErr} = await supabase.functions.invoke('create-employe',{
+        body:{
+          prenom:editEmpForm.prenom,
+          nom:editEmpForm.nom,
+          email:editEmpForm.email,
+          password:editEmpForm.password,
+          role:editEmpForm.role,
+          restaurant_id:currentResto.id,
+          skip_employe:true
+        }
+      })
+    }
+    setEditEmpModal(null)
+    loadAll(selectedDate)
+    showToast(editEmpForm.prenom+' mis à jour !')
   }
 
   async function creerCompteEmploye(emp){
@@ -745,7 +787,46 @@ export default function Gerant() {
           </div>
         </div>
       )}
-{toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
+
+      {/* MODAL EDIT EMPLOYE */}
+      {editEmpModal&&(
+        <div onClick={()=>setEditEmpModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)',maxHeight:'90vh',overflowY:'auto'}}>
+            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Modifier l'employé</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{editEmpModal.prenom} {editEmpModal.nom}</div>
+            {[{f:'prenom',l:'Prénom',t:'text'},{f:'nom',l:'Nom',t:'text'},{f:'email',l:'Email',t:'email'}].map(({f,l,t})=>(
+              <div key={f} style={{marginBottom:12}}>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
+                <input type={t} value={editEmpForm[f]} onChange={e=>setEditEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+            ))}
+            <div style={{marginBottom:12}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Poste</label>
+              <select value={editEmpForm.role} onChange={e=>setEditEmpForm(f=>({...f,role:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                {['Chef de cuisine','Second cuisine','Commis cuisine','Serveur / Serveuse','Chef de rang','Barman / Barmaid','Plongeur'].map(r=><option key={r}>{r}</option>)}
+              </select>
+            </div>
+            {!profilsMap[editEmpModal.id] && (
+              <div style={{marginBottom:16}}>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Créer un compte app (optionnel)</label>
+                <input type='password' placeholder='Mot de passe temporaire (min 6 car.)' value={editEmpForm.password} onChange={e=>setEditEmpForm(f=>({...f,password:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+                <div style={{fontSize:11,color:'var(--text3)',marginTop:4}}>L'employé pourra se connecter sur son espace perso</div>
+              </div>
+            )}
+            {profilsMap[editEmpModal.id] && (
+              <div style={{padding:'10px 12px',background:'var(--green-bg)',borderRadius:10,marginBottom:16,fontSize:12,color:'#1a6b35',fontWeight:600}}>
+                ✓ Cet employé a déjà un compte app
+              </div>
+            )}
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setEditEmpModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={updateEmploye} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
     </div>
   )
 }
