@@ -204,7 +204,7 @@ export default function Gerant() {
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':'Paramètres'
 
   return (
-    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row',maxWidth:'100vw',position:'relative'}}>
+    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row',maxWidth:'100vw',position:'fixed',inset:0}}>
 
       {/* SIDEBAR DESKTOP */}
       {!isMobile && (
@@ -278,7 +278,7 @@ export default function Gerant() {
       )}
 
       {/* MAIN */}
-      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'var(--bg)'}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'var(--bg)',minHeight:0}}>
 
         {/* TOPBAR */}
         {!isMobile && <div style={{height:56,background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',padding:'0 20px',gap:10}}>
@@ -416,15 +416,22 @@ export default function Gerant() {
                 const present=p&&p.heure_arrivee&&!p.heure_depart
                 const parti=p&&p.heure_depart
                 return (
-                  <div key={emp.id} style={{display:'flex',alignItems:'center',gap:11,padding:'11px 14px',background:'var(--surface)',border:'1px solid var(--border)',borderRadius:10}}>
-                    <div style={{width:9,height:9,borderRadius:'50%',background:present?'var(--green)':parti?'var(--orange)':'var(--border2)',flexShrink:0,boxShadow:present?'0 0 0 3px rgba(52,199,89,.15)':'none'}}></div>
-                    <div style={{width:34,height:34,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
-                    <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700}}>{emp.prenom} {emp.nom}</div><div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div></div>
-                    {p?.heure_arrivee&&<span style={{fontSize:12,color:'var(--text2)',fontWeight:500}}>Arrivée {p.heure_arrivee.slice(0,5)}</span>}
-                    {p?.heure_depart&&<span style={{fontSize:12,color:'var(--text2)',fontWeight:500}}>Départ {p.heure_depart.slice(0,5)}</span>}
-                    <span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,background:present?'var(--green-bg)':parti?'var(--orange-bg)':'var(--bg)',color:present?'#1a6b35':parti?'#8a4a00':'var(--text3)'}}>{present?'Présent':parti?'Parti':'Absent'}</span>
-                    <button onClick={()=>openCorrection(emp)} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️ Corriger</button>
-                    <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:selectedDate,heure_arrivee:'',heure_depart:''})}} style={{padding:'6px 10px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>
+                  <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:10,overflow:'hidden'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px'}}>
+                      <div style={{width:8,height:8,borderRadius:'50%',background:present?'var(--green)':parti?'var(--orange)':'var(--border2)',flexShrink:0,boxShadow:present?'0 0 0 3px rgba(52,199,89,.15)':'none'}}></div>
+                      <div style={{width:32,height:32,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:13,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {emp.nom}</div>
+                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
+                      </div>
+                      <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,flexShrink:0,background:present?'var(--green-bg)':parti?'var(--orange-bg)':'var(--bg)',color:present?'#1a6b35':parti?'#8a4a00':'var(--text3)'}}>{present?'Présent':parti?'Parti':'Absent'}</span>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px 10px',borderTop:'1px solid var(--border)'}}>
+                      {p?.heure_arrivee&&<span style={{fontSize:11,color:'var(--text2)',fontWeight:500,flex:1}}>🕐 {p.heure_arrivee.slice(0,5)}{p?.heure_depart?' → '+p.heure_depart.slice(0,5):''}</span>}
+                      {!p?.heure_arrivee&&<span style={{fontSize:11,color:'var(--text3)',flex:1}}>Pas de pointage</span>}
+                      <button onClick={()=>openCorrection(emp)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0}}>✏️ Corriger</button>
+                      <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:selectedDate,heure_arrivee:'',heure_depart:''})}} style={{padding:'5px 10px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0}}>+ Ajouter</button>
+                    </div>
                   </div>
                 )
               })}
@@ -526,7 +533,7 @@ export default function Gerant() {
 
       {/* BOTTOM NAV MOBILE */}
       {isMobile && (
-        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:8,paddingBottom:'max(12px, env(safe-area-inset-bottom))',flexShrink:0,position:'sticky',bottom:0,zIndex:10}}>
+        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:8,paddingBottom:'max(16px, env(safe-area-inset-bottom))',flexShrink:0,zIndex:50}}>
           {[
             {id:'planning',icon:'📅',label:'Planning'},
             {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
