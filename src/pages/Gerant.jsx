@@ -146,35 +146,18 @@ export default function Gerant() {
     if(error){showToast('Erreur: '+error.message);return}
     // Si mot de passe fourni et pas encore de compte, créer le compte
     if(editEmpForm.password && editEmpForm.password.length>=6){
-      if(!profilsMap[editEmpModal.id]){
-        // Créer un nouveau compte
-        const {data,error:fnErr} = await supabase.functions.invoke('create-employe',{
-          body:{
-            prenom:editEmpForm.prenom,
-            nom:editEmpForm.nom,
-            email:editEmpForm.email,
-            password:editEmpForm.password,
-            role:editEmpForm.role,
-            restaurant_id:currentResto.id,
-            skip_employe:true,
-            employe_id:editEmpModal.id
-          }
-        })
-        if(fnErr||data?.error){
-          showToast('Erreur compte: '+(data?.error||fnErr?.message))
-        } else {
-          showToast(editEmpForm.prenom+' — compte créé !')
+      const {data,error:fnErr} = await supabase.functions.invoke('create-employe',{
+        body:{
+          email:editEmpForm.email,
+          password:editEmpForm.password,
+          skip_employe:true,
+          employe_id:editEmpModal.id
         }
+      })
+      if(fnErr||data?.error){
+        showToast('Erreur: '+(data?.error||fnErr?.message))
       } else {
-        // Changer le mot de passe existant
-        const {data,error:fnErr} = await supabase.functions.invoke('reset-password',{
-          body:{email:editEmpForm.email,new_password:editEmpForm.password}
-        })
-        if(fnErr||data?.error){
-          showToast('Erreur: '+(data?.error||fnErr?.message))
-        } else {
-          showToast('Mot de passe modifié !')
-        }
+        showToast(profilsMap[editEmpModal.id]?'Mot de passe modifie !':editEmpForm.prenom+' compte cree !')
       }
     }
     setEditEmpModal(null)
