@@ -154,12 +154,18 @@ export default function Gerant() {
           password:editEmpForm.password,
           role:editEmpForm.role,
           restaurant_id:currentResto.id,
-          skip_employe:true
+          skip_employe:true,
+          employe_id:editEmpModal.id
         }
       })
+      if(fnErr||data?.error){
+        showToast('Erreur compte: '+(data?.error||fnErr?.message))
+      } else {
+        showToast(editEmpForm.prenom+' — compte créé !')
+      }
     }
     setEditEmpModal(null)
-    loadAll(selectedDate)
+    await loadAll(selectedDate)
     showToast(editEmpForm.prenom+' mis à jour !')
   }
 
