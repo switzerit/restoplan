@@ -204,7 +204,7 @@ export default function Gerant() {
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':'Paramètres'
 
   return (
-    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row'}}>
+    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row',paddingBottom:isMobile?0:0}}>
 
       {/* SIDEBAR DESKTOP */}
       {!isMobile && (
@@ -303,7 +303,7 @@ export default function Gerant() {
 
         {/* VUE PLANNING */}
         {view==='planning'&&(
-          <div style={{flex:1,overflow:'auto',padding:isMobile?10:20}}>
+          <div style={{flex:1,overflowY:'auto',overflowX:'auto',padding:isMobile?10:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden',minWidth:isMobile?700:'auto'}}>
               <div style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
                 <div style={{padding:'9px 12px',fontSize:11,fontWeight:700,color:'var(--text2)'}}>Employé</div>
@@ -343,7 +343,7 @@ export default function Gerant() {
 
         {/* VUE PRESENCES */}
         {view==='presences'&&(
-          <div style={{flex:1,overflow:'auto',padding:20}}>
+          <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16,background:'var(--surface)',borderRadius:12,padding:'12px 16px',border:'1px solid var(--border)'}}>
               <span style={{fontSize:13,fontWeight:600,color:'var(--text2)'}}>Pointages du</span>
               <input type='date' value={selectedDate} onChange={e=>{setSelectedDate(e.target.value)}} style={{padding:'6px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',cursor:'pointer'}}/>
@@ -385,7 +385,7 @@ export default function Gerant() {
 
         {/* VUE EQUIPE */}
         {view==='employes'&&(
-          <div style={{flex:1,overflow:'auto',padding:20}}>
+          <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(auto-fill,minmax(200px,1fr))',gap:10}}>
               {employes.map((emp,i)=>{
                 const c=COLORS[i%COLORS.length]
@@ -417,7 +417,7 @@ export default function Gerant() {
 
         {/* VUE PARAMETRES */}
         {view==='parametres'&&(
-          <div style={{flex:1,overflow:'auto',padding:20}}>
+          <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{maxWidth:500}}>
               <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',marginBottom:16}}>
                 <div style={{padding:'14px 20px',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
@@ -477,7 +477,7 @@ export default function Gerant() {
 
       {/* BOTTOM NAV MOBILE */}
       {isMobile && (
-        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',padding:'8px 0 12px',flexShrink:0}}>
+        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',padding:'8px 0',paddingBottom:'calc(12px + env(safe-area-inset-bottom))',flexShrink:0}}>
           {[
             {id:'planning',icon:'📅',label:'Planning'},
             {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
