@@ -55,7 +55,11 @@ export default function Gerant() {
   async function loadRestaurants(){
     const {data} = await supabase.from('restaurants').select('*').eq('actif',true).order('nom')
     setRestaurants(data||[])
-    if(data?.length>0) setCurrentResto(data[0])
+    if(data?.length>0){
+      const savedId = localStorage.getItem('restoplan_current_resto')
+      const saved = savedId ? data.find(r=>r.id===savedId) : null
+      setCurrentResto(saved || data[0])
+    }
   }
 
   async function loadAll(date){
@@ -267,7 +271,7 @@ export default function Gerant() {
           {showRestoSwitch && (
             <div style={{position:'absolute',top:56,left:0,right:0,background:'var(--surface)',border:'1px solid var(--border)',zIndex:50,boxShadow:'0 4px 16px rgba(0,0,0,.1)'}}>
               {restaurants.map(r=>(
-                <button key={r.id} onClick={()=>{setCurrentResto(r);setShowRestoSwitch(false)}} style={{width:'100%',padding:'12px 16px',border:'none',background:r.id===currentResto.id?'var(--accent-bg)':'transparent',cursor:'pointer',textAlign:'left',fontSize:14,fontWeight:600,color:r.id===currentResto.id?'var(--accent)':'var(--text)',borderBottom:'1px solid var(--border)'}}>
+                <button key={r.id} onClick={()=>{setCurrentResto(r);setShowRestoSwitch(false);localStorage.setItem('restoplan_current_resto',r.id)}} style={{width:'100%',padding:'12px 16px',border:'none',background:r.id===currentResto.id?'var(--accent-bg)':'transparent',cursor:'pointer',textAlign:'left',fontSize:14,fontWeight:600,color:r.id===currentResto.id?'var(--accent)':'var(--text)',borderBottom:'1px solid var(--border)'}}>
                   {r.id===currentResto.id?'✓ ':''}{r.nom}
                 </button>
               ))}
