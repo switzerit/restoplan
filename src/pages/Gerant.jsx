@@ -204,7 +204,7 @@ export default function Gerant() {
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':'Paramètres'
 
   return (
-    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row',paddingBottom:isMobile?0:0}}>
+    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row',maxWidth:'100vw',position:'relative'}}>
 
       {/* SIDEBAR DESKTOP */}
       {!isMobile && (
@@ -303,8 +303,56 @@ export default function Gerant() {
 
         {/* VUE PLANNING */}
         {view==='planning'&&(
-          <div style={{flex:1,overflowY:'auto',overflowX:'auto',padding:isMobile?10:20,WebkitOverflowScrolling:'touch'}}>
-            <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden',minWidth:isMobile?700:'auto'}}>
+          <div style={{flex:1,overflowY:'auto',overflowX:'hidden',padding:isMobile?10:20,WebkitOverflowScrolling:'touch'}}>
+          {isMobile ? (
+            /* VUE MOBILE PLANNING - jour par jour */
+            <div>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12,background:'var(--surface)',borderRadius:12,padding:'10px 14px',border:'1px solid var(--border)'}}>
+                <button onClick={()=>setWeekStart(addDays(weekStart,-1))} style={{width:32,height:32,borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',cursor:'pointer',fontSize:16,color:'var(--text2)'}}>‹</button>
+                <div style={{flex:1,textAlign:'center'}}>
+                  <div style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>{DAYS[0]} {fmtLabel(weekStart)}</div>
+                  <div style={{fontSize:11,color:'var(--text3)'}}>Appuyez sur + pour ajouter un shift</div>
+                </div>
+                <button onClick={()=>setWeekStart(addDays(weekStart,1))} style={{width:32,height:32,borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',cursor:'pointer',fontSize:16,color:'var(--text2)'}}>›</button>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {employes.map((emp,ei)=>{
+                  const c=COLORS[ei%COLORS.length]
+                  const sh=getShift(emp.id,0)
+                  const sc=sh?shiftColors[sh.poste]:null
+                  return (
+                    <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:12,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}} onClick={()=>openShift(emp.id,0)}>
+                      <div style={{width:36,height:36,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:13,fontWeight:700}}>{emp.prenom} {emp.nom}</div>
+                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
+                      </div>
+                      {sh ? (
+                        <div style={{textAlign:'right'}}>
+                          <div style={{fontSize:12,fontWeight:700,color:sc.color,background:sc.bg,padding:'4px 10px',borderRadius:20,border:`1px solid ${sc.border}`}}>{sh.heure_debut.slice(0,5)} – {sh.heure_fin.slice(0,5)}</div>
+                          <div style={{fontSize:10,color:'var(--text3)',marginTop:2}}>{sh.poste}</div>
+                        </div>
+                      ) : (
+                        <div style={{width:32,height:32,border:'1.5px dashed var(--border2)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:20}}>+</div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+              <div style={{marginTop:12,display:'flex',gap:6}}>
+                {Array.from({length:7},(_,i)=>addDays(getMonday(weekStart),i)).map((d,i)=>{
+                  const isSelected=fmtDate(d)===fmtDate(weekStart)
+                  const isToday=fmtDate(d)===today
+                  return <button key={i} onClick={()=>setWeekStart(d)} style={{flex:1,padding:'6px 2px',borderRadius:8,border:'none',background:isSelected?'var(--accent)':isToday?'var(--accent-bg)':'var(--surface)',color:isSelected?'white':isToday?'var(--accent)':'var(--text2)',fontSize:10,fontWeight:700,cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+                    <span>{DAYS[i]}</span>
+                    <span style={{fontSize:9,opacity:.7}}>{d.getDate()}</span>
+                  </button>
+                })}
+              </div>
+            </div>
+          ) : (
+            /* VUE DESKTOP PLANNING - grille semaine */
+            <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden'}}>
               <div style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
                 <div style={{padding:'9px 12px',fontSize:11,fontWeight:700,color:'var(--text2)'}}>Employé</div>
                 {weekDays.map((d,i)=>{
@@ -338,6 +386,7 @@ export default function Gerant() {
                 )
               })}
             </div>
+          )}
           </div>
         )}
 
@@ -477,7 +526,7 @@ export default function Gerant() {
 
       {/* BOTTOM NAV MOBILE */}
       {isMobile && (
-        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',padding:'8px 0',paddingBottom:'calc(12px + env(safe-area-inset-bottom))',flexShrink:0}}>
+        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:8,paddingBottom:'max(12px, env(safe-area-inset-bottom))',flexShrink:0,position:'sticky',bottom:0,zIndex:10}}>
           {[
             {id:'planning',icon:'📅',label:'Planning'},
             {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
