@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import QRScanner from '../components/QRScanner'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 
@@ -21,6 +22,8 @@ export default function Employe() {
   const [shifts, setShifts] = useState([])
   const [pointages, setPointages] = useState([])
   const [clock, setClock] = useState('')
+  const [showScanner, setShowScanner] = useState(false)
+  const [badgeFlash, setBadgeFlash] = useState(null)
   const [dateStr, setDateStr] = useState('')
   const navigate = useNavigate()
   const today = fmtDate(new Date())
@@ -131,9 +134,11 @@ export default function Employe() {
               </div>
               <div style={{fontSize:22,fontWeight:300,letterSpacing:-1}}>{clock}</div>
             </div>
-            <div style={{marginTop:12,padding:'10px 12px',background:'rgba(255,149,0,.08)',border:'1px solid rgba(255,149,0,.2)',borderRadius:10}}>
-              <div style={{fontSize:12,fontWeight:700,color:'#8a4a00'}}>📍 Badgeage sur la borne uniquement</div>
-              <div style={{fontSize:11,color:'#a06020',marginTop:2}}>Pointez à l'entrée du restaurant</div>
+            <div style={{marginTop:12}}>
+              <button onClick={()=>setShowScanner(true)} style={{width:'100%',height:48,borderRadius:12,border:'none',background:isPresent?'var(--red-bg)':isParti?'var(--bg)':'var(--green)',color:isPresent?'var(--red)':isParti?'var(--text3)':'white',fontSize:15,fontWeight:700,cursor:isParti?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                {isParti?'✅ Journée terminée':isPresent?'📷 Scanner mon départ':'📷 Scanner mon arrivée'}
+              </button>
+              {!isParti&&<div style={{fontSize:11,color:'var(--text3)',textAlign:'center',marginTop:6}}>Scannez le QR code affiché sur la borne du restaurant</div>}
             </div>
           </div>
 
@@ -249,6 +254,32 @@ export default function Employe() {
             ))}
           </div>
           <button onClick={deconnexion} style={{width:'100%',padding:13,borderRadius:14,border:'1px solid var(--border)',background:'var(--surface)',color:'var(--red)',fontSize:14,fontWeight:600,cursor:'pointer'}}>Se déconnecter</button>
+        </div>
+      )}
+    </div>
+
+      {/* SCANNER */}
+      {showScanner && !isParti && (
+        <QRScanner
+          employe={employe}
+          onSuccess={(type, time)=>{
+            setShowScanner(false)
+            setBadgeFlash({type,time})
+            loadPointages()
+            setTimeout(()=>setBadgeFlash(null),3000)
+          }}
+          onClose={()=>setShowScanner(false)}
+        />
+      )}
+
+      {/* FLASH SUCCES */}
+      {badgeFlash && (
+        <div style={{position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',zIndex:300,pointerEvents:'none'}}>
+          <div style={{background:badgeFlash.type==='arrivee'?'var(--green)':'#1d1d1f',borderRadius:28,padding:'30px 40px',textAlign:'center',color:'white',boxShadow:'0 8px 40px rgba(0,0,0,.2)'}}>
+            <div style={{fontSize:52,marginBottom:12}}>{badgeFlash.type==='arrivee'?'👋':'👍'}</div>
+            <div style={{fontSize:22,fontWeight:800}}>{employe.prenom}</div>
+            <div style={{fontSize:16,opacity:.85,marginTop:4}}>{badgeFlash.type==='arrivee'?'Arrivée enregistrée':'Départ enregistré'} à {badgeFlash.time}</div>
+          </div>
         </div>
       )}
     </div>

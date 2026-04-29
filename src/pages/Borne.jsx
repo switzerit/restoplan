@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import QRDisplay from '../components/QRDisplay'
 import { supabase } from '../lib/supabase'
 
 const COLORS = [
@@ -310,6 +311,13 @@ export default function Borne() {
           </div>
         )}
       </div>
+
+      {/* QR CODE */}
+      {restaurant && unlocked && (
+        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'center',padding:'8px 0'}}>
+          <QRDisplay restaurant={restaurant}/>
+        </div>
+      )}
 
       {/* BOTTOM */}
       <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',padding:'12px 28px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
