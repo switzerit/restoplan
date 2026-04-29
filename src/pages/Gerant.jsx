@@ -115,10 +115,20 @@ export default function Gerant() {
 
   async function addEmploye(){
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
-    const {error} = await supabase.from("employes").insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id})
-    if(error){showToast("Erreur: "+error.message);return}
-    setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
-    loadAll();showToast(empForm.prenom+' ajouté !')
+    if(empForm.password && empForm.password.length<6){showToast('Mot de passe min. 6 caracteres');return}
+    if(empForm.password){
+      const {data,error} = await supabase.functions.invoke('create-employe',{
+        body:{prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,password:empForm.password,role:empForm.role,restaurant_id:currentResto.id}
+      })
+      if(error||data?.error){showToast('Erreur: '+(data?.error||error?.message));return}
+    } else {
+      const {error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id})
+      if(error){showToast('Erreur: '+error.message);return}
+    }
+    setEmpModal(false)
+    setEmpForm({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
+    await loadAll(selectedDate)
+    showToast(empForm.prenom+' ajoute !')
   }
 
   async function addRestaurant(){
