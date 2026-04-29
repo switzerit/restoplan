@@ -86,7 +86,7 @@ export default function Employe() {
     </div>
   )
 
-  const todayShift = shifts.find(s=>s.date===selectedDay)||shifts.find(s=>s.date===today)
+  const todayShift = shifts.find(s=>s.date===selectedDay)
   const todayPointage = pointages[0]
   const isPresent = todayPointage?.heure_arrivee && !todayPointage?.heure_depart
   const isParti = todayPointage?.heure_arrivee && todayPointage?.heure_depart
