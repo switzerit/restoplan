@@ -145,23 +145,36 @@ export default function Gerant() {
     }).eq('id',editEmpModal.id)
     if(error){showToast('Erreur: '+error.message);return}
     // Si mot de passe fourni et pas encore de compte, créer le compte
-    if(editEmpForm.password && editEmpForm.password.length>=6 && !profilsMap[editEmpModal.id]){
-      const {data,error:fnErr} = await supabase.functions.invoke('create-employe',{
-        body:{
-          prenom:editEmpForm.prenom,
-          nom:editEmpForm.nom,
-          email:editEmpForm.email,
-          password:editEmpForm.password,
-          role:editEmpForm.role,
-          restaurant_id:currentResto.id,
-          skip_employe:true,
-          employe_id:editEmpModal.id
+    if(editEmpForm.password && editEmpForm.password.length>=6){
+      if(!profilsMap[editEmpModal.id]){
+        // Créer un nouveau compte
+        const {data,error:fnErr} = await supabase.functions.invoke('create-employe',{
+          body:{
+            prenom:editEmpForm.prenom,
+            nom:editEmpForm.nom,
+            email:editEmpForm.email,
+            password:editEmpForm.password,
+            role:editEmpForm.role,
+            restaurant_id:currentResto.id,
+            skip_employe:true,
+            employe_id:editEmpModal.id
+          }
+        })
+        if(fnErr||data?.error){
+          showToast('Erreur compte: '+(data?.error||fnErr?.message))
+        } else {
+          showToast(editEmpForm.prenom+' — compte créé !')
         }
-      })
-      if(fnErr||data?.error){
-        showToast('Erreur compte: '+(data?.error||fnErr?.message))
       } else {
-        showToast(editEmpForm.prenom+' — compte créé !')
+        // Changer le mot de passe existant
+        const {data,error:fnErr} = await supabase.functions.invoke('reset-password',{
+          body:{email:editEmpForm.email,new_password:editEmpForm.password}
+        })
+        if(fnErr||data?.error){
+          showToast('Erreur: '+(data?.error||fnErr?.message))
+        } else {
+          showToast('Mot de passe modifié !')
+        }
       }
     }
     setEditEmpModal(null)
@@ -834,8 +847,12 @@ export default function Gerant() {
               </div>
             )}
             {profilsMap[editEmpModal.id] && (
-              <div style={{padding:'10px 12px',background:'var(--green-bg)',borderRadius:10,marginBottom:16,fontSize:12,color:'#1a6b35',fontWeight:600}}>
-                ✓ Cet employé a déjà un compte app
+              <div style={{marginBottom:16}}>
+                <div style={{padding:'10px 12px',background:'var(--green-bg)',borderRadius:10,marginBottom:8,fontSize:12,color:'#1a6b35',fontWeight:600}}>
+                  ✓ Cet employé a déjà un compte app
+                </div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Changer le mot de passe (optionnel)</label>
+                <input type='password' placeholder='Nouveau mot de passe (min 6 car.)' value={editEmpForm.password} onChange={e=>setEditEmpForm(f=>({...f,password:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               </div>
             )}
             <div style={{display:'flex',gap:8}}>
