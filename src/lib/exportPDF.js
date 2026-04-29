@@ -204,7 +204,7 @@ export function generatePDF({ restaurant, employes, shifts, pointages, dateDebut
     const detailRows = empPointages.map(p => {
       const dureeMin = calcDuration(p.heure_arrivee, p.heure_depart)
       return [
-        new Date(p.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }),
+        const dd = new Date(p.date); const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']; const months2 = ['jan','fev','mar','avr','mai','juin','juil','aout','sep','oct','nov','dec']; return days[dd.getDay()]+' '+dd.getDate()+' '+months2[dd.getMonth()],
         p.heure_arrivee?.slice(0, 5) || '—',
         p.heure_depart?.slice(0, 5) || 'En cours',
         minutesToHHMM(dureeMin)
@@ -248,5 +248,5 @@ export function generatePDF({ restaurant, employes, shifts, pointages, dateDebut
 }
 
 function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+  const d = new Date(dateStr); const months = ['jan','fev','mar','avr','mai','juin','juil','aout','sep','oct','nov','dec']; return d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()
 }
