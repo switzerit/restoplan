@@ -121,6 +121,22 @@ export default function Gerant() {
     showToast('Restaurant ajouté !')
   }
 
+  async function creerCompteEmploye(emp){
+    const pwd = window.prompt('Mot de passe temporaire pour '+emp.prenom+' (min 6 caractères):')
+    if(!pwd) return
+    if(pwd.length<6){showToast('Min. 6 caractères');return}
+    showToast('Création du compte...')
+    const {data,error} = await supabase.functions.invoke('create-employe-existing',{
+      body:{employe_id:emp.id,email:emp.email,password:pwd}
+    })
+    if(error||data?.error){
+      // Fallback: créer juste dans auth et profils
+      showToast('Utilisez le dashboard Supabase pour cet employé existant')
+      return
+    }
+    showToast('Compte créé pour '+emp.prenom+' !')
+  }
+
   async function supprimerEmploye(empId){
     await supabase.from('shifts').delete().eq('employe_id',empId)
     await supabase.from('pointages').delete().eq('employe_id',empId)
@@ -624,7 +640,7 @@ export default function Gerant() {
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
             <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Nouvel employé</div>
             <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour {currentResto.nom}</div>
-            {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'}].map(({f,l,t,ph})=>(
+            {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'},{f:'password',l:'Mot de passe (optionnel)',t:'password',ph:'Laisser vide = sans compte app'}].map(({f,l,t,ph})=>(
               <div key={f} style={{marginBottom:12}}>
                 <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
                 <input type={t} placeholder={ph} value={empForm[f]} onChange={e=>setEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
