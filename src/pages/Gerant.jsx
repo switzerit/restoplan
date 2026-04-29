@@ -40,6 +40,12 @@ export default function Gerant() {
   const [addPointageForm, setAddPointageForm] = useState({date:'',heure_arrivee:'',heure_depart:''})
   const today = fmtDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  useEffect(()=>{
+    const handler = ()=>setIsMobile(window.innerWidth<768)
+    window.addEventListener('resize',handler)
+    return()=>window.removeEventListener('resize',handler)
+  },[])
 
   useEffect(()=>{loadRestaurants()},[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
@@ -198,9 +204,10 @@ export default function Gerant() {
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':'Paramètres'
 
   return (
-    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden'}}>
+    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row'}}>
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR DESKTOP */}
+      {!isMobile && (
       <div style={{width:220,background:'var(--surface)',borderRight:'1px solid var(--border)',display:'flex',flexDirection:'column',padding:'18px 10px',flexShrink:0}}>
         <div style={{marginBottom:20}}>
           <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 8px',marginBottom:8}}>
@@ -226,7 +233,6 @@ export default function Gerant() {
             </div>
           )}
         </div>
-
         {[
           {id:'planning',icon:'📅',label:'Planning'},
           {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
@@ -238,7 +244,6 @@ export default function Gerant() {
             {item.badge>0&&<span style={{marginLeft:'auto',background:'var(--green)',color:'white',fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:20}}>{item.badge}</span>}
           </button>
         ))}
-
         <div style={{marginTop:'auto',paddingTop:12,borderTop:'1px solid var(--border)'}}>
           <div style={{display:'flex',alignItems:'center',gap:9,padding:'8px 10px'}}>
             <div style={{width:30,height:30,borderRadius:'50%',background:'var(--accent-bg)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>GM</div>
@@ -247,12 +252,36 @@ export default function Gerant() {
           </div>
         </div>
       </div>
+      )}
+
+      {/* TOPBAR MOBILE */}
+      {isMobile && (
+        <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'10px 16px',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+          <div style={{width:28,height:28,background:'var(--accent)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>🍽️</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:13,fontWeight:800}}>RestoPlan</div>
+            <div style={{fontSize:10,color:'var(--text3)'}}>{currentResto.nom}</div>
+          </div>
+          <button onClick={()=>setShowRestoSwitch(!showRestoSwitch)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:11,fontWeight:600,cursor:'pointer',color:'var(--text2)'}}>🏪 Changer</button>
+          <button onClick={deconnexion} style={{width:30,height:30,borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',cursor:'pointer',fontSize:14}}>↩</button>
+          {showRestoSwitch && (
+            <div style={{position:'absolute',top:56,left:0,right:0,background:'var(--surface)',border:'1px solid var(--border)',zIndex:50,boxShadow:'0 4px 16px rgba(0,0,0,.1)'}}>
+              {restaurants.map(r=>(
+                <button key={r.id} onClick={()=>{setCurrentResto(r);setShowRestoSwitch(false)}} style={{width:'100%',padding:'12px 16px',border:'none',background:r.id===currentResto.id?'var(--accent-bg)':'transparent',cursor:'pointer',textAlign:'left',fontSize:14,fontWeight:600,color:r.id===currentResto.id?'var(--accent)':'var(--text)',borderBottom:'1px solid var(--border)'}}>
+                  {r.id===currentResto.id?'✓ ':''}{r.nom}
+                </button>
+              ))}
+              <button onClick={()=>{setShowRestoSwitch(false);setRestoModal(true)}} style={{width:'100%',padding:'12px 16px',border:'none',background:'transparent',cursor:'pointer',textAlign:'left',fontSize:14,fontWeight:600,color:'var(--accent)'}}>+ Ajouter un restaurant</button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* MAIN */}
       <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'var(--bg)'}}>
 
         {/* TOPBAR */}
-        <div style={{height:56,background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',padding:'0 20px',gap:10}}>
+        {!isMobile && <div style={{height:56,background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',padding:'0 20px',gap:10}}>
           <span style={{fontSize:16,fontWeight:800,flex:1}}>
             {viewTitle}
             <span style={{fontSize:12,fontWeight:400,color:'var(--text3)',marginLeft:8}}>{currentResto.nom}</span>
@@ -267,12 +296,15 @@ export default function Gerant() {
           </>}
           {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
           {view==='employes'&&<button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>}
-        </div>
+        </div>}
+        {/* TOPBAR MOBILE ACTION */}
+        {isMobile && view==='employes' && <div style={{padding:'8px 12px',background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,fontWeight:700}}>{view==='planning'?'Planning':view==='presences'?'Présences':view==='employes'?'Équipe':'Paramètres'}</span><button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button></div>}
+        {isMobile && view==='presences' && <div style={{padding:'8px 12px',background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,fontWeight:700}}>Présences</span><button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 PDF</button></div>}
 
         {/* VUE PLANNING */}
         {view==='planning'&&(
-          <div style={{flex:1,overflow:'auto',padding:20}}>
-            <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden'}}>
+          <div style={{flex:1,overflow:'auto',padding:isMobile?10:20}}>
+            <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden',minWidth:isMobile?700:'auto'}}>
               <div style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
                 <div style={{padding:'9px 12px',fontSize:11,fontWeight:700,color:'var(--text2)'}}>Employé</div>
                 {weekDays.map((d,i)=>{
@@ -320,7 +352,7 @@ export default function Gerant() {
               <button onClick={()=>{const d=new Date(selectedDate);d.setDate(d.getDate()+1);setSelectedDate(fmtDate(d))}} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:14,cursor:'pointer'}}>›</button>
               <span style={{fontSize:12,color:'var(--text3)',marginLeft:'auto'}}>{new Date(selectedDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:18}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:10,marginBottom:18}}>
               {[{n:presentCount,l:'Présents',c:'var(--green)'},{n:employes.length-presentCount,l:'Absents',c:'var(--text)'},{n:pointages.filter(p=>p.heure_depart).length,l:'Partis',c:'var(--text2)'},{n:0,l:'Retards',c:'var(--orange)'}].map((s,i)=>(
                 <div key={i} style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',padding:'14px 16px'}}>
                   <div style={{fontSize:26,fontWeight:800,color:s.c}}>{s.n}</div>
@@ -354,7 +386,7 @@ export default function Gerant() {
         {/* VUE EQUIPE */}
         {view==='employes'&&(
           <div style={{flex:1,overflow:'auto',padding:20}}>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:10}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(auto-fill,minmax(200px,1fr))',gap:10}}>
               {employes.map((emp,i)=>{
                 const c=COLORS[i%COLORS.length]
                 const sc=shifts.filter(s=>s.employe_id===emp.id).length
@@ -443,6 +475,23 @@ export default function Gerant() {
           </div>
         )}
 
+      {/* BOTTOM NAV MOBILE */}
+      {isMobile && (
+        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',padding:'8px 0 12px',flexShrink:0}}>
+          {[
+            {id:'planning',icon:'📅',label:'Planning'},
+            {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
+            {id:'employes',icon:'👤',label:'Équipe'},
+            {id:'parametres',icon:'⚙️',label:'Réglages'},
+          ].map(item=>(
+            <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'4px 12px',border:'none',background:'transparent',cursor:'pointer',position:'relative'}}>
+              <span style={{fontSize:20}}>{item.icon}</span>
+              <span style={{fontSize:10,fontWeight:600,color:view===item.id?'var(--accent)':'var(--text3)'}}>{item.label}</span>
+              {item.badge>0&&<div style={{position:'absolute',top:0,right:8,width:16,height:16,background:'var(--green)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:'white'}}>{item.badge}</div>}
+            </button>
+          ))}
+        </div>
+      )}
       </div>
       {/* FIN MAIN */}
 
