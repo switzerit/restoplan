@@ -31,7 +31,7 @@ export default function Gerant() {
   const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00'})
   const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
   const [restoForm, setRestoForm] = useState({nom:'',adresse:''})
-  const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:''})
+  const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:'',date:''})
   const [toast, setToast] = useState('')
   const [showRestoSwitch, setShowRestoSwitch] = useState(false)
   const [exportModal, setExportModal] = useState(false)
@@ -140,8 +140,9 @@ export default function Gerant() {
   }
 
   async function supprimerPointage(){
-    const p = getPointage(correctModal.empId)
-    if(p) await supabase.from('pointages').delete().eq('id',p.id)
+    const dateToUse = correctForm.date || today
+    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).single()
+    if(existing) await supabase.from('pointages').delete().eq('id',existing.id)
     setCorrectModal(null);loadAll();showToast('Pointage supprimé')
   }
 
@@ -158,7 +159,11 @@ export default function Gerant() {
 
   function openCorrection(emp){
     const p = getPointage(emp.id)
-    setCorrectForm({heure_arrivee:p?.heure_arrivee?.slice(0,5)||'',heure_depart:p?.heure_depart?.slice(0,5)||''})
+    setCorrectForm({
+      heure_arrivee:p?.heure_arrivee?.slice(0,5)||'',
+      heure_depart:p?.heure_depart?.slice(0,5)||'',
+      date:today
+    })
     setCorrectModal({empId:emp.id,nom:emp.prenom+' '+emp.nom})
   }
 
@@ -418,7 +423,16 @@ export default function Gerant() {
         <div onClick={()=>setCorrectModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
             <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Corriger le pointage</div>
-            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{correctModal.nom} — {new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:12}}>{correctModal.nom}</div>
+            <div style={{marginBottom:16}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Date du pointage</label>
+              <input type='date' value={correctForm.date} onChange={async e=>{
+                const newDate = e.target.value
+                setCorrectForm(f=>({...f,date:newDate,heure_arrivee:'',heure_depart:''}))
+                const {data:p} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',newDate).single()
+                if(p) setCorrectForm(f=>({...f,date:newDate,heure_arrivee:p.heure_arrivee?.slice(0,5)||'',heure_depart:p.heure_depart?.slice(0,5)||''}))
+              }} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+            </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
               <div>
                 <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Heure d'arrivée</label>
