@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { generatePDF } from '../lib/exportPDF'
 import { supabase } from '../lib/supabase'
 
 const COLORS = [
@@ -33,6 +34,8 @@ export default function Gerant() {
   const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:''})
   const [toast, setToast] = useState('')
   const [showRestoSwitch, setShowRestoSwitch] = useState(false)
+  const [exportModal, setExportModal] = useState(false)
+  const [exportForm, setExportForm] = useState({debut:'',fin:''})
   const today = fmtDate(new Date())
 
   useEffect(()=>{loadRestaurants()},[])
@@ -108,6 +111,22 @@ export default function Gerant() {
     await supabase.from('employes').delete().eq('id',empId)
     loadAll()
     showToast('Employé supprimé')
+  }
+
+  async function doExport(){
+    showToast('Génération du PDF...')
+    const {data:allShifts} = await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',exportForm.debut).lte('date',exportForm.fin)
+    const {data:allPointages} = await supabase.from('pointages').select('*').eq('restaurant_id',currentResto.id).gte('date',exportForm.debut).lte('date',exportForm.fin)
+    generatePDF({
+      restaurant:currentResto,
+      employes,
+      shifts:allShifts||[],
+      pointages:allPointages||[],
+      dateDebut:exportForm.debut,
+      dateFin:exportForm.fin
+    })
+    setExportModal(false)
+    showToast('PDF téléchargé !')
   }
 
   async function saveCorrection(){
@@ -222,6 +241,7 @@ export default function Gerant() {
             </div>
             <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
           </>}
+          {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
           {view==='employes'&&<button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>}
         </div>
 
@@ -493,7 +513,42 @@ export default function Gerant() {
         </div>
       )}
 
-      {toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
+      
+      {exportModal&&(
+        <div onClick={()=>setExportModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:380,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
+            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Exporter le rapport PDF</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{currentResto.nom}</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Date de début</label>
+                <input type='date' value={exportForm.debut} onChange={e=>setExportForm(f=>({...f,debut:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Date de fin</label>
+                <input type='date' value={exportForm.fin} onChange={e=>setExportForm(f=>({...f,fin:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+            </div>
+            <div style={{display:'flex',gap:8,marginBottom:8}}>
+              {[
+                {l:'Ce mois',d:new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().split('T')[0],f:new Date(new Date().getFullYear(),new Date().getMonth()+1,0).toISOString().split('T')[0]},
+                {l:'Mois dernier',d:new Date(new Date().getFullYear(),new Date().getMonth()-1,1).toISOString().split('T')[0],f:new Date(new Date().getFullYear(),new Date().getMonth(),0).toISOString().split('T')[0]},
+                {l:'Cette semaine',d:new Date(new Date().setDate(new Date().getDate()-new Date().getDay()+1)).toISOString().split('T')[0],f:new Date(new Date().setDate(new Date().getDate()-new Date().getDay()+7)).toISOString().split('T')[0]},
+              ].map(p=>(
+                <button key={p.l} onClick={()=>setExportForm({debut:p.d,fin:p.f})} style={{flex:1,padding:'6px 4px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:11,fontWeight:600,cursor:'pointer',color:'var(--text2)'}}>{p.l}</button>
+              ))}
+            </div>
+            <div style={{padding:'10px 14px',background:'var(--accent-bg)',borderRadius:10,marginBottom:16,fontSize:12,color:'var(--accent)'}}>
+              📄 Le PDF inclura un tableau récapitulatif + le détail des pointages par employé
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setExportModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={doExport} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Générer le PDF</button>
+            </div>
+          </div>
+        </div>
+      )}
+{toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
     </div>
   )
 }
