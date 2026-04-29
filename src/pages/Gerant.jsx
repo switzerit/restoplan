@@ -36,6 +36,8 @@ export default function Gerant() {
   const [showRestoSwitch, setShowRestoSwitch] = useState(false)
   const [exportModal, setExportModal] = useState(false)
   const [exportForm, setExportForm] = useState({debut:'',fin:''})
+  const [addPointageModal, setAddPointageModal] = useState(null)
+  const [addPointageForm, setAddPointageForm] = useState({date:'',heure_arrivee:'',heure_depart:''})
   const today = fmtDate(new Date())
 
   useEffect(()=>{loadRestaurants()},[])
@@ -130,21 +132,34 @@ export default function Gerant() {
   }
 
   async function saveCorrection(){
-    const dateToUse = correctForm.date || today
-    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).maybeSingle()
-    if(!existing){
-      await supabase.from('pointages').insert({employe_id:correctModal.empId,date:dateToUse,heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null,restaurant_id:currentResto.id})
+    const p = getPointage(correctModal.empId)
+    if(!p){
+      await supabase.from('pointages').insert({employe_id:correctModal.empId,date:today,heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null,restaurant_id:currentResto.id})
     } else {
-      await supabase.from('pointages').update({heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null}).eq('id',existing.id)
+      await supabase.from('pointages').update({heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null}).eq('id',p.id)
     }
-    setCorrectModal(null);loadAll();showToast('Pointage enregistre')
+    setCorrectModal(null);loadAll();showToast('Pointage corrigé')
   }
 
   async function supprimerPointage(){
     const dateToUse = correctForm.date || today
-    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).maybeSingle()
+    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).single()
     if(existing) await supabase.from('pointages').delete().eq('id',existing.id)
-    setCorrectModal(null);loadAll();showToast('Pointage supprime')
+    setCorrectModal(null);loadAll();showToast('Pointage supprimé')
+  }
+
+  async function addPointage(){
+    if(!addPointageForm.date||!addPointageForm.heure_arrivee){showToast('Date et heure arrivee obligatoires');return}
+    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',addPointageModal.empId).eq('date',addPointageForm.date).maybeSingle()
+    if(existing){
+      await supabase.from('pointages').update({heure_arrivee:addPointageForm.heure_arrivee||null,heure_depart:addPointageForm.heure_depart||null}).eq('id',existing.id)
+    } else {
+      await supabase.from('pointages').insert({employe_id:addPointageModal.empId,date:addPointageForm.date,heure_arrivee:addPointageForm.heure_arrivee||null,heure_depart:addPointageForm.heure_depart||null,restaurant_id:currentResto.id})
+    }
+    setAddPointageModal(null)
+    setAddPointageForm({date:'',heure_arrivee:'',heure_depart:''})
+    loadAll()
+    showToast('Pointage ajoute !')
   }
 
   async function deconnexion(){
@@ -317,6 +332,7 @@ export default function Gerant() {
                     {p?.heure_depart&&<span style={{fontSize:12,color:'var(--text2)',fontWeight:500}}>Départ {p.heure_depart.slice(0,5)}</span>}
                     <span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,background:present?'var(--green-bg)':parti?'var(--orange-bg)':'var(--bg)',color:present?'#1a6b35':parti?'#8a4a00':'var(--text3)'}}>{present?'Présent':parti?'Parti':'Absent'}</span>
                     <button onClick={()=>openCorrection(emp)} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️ Corriger</button>
+                    <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:today,heure_arrivee:'',heure_depart:''})}} style={{padding:'6px 10px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>
                   </div>
                 )
               })}
@@ -559,6 +575,35 @@ export default function Gerant() {
             <div style={{display:'flex',gap:8}}>
               <button onClick={()=>setExportModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
               <button onClick={doExport} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Générer le PDF</button>
+            </div>
+          </div>
+        </div>
+      )}
+{addPointageModal&&(
+        <div onClick={()=>setAddPointageModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
+            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Ajouter un pointage</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{addPointageModal.nom}</div>
+            <div style={{marginBottom:12}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Date</label>
+              <input type='date' value={addPointageForm.date} onChange={e=>setAddPointageForm(f=>({...f,date:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Heure arrivee</label>
+                <input type='time' value={addPointageForm.heure_arrivee} onChange={e=>setAddPointageForm(f=>({...f,heure_arrivee:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Heure depart</label>
+                <input type='time' value={addPointageForm.heure_depart} onChange={e=>setAddPointageForm(f=>({...f,heure_depart:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+            </div>
+            <div style={{padding:'10px 12px',background:'var(--accent-bg)',borderRadius:10,marginBottom:16,fontSize:12,color:'var(--accent)'}}>
+              Si un pointage existe deja pour cette date, il sera mis a jour
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setAddPointageModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={addPointage} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
             </div>
           </div>
         </div>
