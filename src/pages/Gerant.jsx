@@ -204,7 +204,7 @@ export default function Gerant() {
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':'Paramètres'
 
   return (
-    <div style={{display:'flex',height:'100vh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row',maxWidth:'100vw',position:'fixed',inset:0}}>
+    <div style={{display:'flex',height:'100dvh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row'}}>
 
       {/* SIDEBAR DESKTOP */}
       {!isMobile && (
@@ -278,7 +278,7 @@ export default function Gerant() {
       )}
 
       {/* MAIN */}
-      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'var(--bg)',minHeight:0}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'var(--bg)',minHeight:0,minWidth:0}}>
 
         {/* TOPBAR */}
         {!isMobile && <div style={{height:56,background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',padding:'0 20px',gap:10}}>
@@ -533,7 +533,7 @@ export default function Gerant() {
 
       {/* BOTTOM NAV MOBILE */}
       {isMobile && (
-        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:8,paddingBottom:'max(16px, env(safe-area-inset-bottom))',flexShrink:0,zIndex:50}}>
+        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:8,paddingBottom:'max(12px, env(safe-area-inset-bottom))',flexShrink:0}}>
           {[
             {id:'planning',icon:'📅',label:'Planning'},
             {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
