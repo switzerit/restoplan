@@ -39,10 +39,12 @@ export default function Gerant() {
   const [addPointageModal, setAddPointageModal] = useState(null)
   const [addPointageForm, setAddPointageForm] = useState({date:'',heure_arrivee:'',heure_depart:''})
   const today = fmtDate(new Date())
+  const [selectedDate, setSelectedDate] = useState(today)
 
   useEffect(()=>{loadRestaurants()},[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
   useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto])
+  useEffect(()=>{if(currentResto){loadAll(selectedDate)}},[selectedDate])
 
   async function loadRestaurants(){
     const {data} = await supabase.from('restaurants').select('*').eq('actif',true).order('nom')
@@ -50,10 +52,11 @@ export default function Gerant() {
     if(data?.length>0) setCurrentResto(data[0])
   }
 
-  async function loadAll(){
+  async function loadAll(date){
+    const dateToLoad = date || selectedDate || today
     const {data:e} = await supabase.from('employes').select('*').eq('actif',true).eq('restaurant_id',currentResto.id).order('prenom')
     setEmployes(e||[])
-    const {data:p} = await supabase.from('pointages').select('*').eq('date',today).eq('restaurant_id',currentResto.id)
+    const {data:p} = await supabase.from('pointages').select('*').eq('date',dateToLoad).eq('restaurant_id',currentResto.id)
     setPointages(p||[])
     loadShifts()
   }
@@ -158,7 +161,7 @@ export default function Gerant() {
     }
     setAddPointageModal(null)
     setAddPointageForm({date:'',heure_arrivee:'',heure_depart:''})
-    loadAll()
+    loadAll(selectedDate)
     showToast('Pointage ajoute !')
   }
 
@@ -178,7 +181,7 @@ export default function Gerant() {
     setCorrectForm({
       heure_arrivee:p?.heure_arrivee?.slice(0,5)||'',
       heure_depart:p?.heure_depart?.slice(0,5)||'',
-      date:today
+      date:selectedDate
     })
     setCorrectModal({empId:emp.id,nom:emp.prenom+' '+emp.nom})
   }
@@ -309,6 +312,14 @@ export default function Gerant() {
         {/* VUE PRESENCES */}
         {view==='presences'&&(
           <div style={{flex:1,overflow:'auto',padding:20}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16,background:'var(--surface)',borderRadius:12,padding:'12px 16px',border:'1px solid var(--border)'}}>
+              <span style={{fontSize:13,fontWeight:600,color:'var(--text2)'}}>Pointages du</span>
+              <input type='date' value={selectedDate} onChange={e=>{setSelectedDate(e.target.value)}} style={{padding:'6px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',cursor:'pointer'}}/>
+              <button onClick={()=>setSelectedDate(today)} style={{padding:'6px 12px',borderRadius:8,border:'1px solid var(--border2)',background:selectedDate===today?'var(--accent)':'var(--bg)',color:selectedDate===today?'white':'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Aujourd'hui</button>
+              <button onClick={()=>{const d=new Date(selectedDate);d.setDate(d.getDate()-1);setSelectedDate(fmtDate(d))}} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:14,cursor:'pointer'}}>‹</button>
+              <button onClick={()=>{const d=new Date(selectedDate);d.setDate(d.getDate()+1);setSelectedDate(fmtDate(d))}} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:14,cursor:'pointer'}}>›</button>
+              <span style={{fontSize:12,color:'var(--text3)',marginLeft:'auto'}}>{new Date(selectedDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span>
+            </div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:18}}>
               {[{n:presentCount,l:'Présents',c:'var(--green)'},{n:employes.length-presentCount,l:'Absents',c:'var(--text)'},{n:pointages.filter(p=>p.heure_depart).length,l:'Partis',c:'var(--text2)'},{n:0,l:'Retards',c:'var(--orange)'}].map((s,i)=>(
                 <div key={i} style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',padding:'14px 16px'}}>
@@ -332,7 +343,7 @@ export default function Gerant() {
                     {p?.heure_depart&&<span style={{fontSize:12,color:'var(--text2)',fontWeight:500}}>Départ {p.heure_depart.slice(0,5)}</span>}
                     <span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,background:present?'var(--green-bg)':parti?'var(--orange-bg)':'var(--bg)',color:present?'#1a6b35':parti?'#8a4a00':'var(--text3)'}}>{present?'Présent':parti?'Parti':'Absent'}</span>
                     <button onClick={()=>openCorrection(emp)} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️ Corriger</button>
-                    <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:today,heure_arrivee:'',heure_depart:''})}} style={{padding:'6px 10px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>
+                    <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:selectedDate,heure_arrivee:'',heure_depart:''})}} style={{padding:'6px 10px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>
                   </div>
                 )
               })}
