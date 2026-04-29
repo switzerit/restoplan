@@ -533,16 +533,16 @@ export default function Gerant() {
 
       {/* BOTTOM NAV MOBILE */}
       {isMobile && (
-        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:8,paddingBottom:'max(12px, env(safe-area-inset-bottom))',flexShrink:0}}>
+        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:4,paddingBottom:'max(8px, env(safe-area-inset-bottom))',flexShrink:0}}>
           {[
             {id:'planning',icon:'📅',label:'Planning'},
             {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
             {id:'employes',icon:'👤',label:'Équipe'},
             {id:'parametres',icon:'⚙️',label:'Réglages'},
           ].map(item=>(
-            <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'4px 12px',border:'none',background:'transparent',cursor:'pointer',position:'relative'}}>
-              <span style={{fontSize:20}}>{item.icon}</span>
-              <span style={{fontSize:10,fontWeight:600,color:view===item.id?'var(--accent)':'var(--text3)'}}>{item.label}</span>
+            <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'2px 12px',border:'none',background:'transparent',cursor:'pointer',position:'relative'}}>
+              <span style={{fontSize:16}}>{item.icon}</span>
+              <span style={{fontSize:9,fontWeight:600,color:view===item.id?'var(--accent)':'var(--text3)'}}>{item.label}</span>
               {item.badge>0&&<div style={{position:'absolute',top:0,right:8,width:16,height:16,background:'var(--green)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:'white'}}>{item.badge}</div>}
             </button>
           ))}
