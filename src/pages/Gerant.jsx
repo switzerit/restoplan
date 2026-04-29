@@ -182,11 +182,15 @@ export default function Gerant() {
   }
 
   async function supprimerEmploye(empId){
+    if(!window.confirm('Supprimer cet employe ?')) return
+    const emp = employes.find(e=>e.id===empId)
     await supabase.from('shifts').delete().eq('employe_id',empId)
     await supabase.from('pointages').delete().eq('employe_id',empId)
+    await supabase.from('profils').delete().eq('employe_id',empId)
     await supabase.from('employes').delete().eq('id',empId)
-    loadAll()
-    showToast('Employé supprimé')
+    if(emp?.email) await supabase.functions.invoke('delete-user',{body:{email:emp.email}})
+    loadAll(selectedDate)
+    showToast('Employe supprime')
   }
 
   async function doExport(){
