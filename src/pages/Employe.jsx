@@ -26,6 +26,7 @@ export default function Employe() {
   const today = fmtDate(new Date())
   const weekStart = getMonday(new Date())
   const weekDays = Array.from({length:7},(_,i)=>addDays(weekStart,i))
+  const [selectedDay, setSelectedDay] = useState(today)
 
   useEffect(()=>{
     loadEmployeFromSession()
@@ -85,9 +86,10 @@ export default function Employe() {
     </div>
   )
 
-  const todayShift = shifts.find(s=>s.date===today)
+  const todayShift = shifts.find(s=>s.date===selectedDay)||shifts.find(s=>s.date===today)
   const todayPointage = pointages[0]
   const isPresent = todayPointage?.heure_arrivee && !todayPointage?.heure_depart
+  const isParti = todayPointage?.heure_arrivee && todayPointage?.heure_depart
   const empIdx = 0
   const empColor = COLORS[empIdx%COLORS.length]
   const shiftColors = {cuisine:{bg:'#f0faf3',color:'#1a6b35',border:'#b8e8c8'},salle:{bg:'#e8f2fd',color:'#004aad',border:'#b3d4f7'},bar:{bg:'#fff8ee',color:'#8a4a00',border:'#ffd99a'}}
@@ -124,8 +126,8 @@ export default function Employe() {
             <div style={{display:'flex',alignItems:'center',gap:10}}>
               <div style={{width:10,height:10,borderRadius:'50%',background:isPresent?'var(--green)':'var(--border2)',boxShadow:isPresent?'0 0 0 3px rgba(52,199,89,.2)':'none'}}></div>
               <div style={{flex:1}}>
-                <div style={{fontSize:14,fontWeight:700,color:isPresent?'#1a6b35':'var(--text)'}}>{isPresent?'Vous êtes pointé':"Pas encore pointé aujourd'hui"}</div>
-                {todayPointage?.heure_arrivee&&<div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>Arrivée à {todayPointage.heure_arrivee.slice(0,5)}</div>}
+                <div style={{fontSize:14,fontWeight:700,color:isPresent?'#1a6b35':'var(--text)'}}>{isPresent?'Vous êtes pointé':isParti?'Journée terminée':"Pas encore pointé aujourd'hui"}</div>
+                {todayPointage?.heure_arrivee&&<div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>Arrivée à {todayPointage.heure_arrivee.slice(0,5)}{todayPointage?.heure_depart?' → Départ '+todayPointage.heure_depart.slice(0,5):''}</div>}
               </div>
               <div style={{fontSize:22,fontWeight:300,letterSpacing:-1}}>{clock}</div>
             </div>
@@ -137,7 +139,7 @@ export default function Employe() {
 
           {/* Shift du jour */}
           <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,padding:16}}>
-            <div style={{fontSize:12,fontWeight:700,color:'var(--text2)',marginBottom:10}}>SHIFT DU JOUR</div>
+            <div style={{fontSize:12,fontWeight:700,color:'var(--text2)',marginBottom:10}}>SHIFT — {new Date(selectedDay).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div>
             {todayShift ? (
               <div style={{position:'relative',paddingLeft:12}}>
                 <div style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'var(--green)',borderRadius:3}}></div>
@@ -160,8 +162,8 @@ export default function Employe() {
                 const sc=sh?shiftColors[sh.poste]:null
                 return (
                   <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'6px 2px',borderRadius:10,background:isToday?'var(--accent-bg)':'transparent'}}>
-                    <span style={{fontSize:9,fontWeight:700,color:isToday?'var(--accent)':'var(--text3)',textTransform:'uppercase'}}>{DAYS[i]}</span>
-                    <div style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,background:isToday?'var(--accent)':'transparent',color:isToday?'white':'var(--text)'}}>{d.getDate()}</div>
+                    <span style={{fontSize:9,fontWeight:700,color:isToday?'var(--accent)':fmtDate(d)===selectedDay?'var(--purple)':'var(--text3)',textTransform:'uppercase'}}>{DAYS[i]}</span>
+                    <div onClick={()=>setSelectedDay(fmtDate(d))} style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,cursor:'pointer',background:isToday?'var(--accent)':fmtDate(d)===selectedDay?'var(--purple-bg)':'transparent',color:isToday?'white':fmtDate(d)===selectedDay?'var(--purple)':'var(--text)'}}>{d.getDate()}</div>
                     <div style={{width:5,height:5,borderRadius:'50%',background:sh?sc.color:'transparent'}}></div>
                   </div>
                 )
