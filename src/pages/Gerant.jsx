@@ -28,7 +28,7 @@ export default function Gerant() {
   const [empModal, setEmpModal] = useState(false)
   const [correctModal, setCorrectModal] = useState(null)
   const [restoModal, setRestoModal] = useState(false)
-  const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00',heure_debut_2:'',heure_fin_2:'',coupe:false})
+  const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00'})
   const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
   const [restoForm, setRestoForm] = useState({nom:'',adresse:''})
   const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:'',date:''})
@@ -69,8 +69,14 @@ export default function Gerant() {
     const dateToLoad = date || selectedDate || today
     const {data:e} = await supabase.from('employes').select('*').eq('actif',true).eq('restaurant_id',currentResto.id).order('prenom')
     setEmployes(e||[])
-    const {data:p} = await supabase.from('pointages').select('*').eq('date',dateToLoad).eq('restaurant_id',currentResto.id)
-    setPointages(p||[])
+    const {data:p} = await supabase.from('pointages').select('*').eq('date',dateToLoad).eq('restaurant_id',currentResto.id).order('heure_arrivee')
+    // Grouper par employe_id pour supporter plusieurs pointages par jour
+    const pMap = {}
+    p?.forEach(pt=>{
+      if(!pMap[pt.employe_id]) pMap[pt.employe_id]=[]
+      pMap[pt.employe_id].push(pt)
+    })
+    setPointages(pMap)
     // Charger les profils pour savoir qui a un compte app
     if(e&&e.length>0){
       const {data:profils} = await supabase.from('profils').select('employe_id').in('employe_id',e.map(emp=>emp.id))
@@ -93,25 +99,23 @@ export default function Gerant() {
     return shifts.find(s=>s.employe_id===empId && s.date===d)
   }
 
-  function getPointage(empId){return pointages.find(p=>p.employe_id===empId)}
-  function isPresent(empId){const p=getPointage(empId);return p&&p.heure_arrivee&&!p.heure_depart}
+  function getPointages(empId){return pointages[empId]||[]}
+  function getPointage(empId){
+    const pts = pointages[empId]||[]
+    // Retourner le pointage ouvert (sans depart) en priorite
+    return pts.find(p=>p.heure_arrivee&&!p.heure_depart) || pts[pts.length-1]
+  }
+  function isPresent(empId){const pts=pointages[empId]||[];return pts.some(p=>p.heure_arrivee&&!p.heure_depart)}
 
   async function saveShift(){
     const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
-    const shiftData = {
-      poste:form.poste,
-      heure_debut:form.heure_debut,
-      heure_fin:form.heure_fin,
-      heure_debut_2:form.coupe&&form.heure_debut_2?form.heure_debut_2:null,
-      heure_fin_2:form.coupe&&form.heure_fin_2?form.heure_fin_2:null
-    }
     if(existing){
-      await supabase.from('shifts').update(shiftData).eq('id',existing.id)
+      await supabase.from('shifts').update({poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin}).eq('id',existing.id)
     } else {
-      await supabase.from('shifts').insert({...shiftData,employe_id:shiftModal.empId,date:d,restaurant_id:currentResto.id})
+      await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,restaurant_id:currentResto.id})
     }
-    setShiftModal(null);loadShifts();showToast('Shift enregistre')
+    setShiftModal(null);loadShifts();showToast('Shift enregistré')
   }
 
   async function deleteShift(){
@@ -217,30 +221,31 @@ export default function Gerant() {
   }
 
   async function saveCorrection(){
-    const p = getPointage(correctModal.empId)
-    if(!p){
-      await supabase.from('pointages').insert({employe_id:correctModal.empId,date:today,heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null,restaurant_id:currentResto.id})
+    const dateToUse = correctForm.date || selectedDate
+    if(correctForm.pointageId){
+      await supabase.from('pointages').update({heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null}).eq('id',correctForm.pointageId)
     } else {
-      await supabase.from('pointages').update({heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null}).eq('id',p.id)
+      await supabase.from('pointages').insert({employe_id:correctModal.empId,date:dateToUse,heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null,restaurant_id:currentResto.id})
     }
-    setCorrectModal(null);loadAll();showToast('Pointage corrigé')
+    setCorrectModal(null);loadAll(selectedDate);showToast('Pointage corrige')
   }
 
   async function supprimerPointage(){
-    const dateToUse = correctForm.date || today
-    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).single()
-    if(existing) await supabase.from('pointages').delete().eq('id',existing.id)
-    setCorrectModal(null);loadAll();showToast('Pointage supprimé')
+    if(correctForm.pointageId){
+      await supabase.from('pointages').delete().eq('id',correctForm.pointageId)
+    }
+    setCorrectModal(null);loadAll(selectedDate);showToast('Pointage supprime')
   }
 
   async function addPointage(){
     if(!addPointageForm.date||!addPointageForm.heure_arrivee){showToast('Date et heure arrivee obligatoires');return}
-    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',addPointageModal.empId).eq('date',addPointageForm.date).maybeSingle()
-    if(existing){
-      await supabase.from('pointages').update({heure_arrivee:addPointageForm.heure_arrivee||null,heure_depart:addPointageForm.heure_depart||null}).eq('id',existing.id)
-    } else {
-      await supabase.from('pointages').insert({employe_id:addPointageModal.empId,date:addPointageForm.date,heure_arrivee:addPointageForm.heure_arrivee||null,heure_depart:addPointageForm.heure_depart||null,restaurant_id:currentResto.id})
-    }
+    await supabase.from('pointages').insert({
+      employe_id:addPointageModal.empId,
+      date:addPointageForm.date,
+      heure_arrivee:addPointageForm.heure_arrivee||null,
+      heure_depart:addPointageForm.heure_depart||null,
+      restaurant_id:currentResto.id
+    })
     setAddPointageModal(null)
     setAddPointageForm({date:'',heure_arrivee:'',heure_depart:''})
     loadAll(selectedDate)
@@ -254,14 +259,7 @@ export default function Gerant() {
 
   function openShift(empId,dayIdx){
     const existing = getShift(empId,dayIdx)
-    setForm(existing?{
-      poste:existing.poste,
-      heure_debut:existing.heure_debut.slice(0,5),
-      heure_fin:existing.heure_fin.slice(0,5),
-      heure_debut_2:existing.heure_debut_2?.slice(0,5)||'',
-      heure_fin_2:existing.heure_fin_2?.slice(0,5)||'',
-      coupe:!!(existing.heure_debut_2)
-    }:{poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00',heure_debut_2:'',heure_fin_2:'',coupe:false})
+    setForm(existing?{poste:existing.poste,heure_debut:existing.heure_debut.slice(0,5),heure_fin:existing.heure_fin.slice(0,5)}:{poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00'})
     setShiftModal({empId,dayIdx,existing:!!existing})
   }
 
@@ -270,7 +268,8 @@ export default function Gerant() {
     setCorrectForm({
       heure_arrivee:p?.heure_arrivee?.slice(0,5)||'',
       heure_depart:p?.heure_depart?.slice(0,5)||'',
-      date:selectedDate
+      date:selectedDate,
+      pointageId:p?.id||null
     })
     setCorrectModal({empId:emp.id,nom:emp.prenom+' '+emp.nom})
   }
@@ -460,7 +459,7 @@ export default function Gerant() {
                         <div key={di} onClick={()=>openShift(emp.id,di)} style={{padding:4,borderRight:'1px solid var(--border)',display:'flex',alignItems:'center',minHeight:56,cursor:'pointer',background:isToday?'rgba(0,113,227,.02)':'transparent'}}
                         onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
                         onMouseLeave={e=>e.currentTarget.style.background=isToday?'rgba(0,113,227,.02)':'transparent'}>
-                          {sh?<div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sc.bg,color:sc.color,border:`1.5px solid ${sc.border}`}}><div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&<div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
+                          {sh?<div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sc.bg,color:sc.color,border:`1.5px solid ${sc.border}`}}><div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div></div>
                           :<div style={{width:'100%',height:30,border:'1.5px dashed var(--border2)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:18}}>+</div>}
                         </div>
                       )
@@ -485,7 +484,7 @@ export default function Gerant() {
               <span style={{fontSize:12,color:'var(--text3)',marginLeft:'auto'}}>{new Date(selectedDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span>
             </div>
             <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:10,marginBottom:18}}>
-              {[{n:presentCount,l:'Présents',c:'var(--green)'},{n:employes.length-presentCount,l:'Absents',c:'var(--text)'},{n:pointages.filter(p=>p.heure_depart).length,l:'Partis',c:'var(--text2)'},{n:0,l:'Retards',c:'var(--orange)'}].map((s,i)=>(
+              {[{n:presentCount,l:'Présents',c:'var(--green)'},{n:employes.length-presentCount,l:'Absents',c:'var(--text)'},{n:employes.filter(e=>{const pts=pointages[e.id]||[];return pts.length>0&&pts.every(p=>p.heure_depart)}).length,l:'Partis',c:'var(--text2)'},{n:0,l:'Retards',c:'var(--orange)'}].map((s,i)=>(
                 <div key={i} style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',padding:'14px 16px'}}>
                   <div style={{fontSize:26,fontWeight:800,color:s.c}}>{s.n}</div>
                   <div style={{fontSize:11,color:'var(--text2)',marginTop:3}}>{s.l}</div>
@@ -510,8 +509,17 @@ export default function Gerant() {
                       <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,flexShrink:0,background:present?'var(--green-bg)':parti?'var(--orange-bg)':'var(--bg)',color:present?'#1a6b35':parti?'#8a4a00':'var(--text3)'}}>{present?'Présent':parti?'Parti':'Absent'}</span>
                     </div>
                     <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px 10px',borderTop:'1px solid var(--border)'}}>
-                      {p?.heure_arrivee&&<span style={{fontSize:11,color:'var(--text2)',fontWeight:500,flex:1}}>🕐 {p.heure_arrivee.slice(0,5)}{p?.heure_depart?' → '+p.heure_depart.slice(0,5):''}</span>}
-                      {!p?.heure_arrivee&&<span style={{fontSize:11,color:'var(--text3)',flex:1}}>Pas de pointage</span>}
+                        {(()=>{
+                        const pts = getPointages(emp.id)
+                        if(pts.length===0) return <span style={{fontSize:11,color:'var(--text3)',flex:1}}>Pas de pointage</span>
+                        return <div style={{flex:1,display:'flex',flexDirection:'column',gap:2}}>
+                          {pts.map((pt,idx)=>(
+                            <span key={idx} style={{fontSize:11,color:'var(--text2)',fontWeight:500}}>
+                              🕐 {pt.heure_arrivee?.slice(0,5)}{pt.heure_depart?' → '+pt.heure_depart.slice(0,5):' → en cours'}
+                            </span>
+                          ))}
+                        </div>
+                      })()}
                       <button onClick={()=>openCorrection(emp)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0}}>✏️ Corriger</button>
                       <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:selectedDate,heure_arrivee:'',heure_depart:''})}} style={{padding:'5px 10px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0}}>+ Ajouter</button>
                     </div>
@@ -694,40 +702,14 @@ export default function Gerant() {
                 {POSTES.map(p=>{const sc=shiftColors[p];const sel=form.poste===p;return <button key={p} onClick={()=>setForm(f=>({...f,poste:p}))} style={{padding:'9px 4px',borderRadius:8,border:`2px solid ${sel?sc.border:'var(--border)'}`,background:sel?sc.bg:'var(--bg)',cursor:'pointer',fontSize:11,fontWeight:700,color:sel?sc.color:'var(--text2)'}}>{p[0].toUpperCase()+p.slice(1)}</button>})}
               </div>
             </div>
-            <div style={{marginBottom:12}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Tranche 1</label>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-                <div>
-                  <label style={{display:'block',fontSize:10,color:'var(--text3)',marginBottom:4}}>Début</label>
-                  <input type="time" value={form.heure_debut} onChange={e=>setForm(ff=>({...ff,heure_debut:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+              {['heure_debut','heure_fin'].map(f=>(
+                <div key={f}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{f==='heure_debut'?'Début':'Fin'}</label>
+                  <input type="time" value={form[f]} onChange={e=>setForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
                 </div>
-                <div>
-                  <label style={{display:'block',fontSize:10,color:'var(--text3)',marginBottom:4}}>Fin</label>
-                  <input type="time" value={form.heure_fin} onChange={e=>setForm(ff=>({...ff,heure_fin:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-                </div>
-              </div>
+              ))}
             </div>
-            <div style={{marginBottom:12}}>
-              <button onClick={()=>setForm(f=>({...f,coupe:!f.coupe,heure_debut_2:'',heure_fin_2:''}))} style={{width:'100%',padding:'8px',borderRadius:8,border:`1.5px solid ${form.coupe?'var(--accent)':'var(--border2)'}`,background:form.coupe?'var(--accent-bg)':'var(--bg)',color:form.coupe?'var(--accent)':'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
-                {form.coupe?'✓ Shift coupé activé':'+ Ajouter une 2ème tranche (shift coupé)'}
-              </button>
-            </div>
-            {form.coupe && (
-              <div style={{marginBottom:16,padding:12,background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)'}}>
-                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Tranche 2</label>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-                  <div>
-                    <label style={{display:'block',fontSize:10,color:'var(--text3)',marginBottom:4}}>Début</label>
-                    <input type="time" value={form.heure_debut_2} onChange={e=>setForm(ff=>({...ff,heure_debut_2:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-                  </div>
-                  <div>
-                    <label style={{display:'block',fontSize:10,color:'var(--text3)',marginBottom:4}}>Fin</label>
-                    <input type="time" value={form.heure_fin_2} onChange={e=>setForm(ff=>({...ff,heure_fin_2:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-                  </div>
-                </div>
-                <div style={{fontSize:11,color:'var(--text3)',marginTop:6}}>ex: 10:00–15:00 puis 18:00–22:00</div>
-              </div>
-            )}
             <div style={{display:'flex',gap:8}}>
               <button onClick={()=>setShiftModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
               <button onClick={saveShift} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
