@@ -93,6 +93,7 @@ export default function Gerant() {
     return shifts.find(s=>s.employe_id===empId && s.date===d)
   }
 
+  function getPointages(empId){return pointages[empId]||[]}
   function getPointage(empId){return pointages.find(p=>p.employe_id===empId)}
   function isPresent(empId){const p=getPointage(empId);return p&&p.heure_arrivee&&!p.heure_depart}
 
