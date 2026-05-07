@@ -264,6 +264,17 @@ export default function Gerant() {
     setCorrectModal({empId:emp.id,nom:emp.prenom+' '+emp.nom})
   }
 
+  function calcMinutes(debut,fin){
+    if(!debut||!fin) return 0
+    const [dh,dm]=debut.slice(0,5).split(':').map(Number)
+    const [fh,fm]=fin.slice(0,5).split(':').map(Number)
+    let t=(fh*60+fm)-(dh*60+dm)
+    return t<0?t+1440:t
+  }
+  function minsToHHMM(m){if(m<=0)return '0h00';return Math.floor(m/60)+'h'+(m%60>0?(m%60).toString().padStart(2,'0'):'00')}
+  function getShiftForDate(empId,date){return shifts.find(s=>s.employe_id===empId&&s.date===date)}
+  function calcShiftMins(sh){if(!sh)return 0;let t=calcMinutes(sh.heure_debut,sh.heure_fin);if(sh.heure_debut_2&&sh.heure_fin_2)t+=calcMinutes(sh.heure_debut_2,sh.heure_fin_2);return t}
+  function calcPointageMins(pts){return pts.reduce((acc,p)=>p.heure_arrivee&&p.heure_depart?acc+calcMinutes(p.heure_arrivee,p.heure_depart):acc,0)}
   function showToast(msg){setToast(msg);setTimeout(()=>setToast(''),2600)}
 
   const presentCount = employes.filter(e=>{const pts=pointages[e.id]||[];return pts.some(p=>p.heure_arrivee&&!p.heure_depart)}).length
