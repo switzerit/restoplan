@@ -69,8 +69,10 @@ export default function Gerant() {
     const dateToLoad = date || selectedDate || today
     const {data:e} = await supabase.from('employes').select('*').eq('actif',true).eq('restaurant_id',currentResto.id).order('prenom')
     setEmployes(e||[])
-    const {data:p} = await supabase.from('pointages').select('*').eq('date',dateToLoad).eq('restaurant_id',currentResto.id)
-    setPointages(p||[])
+    const {data:p} = await supabase.from('pointages').select('*').eq('date',dateToLoad).eq('restaurant_id',currentResto.id).order('heure_arrivee')
+    const pMap={}
+    p?.forEach(pt=>{if(!pMap[pt.employe_id])pMap[pt.employe_id]=[];pMap[pt.employe_id].push(pt)})
+    setPointages(pMap)
     // Charger les profils pour savoir qui a un compte app
     if(e&&e.length>0){
       const {data:profils} = await supabase.from('profils').select('employe_id').in('employe_id',e.map(emp=>emp.id))
@@ -93,7 +95,6 @@ export default function Gerant() {
     return shifts.find(s=>s.employe_id===empId && s.date===d)
   }
 
-  function getPointages(empId){return pointages[empId]||[]}
   function getPointage(empId){return pointages.find(p=>p.employe_id===empId)}
   function isPresent(empId){const p=getPointage(empId);return p&&p.heure_arrivee&&!p.heure_depart}
 
@@ -262,51 +263,6 @@ export default function Gerant() {
     setCorrectModal({empId:emp.id,nom:emp.prenom+' '+emp.nom})
   }
 
-  function calcMinutes(debut, fin){
-    if(!debut||!fin) return 0
-    const [dh,dm]=debut.slice(0,5).split(':').map(Number)
-    const [fh,fm]=fin.slice(0,5).split(':').map(Number)
-    let total = (fh*60+fm)-(dh*60+dm)
-    if(total<0) total+=24*60
-    return total
-  }
-
-  function minsToHHMM(mins){
-    if(mins<=0) return '0h00'
-    const h=Math.floor(mins/60)
-    const m=mins%60
-    return h+'h'+(m>0?m.toString().padStart(2,'0'):'00')
-  }
-
-  function getShiftForDate(empId, date){
-    return shifts.find(s=>s.employe_id===empId && s.date===date)
-  }
-
-  function calcShiftMins(sh){
-    if(!sh) return 0
-    let total = calcMinutes(sh.heure_debut, sh.heure_fin)
-    if(sh.heure_debut_2&&sh.heure_fin_2) total += calcMinutes(sh.heure_debut_2, sh.heure_fin_2)
-    return total
-  }
-
-  function calcPointageMins(pts){
-    return pts.reduce((acc,p)=>{
-      if(p.heure_arrivee&&p.heure_depart) return acc+calcMinutes(p.heure_arrivee,p.heure_depart)
-      return acc
-    },0)
-  }
-
-  function calcMinutes(debut,fin){
-    if(!debut||!fin) return 0
-    const [dh,dm]=debut.slice(0,5).split(':').map(Number)
-    const [fh,fm]=fin.slice(0,5).split(':').map(Number)
-    let t=(fh*60+fm)-(dh*60+dm)
-    return t<0?t+1440:t
-  }
-  function minsToHHMM(m){if(m<=0)return '0h00';return Math.floor(m/60)+'h'+(m%60>0?(m%60).toString().padStart(2,'0'):'00')}
-  function getShiftForDate(empId,date){return shifts.find(s=>s.employe_id===empId&&s.date===date)}
-  function calcShiftMins(sh){if(!sh)return 0;let t=calcMinutes(sh.heure_debut,sh.heure_fin);if(sh.heure_debut_2&&sh.heure_fin_2)t+=calcMinutes(sh.heure_debut_2,sh.heure_fin_2);return t}
-  function calcPointageMins(pts){return pts.reduce((acc,p)=>p.heure_arrivee&&p.heure_depart?acc+calcMinutes(p.heure_arrivee,p.heure_depart):acc,0)}
   function showToast(msg){setToast(msg);setTimeout(()=>setToast(''),2600)}
 
   const presentCount = employes.filter(e=>isPresent(e.id)).length
@@ -517,7 +473,7 @@ export default function Gerant() {
               <span style={{fontSize:12,color:'var(--text3)',marginLeft:'auto'}}>{new Date(selectedDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span>
             </div>
             <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:10,marginBottom:18}}>
-              {[{n:presentCount,l:'Présents',c:'var(--green)'},{n:employes.length-presentCount,l:'Absents',c:'var(--text)'},{n:pointages.filter(p=>p.heure_depart).length,l:'Partis',c:'var(--text2)'},{n:0,l:'Retards',c:'var(--orange)'}].map((s,i)=>(
+              {[{n:presentCount,l:'Présents',c:'var(--green)'},{n:employes.length-presentCount,l:'Absents',c:'var(--text)'},{n:employes.filter(e=>{const pts=getPointages(e.id);return pts.length>0&&!pts.some(p=>!p.heure_depart)}).length,l:'Partis',c:'var(--text2)'},{n:0,l:'Retards',c:'var(--orange)'}].map((s,i)=>(
                 <div key={i} style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',padding:'14px 16px'}}>
                   <div style={{fontSize:26,fontWeight:800,color:s.c}}>{s.n}</div>
                   <div style={{fontSize:11,color:'var(--text2)',marginTop:3}}>{s.l}</div>
@@ -540,23 +496,41 @@ export default function Gerant() {
                         <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
                       </div>
                       {(()=>{
-                        const pts2=getPointages(emp.id)
+                        const pts=getPointages(emp.id)
                         const sh=getShiftForDate(emp.id,selectedDate)
-                        const shMins=calcShiftMins(sh)
-                        const ptMins=calcPointageMins(pts2)
-                        const ecart=ptMins-shMins
-                        if(shMins===0&&ptMins===0) return null
-                        return <div style={{textAlign:'right',flexShrink:0}}>
-                          {shMins>0&&<div style={{fontSize:10,color:'var(--text3)'}}>Prévu: {minsToHHMM(shMins)}</div>}
-                          {ptMins>0&&<div style={{fontSize:11,fontWeight:700,color:'var(--text)'}}>Pointé: {minsToHHMM(ptMins)}</div>}
-                          {shMins>0&&ptMins>0&&<div style={{fontSize:10,fontWeight:700,color:ecart>=0?'#1a6b35':'var(--red)'}}>{ecart>=0?'+':''}{minsToHHMM(Math.abs(ecart))}</div>}
+                        const shM=calcShiftMins(sh)
+                        const ptM=calcPointageMins(pts)
+                        const ec=ptM-shM
+                        if(!shM&&!ptM) return null
+                        return <div style={{textAlign:'right',flexShrink:0,marginRight:4}}>
+                          {shM>0&&<div style={{fontSize:10,color:'var(--text3)'}}>Prévu {minsToHHMM(shM)}</div>}
+                          {ptM>0&&<div style={{fontSize:11,fontWeight:700}}>{minsToHHMM(ptM)}</div>}
+                          {shM>0&&ptM>0&&<div style={{fontSize:10,fontWeight:700,color:ec>=0?'#1a6b35':'var(--red)'}}>{ec>=0?'+':''}{minsToHHMM(Math.abs(ec))}</div>}
+                        </div>
+                      })()}
+                      {(()=>{
+                        const pts=getPointages(emp.id)
+                        const sh=getShiftForDate(emp.id,selectedDate)
+                        const shM=calcShiftMins(sh)
+                        const ptM=calcPointageMins(pts)
+                        const ec=ptM-shM
+                        if(!shM&&!ptM) return null
+                        return <div style={{textAlign:'right',flexShrink:0,marginRight:4}}>
+                          {shM>0&&<div style={{fontSize:10,color:'var(--text3)'}}>Prévu {minsToHHMM(shM)}</div>}
+                          {ptM>0&&<div style={{fontSize:11,fontWeight:700}}>{minsToHHMM(ptM)}</div>}
+                          {shM>0&&ptM>0&&<div style={{fontSize:10,fontWeight:700,color:ec>=0?'#1a6b35':'var(--red)'}}>{ec>=0?'+':''}{minsToHHMM(Math.abs(ec))}</div>}
                         </div>
                       })()}
                       <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,flexShrink:0,background:present?'var(--green-bg)':parti?'var(--orange-bg)':'var(--bg)',color:present?'#1a6b35':parti?'#8a4a00':'var(--text3)'}}>{present?'Présent':parti?'Parti':'Absent'}</span>
                     </div>
                     <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px 10px',borderTop:'1px solid var(--border)'}}>
-                      {p?.heure_arrivee&&<span style={{fontSize:11,color:'var(--text2)',fontWeight:500,flex:1}}>🕐 {p.heure_arrivee.slice(0,5)}{p?.heure_depart?' → '+p.heure_depart.slice(0,5):''}</span>}
-                      {!p?.heure_arrivee&&<span style={{fontSize:11,color:'var(--text3)',flex:1}}>Pas de pointage</span>}
+                      {(()=>{
+                        const pts=getPointages(emp.id)
+                        if(!pts.length) return <span style={{fontSize:11,color:'var(--text3)',flex:1}}>Pas de pointage</span>
+                        return <div style={{flex:1,display:'flex',flexDirection:'column',gap:2}}>
+                          {pts.map((pt,idx)=><span key={idx} style={{fontSize:11,color:'var(--text2)',fontWeight:500}}>🕐 {pt.heure_arrivee?.slice(0,5)}{pt.heure_depart?' → '+pt.heure_depart.slice(0,5):' → en cours'}</span>)}
+                        </div>
+                      })()}
                       <button onClick={()=>openCorrection(emp)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0}}>✏️ Corriger</button>
                       <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:selectedDate,heure_arrivee:'',heure_depart:''})}} style={{padding:'5px 10px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0}}>+ Ajouter</button>
                     </div>
