@@ -78,7 +78,7 @@ export default function Employe() {
   const todayShift = shifts.find(s=>s.date===selectedDay)
   const todayPointage = pointages[0]
   const isPresent = todayPointage?.heure_arrivee && !todayPointage?.heure_depart
-  const isParti = todayPointage?.heure_arrivee && todayPointage?.heure_depart
+  const isParti = false // On peut toujours badger
   const empColor = COLORS[0]
   const shiftColors = {cuisine:{bg:'#f0faf3',color:'#1a6b35',border:'#b8e8c8'},salle:{bg:'#e8f2fd',color:'#004aad',border:'#b3d4f7'},bar:{bg:'#fff8ee',color:'#8a4a00',border:'#ffd99a'}}
 
@@ -114,8 +114,8 @@ export default function Employe() {
               <div style={{fontSize:22,fontWeight:300,letterSpacing:-1}}>{clock}</div>
             </div>
             <div style={{marginTop:12}}>
-              <button onClick={()=>!isParti&&setShowScanner(true)} style={{width:'100%',height:48,borderRadius:12,border:'none',background:isPresent?'var(--red-bg)':isParti?'var(--bg)':'var(--green)',color:isPresent?'var(--red)':isParti?'var(--text3)':'white',fontSize:15,fontWeight:700,cursor:isParti?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
-                {isParti?'Journee terminee':isPresent?'Scanner mon depart':'Scanner mon arrivee'}
+              <button onClick={()=>setShowScanner(true)} style={{width:'100%',height:48,borderRadius:12,border:'none',background:isPresent?'var(--red-bg)':isParti?'var(--bg)':'var(--green)',color:isPresent?'var(--red)':isParti?'var(--text3)':'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                {isPresent?'Scanner mon depart':'Scanner mon arrivee'}
               </button>
               {!isParti&&<div style={{fontSize:11,color:'var(--text3)',textAlign:'center',marginTop:6}}>Scannez le QR code affiche sur la borne</div>}
             </div>

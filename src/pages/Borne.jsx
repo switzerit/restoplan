@@ -186,7 +186,7 @@ export default function Borne() {
   )
 
   return (
-    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',background:'var(--bg)',fontFamily:'var(--font)'}}>
+    <div style={{height:'100dvh',display:'flex',flexDirection:'column',background:'var(--bg)',fontFamily:'var(--font)',overflow:'hidden'}}>
 
       {/* TOPBAR */}
       <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
@@ -242,7 +242,7 @@ export default function Borne() {
       </div>
 
       {/* BOTTOM */}
-      <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',padding:'10px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+      <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',padding:'10px 16px',paddingBottom:'max(10px,env(safe-area-inset-bottom))',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',bottom:0,zIndex:10}}>
         <button onClick={()=>{setUnlocked(false);sessionStorage.removeItem('borne_unlocked_'+restaurant.id)}} style={{fontSize:12,fontWeight:600,color:'var(--text3)',background:'transparent',border:'1px solid var(--border)',borderRadius:8,padding:'6px 12px',cursor:'pointer'}}>
           🔒 Verrouiller
         </button>
