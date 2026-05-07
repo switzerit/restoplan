@@ -22,7 +22,7 @@ export default function Gerant() {
   const [currentResto, setCurrentResto] = useState(null)
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
-  const [pointages, setPointages] = useState([])
+  const [pointages, setPointages] = useState({})
   const [weekStart, setWeekStart] = useState(getMonday(new Date()))
   const [shiftModal, setShiftModal] = useState(null)
   const [empModal, setEmpModal] = useState(false)
