@@ -96,8 +96,8 @@ export default function Gerant() {
   }
 
   function getPointages(empId){return pointages[empId]||[]}
-  function getPointage(empId){return pointages.find(p=>p.employe_id===empId)}
-  function isPresent(empId){const p=getPointage(empId);return p&&p.heure_arrivee&&!p.heure_depart}
+  function getPointage(empId){const pts=pointages[empId]||[];return pts.find(p=>p.heure_arrivee&&!p.heure_depart)||pts[pts.length-1]}
+  function isPresent(empId){const pts=pointages[empId]||[];return pts.some(p=>p.heure_arrivee&&!p.heure_depart)}
 
   async function saveShift(){
     const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
