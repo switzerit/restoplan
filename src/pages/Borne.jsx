@@ -257,9 +257,19 @@ export default function Borne() {
 
       {/* HERO */}
       <div style={{padding:'24px 28px 14px',textAlign:'center'}}>
-        <div style={{fontSize:26,fontWeight:800}}>Bonjour, qui êtes-vous ?</div>
-        <div style={{fontSize:14,color:'var(--text2)',marginTop:4}}>Appuyez sur votre nom pour pointer votre arrivée ou départ</div>
+        <div style={{fontSize:26,fontWeight:800}}>Badgeage QR Code</div>
+        <div style={{fontSize:14,color:'var(--text2)',marginTop:4}}>Scannez le QR code depuis votre téléphone pour pointer</div>
       </div>
+
+      {/* QR CODE CENTRAL */}
+      {restaurant && unlocked && (
+        <div style={{display:'flex',justifyContent:'center',padding:'0 28px 20px'}}>
+          <div style={{background:'var(--surface)',borderRadius:24,padding:24,boxShadow:'0 4px 24px rgba(0,0,0,.08)',border:'1px solid var(--border)',textAlign:'center'}}>
+            <QRDisplay restaurant={restaurant}/>
+            <div style={{fontSize:13,color:'var(--text2)',marginTop:8,fontWeight:600}}>Ouvrez votre appli et scannez ce code</div>
+          </div>
+        </div>
+      )}
 
       {/* FILTERS */}
       <div style={{display:'flex',justifyContent:'center',gap:6,padding:'0 28px 18px'}}>
@@ -282,11 +292,11 @@ export default function Borne() {
           const p=pointages[emp.id]
           const present=p&&p.heure_arrivee&&!p.heure_depart
           return (
-            <div key={emp.id} onClick={()=>setSelected(emp)} style={{
+            <div key={emp.id} style={{
               background:present?'var(--green-bg)':'var(--surface)',
               border:`1.5px solid ${present?'var(--green-border)':'var(--border)'}`,
               borderRadius:20,padding:'20px 14px',display:'flex',flexDirection:'column',
-              alignItems:'center',gap:10,cursor:'pointer',transition:'all .18s',position:'relative',overflow:'hidden'
+              alignItems:'center',gap:10,cursor:'default',transition:'all .18s',position:'relative',overflow:'hidden'
             }}>
               {present&&<div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'var(--green)'}}></div>}
               {present&&<div style={{position:'absolute',top:10,right:10,width:10,height:10,borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 0 3px rgba(52,199,89,.2)'}}></div>}
@@ -312,12 +322,7 @@ export default function Borne() {
         )}
       </div>
 
-      {/* QR CODE */}
-      {restaurant && unlocked && (
-        <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'center',padding:'8px 0'}}>
-          <QRDisplay restaurant={restaurant}/>
-        </div>
-      )}
+
 
       {/* BOTTOM */}
       <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',padding:'12px 28px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>

@@ -44,8 +44,14 @@ export default function QRScanner({ employe, onSuccess, onClose }) {
     try {
       const { token, restoId, secret } = JSON.parse(data)
       if (!verifyToken(token, restoId, secret)) {
-        setError('QR code expiré ou invalide — réessayez')
+        setError('QR code expire ou invalide - reessayez')
         setTimeout(() => startScanner(), 2000)
+        return
+      }
+      // Verifier que l'employe appartient bien a ce restaurant
+      if (employe.restaurant_id !== restoId) {
+        setError('Ce QR code est pour un autre restaurant !')
+        setTimeout(() => startScanner(), 3000)
         return
       }
       // Badger !
