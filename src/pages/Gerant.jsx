@@ -265,7 +265,7 @@ export default function Gerant() {
 
   function showToast(msg){setToast(msg);setTimeout(()=>setToast(''),2600)}
 
-  const presentCount = employes.filter(e=>isPresent(e.id)).length
+  const presentCount = employes.filter(e=>{const pts=pointages[e.id]||[];return pts.some(p=>p.heure_arrivee&&!p.heure_depart)}).length
   const weekDays = Array.from({length:7},(_,i)=>addDays(weekStart,i))
   const weekLabel = `${fmtLabel(weekDays[0])} – ${fmtLabel(weekDays[6])}`
   const shiftColors = {cuisine:{bg:'#f0faf3',color:'#1a6b35',border:'#b8e8c8'},salle:{bg:'#e8f2fd',color:'#004aad',border:'#b3d4f7'},bar:{bg:'#fff8ee',color:'#8a4a00',border:'#ffd99a'}}
@@ -484,8 +484,9 @@ export default function Gerant() {
               {employes.map((emp,i)=>{
                 const c=COLORS[i%COLORS.length]
                 const p=getPointage(emp.id)
-                const present=p&&p.heure_arrivee&&!p.heure_depart
-                const parti=p&&p.heure_depart
+                const present=isPresent(emp.id)
+                const pts=(pointages[emp.id]||[])
+                const parti=pts.length>0&&pts.every(p=>p.heure_depart)
                 return (
                   <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:10,overflow:'hidden'}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px'}}>
@@ -568,7 +569,7 @@ export default function Gerant() {
                     </div>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',paddingTop:8,borderTop:'1px solid var(--border)',marginBottom:8}}>
                       <span style={{fontSize:11,color:'var(--text2)'}}>{sc} shift{sc>1?'s':''}/sem</span>
-                      <span style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:isPresent(emp.id)?'var(--green-bg)':'var(--bg)',color:isPresent(emp.id)?'#1a6b35':'var(--text3)'}}>{isPresent(emp.id)?'Présent':'—'}</span>
+                      <span style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:isPresent(emp.id)?'var(--green-bg)':'var(--bg)',color:isPresent(emp.id)?'#1a6b35':'var(--text3)'}}>{(()=>{const pts=pointages[emp.id]||[];return pts.some(p=>p.heure_arrivee&&!p.heure_depart)?'Présent':'—'})()}</span>
                     </div>
                     <div style={{display:'flex',gap:6}}>
                       <button onClick={()=>openEditEmp(emp)} style={{flex:1,padding:'6px 0',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️ Modifier</button>
