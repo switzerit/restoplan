@@ -539,9 +539,10 @@ export default function Gerant() {
                         <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
                       </div>
                       {(()=>{
+                        const pts2=getPointages(emp.id)
                         const sh=getShiftForDate(emp.id,selectedDate)
                         const shMins=calcShiftMins(sh)
-                        const ptMins=calcPointageMins(pts)
+                        const ptMins=calcPointageMins(pts2)
                         const ecart=ptMins-shMins
                         if(shMins===0&&ptMins===0) return null
                         return <div style={{textAlign:'right',flexShrink:0}}>
