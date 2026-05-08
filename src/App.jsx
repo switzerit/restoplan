@@ -39,6 +39,7 @@ function App() {
         <Route path="/borne" element={<Borne />} />
         <Route path="/gerant" element={<ProtectedGerant><Gerant /></ProtectedGerant>} />
         <Route path="/moi" element={<ProtectedEmploye><Employe /></ProtectedEmploye>} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
