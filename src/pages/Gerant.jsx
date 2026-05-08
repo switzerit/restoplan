@@ -521,19 +521,7 @@ export default function Gerant() {
                           {shM>0&&ptM>0&&<div style={{fontSize:10,fontWeight:700,color:ec>=0?'#1a6b35':'var(--red)'}}>{ec>=0?'+':''}{minsToHHMM(Math.abs(ec))}</div>}
                         </div>
                       })()}
-                      {(()=>{
-                        const pts=getPointages(emp.id)
-                        const sh=getShiftForDate(emp.id,selectedDate)
-                        const shM=calcShiftMins(sh)
-                        const ptM=calcPointageMins(pts)
-                        const ec=ptM-shM
-                        if(!shM&&!ptM) return null
-                        return <div style={{textAlign:'right',flexShrink:0,marginRight:4}}>
-                          {shM>0&&<div style={{fontSize:10,color:'var(--text3)'}}>Prévu {minsToHHMM(shM)}</div>}
-                          {ptM>0&&<div style={{fontSize:11,fontWeight:700}}>{minsToHHMM(ptM)}</div>}
-                          {shM>0&&ptM>0&&<div style={{fontSize:10,fontWeight:700,color:ec>=0?'#1a6b35':'var(--red)'}}>{ec>=0?'+':''}{minsToHHMM(Math.abs(ec))}</div>}
-                        </div>
-                      })()}
+                      
                       <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,flexShrink:0,background:present?'var(--green-bg)':parti?'var(--orange-bg)':'var(--bg)',color:present?'#1a6b35':parti?'#8a4a00':'var(--text3)'}}>{present?'Présent':parti?'Parti':'Absent'}</span>
                     </div>
                     <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px 10px',borderTop:'1px solid var(--border)'}}>
