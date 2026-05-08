@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-
 const COLORS=[{bg:'#e8f2fd',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},{bg:'#fff8ee',color:'#8a4a00'},{bg:'#f0f0fc',color:'#3a3880'},{bg:'#fff2f1',color:'#b02020'},{bg:'#fdf0f8',color:'#8a2060'}]
-function ini(p,n){return((p?.[0]||'')+(n?.[0]||'')).toUpperCase()}
-
+function ini(p,n){return((p?.[0]||"")+(n?.[0]||"")).toUpperCase()}
 export default function Admin() {
   const [loading, setLoading] = useState(true)
   const [gerants, setGerants] = useState([])
@@ -12,398 +10,309 @@ export default function Admin() {
   const [employes, setEmployes] = useState([])
   const [selectedGerant, setSelectedGerant] = useState(null)
   const [createModal, setCreateModal] = useState(false)
-  const [createForm, setCreateForm] = useState({nom_resto:'',adresse:'',prenom:'',nom:'',email:'',telephone:'',entreprise:'',password:''})
+  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
   const [editGerantModal, setEditGerantModal] = useState(null)
-  const [editGerantForm, setEditGerantForm] = useState({prenom:'',nom:'',email:'',telephone:'',entreprise:''})
+  const [editGerantForm, setEditGerantForm] = useState({prenom:"",nom:"",email:"",telephone:"",entreprise:""})
   const [addRestoModal, setAddRestoModal] = useState(null)
-  const [addRestoForm, setAddRestoForm] = useState({nom:'',adresse:''})
-  const [toast, setToast] = useState('')
+  const [addRestoForm, setAddRestoForm] = useState({nom:"",adresse:""})
+  const [resetPwdModal, setResetPwdModal] = useState(null)
+  const [resetPwd, setResetPwd] = useState("")
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState(null)
+  const [toast, setToast] = useState("")
   const navigate = useNavigate()
-
-  useEffect(()=>{
-    checkAdmin().then(ok=>{if(ok) loadData()})
-  },[])
-
+  useEffect(()=>{checkAdmin().then(ok=>{if(ok) loadData()})},[])
   async function checkAdmin(){
     const {data:{session}} = await supabase.auth.getSession()
-    if(!session){navigate('/login');return false}
-    const {data:profil} = await supabase.from('profils').select('role').eq('user_id',session.user.id).single()
-    if(profil?.role !== 'super_admin'){navigate('/gerant');return false}
+    if(!session){navigate("/login");return false}
+    const {data:profil} = await supabase.from("profils").select("role").eq("user_id",session.user.id).single()
+    if(profil?.role !== "super_admin"){navigate("/gerant");return false}
     setLoading(false)
     return true
   }
-
   async function loadData(){
-    const {data:g} = await supabase.from('gerants').select('*').order('created_at',{ascending:false})
+    const {data:g} = await supabase.from("gerants").select("*").order("created_at",{ascending:false})
     setGerants(g||[])
-    const {data:r} = await supabase.from('restaurants').select('*').order('nom')
+    const {data:r} = await supabase.from("restaurants").select("*").order("nom")
     setRestaurants(r||[])
-    const {data:e} = await supabase.from('employes').select('*').order('prenom')
+    const {data:e} = await supabase.from("employes").select("*").order("prenom")
     setEmployes(e||[])
   }
-
   async function createClient(){
     const {nom_resto,adresse,prenom,nom,email,telephone,entreprise,password} = createForm
-    if(!nom_resto||!email||!password||!prenom||!nom){showToast('Remplis tous les champs obligatoires');return}
-    if(password.length<6){showToast('Mot de passe min. 6 caractères');return}
-    showToast('Création en cours...')
-
-    // 1. Créer le restaurant
-    const {data:resto,error:restoErr} = await supabase.from('restaurants').insert({
-      nom:nom_resto, adresse, actif:true, pin_borne:'1234'
-    }).select().single()
-    if(restoErr){showToast('Erreur: '+restoErr.message);return}
-
-    // 2. Créer le compte Auth + profil via Edge Function
-    const {data,error} = await supabase.functions.invoke('create-employe',{
-      body:{email, password, prenom, nom, role:'Gerant', restaurant_id:resto.id, skip_employe:true, employe_id:null}
-    })
-    if(error||data?.error){showToast('Erreur compte: '+(data?.error||error?.message));return}
-
-    // 3. Récupérer le user créé et mettre à jour son profil en gérant
-    const {data:newProfils} = await supabase.from('profils').select('*').order('created_at',{ascending:false}).limit(1)
+    if(!nom_resto||!email||!password||!prenom||!nom){showToast("Remplis tous les champs obligatoires");return}
+    if(password.length<6){showToast("Mot de passe min. 6 caracteres");return}
+    showToast("Creation en cours...")
+    const {data:resto,error:restoErr} = await supabase.from("restaurants").insert({nom:nom_resto,adresse,actif:true,pin_borne:"1234"}).select().single()
+    if(restoErr){showToast("Erreur: "+restoErr.message);return}
+    const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password,prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
+    if(error||data?.error){showToast("Erreur compte: "+(data?.error||error?.message));return}
+    const {data:newProfils} = await supabase.from("profils").select("*").order("created_at",{ascending:false}).limit(1)
     const newProfil = newProfils?.[0]
     if(newProfil){
-      await supabase.from('profils').update({role:'gerant',employe_id:null}).eq('id',newProfil.id)
-      // 4. Lier restaurant au gérant
-      await supabase.from('restaurants').update({gerant_id:newProfil.user_id}).eq('id',resto.id)
-      // 5. Insérer dans table gerants
-      await supabase.from('gerants').insert({user_id:newProfil.user_id, prenom, nom, email, telephone, entreprise:entreprise||nom_resto})
+      await supabase.from("profils").update({role:"gerant",employe_id:null}).eq("id",newProfil.id)
+      await supabase.from("restaurants").update({gerant_id:newProfil.user_id}).eq("id",resto.id)
+      await supabase.from("gerants").insert({user_id:newProfil.user_id,prenom,nom,email,telephone,entreprise:entreprise||nom_resto})
     }
-
     setCreateModal(false)
-    setCreateForm({nom_resto:'',adresse:'',prenom:'',nom:'',email:'',telephone:'',entreprise:'',password:''})
+    setCreateForm({nom_resto:"",adresse:"",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
     await loadData()
-    showToast('✅ Client créé avec succès !')
+    showToast("Client cree avec succes !")
   }
-
   async function updateGerant(){
-    const {error} = await supabase.from('gerants').update({
-      prenom:editGerantForm.prenom, nom:editGerantForm.nom,
-      email:editGerantForm.email, telephone:editGerantForm.telephone,
-      entreprise:editGerantForm.entreprise
-    }).eq('id',editGerantModal.id)
-    if(error){showToast('Erreur: '+error.message);return}
-    setEditGerantModal(null)
-    loadData()
-    showToast('Gérant mis à jour !')
+    const {error} = await supabase.from("gerants").update({prenom:editGerantForm.prenom,nom:editGerantForm.nom,email:editGerantForm.email,telephone:editGerantForm.telephone,entreprise:editGerantForm.entreprise}).eq("id",editGerantModal.id)
+    if(error){showToast("Erreur: "+error.message);return}
+    setEditGerantModal(null);loadData();showToast("Gerant mis a jour !")
   }
-
-  async function toggleGerant(g){
-    await supabase.from('gerants').update({actif:!g.actif}).eq('id',g.id)
-    // Activer/désactiver tous ses restaurants
+  async function resetPassword(){
+    if(!resetPwd||resetPwd.length<6){showToast("Mot de passe min. 6 caracteres");return}
+    const {error} = await supabase.functions.invoke("reset-password",{body:{email:resetPwdModal.email,new_password:resetPwd}})
+    if(error){showToast("Erreur: "+error.message);return}
+    setResetPwdModal(null);setResetPwd("");showToast("Mot de passe reinitialise !")
+  }
+  async function deleteGerant(g){
+    setDeleteConfirmModal(null);showToast("Suppression en cours...")
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
     for(const r of restos){
-      await supabase.from('restaurants').update({actif:!g.actif}).eq('id',r.id)
+      await supabase.from("shifts").delete().eq("restaurant_id",r.id)
+      await supabase.from("pointages").delete().eq("restaurant_id",r.id)
+      await supabase.from("employes").delete().eq("restaurant_id",r.id)
+      await supabase.from("restaurants").delete().eq("id",r.id)
     }
-    loadData()
-    showToast(g.actif?'Compte désactivé':'Compte activé')
+    await supabase.from("profils").delete().eq("user_id",g.user_id)
+    await supabase.from("gerants").delete().eq("id",g.id)
+    await supabase.functions.invoke("delete-user",{body:{email:g.email}})
+    setSelectedGerant(null);await loadData();showToast("Client supprime")
   }
-
+  async function toggleGerant(g){
+    await supabase.from("gerants").update({actif:!g.actif}).eq("id",g.id)
+    const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
+    for(const r of restos) await supabase.from("restaurants").update({actif:!g.actif}).eq("id",r.id)
+    loadData();showToast(g.actif?"Compte desactive":"Compte active")
+  }
   async function addRestaurant(){
-    if(!addRestoForm.nom){showToast('Nom obligatoire');return}
-    const {error} = await supabase.from('restaurants').insert({
-      nom:addRestoForm.nom, adresse:addRestoForm.adresse,
-      actif:true, pin_borne:'1234', gerant_id:addRestoModal.user_id
-    })
-    if(error){showToast('Erreur: '+error.message);return}
-    setAddRestoModal(null)
-    setAddRestoForm({nom:'',adresse:''})
-    loadData()
-    showToast('Restaurant ajouté !')
+    if(!addRestoForm.nom){showToast("Nom obligatoire");return}
+    await supabase.from("restaurants").insert({nom:addRestoForm.nom,adresse:addRestoForm.adresse,actif:true,pin_borne:"1234",gerant_id:addRestoModal.user_id})
+    setAddRestoModal(null);setAddRestoForm({nom:"",adresse:""});loadData();showToast("Restaurant ajoute !")
   }
-
-  async function toggleResto(r){
-    await supabase.from('restaurants').update({actif:!r.actif}).eq('id',r.id)
-    loadData()
-  }
-
+  async function toggleResto(r){await supabase.from("restaurants").update({actif:!r.actif}).eq("id",r.id);loadData()}
   async function deleteResto(restoId){
-    if(!window.confirm('Supprimer ce restaurant ?')) return
-    await supabase.from('shifts').delete().eq('restaurant_id',restoId)
-    await supabase.from('pointages').delete().eq('restaurant_id',restoId)
-    await supabase.from('employes').delete().eq('restaurant_id',restoId)
-    await supabase.from('restaurants').delete().eq('id',restoId)
-    loadData()
-    showToast('Restaurant supprimé')
+    if(!window.confirm("Supprimer ce restaurant ?")) return
+    await supabase.from("shifts").delete().eq("restaurant_id",restoId)
+    await supabase.from("pointages").delete().eq("restaurant_id",restoId)
+    await supabase.from("employes").delete().eq("restaurant_id",restoId)
+    await supabase.from("restaurants").delete().eq("id",restoId)
+    loadData();showToast("Restaurant supprime")
   }
+  function showToast(msg){setToast(msg);setTimeout(()=>setToast(""),3000)}
+  async function deconnexion(){await supabase.auth.signOut();navigate("/login")}
 
-  function showToast(msg){setToast(msg);setTimeout(()=>setToast(''),3000)}
-  async function deconnexion(){await supabase.auth.signOut();navigate('/login')}
+  if(loading) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",fontFamily:"var(--font)",background:"var(--bg)"}}><div style={{textAlign:"center"}}><div style={{fontSize:36,marginBottom:12}}>⚡</div><div style={{color:"var(--text2)"}}>Chargement...</div></div></div>
 
-  if(loading) return (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',background:'var(--bg)'}}>
-      <div style={{textAlign:'center'}}><div style={{fontSize:36,marginBottom:12}}>⚡</div><div style={{color:'var(--text2)'}}>Chargement...</div></div>
-    </div>
-  )
+  const inputStyle = {width:"100%",padding:"9px 12px",borderRadius:9,border:"1.5px solid var(--border2)",background:"var(--bg)",fontSize:13,color:"var(--text)",outline:"none"}
+  const btnSecondary = {padding:"7px 14px",borderRadius:9,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:13,fontWeight:600,cursor:"pointer"}
 
-  // VUE DÉTAIL GÉRANT
+  // MODALS COMMUNS
+  const modals = <>
+    {resetPwdModal&&<div onClick={()=>setResetPwdModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
+        <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Reinitialiser le mot de passe</div>
+        <div style={{fontSize:13,color:"var(--text2)",marginBottom:20}}>{resetPwdModal.prenom} {resetPwdModal.nom} — {resetPwdModal.email}</div>
+        <label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:6}}>Nouveau mot de passe</label>
+        <input type="password" placeholder="Min. 6 caracteres" value={resetPwd} onChange={e=>setResetPwd(e.target.value)} style={{...inputStyle,marginBottom:16}}/>
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={()=>setResetPwdModal(null)} style={{flex:1,height:42,borderRadius:10,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:13,fontWeight:600,cursor:"pointer"}}>Annuler</button>
+          <button onClick={resetPassword} style={{flex:1,height:42,borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>Reinitialiser</button>
+        </div>
+      </div>
+    </div>}
+    {deleteConfirmModal&&<div onClick={()=>setDeleteConfirmModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:400,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
+        <div style={{fontSize:17,fontWeight:800,marginBottom:4,color:"var(--red)"}}>Supprimer ce client ?</div>
+        <div style={{fontSize:13,color:"var(--text2)",marginBottom:12}}>{deleteConfirmModal.prenom} {deleteConfirmModal.nom}</div>
+        <div style={{padding:"12px 14px",background:"var(--red-bg)",borderRadius:10,marginBottom:20,fontSize:12,color:"var(--red)"}}>Action irreversible. Tous les restaurants, employes, shifts et pointages seront supprimes.</div>
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={()=>setDeleteConfirmModal(null)} style={{flex:1,height:42,borderRadius:10,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:13,fontWeight:600,cursor:"pointer"}}>Annuler</button>
+          <button onClick={()=>deleteGerant(deleteConfirmModal)} style={{flex:1,height:42,borderRadius:10,border:"none",background:"var(--red)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>Supprimer definitivement</button>
+        </div>
+      </div>
+    </div>}
+    {toast&&<div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:"var(--text)",color:"white",padding:"10px 22px",borderRadius:22,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:"nowrap"}}>{toast}</div>}
+  </>
+
+  // VUE DETAIL GERANT
   if(selectedGerant){
-    const g = selectedGerant
+    const g = gerants.find(x=>x.id===selectedGerant.id)||selectedGerant
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
     const empCount = employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).length
-    return (
-      <div style={{minHeight:'100vh',background:'var(--bg)',fontFamily:'var(--font)'}}>
-        <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'14px 28px',display:'flex',alignItems:'center',gap:12}}>
-          <button onClick={()=>setSelectedGerant(null)} style={{padding:'7px 14px',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>← Retour</button>
-          <div style={{width:36,height:36,background:'linear-gradient(135deg,#0071e3,#5856d6)',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800,color:'white'}}>{ini(g.prenom,g.nom)}</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div>
-            <div style={{fontSize:11,color:'var(--text3)'}}>{g.entreprise||'—'} • {g.email}</div>
-          </div>
-          <button onClick={()=>{setEditGerantForm({prenom:g.prenom,nom:g.nom,email:g.email,telephone:g.telephone||'',entreprise:g.entreprise||''});setEditGerantModal(g)}} style={{padding:'7px 14px',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>✏️ Modifier</button>
-          <button onClick={()=>toggleGerant(g)} style={{padding:'7px 14px',borderRadius:9,border:'none',background:g.actif?'var(--red-bg)':'var(--green-bg)',color:g.actif?'var(--red)':'#1a6b35',fontSize:13,fontWeight:600,cursor:'pointer'}}>{g.actif?'Désactiver':'Activer'}</button>
-          <button onClick={deconnexion} style={{padding:'7px 14px',borderRadius:9,border:'1px solid var(--border2)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer'}}>Déconnexion</button>
-        </div>
-
-        <div style={{maxWidth:900,margin:'0 auto',padding:28}}>
-          {/* Stats client */}
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:28}}>
-            {[
-              {icon:'🏪',label:'Restaurants',value:restos.length},
-              {icon:'👥',label:'Employés',value:empCount},
-              {icon:'📊',label:'Statut',value:g.actif?'Actif':'Inactif',color:g.actif?'var(--green)':'var(--red)'},
-            ].map((s,i)=>(
-              <div key={i} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'16px 20px'}}>
-                <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
-                <div style={{fontSize:24,fontWeight:800,color:s.color||'var(--text)'}}>{s.value}</div>
-                <div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Infos gérant */}
-          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,padding:20,marginBottom:20}}>
-            <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:'var(--text2)'}}>INFORMATIONS</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-              {[{l:'Prénom',v:g.prenom},{l:'Nom',v:g.nom},{l:'Email',v:g.email},{l:'Téléphone',v:g.telephone||'—'},{l:'Entreprise',v:g.entreprise||'—'},{l:'Client depuis',v:new Date(g.created_at).toLocaleDateString('fr-FR')}].map(({l,v})=>(
-                <div key={l} style={{padding:'10px 14px',background:'var(--bg)',borderRadius:10}}>
-                  <div style={{fontSize:10,color:'var(--text3)',fontWeight:700,marginBottom:3}}>{l.toUpperCase()}</div>
-                  <div style={{fontSize:13,fontWeight:600}}>{v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Restaurants */}
-          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden'}}>
-            <div style={{padding:'14px 20px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-              <div style={{fontSize:13,fontWeight:700,color:'var(--text)'}}>Restaurants ({restos.length})</div>
-              <button onClick={()=>setAddRestoModal(g)} style={{padding:'6px 14px',borderRadius:9,border:'none',background:'var(--accent)',color:'white',fontSize:12,fontWeight:700,cursor:'pointer'}}>+ Ajouter</button>
-            </div>
-            {restos.length===0&&<div style={{padding:24,textAlign:'center',color:'var(--text3)',fontSize:13}}>Aucun restaurant</div>}
-            {restos.map(r=>{
-              const nbEmp = employes.filter(e=>e.restaurant_id===r.id).length
-              return (
-                <div key={r.id} style={{padding:'14px 20px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:12}}>
-                  <div style={{width:38,height:38,borderRadius:10,background:'var(--accent-bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>🏪</div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:13,fontWeight:700}}>{r.nom}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{r.adresse||'—'} • {nbEmp} employé{nbEmp>1?'s':''} • PIN: {r.pin_borne}</div>
-                  </div>
-                  <span style={{fontSize:10,fontWeight:700,padding:'2px 9px',borderRadius:20,background:r.actif?'var(--green-bg)':'var(--red-bg)',color:r.actif?'#1a6b35':'var(--red)'}}>{r.actif?'Actif':'Inactif'}</span>
-                  <button onClick={()=>toggleResto(r)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>{r.actif?'Pause':'Activer'}</button>
-                  <button onClick={()=>navigator.clipboard.writeText(`${window.location.origin}/borne?resto=${r.id}`).then(()=>showToast('URL copiée !'))} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>URL borne</button>
-                  <button onClick={()=>deleteResto(r.id)} style={{padding:'5px 8px',borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:11,cursor:'pointer'}}>🗑️</button>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Employés */}
-          {empCount>0&&(
-            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',marginTop:16}}>
-              <div style={{padding:'14px 20px',borderBottom:'1px solid var(--border)'}}>
-                <div style={{fontSize:13,fontWeight:700}}>Employés ({empCount})</div>
-              </div>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:8,padding:12}}>
-                {employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).map((emp,i)=>{
-                  const c=COLORS[i%COLORS.length]
-                  const resto=restos.find(r=>r.id===emp.restaurant_id)
-                  return (
-                    <div key={emp.id} style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:8}}>
-                      <div style={{width:32,height:32,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
-                      <div style={{minWidth:0}}>
-                        <div style={{fontSize:12,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {emp.nom}</div>
-                        <div style={{fontSize:10,color:'var(--text3)'}}>{resto?.nom}</div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* MODAL EDIT GÉRANT */}
-        {editGerantModal&&(
-          <div onClick={()=>setEditGerantModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
-            <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:400,boxShadow:'0 20px 60px rgba(0,0,0,.15)'}}>
-              <div style={{fontSize:17,fontWeight:800,marginBottom:20}}>Modifier le gérant</div>
-              {[{f:'prenom',l:'Prénom'},{f:'nom',l:'Nom'},{f:'email',l:'Email'},{f:'telephone',l:'Téléphone'},{f:'entreprise',l:'Entreprise'}].map(({f,l})=>(
-                <div key={f} style={{marginBottom:12}}>
-                  <label style={{display:'block',fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:5}}>{l}</label>
-                  <input value={editGerantForm[f]} onChange={e=>setEditGerantForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-                </div>
-              ))}
-              <div style={{display:'flex',gap:8,marginTop:16}}>
-                <button onClick={()=>setEditGerantModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Annuler</button>
-                <button onClick={updateGerant} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL ADD RESTO */}
-        {addRestoModal&&(
-          <div onClick={()=>setAddRestoModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
-            <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:380,boxShadow:'0 20px 60px rgba(0,0,0,.15)'}}>
-              <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Ajouter un restaurant</div>
-              <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour {g.prenom} {g.nom}</div>
-              {[{f:'nom',l:'Nom du restaurant',ph:'Le Bistrot'},{f:'adresse',l:'Adresse',ph:'12 rue du Port'}].map(({f,l,ph})=>(
-                <div key={f} style={{marginBottom:12}}>
-                  <label style={{display:'block',fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:5}}>{l}</label>
-                  <input placeholder={ph} value={addRestoForm[f]} onChange={e=>setAddRestoForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-                </div>
-              ))}
-              <div style={{display:'flex',gap:8,marginTop:16}}>
-                <button onClick={()=>setAddRestoModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Annuler</button>
-                <button onClick={addRestaurant} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Ajouter</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {toast&&<div style={{position:'fixed',bottom:24,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'10px 22px',borderRadius:22,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
+    return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
+      <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+        <button onClick={()=>setSelectedGerant(null)} style={btnSecondary}>← Retour</button>
+        <div style={{width:36,height:36,background:"linear-gradient(135deg,#0071e3,#5856d6)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:"white"}}>{ini(g.prenom,g.nom)}</div>
+        <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div><div style={{fontSize:11,color:"var(--text3)"}}>{g.entreprise||"—"} • {g.email}</div></div>
+        <button onClick={()=>{setEditGerantForm({prenom:g.prenom,nom:g.nom,email:g.email,telephone:g.telephone||"",entreprise:g.entreprise||""});setEditGerantModal(g)}} style={btnSecondary}>✏️ Modifier</button>
+        <button onClick={()=>{setResetPwdModal(g);setResetPwd("")}} style={btnSecondary}>🔑 MDP</button>
+        <button onClick={()=>toggleGerant(g)} style={{padding:"7px 14px",borderRadius:9,border:"none",background:g.actif?"var(--red-bg)":"var(--green-bg)",color:g.actif?"var(--red)":"#1a6b35",fontSize:13,fontWeight:600,cursor:"pointer"}}>{g.actif?"Desactiver":"Activer"}</button>
+        <button onClick={()=>setDeleteConfirmModal(g)} style={{padding:"7px 14px",borderRadius:9,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:13,fontWeight:600,cursor:"pointer"}}>🗑️ Supprimer</button>
+        <button onClick={deconnexion} style={{...btnSecondary,background:"transparent"}}>Deconnexion</button>
       </div>
-    )
-  }
-
-  // VUE LISTE GÉRANTS
-  return (
-    <div style={{minHeight:'100vh',background:'var(--bg)',fontFamily:'var(--font)'}}>
-      <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'14px 28px',display:'flex',alignItems:'center',gap:12}}>
-        <div style={{width:36,height:36,background:'linear-gradient(135deg,#0071e3,#5856d6)',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>⚡</div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:15,fontWeight:800,color:'var(--text)'}}>RestoPlan Admin</div>
-          <div style={{fontSize:11,color:'var(--text3)'}}>{gerants.length} client{gerants.length>1?'s':''} • {restaurants.length} restaurant{restaurants.length>1?'s':''}</div>
-        </div>
-        <button onClick={()=>setCreateModal(true)} style={{padding:'8px 18px',borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>+ Nouveau client</button>
-        <button onClick={deconnexion} style={{padding:'8px 14px',borderRadius:10,border:'1px solid var(--border2)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer',fontWeight:600}}>Déconnexion</button>
-      </div>
-
-      <div style={{maxWidth:900,margin:'0 auto',padding:28}}>
-
-        {/* Stats globales */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:28}}>
-          {[
-            {icon:'👤',label:'Clients',value:gerants.length},
-            {icon:'🏪',label:'Restaurants',value:restaurants.filter(r=>r.actif).length+' actifs'},
-            {icon:'👥',label:'Employés',value:employes.length},
-            {icon:'✅',label:'Clients actifs',value:gerants.filter(g=>g.actif).length},
-          ].map((s,i)=>(
-            <div key={i} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'16px 18px'}}>
-              <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
-              <div style={{fontSize:22,fontWeight:800}}>{s.value}</div>
-              <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{s.label}</div>
+      <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
+          {[{icon:"🏪",label:"Restaurants",value:restos.length},{icon:"👥",label:"Employes",value:empCount},{icon:"📊",label:"Statut",value:g.actif?"Actif":"Inactif",color:g.actif?"var(--green)":"var(--red)"}].map((s,i)=>(
+            <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 20px"}}>
+              <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
+              <div style={{fontSize:24,fontWeight:800,color:s.color||"var(--text)"}}>{s.value}</div>
+              <div style={{fontSize:12,color:"var(--text2)",marginTop:2}}>{s.label}</div>
             </div>
           ))}
         </div>
-
-        {/* Liste gérants */}
-        <div style={{display:'flex',flexDirection:'column',gap:10}}>
-          {gerants.length===0&&(
-            <div style={{padding:60,textAlign:'center',background:'var(--surface)',border:'2px dashed var(--border2)',borderRadius:16}}>
-              <div style={{fontSize:36,marginBottom:12}}>👤</div>
-              <div style={{fontSize:16,fontWeight:700,marginBottom:6}}>Aucun client encore</div>
-              <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Créez votre premier client pour commencer</div>
-              <button onClick={()=>setCreateModal(true)} style={{padding:'10px 24px',borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>+ Nouveau client</button>
-            </div>
-          )}
-          {gerants.map((g,i)=>{
-            const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
-            const empCount = employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).length
-            const c=COLORS[i%COLORS.length]
-            return (
-              <div key={g.id} onClick={()=>setSelectedGerant(g)} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 22px',cursor:'pointer',transition:'all .15s'}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--accent)';e.currentTarget.style.boxShadow='0 4px 16px rgba(0,113,227,.08)'}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.boxShadow='none'}}>
-                <div style={{display:'flex',alignItems:'center',gap:14}}>
-                  <div style={{width:48,height:48,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,flexShrink:0}}>{ini(g.prenom,g.nom)}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8}}>
-                      <div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div>
-                      <span style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:g.actif?'var(--green-bg)':'var(--red-bg)',color:g.actif?'#1a6b35':'var(--red)'}}>{g.actif?'Actif':'Inactif'}</span>
-                    </div>
-                    <div style={{fontSize:12,color:'var(--text2)',marginTop:3}}>{g.entreprise||'—'} • {g.email}</div>
-                    {g.telephone&&<div style={{fontSize:11,color:'var(--text3)',marginTop:1}}>📞 {g.telephone}</div>}
-                  </div>
-                  <div style={{display:'flex',gap:20,marginRight:12}}>
-                    <div style={{textAlign:'center'}}>
-                      <div style={{fontSize:20,fontWeight:800,color:'var(--accent)'}}>{restos.length}</div>
-                      <div style={{fontSize:10,color:'var(--text3)'}}>resto{restos.length>1?'s':''}</div>
-                    </div>
-                    <div style={{textAlign:'center'}}>
-                      <div style={{fontSize:20,fontWeight:800}}>{empCount}</div>
-                      <div style={{fontSize:10,color:'var(--text3)'}}>emp.</div>
-                    </div>
-                  </div>
-                  <div style={{display:'flex',gap:6,flexWrap:'wrap',maxWidth:220}}>
-                    {restos.map(r=>(
-                      <span key={r.id} style={{fontSize:11,fontWeight:600,padding:'3px 9px',borderRadius:20,background:'var(--bg)',border:'1px solid var(--border)',color:'var(--text2)'}}>🏪 {r.nom}</span>
-                    ))}
-                  </div>
-                  <div style={{color:'var(--text3)',fontSize:18}}>›</div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* MODAL CRÉATION CLIENT */}
-      {createModal&&(
-        <div onClick={()=>setCreateModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:440,boxShadow:'0 20px 60px rgba(0,0,0,.2)',maxHeight:'90vh',overflowY:'auto'}}>
-            <div style={{fontSize:18,fontWeight:800,marginBottom:4}}>Nouveau client</div>
-            <div style={{fontSize:13,color:'var(--text2)',marginBottom:22}}>Crée le restaurant + compte gérant en une fois</div>
-
-            <div style={{fontSize:11,fontWeight:700,color:'var(--text3)',letterSpacing:'.06em',marginBottom:10}}>🏪 RESTAURANT</div>
-            {[{f:'nom_resto',l:'Nom *',ph:'Le Bistrot du Port'},{f:'adresse',l:'Adresse',ph:'12 rue du Port, Marseille'}].map(({f,l,ph})=>(
-              <div key={f} style={{marginBottom:10}}>
-                <label style={{display:'block',fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:4}}>{l}</label>
-                <input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:20,marginBottom:20}}>
+          <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--text2)"}}>INFORMATIONS</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            {[{l:"Prenom",v:g.prenom},{l:"Nom",v:g.nom},{l:"Email",v:g.email},{l:"Telephone",v:g.telephone||"—"},{l:"Entreprise",v:g.entreprise||"—"},{l:"Client depuis",v:new Date(g.created_at).toLocaleDateString("fr-FR")}].map(({l,v})=>(
+              <div key={l} style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
+                <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>{l.toUpperCase()}</div>
+                <div style={{fontSize:13,fontWeight:600}}>{v}</div>
               </div>
             ))}
-
-            <div style={{fontSize:11,fontWeight:700,color:'var(--text3)',letterSpacing:'.06em',marginBottom:10,marginTop:18}}>👤 GÉRANT</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-              {[{f:'prenom',l:'Prénom *',ph:'Sophie'},{f:'nom',l:'Nom *',ph:'Martin'}].map(({f,l,ph})=>(
-                <div key={f}>
-                  <label style={{display:'block',fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:4}}>{l}</label>
-                  <input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-                </div>
-              ))}
-            </div>
-            {[{f:'email',l:'Email *',ph:'sophie@bistrot.fr'},{f:'telephone',l:'Téléphone',ph:'+33 6 12 34 56 78'},{f:'entreprise',l:'Entreprise',ph:'SAS Bistrot du Port'},{f:'password',l:'Mot de passe *',ph:'Min. 6 caractères'}].map(({f,l,ph})=>(
-              <div key={f} style={{marginBottom:10,marginTop:10}}>
-                <label style={{display:'block',fontSize:11,fontWeight:600,color:'var(--text2)',marginBottom:4}}>{l}</label>
-                <input type={f==='password'?'password':'text'} placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-              </div>
-            ))}
-
-            <div style={{padding:'10px 14px',background:'var(--accent-bg)',borderRadius:10,marginTop:4,marginBottom:16,fontSize:12,color:'var(--accent)'}}>
-              💡 Le PIN de la borne sera 1234 par défaut — le gérant pourra le modifier
-            </div>
-            <div style={{display:'flex',gap:10}}>
-              <button onClick={()=>setCreateModal(false)} style={{flex:1,height:44,borderRadius:12,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:14,fontWeight:600,cursor:'pointer'}}>Annuler</button>
-              <button onClick={createClient} style={{flex:1,height:44,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Créer le client</button>
-            </div>
           </div>
         </div>
-      )}
-
-      {toast&&<div style={{position:'fixed',bottom:24,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'10px 22px',borderRadius:22,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden",marginBottom:16}}>
+          <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{fontSize:13,fontWeight:700}}>Restaurants ({restos.length})</div>
+            <button onClick={()=>setAddRestoModal(g)} style={{padding:"6px 14px",borderRadius:9,border:"none",background:"var(--accent)",color:"white",fontSize:12,fontWeight:700,cursor:"pointer"}}>+ Ajouter</button>
+          </div>
+          {restos.length===0&&<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:13}}>Aucun restaurant</div>}
+          {restos.map(r=>{const nbEmp=employes.filter(e=>e.restaurant_id===r.id).length;return(
+            <div key={r.id} style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:12}}>
+              <div style={{width:38,height:38,borderRadius:10,background:"var(--accent-bg)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>🏪</div>
+              <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700}}>{r.nom}</div><div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{r.adresse||"—"} • {nbEmp} employe{nbEmp>1?"s":""} • PIN: {r.pin_borne}</div></div>
+              <span style={{fontSize:10,fontWeight:700,padding:"2px 9px",borderRadius:20,background:r.actif?"var(--green-bg)":"var(--red-bg)",color:r.actif?"#1a6b35":"var(--red)"}}>{r.actif?"Actif":"Inactif"}</span>
+              <button onClick={()=>toggleResto(r)} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>{r.actif?"Pause":"Activer"}</button>
+              <button onClick={()=>navigator.clipboard.writeText(window.location.origin+"/borne?resto="+r.id).then(()=>showToast("URL copiee !"))} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>URL borne</button>
+              <button onClick={()=>deleteResto(r.id)} style={{padding:"5px 8px",borderRadius:8,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:11,cursor:"pointer"}}>🗑️</button>
+            </div>
+          )})}
+        </div>
+        {empCount>0&&<div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden"}}>
+          <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)"}}><div style={{fontSize:13,fontWeight:700}}>Employes ({empCount})</div></div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:8,padding:12}}>
+            {employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).map((emp,i)=>{const c=COLORS[i%COLORS.length];const resto=restos.find(r=>r.id===emp.restaurant_id);return(
+              <div key={emp.id} style={{background:"var(--bg)",border:"1px solid var(--border)",borderRadius:10,padding:"10px 12px",display:"flex",alignItems:"center",gap:8}}>
+                <div style={{width:32,height:32,borderRadius:"50%",background:c.bg,color:c.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
+                <div style={{minWidth:0}}><div style={{fontSize:12,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{emp.prenom} {emp.nom}</div><div style={{fontSize:10,color:"var(--text3)"}}>{resto?.nom}</div></div>
+              </div>
+            )})}
+          </div>
+        </div>}
+      </div>
+      {editGerantModal&&<div onClick={()=>setEditGerantModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
+        <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:400,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
+          <div style={{fontSize:17,fontWeight:800,marginBottom:20}}>Modifier le gerant</div>
+          {[{f:"prenom",l:"Prenom"},{f:"nom",l:"Nom"},{f:"email",l:"Email"},{f:"telephone",l:"Telephone"},{f:"entreprise",l:"Entreprise"}].map(({f,l})=>(
+            <div key={f} style={{marginBottom:12}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:5}}>{l}</label><input value={editGerantForm[f]} onChange={e=>setEditGerantForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
+          ))}
+          <div style={{display:"flex",gap:8,marginTop:16}}>
+            <button onClick={()=>setEditGerantModal(null)} style={{flex:1,height:42,borderRadius:10,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:13,fontWeight:600,cursor:"pointer"}}>Annuler</button>
+            <button onClick={updateGerant} style={{flex:1,height:42,borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>Enregistrer</button>
+          </div>
+        </div>
+      </div>}
+      {addRestoModal&&<div onClick={()=>setAddRestoModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
+        <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
+          <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Ajouter un restaurant</div>
+          <div style={{fontSize:13,color:"var(--text2)",marginBottom:20}}>Pour {g.prenom} {g.nom}</div>
+          {[{f:"nom",l:"Nom du restaurant",ph:"Le Bistrot"},{f:"adresse",l:"Adresse",ph:"12 rue du Port"}].map(({f,l,ph})=>(
+            <div key={f} style={{marginBottom:12}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:5}}>{l}</label><input placeholder={ph} value={addRestoForm[f]} onChange={e=>setAddRestoForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
+          ))}
+          <div style={{display:"flex",gap:8,marginTop:16}}>
+            <button onClick={()=>setAddRestoModal(null)} style={{flex:1,height:42,borderRadius:10,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:13,fontWeight:600,cursor:"pointer"}}>Annuler</button>
+            <button onClick={addRestaurant} style={{flex:1,height:42,borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>Ajouter</button>
+          </div>
+        </div>
+      </div>}
+      {modals}
     </div>
-  )
+  }
+
+  // VUE LISTE GERANTS
+  return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
+    <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12}}>
+      <div style={{width:36,height:36,background:"linear-gradient(135deg,#0071e3,#5856d6)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>⚡</div>
+      <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,color:"var(--text)"}}>RestoPlan Admin</div><div style={{fontSize:11,color:"var(--text3)"}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} restaurant{restaurants.length>1?"s":""}</div></div>
+      <button onClick={()=>setCreateModal(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
+      <button onClick={deconnexion} style={{padding:"8px 14px",borderRadius:10,border:"1px solid var(--border2)",background:"transparent",color:"var(--text2)",fontSize:13,cursor:"pointer",fontWeight:600}}>Deconnexion</button>
+    </div>
+    <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:28}}>
+        {[{icon:"👤",label:"Clients",value:gerants.length},{icon:"🏪",label:"Restaurants actifs",value:restaurants.filter(r=>r.actif).length},{icon:"👥",label:"Employes",value:employes.length},{icon:"✅",label:"Clients actifs",value:gerants.filter(g=>g.actif).length}].map((s,i)=>(
+          <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
+            <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
+            <div style={{fontSize:22,fontWeight:800}}>{s.value}</div>
+            <div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        {gerants.length===0&&<div style={{padding:60,textAlign:"center",background:"var(--surface)",border:"2px dashed var(--border2)",borderRadius:16}}>
+          <div style={{fontSize:36,marginBottom:12}}>👤</div>
+          <div style={{fontSize:16,fontWeight:700,marginBottom:6}}>Aucun client encore</div>
+          <div style={{fontSize:13,color:"var(--text2)",marginBottom:20}}>Creez votre premier client pour commencer</div>
+          <button onClick={()=>setCreateModal(true)} style={{padding:"10px 24px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
+        </div>}
+        {gerants.map((g,i)=>{
+          const restos=restaurants.filter(r=>r.gerant_id===g.user_id)
+          const empCount=employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).length
+          const c=COLORS[i%COLORS.length]
+          return <div key={g.id} onClick={()=>setSelectedGerant(g)} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"18px 22px",cursor:"pointer",transition:"all .15s"}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--accent)";e.currentTarget.style.boxShadow="0 4px 16px rgba(0,113,227,.08)"}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.boxShadow="none"}}>
+            <div style={{display:"flex",alignItems:"center",gap:14}}>
+              <div style={{width:48,height:48,borderRadius:"50%",background:c.bg,color:c.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:800,flexShrink:0}}>{ini(g.prenom,g.nom)}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div>
+                  <span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:20,background:g.actif?"var(--green-bg)":"var(--red-bg)",color:g.actif?"#1a6b35":"var(--red)"}}>{g.actif?"Actif":"Inactif"}</span>
+                </div>
+                <div style={{fontSize:12,color:"var(--text2)",marginTop:3}}>{g.entreprise||"—"} • {g.email}</div>
+                {g.telephone&&<div style={{fontSize:11,color:"var(--text3)",marginTop:1}}>📞 {g.telephone}</div>}
+              </div>
+              <div style={{display:"flex",gap:20,marginRight:12}}>
+                <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:"var(--accent)"}}>{restos.length}</div><div style={{fontSize:10,color:"var(--text3)"}}>resto{restos.length>1?"s":""}</div></div>
+                <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800}}>{empCount}</div><div style={{fontSize:10,color:"var(--text3)"}}>emp.</div></div>
+              </div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",maxWidth:200}}>
+                {restos.map(r=><span key={r.id} style={{fontSize:11,fontWeight:600,padding:"3px 9px",borderRadius:20,background:"var(--bg)",border:"1px solid var(--border)",color:"var(--text2)"}}>🏪 {r.nom}</span>)}
+              </div>
+              <div style={{color:"var(--text3)",fontSize:18}}>›</div>
+            </div>
+          </div>
+        })}
+      </div>
+    </div>
+    {createModal&&<div onClick={()=>setCreateModal(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:440,boxShadow:"0 20px 60px rgba(0,0,0,.2)",maxHeight:"90vh",overflowY:"auto"}}>
+        <div style={{fontSize:18,fontWeight:800,marginBottom:4}}>Nouveau client</div>
+        <div style={{fontSize:13,color:"var(--text2)",marginBottom:22}}>Cree le restaurant + compte gerant en une fois</div>
+        <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>RESTAURANT</div>
+        {[{f:"nom_resto",l:"Nom *",ph:"Le Bistrot du Port"},{f:"adresse",l:"Adresse",ph:"12 rue du Port, Marseille"}].map(({f,l,ph})=>(
+          <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
+        ))}
+        <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10,marginTop:18}}>GERANT</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+          {[{f:"prenom",l:"Prenom *",ph:"Sophie"},{f:"nom",l:"Nom *",ph:"Martin"}].map(({f,l,ph})=>(
+            <div key={f}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
+          ))}
+        </div>
+        {[{f:"email",l:"Email *",ph:"sophie@bistrot.fr"},{f:"telephone",l:"Telephone",ph:"+33 6 12 34 56 78"},{f:"entreprise",l:"Entreprise",ph:"SAS Bistrot du Port"},{f:"password",l:"Mot de passe *",ph:"Min. 6 caracteres"}].map(({f,l,ph})=>(
+          <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input type={f==="password"?"password":"text"} placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
+        ))}
+        <div style={{padding:"10px 14px",background:"var(--accent-bg)",borderRadius:10,marginBottom:16,fontSize:12,color:"var(--accent)"}}>Le PIN de la borne sera 1234 par defaut</div>
+        <div style={{display:"flex",gap:10}}>
+          <button onClick={()=>setCreateModal(false)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
+          <button onClick={createClient} style={{flex:1,height:44,borderRadius:12,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>Creer le client</button>
+        </div>
+      </div>
+    </div>}
+    {modals}
+  </div>
 }
