@@ -5,6 +5,7 @@ import Borne from './pages/Borne'
 import Gerant from './pages/Gerant'
 import Employe from './pages/Employe'
 import Login from './pages/Login'
+import Admin from './pages/Admin'
 
 function ProtectedGerant({ children }) {
   const [ok, setOk] = useState(null)

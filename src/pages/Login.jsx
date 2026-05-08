@@ -14,7 +14,8 @@ export default function Login() {
     supabase.auth.getSession().then(async({data})=>{
       if(data.session){
         const {data:profil} = await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
-        if(profil?.role==='gerant') navigate('/gerant')
+        if(profil?.role==='super_admin') navigate('/admin')
+        else if(profil?.role==='gerant') navigate('/gerant')
         else navigate('/moi')
       } else {
         setLoading(false)
@@ -29,7 +30,8 @@ export default function Login() {
     const {data,error} = await supabase.auth.signInWithPassword({email,password})
     if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
     const {data:profil} = await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
-    if(profil?.role==='gerant') navigate('/gerant')
+    if(profil?.role==='super_admin') navigate('/admin')
+    else if(profil?.role==='gerant') navigate('/gerant')
     else navigate('/moi')
     setLoading(false)
   }
