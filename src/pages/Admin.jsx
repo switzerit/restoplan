@@ -15,8 +15,7 @@ export default function Admin() {
   const navigate = useNavigate()
 
   useEffect(()=>{
-    checkAdmin()
-    loadData()
+    checkAdmin().then(ok=>{if(ok) loadData()})
   },[])
 
   async function checkAdmin(){
@@ -25,6 +24,7 @@ export default function Admin() {
     const {data:profil} = await supabase.from('profils').select('role').eq('user_id',session.user.id).single()
     if(profil?.role !== 'super_admin'){navigate('/gerant');return}
     setLoading(false)
+    return true
   }
 
   async function loadData(){
