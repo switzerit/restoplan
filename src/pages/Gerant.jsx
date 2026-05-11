@@ -81,7 +81,8 @@ export default function Gerant() {
   useEffect(()=>{if(currentResto){loadAll(selectedDate)}},[selectedDate])
 
   async function loadRestaurants(){
-    const {data} = await supabase.from('restaurants').select('*').eq('actif',true).order('nom')
+    const {data:{session}} = await supabase.auth.getSession()
+    const {data} = await supabase.from('restaurants').select('*').eq('actif',true).eq('gerant_id',session?.user?.id).order('nom')
     setRestaurants(data||[])
     if(data?.length>0){
       const savedId = localStorage.getItem('restoplan_current_resto')
