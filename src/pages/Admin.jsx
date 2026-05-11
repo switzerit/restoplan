@@ -3,6 +3,21 @@ import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 const COLORS=[{bg:'#e8f2fd',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},{bg:'#fff8ee',color:'#8a4a00'},{bg:'#f0f0fc',color:'#3a3880'},{bg:'#fff2f1',color:'#b02020'},{bg:'#fdf0f8',color:'#8a2060'}]
 function ini(p,n){return((p?.[0]||"")+(n?.[0]||"")).toUpperCase()}
+
+const SECTEURS=[
+  {id:'restaurant',l:'🍽️ Restaurant'},
+  {id:'hotel',l:'🏨 Hôtel'},
+  {id:'garage',l:'🔧 Garage'},
+  {id:'commerce',l:'🏪 Commerce'},
+  {id:'clinique',l:'🏥 Clinique'},
+  {id:'spa',l:'💆 Spa & Salon'},
+  {id:'btp',l:'🏗️ BTP'},
+  {id:'logistique',l:'📦 Logistique'},
+  {id:'education',l:'🎓 Éducation'},
+  {id:'securite',l:'🛡️ Sécurité'},
+  {id:'autre',l:'🏢 Autre'},
+]
+
 export default function Admin() {
   const [loading, setLoading] = useState(true)
   const [gerants, setGerants] = useState([])
@@ -10,17 +25,19 @@ export default function Admin() {
   const [employes, setEmployes] = useState([])
   const [selectedGerant, setSelectedGerant] = useState(null)
   const [createModal, setCreateModal] = useState(false)
-  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
+  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
   const [editGerantModal, setEditGerantModal] = useState(null)
   const [editGerantForm, setEditGerantForm] = useState({prenom:"",nom:"",email:"",telephone:"",entreprise:""})
   const [addRestoModal, setAddRestoModal] = useState(null)
-  const [addRestoForm, setAddRestoForm] = useState({nom:"",adresse:""})
+  const [addRestoForm, setAddRestoForm] = useState({nom:"",adresse:"",secteur:"restaurant"})
   const [resetPwdModal, setResetPwdModal] = useState(null)
   const [resetPwd, setResetPwd] = useState("")
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(null)
   const [toast, setToast] = useState("")
   const navigate = useNavigate()
+
   useEffect(()=>{checkAdmin().then(ok=>{if(ok) loadData()})},[])
+
   async function checkAdmin(){
     const {data:{session}} = await supabase.auth.getSession()
     if(!session){navigate("/login");return false}
@@ -29,6 +46,7 @@ export default function Admin() {
     setLoading(false)
     return true
   }
+
   async function loadData(){
     const {data:g} = await supabase.from("gerants").select("*").order("created_at",{ascending:false})
     setGerants(g||[])
@@ -37,12 +55,15 @@ export default function Admin() {
     const {data:e} = await supabase.from("employes").select("*").order("prenom")
     setEmployes(e||[])
   }
+
   async function createClient(){
-    const {nom_resto,adresse,prenom,nom,email,telephone,entreprise,password} = createForm
+    const {nom_resto,adresse,secteur,prenom,nom,email,telephone,entreprise,password} = createForm
     if(!nom_resto||!email||!password||!prenom||!nom){showToast("Remplis tous les champs obligatoires");return}
     if(password.length<6){showToast("Mot de passe min. 6 caracteres");return}
     showToast("Creation en cours...")
-    const {data:resto,error:restoErr} = await supabase.from("restaurants").insert({nom:nom_resto,adresse,actif:true,pin_borne:"1234"}).select().single()
+    const {data:resto,error:restoErr} = await supabase.from("restaurants").insert({
+      nom:nom_resto, adresse, secteur:secteur||'restaurant', actif:true, pin_borne:"1234"
+    }).select().single()
     if(restoErr){showToast("Erreur: "+restoErr.message);return}
     const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password,prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
     if(error||data?.error){showToast("Erreur compte: "+(data?.error||error?.message));return}
@@ -54,21 +75,24 @@ export default function Admin() {
       await supabase.from("gerants").insert({user_id:newProfil.user_id,prenom,nom,email,telephone,entreprise:entreprise||nom_resto})
     }
     setCreateModal(false)
-    setCreateForm({nom_resto:"",adresse:"",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
+    setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
     await loadData()
     showToast("Client cree avec succes !")
   }
+
   async function updateGerant(){
     const {error} = await supabase.from("gerants").update({prenom:editGerantForm.prenom,nom:editGerantForm.nom,email:editGerantForm.email,telephone:editGerantForm.telephone,entreprise:editGerantForm.entreprise}).eq("id",editGerantModal.id)
     if(error){showToast("Erreur: "+error.message);return}
     setEditGerantModal(null);loadData();showToast("Gerant mis a jour !")
   }
+
   async function resetPassword(){
     if(!resetPwd||resetPwd.length<6){showToast("Mot de passe min. 6 caracteres");return}
     const {error} = await supabase.functions.invoke("reset-password",{body:{email:resetPwdModal.email,new_password:resetPwd}})
     if(error){showToast("Erreur: "+error.message);return}
     setResetPwdModal(null);setResetPwd("");showToast("Mot de passe reinitialise !")
   }
+
   async function deleteGerant(g){
     setDeleteConfirmModal(null);showToast("Suppression en cours...")
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
@@ -83,18 +107,26 @@ export default function Admin() {
     await supabase.functions.invoke("delete-user",{body:{email:g.email}})
     setSelectedGerant(null);await loadData();showToast("Client supprime")
   }
+
   async function toggleGerant(g){
     await supabase.from("gerants").update({actif:!g.actif}).eq("id",g.id)
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
     for(const r of restos) await supabase.from("restaurants").update({actif:!g.actif}).eq("id",r.id)
     loadData();showToast(g.actif?"Compte desactive":"Compte active")
   }
+
   async function addRestaurant(){
     if(!addRestoForm.nom){showToast("Nom obligatoire");return}
-    await supabase.from("restaurants").insert({nom:addRestoForm.nom,adresse:addRestoForm.adresse,actif:true,pin_borne:"1234",gerant_id:addRestoModal.user_id})
-    setAddRestoModal(null);setAddRestoForm({nom:"",adresse:""});loadData();showToast("Restaurant ajoute !")
+    await supabase.from("restaurants").insert({
+      nom:addRestoForm.nom, adresse:addRestoForm.adresse,
+      secteur:addRestoForm.secteur||'restaurant',
+      actif:true, pin_borne:"1234", gerant_id:addRestoModal.user_id
+    })
+    setAddRestoModal(null);setAddRestoForm({nom:"",adresse:"",secteur:"restaurant"});loadData();showToast("Restaurant ajoute !")
   }
+
   async function toggleResto(r){await supabase.from("restaurants").update({actif:!r.actif}).eq("id",r.id);loadData()}
+
   async function deleteResto(restoId){
     if(!window.confirm("Supprimer ce restaurant ?")) return
     await supabase.from("shifts").delete().eq("restaurant_id",restoId)
@@ -103,6 +135,7 @@ export default function Admin() {
     await supabase.from("restaurants").delete().eq("id",restoId)
     loadData();showToast("Restaurant supprime")
   }
+
   function showToast(msg){setToast(msg);setTimeout(()=>setToast(""),3000)}
   async function deconnexion(){await supabase.auth.signOut();navigate("/login")}
 
@@ -111,7 +144,12 @@ export default function Admin() {
   const inputStyle = {width:"100%",padding:"9px 12px",borderRadius:9,border:"1.5px solid var(--border2)",background:"var(--bg)",fontSize:13,color:"var(--text)",outline:"none"}
   const btnSecondary = {padding:"7px 14px",borderRadius:9,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:13,fontWeight:600,cursor:"pointer"}
 
-  // MODALS COMMUNS
+  const SecteurSelect = ({value, onChange}) => (
+    <select value={value} onChange={e=>onChange(e.target.value)} style={inputStyle}>
+      {SECTEURS.map(s=><option key={s.id} value={s.id}>{s.l}</option>)}
+    </select>
+  )
+
   const modals = <>
     {resetPwdModal&&<div onClick={()=>setResetPwdModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
@@ -182,16 +220,23 @@ export default function Admin() {
             <button onClick={()=>setAddRestoModal(g)} style={{padding:"6px 14px",borderRadius:9,border:"none",background:"var(--accent)",color:"white",fontSize:12,fontWeight:700,cursor:"pointer"}}>+ Ajouter</button>
           </div>
           {restos.length===0&&<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:13}}>Aucun restaurant</div>}
-          {restos.map(r=>{const nbEmp=employes.filter(e=>e.restaurant_id===r.id).length;return(
-            <div key={r.id} style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:12}}>
-              <div style={{width:38,height:38,borderRadius:10,background:"var(--accent-bg)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>🏪</div>
-              <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700}}>{r.nom}</div><div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{r.adresse||"—"} • {nbEmp} employe{nbEmp>1?"s":""} • PIN: {r.pin_borne}</div></div>
-              <span style={{fontSize:10,fontWeight:700,padding:"2px 9px",borderRadius:20,background:r.actif?"var(--green-bg)":"var(--red-bg)",color:r.actif?"#1a6b35":"var(--red)"}}>{r.actif?"Actif":"Inactif"}</span>
-              <button onClick={()=>toggleResto(r)} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>{r.actif?"Pause":"Activer"}</button>
-              <button onClick={()=>navigator.clipboard.writeText(window.location.origin+"/borne?resto="+r.id).then(()=>showToast("URL copiee !"))} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>URL borne</button>
-              <button onClick={()=>deleteResto(r.id)} style={{padding:"5px 8px",borderRadius:8,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:11,cursor:"pointer"}}>🗑️</button>
-            </div>
-          )})}
+          {restos.map(r=>{
+            const nbEmp=employes.filter(e=>e.restaurant_id===r.id).length
+            const secteurLabel = SECTEURS.find(s=>s.id===r.secteur)?.l||'🍽️ Restaurant'
+            return(
+              <div key={r.id} style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:12}}>
+                <div style={{width:38,height:38,borderRadius:10,background:"var(--accent-bg)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{secteurLabel.split(' ')[0]}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:13,fontWeight:700}}>{r.nom}</div>
+                  <div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{r.adresse||"—"} • {nbEmp} employe{nbEmp>1?"s":""} • PIN: {r.pin_borne} • {secteurLabel}</div>
+                </div>
+                <span style={{fontSize:10,fontWeight:700,padding:"2px 9px",borderRadius:20,background:r.actif?"var(--green-bg)":"var(--red-bg)",color:r.actif?"#1a6b35":"var(--red)"}}>{r.actif?"Actif":"Inactif"}</span>
+                <button onClick={()=>toggleResto(r)} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>{r.actif?"Pause":"Activer"}</button>
+                <button onClick={()=>navigator.clipboard.writeText(window.location.origin+"/borne?resto="+r.id).then(()=>showToast("URL copiee !"))} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>URL borne</button>
+                <button onClick={()=>deleteResto(r.id)} style={{padding:"5px 8px",borderRadius:8,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:11,cursor:"pointer"}}>🗑️</button>
+              </div>
+            )
+          })}
         </div>
         {empCount>0&&<div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden"}}>
           <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)"}}><div style={{fontSize:13,fontWeight:700}}>Employes ({empCount})</div></div>
@@ -219,9 +264,13 @@ export default function Admin() {
       </div>}
       {addRestoModal&&<div onClick={()=>setAddRestoModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
         <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
-          <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Ajouter un restaurant</div>
+          <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Ajouter un etablissement</div>
           <div style={{fontSize:13,color:"var(--text2)",marginBottom:20}}>Pour {g.prenom} {g.nom}</div>
-          {[{f:"nom",l:"Nom du restaurant",ph:"Le Bistrot"},{f:"adresse",l:"Adresse",ph:"12 rue du Port"}].map(({f,l,ph})=>(
+          <div style={{marginBottom:12}}>
+            <label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:5}}>Secteur *</label>
+            <SecteurSelect value={addRestoForm.secteur} onChange={v=>setAddRestoForm(f=>({...f,secteur:v}))}/>
+          </div>
+          {[{f:"nom",l:"Nom de l'etablissement *",ph:"Le Bistrot"},{f:"adresse",l:"Adresse",ph:"12 rue du Port"}].map(({f,l,ph})=>(
             <div key={f} style={{marginBottom:12}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:5}}>{l}</label><input placeholder={ph} value={addRestoForm[f]} onChange={e=>setAddRestoForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
           ))}
           <div style={{display:"flex",gap:8,marginTop:16}}>
@@ -238,13 +287,13 @@ export default function Admin() {
   return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
     <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12}}>
       <div style={{width:36,height:36,background:"linear-gradient(135deg,#0071e3,#5856d6)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>⚡</div>
-      <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,color:"var(--text)"}}>RestoPlan Admin</div><div style={{fontSize:11,color:"var(--text3)"}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} restaurant{restaurants.length>1?"s":""}</div></div>
+      <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,color:"var(--text)"}}>RestoPlan Admin</div><div style={{fontSize:11,color:"var(--text3)"}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
       <button onClick={()=>setCreateModal(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
       <button onClick={deconnexion} style={{padding:"8px 14px",borderRadius:10,border:"1px solid var(--border2)",background:"transparent",color:"var(--text2)",fontSize:13,cursor:"pointer",fontWeight:600}}>Deconnexion</button>
     </div>
     <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:28}}>
-        {[{icon:"👤",label:"Clients",value:gerants.length},{icon:"🏪",label:"Restaurants actifs",value:restaurants.filter(r=>r.actif).length},{icon:"👥",label:"Employes",value:employes.length},{icon:"✅",label:"Clients actifs",value:gerants.filter(g=>g.actif).length}].map((s,i)=>(
+        {[{icon:"👤",label:"Clients",value:gerants.length},{icon:"🏪",label:"Etablissements actifs",value:restaurants.filter(r=>r.actif).length},{icon:"👥",label:"Employes",value:employes.length},{icon:"✅",label:"Clients actifs",value:gerants.filter(g=>g.actif).length}].map((s,i)=>(
           <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
             <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
             <div style={{fontSize:22,fontWeight:800}}>{s.value}</div>
@@ -277,11 +326,14 @@ export default function Admin() {
                 {g.telephone&&<div style={{fontSize:11,color:"var(--text3)",marginTop:1}}>📞 {g.telephone}</div>}
               </div>
               <div style={{display:"flex",gap:20,marginRight:12}}>
-                <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:"var(--accent)"}}>{restos.length}</div><div style={{fontSize:10,color:"var(--text3)"}}>resto{restos.length>1?"s":""}</div></div>
+                <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:"var(--accent)"}}>{restos.length}</div><div style={{fontSize:10,color:"var(--text3)"}}>etabl.</div></div>
                 <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800}}>{empCount}</div><div style={{fontSize:10,color:"var(--text3)"}}>emp.</div></div>
               </div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap",maxWidth:200}}>
-                {restos.map(r=><span key={r.id} style={{fontSize:11,fontWeight:600,padding:"3px 9px",borderRadius:20,background:"var(--bg)",border:"1px solid var(--border)",color:"var(--text2)"}}>🏪 {r.nom}</span>)}
+                {restos.map(r=>{
+                  const sl = SECTEURS.find(s=>s.id===r.secteur)?.l||'🍽️'
+                  return <span key={r.id} style={{fontSize:11,fontWeight:600,padding:"3px 9px",borderRadius:20,background:"var(--bg)",border:"1px solid var(--border)",color:"var(--text2)"}}>{sl.split(' ')[0]} {r.nom}</span>
+                })}
               </div>
               <div style={{color:"var(--text3)",fontSize:18}}>›</div>
             </div>
@@ -292,8 +344,12 @@ export default function Admin() {
     {createModal&&<div onClick={()=>setCreateModal(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:440,boxShadow:"0 20px 60px rgba(0,0,0,.2)",maxHeight:"90vh",overflowY:"auto"}}>
         <div style={{fontSize:18,fontWeight:800,marginBottom:4}}>Nouveau client</div>
-        <div style={{fontSize:13,color:"var(--text2)",marginBottom:22}}>Cree le restaurant + compte gerant en une fois</div>
-        <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>RESTAURANT</div>
+        <div style={{fontSize:13,color:"var(--text2)",marginBottom:22}}>Cree l'etablissement + compte gerant en une fois</div>
+        <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>ETABLISSEMENT</div>
+        <div style={{marginBottom:10}}>
+          <label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>Secteur d'activite *</label>
+          <SecteurSelect value={createForm.secteur} onChange={v=>setCreateForm(f=>({...f,secteur:v}))}/>
+        </div>
         {[{f:"nom_resto",l:"Nom *",ph:"Le Bistrot du Port"},{f:"adresse",l:"Adresse",ph:"12 rue du Port, Marseille"}].map(({f,l,ph})=>(
           <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
         ))}
@@ -303,10 +359,10 @@ export default function Admin() {
             <div key={f}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
           ))}
         </div>
-        {[{f:"email",l:"Email *",ph:"sophie@bistrot.fr"},{f:"telephone",l:"Telephone",ph:"+33 6 12 34 56 78"},{f:"entreprise",l:"Entreprise",ph:"SAS Bistrot du Port"},{f:"password",l:"Mot de passe *",ph:"Min. 6 caracteres"}].map(({f,l,ph})=>(
+        {[{f:"email",l:"Email *",ph:"sophie@bistrot.fr"},{f:"telephone",l:"Telephone",ph:"+41 79 123 45 67"},{f:"entreprise",l:"Entreprise",ph:"SAS Bistrot du Port"},{f:"password",l:"Mot de passe *",ph:"Min. 6 caracteres"}].map(({f,l,ph})=>(
           <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input type={f==="password"?"password":"text"} placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
         ))}
-        <div style={{padding:"10px 14px",background:"var(--accent-bg)",borderRadius:10,marginBottom:16,fontSize:12,color:"var(--accent)"}}>Le PIN de la borne sera 1234 par defaut</div>
+        <div style={{padding:"10px 14px",background:"var(--accent-bg)",borderRadius:10,marginBottom:16,fontSize:12,color:"var(--accent)"}}>Le PIN de la borne sera 1234 par defaut · Secteur determine les postes disponibles</div>
         <div style={{display:"flex",gap:10}}>
           <button onClick={()=>setCreateModal(false)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
           <button onClick={createClient} style={{flex:1,height:44,borderRadius:12,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>Creer le client</button>
