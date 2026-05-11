@@ -480,8 +480,11 @@ export default function Login() {
       <Footer/>
 
       {showLogin&&(
-        <div onClick={()=>closeLogin()} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:20}}>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:20}}>
           <div onClick={e=>e.stopPropagation()} style={{background:SURF,borderRadius:20,padding:32,width:'100%',maxWidth:380,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`}}>
+            <div style={{display:'flex',justifyContent:'flex-end',marginBottom:4}}>
+              <button onClick={()=>closeLogin()} style={{width:30,height:30,borderRadius:'50%',border:'none',background:'var(--bg)',color:'var(--text2)',fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✕</button>
+            </div>
             <div style={{textAlign:'center',marginBottom:24}}>
               <div style={{width:48,height:48,background:A,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,color:'white',fontWeight:800,margin:'0 auto 14px'}}>P</div>
               <div style={{fontSize:20,fontWeight:800,color:TEXT}}>Connexion</div>
