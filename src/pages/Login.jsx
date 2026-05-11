@@ -8,7 +8,7 @@ export default function Login() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showLogin, setShowLogin] = useState(false)
-  function openLogin(){navigate('/login');openLogin()}
+  function openLogin(){navigate('/login');setShowLogin(true)}
   function closeLogin(){navigate(location.pathname==='/login'?'/':location.pathname);setShowLogin(false)}
   const [_page, _setPage] = useState('home')
   const [legalSection, setLegalSection] = useState('cgu')
