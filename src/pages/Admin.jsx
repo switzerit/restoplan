@@ -300,7 +300,7 @@ export default function Admin() {
     </div>
     <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:28}}>
-        {[{icon:"👤",label:"Clients",value:gerants.length},{icon:"🏪",label:"Etablissements actifs",value:restaurants.filter(r=>r.actif).length},{icon:"👥",label:"Employes",value:employes.length},{icon:"✅",label:"Clients actifs",value:gerants.filter(g=>g.actif).length}].map((s,i)=>(
+        {[{icon:"👤",label:"Clients",value:gerants.length},{icon:"🏪",label:"Etablissements actifs",value:restaurants.filter(r=>r.actif&&r.gerant_id).length},{icon:"👥",label:"Employes",value:employes.length},{icon:"✅",label:"Clients actifs",value:gerants.filter(g=>g.actif).length}].map((s,i)=>(
           <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
             <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
             <div style={{fontSize:22,fontWeight:800}}>{s.value}</div>
