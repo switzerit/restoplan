@@ -8,6 +8,8 @@ export default function Login() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showLogin, setShowLogin] = useState(false)
+  function openLogin(){navigate('/login');openLogin()}
+  function closeLogin(){navigate(location.pathname==='/login'?'/':location.pathname);setShowLogin(false)}
   const [_page, _setPage] = useState('home')
   const [legalSection, setLegalSection] = useState('cgu')
   const [contactForm, setContactForm] = useState({nom:'',email:'',entreprise:'',secteur:'',message:''})
@@ -22,7 +24,7 @@ export default function Login() {
         if(profil?.role==='super_admin') navigate('/admin')
         else if(profil?.role==='gerant') navigate('/gerant')
         else navigate('/moi')
-      } else { setLoading(false); if(location.pathname==='/login') setShowLogin(true) }
+      } else { setLoading(false); if(location.pathname==='/login') openLogin() }
     })
   },[])
 
@@ -58,11 +60,11 @@ export default function Login() {
         <span style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,background:'#e8f2fd',color:A,marginLeft:2}}>Beta</span>
       </div>
       <div style={{display:'flex',gap:4,alignItems:'center'}}>
-        {[['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Légal','legal'],['Contact','contact']].map(([label,id])=>(
+        {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Légal','legal'],['Contact','contact']].map(([label,id])=>(
           <button key={id} onClick={()=>goPage(id)} style={{padding:'6px 14px',borderRadius:8,border:'none',background:page===id?'#e8f2fd':'transparent',color:page===id?A:TEXT2,fontSize:13,fontWeight:600,cursor:'pointer'}}>{label}</button>
         ))}
         <div style={{width:1,height:20,background:BORDER,margin:'0 8px'}}/>
-        <button onClick={()=>setShowLogin(true)} style={{padding:'7px 16px',borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:13,fontWeight:600,cursor:'pointer'}}>Connexion</button>
+        <button onClick={()=>openLogin()} style={{padding:'7px 16px',borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:13,fontWeight:600,cursor:'pointer'}}>Connexion</button>
         <button onClick={()=>goPage('contact')} style={{padding:'7px 16px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Demander une démo</button>
       </div>
     </nav>
@@ -383,7 +385,7 @@ export default function Login() {
             <div style={{background:'#e8f2fd',border:'1px solid rgba(0,113,227,.15)',borderRadius:14,padding:'18px'}}>
               <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:6}}>Déjà client ?</div>
               <div style={{fontSize:12,color:TEXT2,marginBottom:12}}>Connectez-vous à votre espace gérant.</div>
-              <button onClick={()=>setShowLogin(true)} style={{padding:'8px 18px',borderRadius:8,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Se connecter →</button>
+              <button onClick={()=>openLogin()} style={{padding:'8px 18px',borderRadius:8,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Se connecter →</button>
             </div>
             <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:14,padding:'18px'}}>
               <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:10}}>Contact direct</div>
@@ -478,7 +480,7 @@ export default function Login() {
       <Footer/>
 
       {showLogin&&(
-        <div onClick={()=>setShowLogin(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:20}}>
+        <div onClick={()=>closeLogin()} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:20}}>
           <div onClick={e=>e.stopPropagation()} style={{background:SURF,borderRadius:20,padding:32,width:'100%',maxWidth:380,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`}}>
             <div style={{textAlign:'center',marginBottom:24}}>
               <div style={{width:48,height:48,background:A,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,color:'white',fontWeight:800,margin:'0 auto 14px'}}>P</div>
@@ -501,7 +503,7 @@ export default function Login() {
             </form>
             <div style={{textAlign:'center',marginTop:14}}>
               <span style={{fontSize:12,color:TEXT3}}>Pas encore client ? </span>
-              <span style={{fontSize:12,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{setShowLogin(false);goPage('contact')}}>Demander une démo</span>
+              <span style={{fontSize:12,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{closeLogin();goPage('contact')}}>Demander une démo</span>
             </div>
           </div>
         </div>
