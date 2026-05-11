@@ -65,9 +65,7 @@ export default function Admin() {
       nom:nom_resto, adresse, secteur:secteur||'restaurant', actif:true, pin_borne:"1234"
     }).select().single()
     if(restoErr){showToast("Erreur: "+restoErr.message);return}
-    console.log("Payload edge fn:",{email,password,prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null})
     const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password,prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
-    console.log("Edge fn response:",data,error)
     if(error||data?.error){showToast("Erreur compte: "+(data?.error||error?.message));return}
     const newUserId = data?.user_id
     if(newUserId){
