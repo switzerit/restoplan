@@ -67,12 +67,11 @@ export default function Admin() {
     if(restoErr){showToast("Erreur: "+restoErr.message);return}
     const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password,prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
     if(error||data?.error){showToast("Erreur compte: "+(data?.error||error?.message));return}
-    const {data:newProfils} = await supabase.from("profils").select("*").order("created_at",{ascending:false}).limit(1)
-    const newProfil = newProfils?.[0]
-    if(newProfil){
-      await supabase.from("profils").update({role:"gerant",employe_id:null}).eq("id",newProfil.id)
-      await supabase.from("restaurants").update({gerant_id:newProfil.user_id}).eq("id",resto.id)
-      await supabase.from("gerants").insert({user_id:newProfil.user_id,prenom,nom,email,telephone,entreprise:entreprise||nom_resto})
+    const newUserId = data?.user_id
+    if(newUserId){
+      await supabase.from("profils").update({role:"gerant",employe_id:null}).eq("user_id",newUserId)
+      await supabase.from("restaurants").update({gerant_id:newUserId}).eq("id",resto.id)
+      await supabase.from("gerants").insert({user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto})
     }
     setCreateModal(false)
     setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
