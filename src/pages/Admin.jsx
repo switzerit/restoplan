@@ -66,7 +66,15 @@ export default function Admin() {
     }).select().single()
     if(restoErr){showToast("Erreur: "+restoErr.message);return}
     const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password,prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
-    if(error||data?.error){showToast("Erreur compte: "+(data?.error||error?.message));return}
+    if(error||data?.error){
+      let msg = data?.error || "Erreur inconnue"
+      if(!data && error){
+        try{const j=await error.context?.json?.();if(j?.error)msg=j.error}catch(e){}
+      }
+      await supabase.from("restaurants").delete().eq("id",resto.id)
+      showToast("Erreur: "+msg)
+      return
+    }
     const newUserId = data?.user_id
     if(newUserId){
       await supabase.from("profils").update({role:"gerant",employe_id:null}).eq("user_id",newUserId)
