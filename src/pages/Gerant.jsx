@@ -8,7 +8,32 @@ const COLORS = [
   {bg:'#fff2f1',color:'#b02020'},{bg:'#fdf0f8',color:'#8a2060'},
 ]
 const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
-const POSTES = ['cuisine','salle','bar']
+const POSTES_PAR_SECTEUR = {
+  restaurant: ['cuisine','salle','bar','plonge','livraison'],
+  hotel: ['reception','menage','restauration','maintenance','securite','spa','conciergerie'],
+  garage: ['mecanique','carrosserie','electricite','accueil','magasin','expertise'],
+  commerce: ['caisse','rayon','logistique','accueil','securite','inventaire'],
+  clinique: ['medecin','infirmier','aide-soignant','accueil','pharmacie','radiologie'],
+  spa: ['masseur','estheticien','accueil','commercial','nettoyage'],
+  btp: ['maçon','electricien','plombier','charpentier','peintre','chef-chantier'],
+  logistique: ['cariste','preparateur','chauffeur','expedition','reception','qualite'],
+  education: ['enseignant','surveillant','administration','entretien','cantine'],
+  securite: ['agent','chef-equipe','rondier','videosurvaillance','accueil'],
+  autre: ['responsable','employe','technicien','administratif','commercial','terrain'],
+}
+const SECTEURS = [
+  {id:'restaurant',label:'🍽️ Restaurant'},
+  {id:'hotel',label:'🏨 Hôtel'},
+  {id:'garage',label:'🔧 Garage'},
+  {id:'commerce',label:'🏪 Commerce'},
+  {id:'clinique',label:'🏥 Clinique'},
+  {id:'spa',label:'💆 Spa & Salon'},
+  {id:'btp',label:'🏗️ BTP'},
+  {id:'logistique',label:'📦 Logistique'},
+  {id:'education',label:'🎓 Éducation'},
+  {id:'securite',label:'🛡️ Sécurité'},
+  {id:'autre',label:'🏢 Autre'},
+]
 
 function ini(p,n){return((p?.[0]||'')+(n?.[0]||'')).toUpperCase()}
 function getMonday(d){const dt=new Date(d);const day=dt.getDay();const diff=dt.getDate()-day+(day===0?-6:1);return new Date(dt.setDate(diff))}
@@ -280,7 +305,22 @@ export default function Gerant() {
   const presentCount = employes.filter(e=>{const pts=pointages[e.id]||[];return pts.some(p=>p.heure_arrivee&&!p.heure_depart)}).length
   const weekDays = Array.from({length:7},(_,i)=>addDays(weekStart,i))
   const weekLabel = `${fmtLabel(weekDays[0])} – ${fmtLabel(weekDays[6])}`
-  const shiftColors = {cuisine:{bg:'#f0faf3',color:'#1a6b35',border:'#b8e8c8'},salle:{bg:'#e8f2fd',color:'#004aad',border:'#b3d4f7'},bar:{bg:'#fff8ee',color:'#8a4a00',border:'#ffd99a'}}
+  const SHIFT_COLORS_LIST = [
+    {bg:'#f0faf3',color:'#1a6b35',border:'#b8e8c8'},
+    {bg:'#e8f2fd',color:'#004aad',border:'#b3d4f7'},
+    {bg:'#fff8ee',color:'#8a4a00',border:'#ffd99a'},
+    {bg:'#f0f0fc',color:'#3a3880',border:'#c8c8f0'},
+    {bg:'#fff2f1',color:'#b02020',border:'#f0b8b8'},
+    {bg:'#fdf0f8',color:'#8a2060',border:'#e8b8d8'},
+    {bg:'#f0fff4',color:'#1a6b35',border:'#a8e8b8'},
+    {bg:'#fffbf0',color:'#8a5a00',border:'#f0d898'},
+  ]
+  function getShiftColor(poste){
+    const postes = POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre
+    const idx = postes.indexOf(poste)
+    return SHIFT_COLORS_LIST[Math.max(0,idx)%SHIFT_COLORS_LIST.length]
+  }
+  const shiftColors = new Proxy({},{get:(_,poste)=>getShiftColor(poste)})
 
   if(!currentResto) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>Chargement...</div>
 
@@ -635,11 +675,19 @@ export default function Gerant() {
                     <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Adresse</label>
                     <input defaultValue={currentResto.adresse||''} id='resto-adresse' style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
                   </div>
+                  <div>
+                    <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Secteur d'activité</label>
+                    <select id='resto-secteur' defaultValue={currentResto.secteur||'restaurant'} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                      {SECTEURS.map(s=><option key={s.id} value={s.id}>{s.label}</option>)}
+                    </select>
+                    <div style={{fontSize:11,color:'var(--text3)',marginTop:4}}>Détermine les postes disponibles dans le planning</div>
+                  </div>
                   <button onClick={async()=>{
                     const nom=document.getElementById('resto-nom').value
                     const adresse=document.getElementById('resto-adresse').value
-                    await supabase.from('restaurants').update({nom,adresse}).eq('id',currentResto.id)
-                    setCurrentResto({...currentResto,nom,adresse})
+                    const secteur=document.getElementById('resto-secteur').value
+                    await supabase.from('restaurants').update({nom,adresse,secteur}).eq('id',currentResto.id)
+                    setCurrentResto({...currentResto,nom,adresse,secteur})
                     showToast('Informations mises à jour')
                   }} style={{height:40,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
                 </div>
@@ -710,8 +758,12 @@ export default function Gerant() {
             <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{employes.find(e=>e.id===shiftModal.empId)?.prenom} — {DAYS[shiftModal.dayIdx]} {fmtLabel(addDays(weekStart,shiftModal.dayIdx))}</div>
             <div style={{marginBottom:12}}>
               <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Poste</label>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6}}>
-                {POSTES.map(p=>{const sc=shiftColors[p];const sel=form.poste===p;return <button key={p} onClick={()=>setForm(f=>({...f,poste:p}))} style={{padding:'9px 4px',borderRadius:8,border:`2px solid ${sel?sc.border:'var(--border)'}`,background:sel?sc.bg:'var(--bg)',cursor:'pointer',fontSize:11,fontWeight:700,color:sel?sc.color:'var(--text2)'}}>{p[0].toUpperCase()+p.slice(1)}</button>})}
+              <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+                {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(p=>{
+                  const sel=form.poste===p
+                  const colors={bg:sel?'var(--accent-bg)':'var(--bg)',color:sel?'var(--accent)':'var(--text2)',border:sel?'var(--accent)':'var(--border)'}
+                  return <button key={p} onClick={()=>setForm(f=>({...f,poste:p}))} style={{padding:'7px 12px',borderRadius:8,border:`2px solid ${colors.border}`,background:colors.bg,cursor:'pointer',fontSize:11,fontWeight:700,color:colors.color}}>{p[0].toUpperCase()+p.slice(1)}</button>
+                })}
               </div>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
