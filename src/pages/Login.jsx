@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -8,11 +8,12 @@ export default function Login() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showLogin, setShowLogin] = useState(false)
-  const [page, setPage] = useState('home')
+  const [_page, _setPage] = useState('home')
   const [legalSection, setLegalSection] = useState('cgu')
   const [contactForm, setContactForm] = useState({nom:'',email:'',entreprise:'',secteur:'',message:''})
   const [contactSent, setContactSent] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(()=>{
     supabase.auth.getSession().then(async({data})=>{
@@ -21,7 +22,7 @@ export default function Login() {
         if(profil?.role==='super_admin') navigate('/admin')
         else if(profil?.role==='gerant') navigate('/gerant')
         else navigate('/moi')
-      } else { setLoading(false) }
+      } else { setLoading(false); if(location.pathname==='/login') setShowLogin(true) }
     })
   },[])
 
@@ -43,7 +44,10 @@ export default function Login() {
   const TEXT='#1d1d1f', TEXT2='#6e6e73', TEXT3='#aeaeb2', GREEN='#34c759'
 
   const scrollTop=()=>window.scrollTo({top:0,behavior:'smooth'})
-  const goPage=(p)=>{setPage(p);scrollTop()}
+  const pageMap={'home':'/','fonctionnalites':'/fonctionnalites','tarifs':'/tarifs','contact':'/contact','legal':'/legal'}
+  const goPage=(p)=>{navigate(pageMap[p]||'/'+p);scrollTop()}
+  const path=location.pathname.replace('/','') || 'home'
+  const page=path==='login'?'home':path||'home'
   const inp={width:'100%',padding:'10px 12px',borderRadius:9,border:`1.5px solid ${BORDER}`,background:BG,fontSize:13,color:TEXT,outline:'none'}
 
   const Nav=()=>(
