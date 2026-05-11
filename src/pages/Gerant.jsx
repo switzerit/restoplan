@@ -668,6 +668,10 @@ export default function Gerant() {
                   <div style={{fontSize:14,fontWeight:800}}>Informations du restaurant</div>
                 </div>
                 <div style={{padding:'20px',display:'flex',flexDirection:'column',gap:12}}>
+                  <div style={{padding:'10px 14px',background:'var(--accent-bg)',borderRadius:10,fontSize:12,color:'var(--accent)',display:'flex',alignItems:'center',gap:8}}>
+                    <span>{SECTEURS.find(s=>s.id===(currentResto.secteur||'restaurant'))?.label||'🍽️ Restaurant'}</span>
+                    <span style={{color:'var(--text3)'}}>· Secteur défini par votre administrateur</span>
+                  </div>
                   <div>
                     <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Nom</label>
                     <input defaultValue={currentResto.nom} id='resto-nom' style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
@@ -676,19 +680,12 @@ export default function Gerant() {
                     <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Adresse</label>
                     <input defaultValue={currentResto.adresse||''} id='resto-adresse' style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
                   </div>
-                  <div>
-                    <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Secteur d'activité</label>
-                    <select id='resto-secteur' defaultValue={currentResto.secteur||'restaurant'} style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
-                      {SECTEURS.map(s=><option key={s.id} value={s.id}>{s.label}</option>)}
-                    </select>
-                    <div style={{fontSize:11,color:'var(--text3)',marginTop:4}}>Détermine les postes disponibles dans le planning</div>
-                  </div>
+
                   <button onClick={async()=>{
                     const nom=document.getElementById('resto-nom').value
                     const adresse=document.getElementById('resto-adresse').value
-                    const secteur=document.getElementById('resto-secteur').value
-                    await supabase.from('restaurants').update({nom,adresse,secteur}).eq('id',currentResto.id)
-                    setCurrentResto({...currentResto,nom,adresse,secteur})
+                    await supabase.from('restaurants').update({nom,adresse}).eq('id',currentResto.id)
+                    setCurrentResto({...currentResto,nom,adresse})
                     showToast('Informations mises à jour')
                   }} style={{height:40,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
                 </div>
@@ -798,7 +795,7 @@ export default function Gerant() {
             <div style={{marginBottom:16}}>
               <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Poste</label>
               <select value={empForm.role} onChange={e=>setEmpForm(f=>({...f,role:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
-                {['Chef de cuisine','Second cuisine','Commis cuisine','Serveur / Serveuse','Chef de rang','Barman / Barmaid','Plongeur'].map(r=><option key={r}>{r}</option>)}
+                {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(r=><option key={r}>{r[0].toUpperCase()+r.slice(1)}</option>)}
               </select>
             </div>
             <div style={{display:'flex',gap:8}}>
@@ -910,7 +907,7 @@ export default function Gerant() {
             <div style={{marginBottom:12}}>
               <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Poste</label>
               <select value={editEmpForm.role} onChange={e=>setEditEmpForm(f=>({...f,role:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
-                {['Chef de cuisine','Second cuisine','Commis cuisine','Serveur / Serveuse','Chef de rang','Barman / Barmaid','Plongeur'].map(r=><option key={r}>{r}</option>)}
+                {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(r=><option key={r}>{r[0].toUpperCase()+r.slice(1)}</option>)}
               </select>
             </div>
             {!profilsMap[editEmpModal.id] && (
