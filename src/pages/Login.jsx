@@ -239,7 +239,7 @@ export default function Login() {
     <>
       {/* HERO 2 colonnes */}
       <section style={{paddingTop:56,background:SURF,borderBottom:`1px solid ${BORDER}`}}>
-        <div style={{maxWidth:1200,margin:'0 auto',padding:isMobile?'40px 20px':'56px 40px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'center'}}>
+        <div style={{padding:isMobile?'40px 20px':'56px 80px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'center'}}>
           {/* Gauche */}
           <div>
             <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'5px 12px',borderRadius:20,background:'#e8f2fd',border:'1px solid rgba(0,113,227,.15)',marginBottom:22}}>
@@ -309,7 +309,7 @@ export default function Login() {
 
       {/* STATS bande sombre */}
       <section style={{background:TEXT,padding:'28px 24px'}}>
-        <div style={{maxWidth:1200,margin:'0 auto',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:0}}>
+        <div style={{padding:'0 80px',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:0}}>
           {[{v:'< 5 min',l:'déploiement'},{v:'100%',l:'mobile-first'},{v:'24/7',l:'disponibilité'},{v:'CHF',l:'tarification locale'}].map((s,i)=>(
             <div key={i} style={{textAlign:'center',borderRight:i<3?'1px solid rgba(255,255,255,.08)':'none',padding:'0 16px'}}>
               <div style={{fontSize:isMobile?20:26,fontWeight:900,color:i===0?A:'white',letterSpacing:'-.03em'}}>{s.v}</div>
@@ -321,7 +321,7 @@ export default function Login() {
 
       {/* FEATURES 3 colonnes */}
       <section style={{padding:isMobile?'40px 20px':'56px 48px',background:BG}}>
-        <div style={{maxWidth:1200,margin:'0 auto'}}>
+        <div style={{padding:'0 80px'}}>
           <div style={{textAlign:'center',marginBottom:40}}>
             <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Fonctionnalités</div>
             <div style={{fontSize:isMobile?26:34,fontWeight:800,color:TEXT,marginBottom:8,letterSpacing:'-.03em'}}>Tout ce dont vous avez besoin</div>
@@ -353,7 +353,7 @@ export default function Login() {
 
       {/* SECTEURS */}
       <section style={{padding:isMobile?'32px 20px':'40px 40px',background:SURF,borderTop:`1px solid ${BORDER}`}}>
-        <div style={{maxWidth:800,margin:'0 auto',textAlign:'center'}}>
+        <div style={{maxWidth:680,margin:'0 auto',textAlign:'center'}}>
           <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Secteurs</div>
           <div style={{fontSize:isMobile?22:28,fontWeight:800,color:TEXT,marginBottom:6,letterSpacing:'-.03em'}}>Pour tous les professionnels</div>
           <div style={{fontSize:13,color:TEXT2,marginBottom:22}}>Kronvo s'adapte à n'importe quel secteur avec des équipes terrain</div>
@@ -367,7 +367,7 @@ export default function Login() {
 
       {/* COMMENT CA MARCHE */}
       <section style={{padding:isMobile?'40px 20px':'56px 48px',background:BG}}>
-        <div style={{maxWidth:900,margin:'0 auto'}}>
+        <div style={{maxWidth:900,margin:'0 auto',padding:'0 40px'}}>
           <div style={{textAlign:'center',marginBottom:36}}>
             <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Mise en place</div>
             <div style={{fontSize:isMobile?22:32,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Opérationnel en 5 minutes</div>
