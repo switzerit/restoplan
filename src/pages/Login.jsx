@@ -1,11 +1,28 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate, useLocation } from 'react-router-dom'
 
-const LOGO = <svg width="28" height="20" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
-const LOGO_SM = <svg width="22" height="16" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
+const LOGO_SM = <svg width="24" height="17" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
 
-// QR Code décoratif animé (faux QR qui change toutes les 30s)
+const Icon = ({name,size=20,color='currentColor'}) => {
+  const icons = {
+    calendar: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>,
+    qr: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill={color}/><rect x="16" y="5" width="3" height="3" fill={color}/><rect x="5" y="16" width="3" height="3" fill={color}/><path d="M14 14h3v3h-3z"/><path d="M17 17h4"/><path d="M17 14v4"/></svg>,
+    users: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+    phone: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>,
+    file: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>,
+    building: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18"/><path d="M3 9h6"/><path d="M3 15h6"/><path d="M15 9h3"/><path d="M15 15h3"/></svg>,
+    check: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+    x: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+    arrow: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+    clock: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+    zap: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+    shield: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+    chart: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  }
+  return icons[name] || null
+}
+
 function QRDisplay() {
   const [seed, setSeed] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -14,76 +31,32 @@ function QRDisplay() {
     let p = 0
     const iv = setInterval(()=>{
       p += 100/300
-      if(p >= 100){
-        setFade(true)
-        setTimeout(()=>{
-          setSeed(s=>s+1)
-          setProgress(0)
-          setFade(false)
-          p = 0
-        }, 400)
-      } else {
-        setProgress(p)
-      }
+      if(p >= 100){ setFade(true); setTimeout(()=>{ setSeed(s=>s+1); setProgress(0); setFade(false); p=0 }, 350) }
+      else setProgress(p)
     }, 100)
     return ()=>clearInterval(iv)
   },[])
-
-  // Génère une grille QR pseudo-aléatoire basée sur seed
-  const rng = (x,y,s) => ((x*7+y*13+s*31)%17 > 7)
-  const size = 11
-  const cells = []
+  const rng=(x,y,s)=>((x*7+y*13+s*31)%17>7)
+  const size=11, cs=5, tot=size*cs+(size-1)
+  const cells=[]
   for(let r=0;r<size;r++) for(let c=0;c<size;c++) cells.push({r,c,v:rng(r,c,seed)})
-
-  // Zones fixes (coins QR)
-  const isCorner = (r,c)=>{
-    if(r<3&&c<3) return true
-    if(r<3&&c>=size-3) return true
-    if(r>=size-3&&c<3) return true
-    return false
-  }
-  const isCornerInner = (r,c)=>{
-    if(r>=1&&r<=1&&c>=1&&c<=1) return true
-    if(r>=1&&r<=1&&c>=size-2&&c<=size-2) return true
-    if(r>=size-2&&r<=size-2&&c>=1&&c<=1) return true
-    return false
-  }
-
-  const cellSize = 6
-  const total = size * cellSize + (size-1)
-
+  const isFixed=(r,c)=>(r<3&&c<3)||(r<3&&c>=size-3)||(r>=size-3&&c<3)
   return (
-    <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:10}}>
-      <div style={{
-        background:'white',
-        borderRadius:12,
-        padding:12,
-        border:'1px solid #e5e5ea',
-        opacity: fade ? 0.3 : 1,
-        transition: fade ? 'opacity .3s' : 'none',
-        boxShadow:'0 2px 12px rgba(0,0,0,.06)'
-      }}>
-        <svg width={total} height={total} viewBox={`0 0 ${total} ${total}`}>
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6}}>
+      <div style={{background:'white',borderRadius:8,padding:8,opacity:fade?.2:1,transition:fade?'opacity .3s':'none',boxShadow:'0 1px 4px rgba(0,0,0,.08)'}}>
+        <svg width={tot} height={tot} viewBox={`0 0 ${tot} ${tot}`}>
           {cells.map(({r,c,v})=>{
-            const x = c*(cellSize+1)
-            const y = r*(cellSize+1)
-            let fill = '#1d1d1f'
-            if(isCorner(r,c)) fill = (r===0||r===2||c===0||c===2) ? '#1d1d1f' : 'white'
-            else if(!v) fill = 'white'
-            else fill = '#1d1d1f'
-            if(isCornerInner(r,c)) fill = '#1d1d1f'
-            return <rect key={`${r}-${c}`} x={x} y={y} width={cellSize} height={cellSize} rx={1} fill={fill}/>
+            const x=c*(cs+1),y=r*(cs+1)
+            const fill=isFixed(r,c)?(r===0||r===2||c===0||c===2||(r>=size-3&&(c===0||c===2))?'#1d1d1f':'white'):(v?'#1d1d1f':'white')
+            return <rect key={`${r}-${c}`} x={x} y={y} width={cs} height={cs} rx={0.8} fill={fill}/>
           })}
         </svg>
       </div>
-      <div style={{width:120,display:'flex',flexDirection:'column',gap:4}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <span style={{fontSize:11,fontWeight:600,color:'#6e6e73'}}>Se renouvelle dans</span>
-          <span style={{fontSize:11,fontWeight:700,color:'#0071e3'}}>{Math.ceil(30-(progress*30/100))}s</span>
+      <div style={{width:80}}>
+        <div style={{height:2,background:'#e5e5ea',borderRadius:1}}>
+          <div style={{height:'100%',background:'#0071e3',borderRadius:1,width:`${progress}%`,transition:'width .1s linear'}}/>
         </div>
-        <div style={{height:3,background:'#e5e5ea',borderRadius:2}}>
-          <div style={{height:'100%',background:'#0071e3',borderRadius:2,width:`${progress}%`,transition:'width .1s linear'}}/>
-        </div>
+        <div style={{fontSize:9,color:'#8e8e93',textAlign:'center',marginTop:3,fontWeight:600,letterSpacing:'.02em'}}>Renouvellement {Math.ceil(30-(progress*30/100))}s</div>
       </div>
     </div>
   )
@@ -99,12 +72,12 @@ export default function Login() {
   const [legalSection, setLegalSection] = useState('cgu')
   const [contactForm, setContactForm] = useState({nom:'',email:'',entreprise:'',secteur:'',message:''})
   const [contactSent, setContactSent] = useState(false)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 900)
   const navigate = useNavigate()
   const location = useLocation()
 
   useEffect(()=>{
-    const h=()=>setIsMobile(window.innerWidth<768)
+    const h=()=>setIsMobile(window.innerWidth<900)
     window.addEventListener('resize',h)
     return()=>window.removeEventListener('resize',h)
   },[])
@@ -112,7 +85,7 @@ export default function Login() {
   useEffect(()=>{
     supabase.auth.getSession().then(async({data})=>{
       if(data.session){
-        const {data:profil} = await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
+        const {data:profil}=await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
         if(profil?.role==='super_admin') navigate('/admin')
         else if(profil?.role==='gerant') navigate('/gerant')
         else navigate('/moi')
@@ -121,11 +94,10 @@ export default function Login() {
   },[])
 
   async function handleLogin(e){
-    e.preventDefault()
-    setLoading(true); setError('')
-    const {data,error} = await supabase.auth.signInWithPassword({email,password})
+    e.preventDefault(); setLoading(true); setError('')
+    const {data,error}=await supabase.auth.signInWithPassword({email,password})
     if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
-    const {data:profil} = await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
+    const {data:profil}=await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
     if(profil?.role==='super_admin') navigate('/admin')
     else if(profil?.role==='gerant') navigate('/gerant')
     else navigate('/moi')
@@ -135,7 +107,8 @@ export default function Login() {
   if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#fff',color:'#888',fontFamily:'var(--font)'}}>Chargement...</div>
 
   const A='#0071e3', BG='#f5f5f7', SURF='#ffffff', BORDER='#e5e5ea'
-  const TEXT='#1d1d1f', TEXT2='#6e6e73', TEXT3='#aeaeb2', GREEN='#34c759'
+  const TEXT='#1d1d1f', TEXT2='#6e6e73', TEXT3='#aeaeb2'
+  const W = {maxWidth:1100,margin:'0 auto',padding:isMobile?'0 20px':'0 56px'}
 
   const scrollTop=()=>window.scrollTo({top:0,behavior:'smooth'})
   const pageMap={'home':'/','fonctionnalites':'/fonctionnalites','tarifs':'/tarifs','contact':'/contact','legal':'/legal'}
@@ -146,38 +119,38 @@ export default function Login() {
 
   const Nav=()=>(
     <>
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:56,background:'rgba(255,255,255,.95)',backdropFilter:'blur(16px)',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',padding:'0 24px',gap:8}}>
+      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:56,background:'rgba(255,255,255,.96)',backdropFilter:'blur(20px)',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',padding:'0 56px',gap:8}}>
         <div onClick={()=>goPage('home')} style={{display:'flex',alignItems:'center',gap:8,flex:1,cursor:'pointer'}}>
           {LOGO_SM}
-          <span style={{fontSize:17,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Kronvo</span>
-          <span style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,background:'#e8f2fd',color:A}}>Beta</span>
+          <span style={{fontSize:17,fontWeight:800,color:TEXT,letterSpacing:'-.04em'}}>Kronvo</span>
+          <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:20,background:'#e8f2fd',color:A,letterSpacing:'.04em'}}>BETA</span>
         </div>
-        {isMobile ? (
+        {isMobile?(
           <div style={{display:'flex',gap:8,alignItems:'center'}}>
             <button onClick={()=>setShowLogin(true)} style={{padding:'8px 16px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Connexion</button>
-            <button onClick={()=>setMenuOpen(!menuOpen)} style={{width:38,height:38,borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:4}}>
-              <span style={{width:18,height:2,background:TEXT,borderRadius:2,display:'block'}}></span>
-              <span style={{width:18,height:2,background:TEXT,borderRadius:2,display:'block'}}></span>
-              {!menuOpen&&<span style={{width:18,height:2,background:TEXT,borderRadius:2,display:'block'}}></span>}
+            <button onClick={()=>setMenuOpen(!menuOpen)} style={{width:36,height:36,borderRadius:8,border:`1px solid ${BORDER}`,background:SURF,cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:4,padding:0}}>
+              <span style={{width:16,height:1.5,background:TEXT,borderRadius:1,display:'block'}}></span>
+              <span style={{width:16,height:1.5,background:TEXT,borderRadius:1,display:'block'}}></span>
+              <span style={{width:16,height:1.5,background:TEXT,borderRadius:1,display:'block'}}></span>
             </button>
           </div>
-        ) : (
-          <div style={{display:'flex',gap:2,alignItems:'center'}}>
-            {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([label,id])=>(
-              <button key={id} onClick={()=>goPage(id)} style={{padding:'6px 12px',borderRadius:8,border:'none',background:page===id?'#e8f2fd':'transparent',color:page===id?A:TEXT2,fontSize:13,fontWeight:600,cursor:'pointer'}}>{label}</button>
+        ):(
+          <div style={{display:'flex',gap:1,alignItems:'center'}}>
+            {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([l,id])=>(
+              <button key={id} onClick={()=>goPage(id)} style={{padding:'6px 14px',borderRadius:8,border:'none',background:page===id?'#f0f5ff':'transparent',color:page===id?A:TEXT2,fontSize:13,fontWeight:page===id?600:500,cursor:'pointer'}}>{l}</button>
             ))}
-            <div style={{width:1,height:20,background:BORDER,margin:'0 8px'}}/>
-            <button onClick={()=>setShowLogin(true)} style={{padding:'7px 14px',borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:13,fontWeight:600,cursor:'pointer'}}>Connexion</button>
-            <button onClick={()=>goPage('contact')} style={{padding:'7px 14px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Demander une démo</button>
+            <div style={{width:1,height:18,background:BORDER,margin:'0 10px'}}/>
+            <button onClick={()=>setShowLogin(true)} style={{padding:'7px 16px',borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:13,fontWeight:500,cursor:'pointer'}}>Connexion</button>
+            <button onClick={()=>goPage('contact')} style={{padding:'7px 16px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer',marginLeft:4}}>Demander une démo</button>
           </div>
         )}
       </nav>
       {isMobile&&menuOpen&&(
-        <div style={{position:'fixed',top:56,left:0,right:0,zIndex:99,background:SURF,borderBottom:`1px solid ${BORDER}`,boxShadow:'0 8px 24px rgba(0,0,0,.08)',padding:'8px 0 16px'}}>
-          {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([label,id])=>(
-            <button key={id} onClick={()=>goPage(id)} style={{width:'100%',padding:'14px 24px',border:'none',background:page===id?'#e8f2fd':'transparent',color:page===id?A:TEXT,fontSize:15,fontWeight:page===id?700:500,cursor:'pointer',textAlign:'left',display:'block'}}>{label}</button>
+        <div style={{position:'fixed',top:56,left:0,right:0,zIndex:99,background:SURF,borderBottom:`1px solid ${BORDER}`,boxShadow:'0 12px 40px rgba(0,0,0,.1)',padding:'8px 0 20px'}}>
+          {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([l,id])=>(
+            <button key={id} onClick={()=>goPage(id)} style={{width:'100%',padding:'13px 24px',border:'none',background:'transparent',color:TEXT,fontSize:15,fontWeight:500,cursor:'pointer',textAlign:'left',display:'block'}}>{l}</button>
           ))}
-          <div style={{borderTop:`1px solid ${BORDER}`,margin:'8px 16px 0',paddingTop:12}}>
+          <div style={{margin:'10px 20px 0',paddingTop:14,borderTop:`1px solid ${BORDER}`}}>
             <button onClick={()=>{goPage('contact');setMenuOpen(false)}} style={{width:'100%',padding:'14px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
           </div>
         </div>
@@ -186,48 +159,31 @@ export default function Login() {
   )
 
   const Footer=()=>(
-    <footer style={{background:TEXT,color:'white',padding:isMobile?'36px 20px 28px':'44px 32px 28px'}}>
-      <div style={{maxWidth:1000,margin:'0 auto'}}>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2fr 1fr 1fr 1fr',gap:isMobile?24:40,marginBottom:28}}>
+    <footer style={{background:'#0a0a0f',color:'white',padding:isMobile?'44px 20px 28px':'52px 56px 32px'}}>
+      <div style={W}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2fr 1fr 1fr 1fr',gap:isMobile?28:48,marginBottom:32}}>
           <div>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-              {LOGO_SM}
-              <span style={{fontSize:16,fontWeight:800}}>Kronvo</span>
-            </div>
-            <div style={{fontSize:13,color:'rgba(255,255,255,.5)',lineHeight:1.7,maxWidth:240}}>La solution de gestion d'équipes pour tous les professionnels.</div>
-            <div style={{fontSize:12,color:'rgba(255,255,255,.3)',marginTop:10}}>Propulsé par <a href="https://switzerit.com" target="_blank" rel="noreferrer" style={{color:'rgba(255,255,255,.5)',textDecoration:'none',fontWeight:600}}>SwitzerIT</a></div>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>{LOGO_SM}<span style={{fontSize:16,fontWeight:800,letterSpacing:'-.03em'}}>Kronvo</span></div>
+            <div style={{fontSize:13,color:'rgba(255,255,255,.45)',lineHeight:1.8,maxWidth:240}}>La solution de gestion d'équipes pour tous les professionnels terrain.</div>
+            <div style={{fontSize:12,color:'rgba(255,255,255,.25)',marginTop:14}}>Propulsé par <a href="https://switzerit.com" target="_blank" rel="noreferrer" style={{color:'rgba(255,255,255,.45)',textDecoration:'none',fontWeight:600}}>SwitzerIT</a></div>
           </div>
-          {isMobile ? (
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
-              {[
-                {title:'Produit',links:[['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']]},
-                {title:'Support',links:[['Contact','contact'],['Démo Teams','contact']]},
-                {title:'Légal',links:[['CGU','legal'],['Confidentialité','legal'],['RGPD','legal']]},
-              ].map(col=>(
-                <div key={col.title}>
-                  <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:10}}>{col.title}</div>
-                  {col.links.map(([l,p])=><div key={l} onClick={()=>goPage(p)} style={{fontSize:12,color:'rgba(255,255,255,.5)',marginBottom:8,cursor:'pointer'}}>{l}</div>)}
-                </div>
-              ))}
+          {[
+            {title:'Produit',links:[['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']]},
+            {title:'Support',links:[['Contact','contact'],['Démo Teams','contact']]},
+            {title:'Légal',links:[['CGU','legal'],['Confidentialité','legal'],['RGPD','legal'],['Cookies','legal']]},
+          ].map(col=>(
+            <div key={col.title}>
+              <div style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.3)',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:14}}>{col.title}</div>
+              {col.links.map(([l,p])=><div key={l} onClick={()=>goPage(p)} style={{fontSize:13,color:'rgba(255,255,255,.45)',marginBottom:10,cursor:'pointer',transition:'color .15s'}}
+              onMouseEnter={e=>e.target.style.color='rgba(255,255,255,.8)'} onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.45)'}>{l}</div>)}
             </div>
-          ) : (
-            [
-              {title:'Produit',links:[['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']]},
-              {title:'Support',links:[['Contact','contact'],['Démo Teams','contact']]},
-              {title:'Légal',links:[['CGU','legal'],['Confidentialité','legal'],['RGPD','legal'],['Cookies','legal']]},
-            ].map(col=>(
-              <div key={col.title}>
-                <div style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,.4)',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:14}}>{col.title}</div>
-                {col.links.map(([l,p])=><div key={l} onClick={()=>goPage(p)} style={{fontSize:13,color:'rgba(255,255,255,.5)',marginBottom:9,cursor:'pointer'}}>{l}</div>)}
-              </div>
-            ))
-          )}
+          ))}
         </div>
-        <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
-          <div style={{fontSize:11,color:'rgba(255,255,255,.3)'}}>© 2026 Kronvo by SwitzerIT · Suisse</div>
-          <div style={{display:'flex',gap:14,fontSize:11}}>
-            {[['Confidentialité','legal'],['CGU','legal'],['RGPD','legal'],['Cookies','legal']].map(([l,p])=>(
-              <span key={l} onClick={()=>goPage(p)} style={{color:'rgba(255,255,255,.3)',cursor:'pointer'}}>{l}</span>
+        <div style={{borderTop:'1px solid rgba(255,255,255,.07)',paddingTop:20,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.25)'}}>© 2026 Kronvo by SwitzerIT · Suisse</div>
+          <div style={{display:'flex',gap:16,fontSize:11}}>
+            {[['Confidentialité','legal'],['CGU','legal'],['RGPD','legal']].map(([l,p])=>(
+              <span key={l} onClick={()=>goPage(p)} style={{color:'rgba(255,255,255,.25)',cursor:'pointer'}}>{l}</span>
             ))}
           </div>
         </div>
@@ -237,69 +193,85 @@ export default function Login() {
 
   const PageHome=()=>(
     <>
-      {/* HERO 2 colonnes */}
-      <section style={{paddingTop:56,background:SURF,borderBottom:`1px solid ${BORDER}`}}>
-        <div style={{padding:isMobile?'40px 20px':'56px 80px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'center'}}>
-          {/* Gauche */}
+      {/* ══ HERO ══ */}
+      <section style={{paddingTop:56,background:`linear-gradient(160deg, #f0f6ff 0%, #ffffff 50%, #f5f5f7 100%)`,borderBottom:`1px solid ${BORDER}`}}>
+        <div style={{...W,padding:isMobile?'52px 20px 44px':'72px 56px 64px',display:isMobile?'block':'grid',gridTemplateColumns:'55% 45%',gap:64,alignItems:'center'}}>
           <div>
-            <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'5px 12px',borderRadius:20,background:'#e8f2fd',border:'1px solid rgba(0,113,227,.15)',marginBottom:22}}>
-              <span style={{width:6,height:6,borderRadius:'50%',background:GREEN,display:'inline-block'}}></span>
-              <span style={{fontSize:12,fontWeight:600,color:A}}>Badgeage QR · Planning · Présences</span>
+            <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 14px',borderRadius:20,background:'rgba(0,113,227,.07)',border:'1px solid rgba(0,113,227,.12)',marginBottom:28}}>
+              <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',boxShadow:'0 0 6px #34c759',display:'inline-block'}}></span>
+              <span style={{fontSize:12,fontWeight:600,color:A,letterSpacing:'.01em'}}>Planning · Badgeage QR · Présences</span>
             </div>
-            <h1 style={{fontSize:isMobile?'36px':'50px',fontWeight:900,lineHeight:1.08,margin:'0 0 18px',letterSpacing:'-.04em',color:TEXT}}>
-              La gestion<br/>d'équipes,<br/><span style={{color:A}}>simplifiée.</span>
+            <h1 style={{fontSize:isMobile?40:58,fontWeight:900,lineHeight:1.04,margin:'0 0 22px',letterSpacing:'-.05em',color:TEXT}}>
+              Gérez vos équipes.<br/>
+              <span style={{background:`linear-gradient(135deg, ${A} 0%, #5856d6 100%)`,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Sans la galère.</span>
             </h1>
-            <p style={{fontSize:16,color:TEXT2,lineHeight:1.7,marginBottom:28,maxWidth:400}}>
-              Kronvo centralise le planning, le badgeage QR et le suivi des présences pour toutes vos équipes terrain.
+            <p style={{fontSize:isMobile?16:18,color:TEXT2,lineHeight:1.75,marginBottom:36,maxWidth:440,fontWeight:400}}>
+              Fini les feuilles de présence et les erreurs de paie. Kronvo centralise tout en un seul endroit — accessible depuis n'importe quel téléphone.
             </p>
-            <div style={{display:'flex',gap:10,flexDirection:isMobile?'column':'row',marginBottom:24}}>
-              <button onClick={()=>goPage('contact')} style={{padding:'14px 26px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 20px rgba(0,113,227,.25)'}}>Demander une démo →</button>
-              <button onClick={()=>goPage('fonctionnalites')} style={{padding:'14px 22px',borderRadius:12,border:`1.5px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:15,fontWeight:600,cursor:'pointer'}}>Voir les fonctionnalités</button>
+            <div style={{display:'flex',gap:12,flexDirection:isMobile?'column':'row',marginBottom:32}}>
+              <button onClick={()=>goPage('contact')} style={{padding:'16px 28px',borderRadius:13,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 24px rgba(0,113,227,.35)',display:'flex',alignItems:'center',gap:8}}>
+                Demander une démo gratuite <Icon name="arrow" size={16} color="white"/>
+              </button>
+              <button onClick={()=>goPage('fonctionnalites')} style={{padding:'16px 22px',borderRadius:13,border:`1.5px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:16,fontWeight:600,cursor:'pointer'}}>
+                Comment ça marche
+              </button>
             </div>
-            <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
-              {['✓ Sans engagement','✓ Déploiement 5 min','✓ Accompagnement inclus'].map(t=>(
-                <span key={t} style={{fontSize:12,color:TEXT3,fontWeight:500}}>{t}</span>
+            <div style={{display:'flex',gap:24,flexWrap:'wrap'}}>
+              {['Démo Teams gratuite','Sans engagement','Déploiement 5 min'].map(t=>(
+                <div key={t} style={{display:'flex',alignItems:'center',gap:6}}>
+                  <Icon name="check" size={14} color="#34c759"/>
+                  <span style={{fontSize:13,color:TEXT3}}>{t}</span>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Droite — Dashboard mockup */}
-          {!isMobile && (
-            <div style={{background:BG,borderRadius:20,padding:20,border:`1px solid ${BORDER}`}}>
-              {/* Présences */}
-              <div style={{background:SURF,borderRadius:14,padding:16,marginBottom:12,border:`1px solid ${BORDER}`}}>
-                <div style={{fontSize:11,fontWeight:700,color:TEXT3,letterSpacing:'.06em',textTransform:'uppercase',marginBottom:12}}>Présences aujourd'hui</div>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:12}}>
-                  <div style={{background:'#f0faf3',borderRadius:10,padding:'10px',textAlign:'center'}}>
-                    <div style={{fontSize:22,fontWeight:800,color:'#1a6b35'}}>8</div>
-                    <div style={{fontSize:11,color:'#1a6b35',fontWeight:600}}>Présents</div>
-                  </div>
-                  <div style={{background:'#fff2f1',borderRadius:10,padding:'10px',textAlign:'center'}}>
-                    <div style={{fontSize:22,fontWeight:800,color:'#b02020'}}>3</div>
-                    <div style={{fontSize:11,color:'#b02020',fontWeight:600}}>Absents</div>
-                  </div>
-                  <div style={{background:'#e8f2fd',borderRadius:10,padding:'10px',textAlign:'center'}}>
-                    <div style={{fontSize:22,fontWeight:800,color:A}}>2</div>
-                    <div style={{fontSize:11,color:A,fontWeight:600}}>En pause</div>
-                  </div>
+          {!isMobile&&(
+            <div style={{background:'white',borderRadius:22,padding:20,boxShadow:'0 20px 60px rgba(0,0,0,.08)',border:`1px solid ${BORDER}`}}>
+              <div style={{background:'#0a0a0f',borderRadius:14,padding:'12px 16px',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:'white',letterSpacing:'-.01em'}}>Kronvo Dashboard</div>
+                  <div style={{fontSize:10,color:'rgba(255,255,255,.35)',marginTop:2}}>Restaurant Le Bistrot · En direct</div>
                 </div>
-                <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                  {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:GREEN},{n:'Marc Dupont',p:'Salle',h:'09:15',s:GREEN},{n:'Julie Bernard',p:'Bar',h:'pause',s:'#ff9500'}].map((e,i)=>(
-                    <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'7px 10px',background:BG,borderRadius:8}}>
-                      <div style={{width:8,height:8,borderRadius:'50%',background:e.s,flexShrink:0}}></div>
-                      <span style={{fontSize:12,fontWeight:600,flex:1,color:TEXT}}>{e.n}</span>
-                      <span style={{fontSize:11,color:TEXT2}}>{e.p} · {e.h}</span>
-                    </div>
-                  ))}
+                <div style={{display:'flex',gap:5}}>
+                  <div style={{width:8,height:8,borderRadius:'50%',background:'#ff5f57'}}></div>
+                  <div style={{width:8,height:8,borderRadius:'50%',background:'#febc2e'}}></div>
+                  <div style={{width:8,height:8,borderRadius:'50%',background:'#28c840'}}></div>
                 </div>
               </div>
-
-              {/* QR Code */}
-              <div style={{background:SURF,borderRadius:14,padding:16,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',gap:16}}>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:12}}>
+                {[{v:'8',l:'Présents',bg:'#f0faf3',c:'#1a6b35'},{v:'3',l:'Absents',bg:'#fff2f1',c:'#b02020'},{v:'2',l:'En pause',bg:'#fffbea',c:'#8a5a00'}].map((s,i)=>(
+                  <div key={i} style={{background:s.bg,borderRadius:10,padding:'10px 8px',textAlign:'center'}}>
+                    <div style={{fontSize:22,fontWeight:800,color:s.c,letterSpacing:'-.02em'}}>{s.v}</div>
+                    <div style={{fontSize:10,color:s.c,fontWeight:600,marginTop:1}}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{background:BG,borderRadius:12,padding:'12px',marginBottom:10}}>
+                <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.08em',marginBottom:8}}>ÉQUIPE EN DIRECT</div>
+                {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#34c759',online:true},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#34c759',online:true},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#ff9500',online:false},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'#e5e5ea',online:false}].map((e,i)=>(
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:8,background:i%2===0?SURF:'transparent',marginBottom:2}}>
+                    <div style={{width:26,height:26,borderRadius:'50%',background:'#e8f2fd',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:A,flexShrink:0,position:'relative'}}>
+                      {e.n.split(' ').map(x=>x[0]).join('')}
+                      <div style={{position:'absolute',bottom:0,right:0,width:7,height:7,borderRadius:'50%',background:e.s,border:'1.5px solid white'}}></div>
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:11,fontWeight:600,color:TEXT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{e.n}</div>
+                      <div style={{fontSize:9,color:TEXT3}}>{e.p}</div>
+                    </div>
+                    <span style={{fontSize:10,color:TEXT2,fontWeight:500}}>{e.h}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{background:BG,borderRadius:12,padding:'12px 14px',display:'flex',alignItems:'center',gap:12}}>
                 <QRDisplay/>
                 <div>
-                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:4}}>QR Code actif</div>
-                  <div style={{fontSize:12,color:TEXT2,lineHeight:1.5}}>Changement toutes les 30s.<br/>Sécurisé par établissement.</div>
+                  <div style={{fontSize:11,fontWeight:700,color:TEXT,marginBottom:3}}>QR Code actif</div>
+                  <div style={{fontSize:10,color:TEXT2,lineHeight:1.5}}>Vos employés scannent<br/>depuis leur téléphone</div>
+                  <div style={{display:'flex',alignItems:'center',gap:4,marginTop:5}}>
+                    <div style={{width:5,height:5,borderRadius:'50%',background:'#34c759'}}></div>
+                    <span style={{fontSize:9,color:'#34c759',fontWeight:600}}>Sécurisé</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -307,97 +279,215 @@ export default function Login() {
         </div>
       </section>
 
-      {/* STATS bande sombre */}
-      <section style={{background:TEXT,padding:'28px 24px'}}>
-        <div style={{padding:'0 80px',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:0}}>
-          {[{v:'< 5 min',l:'déploiement'},{v:'100%',l:'mobile-first'},{v:'24/7',l:'disponibilité'},{v:'CHF',l:'tarification locale'}].map((s,i)=>(
-            <div key={i} style={{textAlign:'center',borderRight:i<3?'1px solid rgba(255,255,255,.08)':'none',padding:'0 16px'}}>
-              <div style={{fontSize:isMobile?20:26,fontWeight:900,color:i===0?A:'white',letterSpacing:'-.03em'}}>{s.v}</div>
-              <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginTop:4}}>{s.l}</div>
-            </div>
-          ))}
+      {/* ══ LOGOS SECTEURS ══ */}
+      <section style={{background:SURF,borderBottom:`1px solid ${BORDER}`,padding:'18px 0',overflow:'hidden'}}>
+        <div style={W}>
+          <div style={{display:'flex',alignItems:'center',gap:isMobile?12:32,justifyContent:'center',flexWrap:'wrap'}}>
+            <span style={{fontSize:11,fontWeight:600,color:TEXT3,whiteSpace:'nowrap',letterSpacing:'.04em',textTransform:'uppercase'}}>Adapté pour</span>
+            {['Restaurants','Hôtels','Cliniques','Garages','Commerce','BTP','Logistique'].map(s=>(
+              <span key={s} style={{fontSize:13,fontWeight:600,color:TEXT2,whiteSpace:'nowrap'}}>{s}</span>
+            ))}
+            <span style={{fontSize:13,color:TEXT3}}>& plus</span>
+          </div>
         </div>
       </section>
 
-      {/* FEATURES 3 colonnes */}
-      <section style={{padding:isMobile?'40px 20px':'56px 48px',background:BG}}>
-        <div style={{padding:'0 80px'}}>
-          <div style={{textAlign:'center',marginBottom:40}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Fonctionnalités</div>
-            <div style={{fontSize:isMobile?26:34,fontWeight:800,color:TEXT,marginBottom:8,letterSpacing:'-.03em'}}>Tout ce dont vous avez besoin</div>
-            <div style={{fontSize:14,color:TEXT2}}>Une solution complète, sans complexité inutile</div>
+      {/* ══ PROBLÈME / SOLUTION ══ */}
+      <section style={{background:BG,padding:isMobile?'52px 20px':'72px 0'}}>
+        <div style={W}>
+          <div style={{textAlign:'center',marginBottom:48}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Le problème</div>
+            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:14}}>Vous perdez du temps chaque jour</h2>
+            <p style={{fontSize:16,color:TEXT2,maxWidth:520,margin:'0 auto',lineHeight:1.7}}>Les absences imprévues, les feuilles papier et les appels inutiles coûtent cher. Il existe une meilleure façon.</p>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':isMobile?'1fr 1fr':'repeat(3,1fr)',gap:14}}>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:16}}>
+            <div style={{background:SURF,border:'1px solid #ffd0d0',borderRadius:18,padding:'28px',borderLeft:'3px solid #ff3b30'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:22}}>
+                <div style={{width:36,height:36,borderRadius:10,background:'#fff2f1',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <Icon name="x" size={16} color="#ff3b30"/>
+                </div>
+                <span style={{fontSize:16,fontWeight:700,color:'#b02020'}}>Sans Kronvo</span>
+              </div>
+              {[
+                'Feuilles de présence papier perdues ou illisibles',
+                'Appels incessants pour savoir qui est absent',
+                'Erreurs sur les bulletins de paie chaque mois',
+                'Aucune visibilité sur les présences en temps réel',
+                'Heures supplémentaires non tracées ni payées',
+                'Planning distribué par SMS ou affiché en salle',
+              ].map(p=>(
+                <div key={p} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:12}}>
+                  <div style={{width:18,height:18,borderRadius:'50%',background:'#fff2f1',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
+                    <Icon name="x" size={10} color="#ff3b30"/>
+                  </div>
+                  <span style={{fontSize:14,color:TEXT2,lineHeight:1.5}}>{p}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{background:SURF,border:'1px solid #b8e8c8',borderRadius:18,padding:'28px',borderLeft:'3px solid #34c759'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:22}}>
+                <div style={{width:36,height:36,borderRadius:10,background:'#f0faf3',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <Icon name="check" size={16} color="#34c759"/>
+                </div>
+                <span style={{fontSize:16,fontWeight:700,color:'#1a6b35'}}>Avec Kronvo</span>
+              </div>
+              {[
+                'Badgeage QR en 2 secondes depuis le téléphone',
+                'Tableau de bord en direct — qui est là maintenant',
+                'Export PDF automatique prêt pour la paie',
+                'Planning publié en un clic, visible sur mobile',
+                'Heures planifiées vs pointées calculées automatiquement',
+                'Données sécurisées, accessibles partout 24h/24',
+              ].map(p=>(
+                <div key={p} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:12}}>
+                  <div style={{width:18,height:18,borderRadius:'50%',background:'#f0faf3',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
+                    <Icon name="check" size={10} color="#34c759"/>
+                  </div>
+                  <span style={{fontSize:14,color:TEXT2,lineHeight:1.5}}>{p}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ STATS BANDE ══ */}
+      <section style={{background:'#0a0a0f',padding:'36px 0'}}>
+        <div style={W}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:0}}>
             {[
-              {icon:'📅',color:'#e8f2fd',title:'Planning intelligent',desc:'Shifts simples ou coupés, vue semaine, postes personnalisables selon le secteur.'},
-              {icon:'📷',color:'#f0faf3',title:'Badgeage QR Code',desc:'QR dynamique toutes les 30s. Scan depuis le téléphone. Sécurisé par établissement.'},
-              {icon:'👥',color:'#fff8ee',title:'Présences en direct',desc:'Heures prévues vs pointées, écarts calculés automatiquement en temps réel.'},
-              {icon:'📱',color:'#f0f0fc',title:'App mobile employé',desc:'Planning perso, badgeage mobile. Installable sur iPhone et Android.'},
-              {icon:'📄',color:'#fff2f1',title:'Rapports PDF',desc:'Export PDF pour la paie, par période et par employé, avec totaux heures inclus.'},
-              {icon:'🏢',color:'#fdf0f8',title:'Multi-établissements',desc:'Gérez plusieurs sites depuis un seul tableau de bord gérant.'},
+              {v:'< 5 min',l:'pour tout déployer',c:A},
+              {v:'30 sec',l:'pour badger',c:'white'},
+              {v:'8+',l:'secteurs couverts',c:'white'},
+              {v:'100%',l:'mobile & tablette',c:'white'},
+            ].map((s,i)=>(
+              <div key={i} style={{textAlign:'center',borderRight:i<3?'1px solid rgba(255,255,255,.06)':'none',padding:isMobile?'8px':'12px 24px'}}>
+                <div style={{fontSize:isMobile?22:32,fontWeight:900,color:s.c,letterSpacing:'-.04em',lineHeight:1}}>{s.v}</div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,.35)',marginTop:6,fontWeight:500}}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FONCTIONNALITÉS ══ */}
+      <section style={{background:SURF,padding:isMobile?'52px 20px':'72px 0'}}>
+        <div style={W}>
+          <div style={{textAlign:'center',marginBottom:52}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Ce que vous obtenez</div>
+            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>Tout ce dont vous avez besoin</h2>
+            <p style={{fontSize:16,color:TEXT2,maxWidth:480,margin:'0 auto'}}>Une solution complète, conçue pour les équipes terrain. Pas besoin de formation, ça marche du premier jour.</p>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:1,background:BORDER,borderRadius:20,overflow:'hidden'}}>
+            {[
+              {icon:'calendar',title:'Planning intelligent',desc:'Créez et publiez les plannings en quelques clics. Shifts simples ou coupés. Postes adaptés à votre secteur d\'activité.',color:A},
+              {icon:'qr',title:'Badgeage QR Code',desc:'QR dynamique renouvelé toutes les 30 secondes. Vos employés scannent depuis leur téléphone. Borne tablette sécurisée disponible.',color:'#5856d6'},
+              {icon:'users',title:'Présences en direct',desc:'Voyez qui est présent maintenant. Écarts entre prévu et pointé calculés automatiquement. Historique complet.',color:'#34c759'},
+              {icon:'phone',title:'App mobile employé',desc:'Chaque employé a son espace personnel. Planning, badgeage, historique. Installable sur iPhone et Android.',color:'#ff9500'},
+              {icon:'file',title:'Export PDF paie',desc:'Rapports de présence détaillés générés en un clic. Par employé, par période. Prêt pour votre comptable.',color:'#ff3b30'},
+              {icon:'building',title:'Multi-établissements',desc:'Gérez plusieurs sites depuis un seul tableau de bord. Idéal pour les groupes. Données isolées par site.',color:'#8a2060'},
             ].map((f,i)=>(
-              <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'22px 20px',transition:'border-color .15s'}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=A}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER}}>
-                <div style={{width:46,height:46,background:f.color,borderRadius:13,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,marginBottom:14}}>{f.icon}</div>
-                <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:7}}>{f.title}</div>
-                <div style={{fontSize:13,color:TEXT2,lineHeight:1.6}}>{f.desc}</div>
+              <div key={i} style={{background:SURF,padding:'28px 24px',transition:'background .15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.background='#fafafa'}}
+              onMouseLeave={e=>{e.currentTarget.style.background=SURF}}>
+                <div style={{width:44,height:44,borderRadius:12,background:`${f.color}14`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16}}>
+                  <Icon name={f.icon} size={20} color={f.color}/>
+                </div>
+                <div style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:8,letterSpacing:'-.01em'}}>{f.title}</div>
+                <div style={{fontSize:13,color:TEXT2,lineHeight:1.65}}>{f.desc}</div>
               </div>
             ))}
           </div>
           <div style={{textAlign:'center',marginTop:28}}>
-            <button onClick={()=>goPage('fonctionnalites')} style={{padding:'11px 22px',borderRadius:10,border:`1px solid ${BORDER}`,background:SURF,color:A,fontSize:13,fontWeight:700,cursor:'pointer'}}>Voir toutes les fonctionnalités →</button>
+            <button onClick={()=>goPage('fonctionnalites')} style={{padding:'11px 22px',borderRadius:10,border:`1px solid ${BORDER}`,background:SURF,color:A,fontSize:13,fontWeight:600,cursor:'pointer'}}>
+              Voir toutes les fonctionnalités →
+            </button>
           </div>
         </div>
       </section>
 
-      {/* SECTEURS */}
-      <section style={{padding:isMobile?'32px 20px':'40px 40px',background:SURF,borderTop:`1px solid ${BORDER}`}}>
-        <div style={{maxWidth:680,margin:'0 auto',textAlign:'center'}}>
-          <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Secteurs</div>
-          <div style={{fontSize:isMobile?22:28,fontWeight:800,color:TEXT,marginBottom:6,letterSpacing:'-.03em'}}>Pour tous les professionnels</div>
-          <div style={{fontSize:13,color:TEXT2,marginBottom:22}}>Kronvo s'adapte à n'importe quel secteur avec des équipes terrain</div>
-          <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap'}}>
-            {['🍽️ Restaurants','🏨 Hôtels','🔧 Garages','🏪 Commerce','🏥 Cliniques','💆 Spas','🏗️ BTP','📦 Logistique','🎓 Éducation','🛡️ Sécurité'].map(s=>(
-              <span key={s} style={{padding:'7px 14px',borderRadius:20,background:BG,border:`1px solid ${BORDER}`,fontSize:12,fontWeight:600,color:TEXT2}}>{s}</span>
-            ))}
+      {/* ══ COMMENT CA MARCHE ══ */}
+      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'72px 0'}}>
+        <div style={W}>
+          <div style={{textAlign:'center',marginBottom:52}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Mise en place</div>
+            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em'}}>Opérationnel en 5 minutes</h2>
           </div>
-        </div>
-      </section>
-
-      {/* COMMENT CA MARCHE */}
-      <section style={{padding:isMobile?'40px 20px':'56px 48px',background:BG}}>
-        <div style={{maxWidth:900,margin:'0 auto',padding:'0 40px'}}>
-          <div style={{textAlign:'center',marginBottom:36}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Mise en place</div>
-            <div style={{fontSize:isMobile?22:32,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Opérationnel en 5 minutes</div>
-          </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:12}}>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(4,1fr)',gap:16}}>
             {[
-              {n:'1',title:'Contactez-nous',desc:'Démo Teams gratuite pour présenter la solution.'},
-              {n:'2',title:'On installe ensemble',desc:'Notre équipe configure tout pour vous.'},
-              {n:'3',title:'Formation incluse',desc:'Gérants et employés formés en 30 min.'},
-              {n:'4',title:"C'est parti !",desc:'Scannez le QR code. Suivez en direct.'},
+              {n:'01',title:'Démo Teams gratuite',desc:'On vous présente Kronvo en 30 min, adapté à votre secteur. Posez toutes vos questions.',icon:'clock'},
+              {n:'02',title:'Configuration complète',desc:'SwitzerIT configure tout pour vous. Établissements, employés, borne. Vous ne faites rien.',icon:'zap'},
+              {n:'03',title:'Formation incluse',desc:'Gérants et employés formés en 30 min. Documentation fournie. Support disponible.',icon:'users'},
+              {n:'04',title:'C\'est parti !',desc:'Vos équipes scannent le QR depuis leur téléphone. Vous suivez tout en temps réel.',icon:'chart'},
             ].map((s,i)=>(
-              <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:14,padding:'18px 16px'}}>
-                <div style={{width:32,height:32,borderRadius:9,background:'#e8f2fd',color:A,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:800,marginBottom:12}}>{s.n}</div>
-                <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:4}}>{s.title}</div>
-                <div style={{fontSize:12,color:TEXT2,lineHeight:1.5}}>{s.desc}</div>
+              <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px 20px',position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',top:16,right:16,fontSize:32,fontWeight:900,color:`${A}08`,letterSpacing:'-.04em',lineHeight:1}}>{s.n}</div>
+                <div style={{width:40,height:40,borderRadius:12,background:'#e8f2fd',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16}}>
+                  <Icon name={s.icon} size={18} color={A}/>
+                </div>
+                <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:8,letterSpacing:'-.01em'}}>{s.title}</div>
+                <div style={{fontSize:13,color:TEXT2,lineHeight:1.6}}>{s.desc}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA FINAL fond bleu */}
-      <section style={{padding:isMobile?'48px 20px':'56px 40px',background:A}}>
-        <div style={{maxWidth:560,margin:'0 auto',textAlign:'center'}}>
-          <div style={{fontSize:isMobile?26:36,fontWeight:800,color:'white',marginBottom:14,letterSpacing:'-.03em'}}>Prêt à moderniser votre gestion ?</div>
-          <div style={{fontSize:15,color:'rgba(255,255,255,.75)',marginBottom:28,lineHeight:1.6}}>Réservez une démo Teams gratuite. Notre équipe vous présente Kronvo en 30 minutes.</div>
-          <button onClick={()=>goPage('contact')} style={{padding:'15px 32px',borderRadius:12,border:'none',background:'white',color:A,fontSize:16,fontWeight:700,cursor:'pointer',width:isMobile?'100%':'auto'}}>
-            Réserver ma démo →
-          </button>
-          <div style={{fontSize:12,color:'rgba(255,255,255,.5)',marginTop:12}}>Démo gratuite · Sans engagement · Réponse sous 24h</div>
+      {/* ══ SECTEURS ══ */}
+      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:isMobile?'44px 20px':'56px 0'}}>
+        <div style={W}>
+          <div style={{textAlign:'center',marginBottom:32}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Secteurs</div>
+            <h2 style={{fontSize:isMobile?24:32,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:8}}>Pour tous les professionnels</h2>
+            <p style={{fontSize:14,color:TEXT2}}>Kronvo s'adapte à votre secteur avec les postes et termes qui vous correspondent</p>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(5,1fr)',gap:8}}>
+            {[
+              {icon:'🍽️',label:'Restaurants'},
+              {icon:'🏨',label:'Hôtels'},
+              {icon:'🏥',label:'Cliniques'},
+              {icon:'🔧',label:'Garages'},
+              {icon:'🏪',label:'Commerce'},
+              {icon:'💆',label:'Spas & Salons'},
+              {icon:'🏗️',label:'BTP'},
+              {icon:'📦',label:'Logistique'},
+              {icon:'🎓',label:'Éducation'},
+              {icon:'🛡️',label:'Sécurité'},
+            ].map(s=>(
+              <div key={s.label} style={{background:BG,border:`1px solid ${BORDER}`,borderRadius:12,padding:'14px 12px',textAlign:'center',transition:'all .15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=A;e.currentTarget.style.background='#f0f6ff'}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.background=BG}}>
+                <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
+                <div style={{fontSize:12,fontWeight:600,color:TEXT2}}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CTA FINAL ══ */}
+      <section style={{background:'#0a0a0f',padding:isMobile?'64px 20px':'80px 0',position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:600,height:600,borderRadius:'50%',background:'radial-gradient(circle, rgba(0,113,227,.15) 0%, transparent 70%)',pointerEvents:'none'}}></div>
+        <div style={{...W,textAlign:'center',position:'relative'}}>
+          <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 16px',borderRadius:20,background:'rgba(0,113,227,.15)',border:'1px solid rgba(0,113,227,.25)',marginBottom:28}}>
+            <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',boxShadow:'0 0 6px #34c759',display:'inline-block'}}></span>
+            <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.7)'}}>Démo disponible cette semaine</span>
+          </div>
+          <h2 style={{fontSize:isMobile?32:48,fontWeight:900,color:'white',letterSpacing:'-.05em',marginBottom:18,lineHeight:1.06}}>
+            Prêt à gagner du temps<br/>chaque jour ?
+          </h2>
+          <p style={{fontSize:isMobile?15:17,color:'rgba(255,255,255,.5)',marginBottom:40,lineHeight:1.7,maxWidth:480,margin:'0 auto 40px'}}>
+            Rejoignez les professionnels qui ont simplifié la gestion de leurs équipes. Démo gratuite via Teams, sans engagement.
+          </p>
+          <div style={{display:'flex',gap:12,justifyContent:'center',flexDirection:isMobile?'column':'row',padding:isMobile?'0 20px':0}}>
+            <button onClick={()=>goPage('contact')} style={{padding:'17px 32px',borderRadius:13,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 28px rgba(0,113,227,.4)',display:'inline-flex',alignItems:'center',gap:10,justifyContent:'center'}}>
+              Réserver ma démo gratuite <Icon name="arrow" size={16} color="white"/>
+            </button>
+            <button onClick={()=>setShowLogin(true)} style={{padding:'17px 24px',borderRadius:13,border:'1px solid rgba(255,255,255,.15)',background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.7)',fontSize:16,fontWeight:600,cursor:'pointer'}}>
+              Déjà client — Se connecter
+            </button>
+          </div>
+          <div style={{fontSize:13,color:'rgba(255,255,255,.3)',marginTop:20}}>Démo gratuite · Sans carte bancaire · Réponse sous 24h</div>
         </div>
       </section>
     </>
@@ -405,40 +495,42 @@ export default function Login() {
 
   const PageFeatures=()=>(
     <div style={{paddingTop:56,minHeight:'100vh',background:BG}}>
-      <div style={{maxWidth:960,margin:'0 auto',padding:isMobile?'32px 20px':'56px 24px'}}>
-        <div style={{textAlign:'center',marginBottom:40}}>
-          <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:10}}>Fonctionnalités</div>
-          <h1 style={{fontSize:isMobile?28:46,fontWeight:900,color:TEXT,letterSpacing:'-.03em',marginBottom:12}}>Tout ce que Kronvo peut faire</h1>
+      <div style={{...W,padding:isMobile?'40px 20px':'56px 56px'}}>
+        <div style={{textAlign:'center',marginBottom:48}}>
+          <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Fonctionnalités</div>
+          <h1 style={{fontSize:isMobile?30:48,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>Tout ce que Kronvo peut faire</h1>
           <p style={{fontSize:15,color:TEXT2,maxWidth:540,margin:'0 auto'}}>Une solution pensée pour les équipes terrain.</p>
         </div>
         {[
-          {icon:'📅',title:'Planning intelligent',color:'#e8f2fd',ic:A,items:['Shifts simples (9h-17h) ou coupés (10h-15h puis 18h-22h)','Vue semaine sur desktop, jour par jour sur mobile','Postes personnalisables selon le secteur','Publication du planning en un clic','Modification rapide par clic']},
-          {icon:'📷',title:'Badgeage QR Code sécurisé',color:'#f0faf3',ic:'#1a6b35',items:['QR code dynamique toutes les 30 secondes','Scan depuis le smartphone','Vérification de l\'établissement','Badgeage multiple dans la journée','Borne tablette avec PIN sécurisé']},
-          {icon:'👥',title:'Suivi des présences',color:'#fff8ee',ic:'#8a4a00',items:['Temps réel — qui est présent maintenant','Heures planifiées vs pointées','Calcul automatique des écarts','Historique complet par date','Correction manuelle par le gérant']},
-          {icon:'📄',title:'Rapports et export PDF',color:'#fff2f1',ic:'#b02020',items:['Rapports PDF professionnels','Filtrage par période','Détail par employé','Total des heures et écarts','Export en un clic']},
-          {icon:'📱',title:'Espace employé mobile',color:'#f0f0fc',ic:'#3a3880',items:['Installable sur iPhone et Android','Planning personnel','Bouton scan QR intégré','Historique des pointages','Fonctionne hors connexion']},
-          {icon:'🏢',title:'Multi-établissements',color:'#fdf0f8',ic:'#8a2060',items:['Plusieurs sites, un tableau de bord','Données isolées par établissement','Dashboard super admin','Ajout de sites en quelques clics']},
+          {icon:'calendar',title:'Planning intelligent',color:'#e8f2fd',ic:A,items:['Shifts simples (9h-17h) ou coupés (10h-15h puis 18h-22h)','Vue semaine sur desktop, vue jour par jour sur mobile','Postes personnalisables selon votre secteur activité','Publication du planning en un clic pour toute équipe','Modification rapide par simple clic sur une case planning']},
+          {icon:'qr',title:'Badgeage QR Code sécurisé',color:'#f0faf3',ic:'#1a6b35',items:['QR code dynamique qui change toutes les 30 secondes','Scan depuis le smartphone de chaque employé en 2s','Vérification que employé appartient au bon établissement','Badgeage multiple dans la journée avec pauses incluses','Borne tablette fixe avec PIN accès sécurisé disponible']},
+          {icon:'users',title:'Suivi des présences',color:'#fff8ee',ic:'#8a4a00',items:['Visualisation en temps réel de qui est présent maintenant','Comparaison automatique heures planifiées vs pointées','Calcul des écarts positifs et négatifs en temps réel','Historique complet des pointages par date consultable','Correction manuelle possible directement par le gérant']},
+          {icon:'file',title:'Rapports et export PDF',color:'#fff2f1',ic:'#b02020',items:['Génération de rapports PDF professionnels en un clic','Filtrage par période semaine mois ou dates personnalisées','Détail complet par employé avec toutes entrées et sorties','Total heures planifiées vs heures pointées avec écarts','Export immédiat depuis le dashboard gérant accessible']},
+          {icon:'phone',title:'Espace employé mobile',color:'#f0f0fc',ic:'#3a3880',items:['Application installable sur iPhone et Android en PWA','Planning personnel de la semaine toujours à jour','Bouton de scan QR intégré directement dans application','Historique complet des pointages personnels consultable','Fonctionne hors connexion pour consulter son planning']},
+          {icon:'building',title:'Multi-établissements',color:'#fdf0f8',ic:'#8a2060',items:['Gérez plusieurs sites depuis un seul tableau de bord','Données entièrement isolées et sécurisées par établissement','Dashboard super admin SwitzerIT pour gestion clients','Ajout de nouveaux établissements en quelques minutes']},
         ].map((f,i)=>(
-          <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:isMobile?'20px':'28px',marginBottom:12}}>
-            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-              <div style={{width:48,height:48,background:f.color,borderRadius:13,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>{f.icon}</div>
-              <div style={{fontSize:isMobile?17:20,fontWeight:800,color:TEXT}}>{f.title}</div>
+          <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:isMobile?'20px':'28px',marginBottom:10}}>
+            <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:18}}>
+              <div style={{width:52,height:52,background:f.color,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <Icon name={f.icon} size={22} color={f.ic}/>
+              </div>
+              <div style={{fontSize:isMobile?18:22,fontWeight:800,color:TEXT,letterSpacing:'-.02em'}}>{f.title}</div>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fit,minmax(220px,1fr))',gap:8}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fit,minmax(200px,1fr))',gap:8}}>
               {f.items.map((item,j)=>(
-                <div key={j} style={{display:'flex',alignItems:'flex-start',gap:8,padding:'9px 12px',background:f.color,borderRadius:9}}>
-                  <span style={{color:f.ic,fontWeight:700,flexShrink:0}}>✓</span>
+                <div key={j} style={{display:'flex',alignItems:'flex-start',gap:8,padding:'10px 12px',background:f.color,borderRadius:9}}>
+                  <div style={{flexShrink:0,marginTop:1}}><Icon name="check" size={12} color={f.ic}/></div>
                   <span style={{fontSize:13,color:TEXT2,lineHeight:1.5}}>{item}</span>
                 </div>
               ))}
             </div>
           </div>
         ))}
-        <div style={{background:`linear-gradient(135deg,#e8f2fd,#f0f0fc)`,borderRadius:16,padding:'28px 20px',textAlign:'center',marginTop:8}}>
-          <div style={{fontSize:20,fontWeight:800,color:TEXT,marginBottom:10}}>Fonctionnalités à venir</div>
-          <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap',marginBottom:18}}>
-            {['📧 Notifications email','📊 Analytics','🔗 Intégration paie','💬 Messagerie équipe','🌍 Multi-langue'].map(f=>(
-              <span key={f} style={{padding:'6px 12px',borderRadius:20,background:'rgba(0,113,227,.08)',border:'1px solid rgba(0,113,227,.15)',fontSize:12,fontWeight:600,color:A}}>{f}</span>
+        <div style={{background:`linear-gradient(135deg,#e8f2fd,#f0f0fc)`,borderRadius:16,padding:'32px',textAlign:'center',marginTop:8}}>
+          <div style={{fontSize:22,fontWeight:800,color:TEXT,marginBottom:10,letterSpacing:'-.02em'}}>Fonctionnalités à venir</div>
+          <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap',marginBottom:20}}>
+            {['Notifications email','Analytics avancées','Intégration logiciel paie','Messagerie équipe','Multi-langue'].map(f=>(
+              <span key={f} style={{padding:'6px 14px',borderRadius:20,background:'rgba(0,113,227,.08)',border:'1px solid rgba(0,113,227,.15)',fontSize:12,fontWeight:600,color:A}}>{f}</span>
             ))}
           </div>
           <button onClick={()=>goPage('contact')} style={{padding:'12px 24px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
@@ -449,41 +541,46 @@ export default function Login() {
 
   const PagePricing=()=>(
     <div style={{paddingTop:56,minHeight:'100vh',background:BG}}>
-      <div style={{maxWidth:900,margin:'0 auto',padding:isMobile?'32px 20px':'56px 24px'}}>
-        <div style={{textAlign:'center',marginBottom:40}}>
-          <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:10}}>Tarifs</div>
-          <h1 style={{fontSize:isMobile?28:46,fontWeight:900,color:TEXT,letterSpacing:'-.03em',marginBottom:12}}>Tarification sur mesure</h1>
-          <p style={{fontSize:15,color:TEXT2,maxWidth:520,margin:'0 auto',lineHeight:1.6}}>Chaque entreprise est unique. Devis personnalisé selon vos besoins. Démo gratuite via Teams incluse.</p>
+      <div style={{...W,padding:isMobile?'40px 20px':'56px 56px'}}>
+        <div style={{textAlign:'center',marginBottom:48}}>
+          <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Tarifs</div>
+          <h1 style={{fontSize:isMobile?30:48,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>Tarification sur mesure</h1>
+          <p style={{fontSize:15,color:TEXT2,maxWidth:520,margin:'0 auto',lineHeight:1.7}}>Chaque entreprise est unique. Devis personnalisé selon vos besoins. Démo gratuite via Teams incluse.</p>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:14,marginBottom:24}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:16,marginBottom:24}}>
           {[
-            {name:'Mise en place',icon:'🚀',color:'#e8f2fd',ic:A,desc:'Installation et configuration complète par SwitzerIT.',items:['Création du compte','Paramétrage des établissements','Import des employés','Installation borne tablette','Formation gérant (1h)','Documentation fournie'],tag:'Sur devis'},
-            {name:'Abonnement mensuel',icon:'📅',color:'#f0faf3',ic:'#1a6b35',desc:'Accès complet à Kronvo pour votre établissement.',items:['Planning & badgeage illimités','Tous les employés inclus','Rapports PDF','Support email','Mises à jour incluses','Hébergement sécurisé Suisse'],tag:'Sur devis · en CHF'},
-            {name:'Support & maintenance',icon:'🛡️',color:'#fff8ee',ic:'#8a4a00',desc:"Accompagnement continu pour votre tranquillité.",items:['Support prioritaire','Intervention sous 4h','Formations supplémentaires','Évolutions personnalisées','Suivi trimestriel','SLA garanti'],tag:'Options disponibles'},
+            {name:'Mise en place',icon:'zap',color:'#e8f2fd',ic:A,desc:'Installation et configuration complète par notre équipe SwitzerIT.',items:['Création compte et configuration','Paramétrage établissements','Import des employés','Installation borne tablette','Formation gérant une heure','Documentation complète'],tag:'Sur devis',featured:false},
+            {name:'Abonnement mensuel',icon:'chart',color:'#f0faf3',ic:'#1a6b35',desc:'Accès complet à Kronvo pour votre établissement.',items:['Planning et badgeage illimités','Tous les employés inclus','Rapports PDF complets','Support email réactif','Mises à jour automatiques','Hébergement sécurisé Suisse'],tag:'Sur devis · en CHF',featured:true},
+            {name:'Support et maintenance',icon:'shield',color:'#fff8ee',ic:'#8a4a00',desc:"Accompagnement continu pour votre sérénité au quotidien.",items:['Support prioritaire SwitzerIT','Intervention sous 4 heures','Formations supplémentaires','Évolutions personnalisées','Suivi trimestriel dédié','SLA garanti par contrat'],tag:'Options disponibles',featured:false},
           ].map((plan,i)=>(
-            <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px',display:'flex',flexDirection:'column'}}>
-              <div style={{width:48,height:48,background:plan.color,borderRadius:13,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,marginBottom:12}}>{plan.icon}</div>
-              <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:5}}>{plan.name}</div>
-              <div style={{fontSize:13,color:TEXT2,lineHeight:1.5,marginBottom:14}}>{plan.desc}</div>
-              <div style={{display:'flex',flexDirection:'column',gap:7,marginBottom:16,flex:1}}>
+            <div key={i} style={{background:SURF,border:plan.featured?`2px solid ${A}`:`1px solid ${BORDER}`,borderRadius:18,padding:'26px',display:'flex',flexDirection:'column',position:'relative',boxShadow:plan.featured?'0 8px 40px rgba(0,113,227,.12)':'none'}}>
+              {plan.featured&&<div style={{position:'absolute',top:-13,left:'50%',transform:'translateX(-50%)',padding:'4px 16px',borderRadius:20,background:A,color:'white',fontSize:11,fontWeight:700,letterSpacing:'.04em',whiteSpace:'nowrap'}}>RECOMMANDÉ</div>}
+              <div style={{width:44,height:44,background:plan.color,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
+                <Icon name={plan.icon} size={20} color={plan.ic}/>
+              </div>
+              <div style={{fontSize:18,fontWeight:800,color:TEXT,marginBottom:6,letterSpacing:'-.02em'}}>{plan.name}</div>
+              <div style={{fontSize:13,color:TEXT2,lineHeight:1.6,marginBottom:16}}>{plan.desc}</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:18,flex:1}}>
                 {plan.items.map(f=>(
-                  <div key={f} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:TEXT2}}>
-                    <span style={{color:plan.ic,fontWeight:700,flexShrink:0}}>✓</span>{f}
+                  <div key={f} style={{display:'flex',alignItems:'flex-start',gap:10,fontSize:13,color:TEXT2}}>
+                    <div style={{flexShrink:0,marginTop:2}}><Icon name="check" size={12} color={plan.ic}/></div>{f}
                   </div>
                 ))}
               </div>
-              <div style={{padding:'9px 14px',background:plan.color,borderRadius:9,fontSize:13,fontWeight:700,color:plan.ic,textAlign:'center',marginBottom:12}}>{plan.tag}</div>
-              <button onClick={()=>goPage('contact')} style={{width:'100%',height:42,borderRadius:10,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Demander un devis</button>
+              <div style={{padding:'9px 14px',background:plan.color,borderRadius:9,fontSize:13,fontWeight:700,color:plan.ic,textAlign:'center',marginBottom:14}}>{plan.tag}</div>
+              <button onClick={()=>goPage('contact')} style={{width:'100%',height:44,borderRadius:10,border:plan.featured?'none':`1.5px solid ${A}`,background:plan.featured?A:'transparent',color:plan.featured?'white':A,fontSize:13,fontWeight:700,cursor:'pointer'}}>Demander un devis</button>
             </div>
           ))}
         </div>
-        <div style={{background:'#e8f2fd',border:'1px solid rgba(0,113,227,.15)',borderRadius:14,padding:'20px',display:'flex',alignItems:isMobile?'flex-start':'center',gap:14,flexDirection:isMobile?'column':'row'}}>
-          <div style={{fontSize:32,flexShrink:0}}>📹</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:4}}>Démo gratuite via Teams</div>
-            <div style={{fontSize:13,color:TEXT2}}>30 minutes pour voir Kronvo en action. Repartez avec un devis personnalisé.</div>
+        <div style={{background:'#e8f2fd',border:'1px solid rgba(0,113,227,.15)',borderRadius:16,padding:'24px 28px',display:'flex',alignItems:isMobile?'flex-start':'center',gap:20,flexDirection:isMobile?'column':'row'}}>
+          <div style={{width:52,height:52,background:A,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <Icon name="clock" size={24} color="white"/>
           </div>
-          <button onClick={()=>goPage('contact')} style={{padding:'12px 20px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto'}}>Réserver ma démo →</button>
+          <div style={{flex:1}}>
+            <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:5}}>Démo gratuite via Teams</div>
+            <div style={{fontSize:14,color:TEXT2,lineHeight:1.6}}>En 30 minutes, on vous présente Kronvo adapté à votre secteur. Vous voyez exactement ce que vous obtenez et repartez avec un devis personnalisé.</div>
+          </div>
+          <button onClick={()=>goPage('contact')} style={{padding:'13px 24px',borderRadius:11,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto'}}>Réserver ma démo →</button>
         </div>
       </div>
     </div>
@@ -491,72 +588,83 @@ export default function Login() {
 
   const PageContact=()=>(
     <div style={{paddingTop:56,minHeight:'100vh',background:BG}}>
-      <div style={{maxWidth:800,margin:'0 auto',padding:isMobile?'32px 20px':'56px 24px'}}>
-        <div style={{textAlign:'center',marginBottom:36}}>
-          <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:10}}>Contact</div>
-          <h1 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.03em',marginBottom:12}}>Parlons de votre projet</h1>
-          <p style={{fontSize:15,color:TEXT2,maxWidth:480,margin:'0 auto'}}>Remplissez le formulaire, nous vous recontacterons sous 24h pour une démo Teams gratuite.</p>
+      <div style={{...W,padding:isMobile?'40px 20px':'56px 56px'}}>
+        <div style={{textAlign:'center',marginBottom:44}}>
+          <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Contact</div>
+          <h1 style={{fontSize:isMobile?30:46,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>Parlons de votre projet</h1>
+          <p style={{fontSize:15,color:TEXT2,maxWidth:480,margin:'0 auto',lineHeight:1.7}}>Remplissez le formulaire. Nous vous recontactons sous 24h pour une démo Teams gratuite.</p>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:20}}>
-          <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px'}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1.2fr 1fr',gap:24}}>
+          <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:18,padding:'28px'}}>
             {contactSent?(
-              <div style={{textAlign:'center',padding:'32px 16px'}}>
-                <div style={{fontSize:48,marginBottom:14}}>✅</div>
-                <div style={{fontSize:20,fontWeight:800,color:TEXT,marginBottom:8}}>Demande envoyée !</div>
-                <div style={{fontSize:14,color:TEXT2,lineHeight:1.6}}>Notre équipe vous contactera sous 24h pour organiser la démo Teams.</div>
-                <button onClick={()=>{setContactSent(false);setContactForm({nom:'',email:'',entreprise:'',secteur:'',message:''})}} style={{marginTop:18,padding:'10px 20px',borderRadius:9,border:`1px solid ${BORDER}`,background:BG,color:TEXT,fontSize:13,fontWeight:600,cursor:'pointer'}}>Nouvelle demande</button>
+              <div style={{textAlign:'center',padding:'44px 20px'}}>
+                <div style={{width:64,height:64,borderRadius:'50%',background:'#f0faf3',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}>
+                  <Icon name="check" size={28} color="#34c759"/>
+                </div>
+                <div style={{fontSize:22,fontWeight:800,color:TEXT,marginBottom:8}}>Demande envoyée !</div>
+                <div style={{fontSize:15,color:TEXT2,lineHeight:1.7,marginBottom:20}}>Notre équipe SwitzerIT vous contactera sous 24h pour organiser votre démo Teams.</div>
+                <button onClick={()=>{setContactSent(false);setContactForm({nom:'',email:'',entreprise:'',secteur:'',message:''})}} style={{padding:'10px 20px',borderRadius:9,border:`1px solid ${BORDER}`,background:BG,color:TEXT,fontSize:13,fontWeight:600,cursor:'pointer'}}>Nouvelle demande</button>
               </div>
             ):(
               <>
-                <div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:4}}>Demander une démo Teams</div>
-                <div style={{fontSize:12,color:TEXT2,marginBottom:18}}>Démo gratuite · 30 minutes · Sans engagement</div>
-                {[{f:'nom',l:'Nom complet *',ph:'Jean Dupont',t:'text'},{f:'email',l:'Email *',ph:'jean@exemple.fr',t:'email'},{f:'entreprise',l:"Établissement *",ph:'Mon Établissement',t:'text'}].map(({f,l,ph,t})=>(
-                  <div key={f} style={{marginBottom:12}}>
-                    <label style={{display:'block',fontSize:12,fontWeight:700,color:TEXT2,marginBottom:5}}>{l}</label>
+                <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:4,letterSpacing:'-.02em'}}>Demander une démo Teams</div>
+                <div style={{fontSize:13,color:TEXT2,marginBottom:24}}>Gratuite · 30 minutes · Sans engagement</div>
+                {[{f:'nom',l:'Nom complet *',ph:'Jean Dupont',t:'text'},{f:'email',l:'Email professionnel *',ph:'jean@exemple.fr',t:'email'},{f:'entreprise',l:"Nom de l'établissement *",ph:'Mon Établissement',t:'text'}].map(({f,l,ph,t})=>(
+                  <div key={f} style={{marginBottom:14}}>
+                    <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>{l}</label>
                     <input type={t} placeholder={ph} value={contactForm[f]} onChange={e=>setContactForm(ff=>({...ff,[f]:e.target.value}))} style={inp}
                     onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
                   </div>
                 ))}
-                <div style={{marginBottom:12}}>
-                  <label style={{display:'block',fontSize:12,fontWeight:700,color:TEXT2,marginBottom:5}}>Secteur</label>
+                <div style={{marginBottom:14}}>
+                  <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Secteur</label>
                   <select value={contactForm.secteur} onChange={e=>setContactForm(f=>({...f,secteur:e.target.value}))} style={{...inp,appearance:'auto'}}>
                     <option value="">Sélectionner...</option>
                     {['Restaurant','Hôtel','Garage','Commerce','Clinique','Spa & Salon','BTP','Logistique','Éducation','Autre'].map(s=><option key={s}>{s}</option>)}
                   </select>
                 </div>
-                <div style={{marginBottom:18}}>
-                  <label style={{display:'block',fontSize:12,fontWeight:700,color:TEXT2,marginBottom:5}}>Message (optionnel)</label>
-                  <textarea placeholder="Décrivez votre besoin..." value={contactForm.message} onChange={e=>setContactForm(f=>({...f,message:e.target.value}))} rows={3}
+                <div style={{marginBottom:24}}>
+                  <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Message (optionnel)</label>
+                  <textarea placeholder="Nombre d'employés, besoin spécifique..." value={contactForm.message} onChange={e=>setContactForm(f=>({...f,message:e.target.value}))} rows={3}
                   style={{...inp,resize:'vertical',fontFamily:'var(--font)'}}
                   onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
                 </div>
                 <button onClick={()=>{if(!contactForm.nom||!contactForm.email||!contactForm.entreprise){alert('Remplis les champs obligatoires');return}setContactSent(true)}}
-                style={{width:'100%',height:50,borderRadius:12,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 16px rgba(0,113,227,.2)'}}>
-                  Envoyer la demande →
+                style={{width:'100%',height:52,borderRadius:12,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 20px rgba(0,113,227,.2)'}}>
+                  Envoyer ma demande →
                 </button>
-                <div style={{fontSize:11,color:TEXT3,textAlign:'center',marginTop:8}}>Réponse sous 24h · Démo Teams offerte</div>
+                <div style={{fontSize:12,color:TEXT3,textAlign:'center',marginTop:10}}>Réponse sous 24h ouvrées · Démo Teams offerte</div>
               </>
             )}
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
-            {[{icon:'📹',title:'Démo Teams offerte',desc:'30 minutes pour voir Kronvo adapté à votre secteur.'},
-              {icon:'🚀',title:'Mise en place par SwitzerIT',desc:"Notre équipe s'occupe de tout."},
-              {icon:'🇨🇭',title:'Facturation en CHF',desc:'Tarification locale, sans surprise.'},
-            ].map((info,i)=>(
-              <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:13,padding:'16px',display:'flex',gap:12,alignItems:'flex-start'}}>
-                <div style={{width:40,height:40,background:'#e8f2fd',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{info.icon}</div>
-                <div><div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:3}}>{info.title}</div><div style={{fontSize:13,color:TEXT2,lineHeight:1.4}}>{info.desc}</div></div>
+            <div style={{background:'#0a0a0f',borderRadius:16,padding:'24px',color:'white'}}>
+              <div style={{width:44,height:44,borderRadius:12,background:'rgba(0,113,227,.2)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
+                <Icon name="clock" size={20} color={A}/>
+              </div>
+              <div style={{fontSize:16,fontWeight:700,marginBottom:8,letterSpacing:'-.01em'}}>Démo Teams gratuite</div>
+              <div style={{fontSize:13,color:'rgba(255,255,255,.5)',lineHeight:1.7}}>30 minutes pour voir Kronvo en action, adapté à votre secteur. Posez vos questions et repartez avec un devis.</div>
+            </div>
+            {[{icon:'zap',title:'Mise en place par SwitzerIT',desc:"Notre équipe s'occupe de tout. Vous n'avez rien à faire."},{icon:'shield',title:'Facturation en CHF',desc:'Tarification locale, sans conversion ni frais cachés.'}].map((info,i)=>(
+              <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:13,padding:'18px',display:'flex',gap:14,alignItems:'flex-start'}}>
+                <div style={{width:40,height:40,background:'#e8f2fd',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                  <Icon name={info.icon} size={18} color={A}/>
+                </div>
+                <div>
+                  <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:4}}>{info.title}</div>
+                  <div style={{fontSize:13,color:TEXT2,lineHeight:1.5}}>{info.desc}</div>
+                </div>
               </div>
             ))}
-            <div style={{background:'#e8f2fd',border:'1px solid rgba(0,113,227,.15)',borderRadius:13,padding:'16px'}}>
-              <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:5}}>Déjà client ?</div>
-              <div style={{fontSize:12,color:TEXT2,marginBottom:10}}>Connectez-vous à votre espace gérant.</div>
+            <div style={{background:'#f0f6ff',border:'1px solid rgba(0,113,227,.15)',borderRadius:13,padding:'18px'}}>
+              <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>Déjà client ?</div>
+              <div style={{fontSize:13,color:TEXT2,marginBottom:12}}>Connectez-vous à votre espace gérant.</div>
               <button onClick={()=>setShowLogin(true)} style={{padding:'9px 18px',borderRadius:8,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Se connecter →</button>
             </div>
-            <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:13,padding:'16px'}}>
-              <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:8}}>Contact direct</div>
-              <div style={{fontSize:13,color:TEXT2,marginBottom:5}}>📧 contact@switzerit.com</div>
-              <div style={{fontSize:13,color:TEXT2,marginBottom:5}}>🌐 switzerit.com</div>
+            <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:13,padding:'18px'}}>
+              <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:10}}>Contact direct</div>
+              <div style={{fontSize:13,color:TEXT2,marginBottom:6}}>📧 contact@switzerit.com</div>
+              <div style={{fontSize:13,color:TEXT2,marginBottom:6}}>🌐 switzerit.com</div>
               <div style={{fontSize:13,color:TEXT2}}>🇨🇭 Basé en Suisse</div>
             </div>
           </div>
@@ -589,7 +697,7 @@ export default function Login() {
       ]},
       rgpd:{title:"Conformité RGPD",last:"11 mai 2026",content:[
         {h:"Engagement",t:"Kronvo respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse."},
-        {h:"Données traitées",t:"Noms et prénoms des employés, emails professionnels, données de badgeage, informations sur le poste et l'établissement."},
+        {h:"Données traitées",t:"Noms et prénoms des employés, emails professionnels, données de badgeage, informations sur le poste."},
         {h:"Conservation",t:"Employés actifs : durée du contrat. Facturation : 10 ans. Logs sécurité : 12 mois."},
         {h:"Sous-traitants",t:"Supabase Inc. (USA - clauses contractuelles types), Vercel Inc. (USA - clauses contractuelles types)."},
         {h:"Transferts hors UE",t:"Encadrés par des clauses contractuelles types approuvées par la Commission Européenne."},
@@ -597,60 +705,44 @@ export default function Login() {
         {h:"Réclamation",t:"Auprès du PFPDT (Suisse) ou de l'autorité de contrôle de votre pays UE."},
       ]},
       cookies:{title:"Politique de Cookies",last:"11 mai 2026",content:[
-        {h:"Qu'est-ce qu'un cookie ?",t:"Un petit fichier texte déposé sur votre appareil lors de la visite du site."},
-        {h:"Cookies nécessaires",t:"Cookies d'authentification (sb-access-token), préférences de langue, sécurité CSRF. Ils ne peuvent pas être désactivés."},
+        {h:"Cookies nécessaires",t:"Cookies d'authentification, préférences, sécurité CSRF. Ils ne peuvent pas être désactivés."},
         {h:"Cookies fonctionnels",t:"Établissement sélectionné, état de la borne, préférences d'affichage."},
         {h:"Cookies analytiques",t:"Nous n'utilisons pas de cookies analytiques tiers."},
-        {h:"Cookies tiers",t:"Supabase et Vercel déposent leurs propres cookies techniques nécessaires à l'infrastructure."},
         {h:"Gestion",t:"Contrôlables via les paramètres de votre navigateur."},
-        {h:"Durée",t:"Session : supprimés à la fermeture du navigateur. Persistants : maximum 12 mois."},
+        {h:"Durée",t:"Session : supprimés à la fermeture. Persistants : maximum 12 mois."},
       ]},
     }
     const s=sections[legalSection]
     return (
       <div style={{paddingTop:56,minHeight:'100vh',background:BG}}>
-        <div style={{maxWidth:900,margin:'0 auto',padding:isMobile?'24px 20px':'56px 24px'}}>
-          {isMobile ? (
+        <div style={{...W,padding:isMobile?'28px 20px':'56px 56px'}}>
+          {isMobile?(
             <>
               <div style={{display:'flex',gap:8,marginBottom:20,overflowX:'auto',paddingBottom:4}}>
                 {[['cgu','CGU'],['confidentialite','Confidentialité'],['rgpd','RGPD'],['cookies','Cookies']].map(([id,label])=>(
                   <button key={id} onClick={()=>setLegalSection(id)} style={{padding:'8px 16px',borderRadius:20,border:'none',background:legalSection===id?A:'transparent',color:legalSection===id?'white':TEXT2,fontSize:13,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>{label}</button>
                 ))}
               </div>
-              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px 20px'}}>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px'}}>
                 <div style={{fontSize:11,color:TEXT3,marginBottom:6}}>Mise à jour : {s.last}</div>
                 <h1 style={{fontSize:24,fontWeight:900,color:TEXT,marginBottom:20}}>{s.title}</h1>
-                {s.content.map((block,i)=>(
-                  <div key={i} style={{marginBottom:20}}>
-                    <h2 style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>{block.h}</h2>
-                    <p style={{fontSize:13,color:TEXT2,lineHeight:1.7,margin:0}}>{block.t}</p>
-                  </div>
-                ))}
-                <div style={{marginTop:24,padding:'14px 16px',background:'#e8f2fd',borderRadius:10,fontSize:13,color:A}}>
-                  <strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a>
-                </div>
+                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:20}}><h2 style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>{block.h}</h2><p style={{fontSize:13,color:TEXT2,lineHeight:1.7,margin:0}}>{block.t}</p></div>))}
+                <div style={{marginTop:24,padding:'14px 16px',background:'#e8f2fd',borderRadius:10,fontSize:13,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
               </div>
             </>
-          ) : (
-            <div style={{display:'grid',gridTemplateColumns:'200px 1fr',gap:24,alignItems:'start'}}>
+          ):(
+            <div style={{display:'grid',gridTemplateColumns:'200px 1fr',gap:28,alignItems:'start'}}>
               <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:14,padding:'18px 14px',position:'sticky',top:72}}>
-                <div style={{fontSize:11,fontWeight:700,color:TEXT3,letterSpacing:'.08em',textTransform:'uppercase',marginBottom:12}}>Légal</div>
+                <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:14}}>Légal</div>
                 {[['cgu','CGU'],['confidentialite','Confidentialité'],['rgpd','RGPD'],['cookies','Cookies']].map(([id,label])=>(
-                  <button key={id} onClick={()=>setLegalSection(id)} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'none',background:legalSection===id?'#e8f2fd':'transparent',color:legalSection===id?A:TEXT2,fontSize:13,fontWeight:legalSection===id?700:500,cursor:'pointer',textAlign:'left',marginBottom:3,display:'block'}}>{label}</button>
+                  <button key={id} onClick={()=>setLegalSection(id)} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'none',background:legalSection===id?'#e8f2fd':'transparent',color:legalSection===id?A:TEXT2,fontSize:13,fontWeight:legalSection===id?600:400,cursor:'pointer',textAlign:'left',marginBottom:3,display:'block'}}>{label}</button>
                 ))}
               </div>
-              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'32px'}}>
-                <div style={{fontSize:11,color:TEXT3,marginBottom:6}}>Mise à jour : {s.last}</div>
-                <h1 style={{fontSize:28,fontWeight:900,color:TEXT,letterSpacing:'-.02em',marginBottom:22}}>{s.title}</h1>
-                {s.content.map((block,i)=>(
-                  <div key={i} style={{marginBottom:22}}>
-                    <h2 style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:7}}>{block.h}</h2>
-                    <p style={{fontSize:14,color:TEXT2,lineHeight:1.7,margin:0}}>{block.t}</p>
-                  </div>
-                ))}
-                <div style={{marginTop:28,padding:'14px 18px',background:'#e8f2fd',borderRadius:11,fontSize:13,color:A}}>
-                  <strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a>
-                </div>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'36px'}}>
+                <div style={{fontSize:11,color:TEXT3,marginBottom:8}}>Mise à jour : {s.last}</div>
+                <h1 style={{fontSize:28,fontWeight:900,color:TEXT,letterSpacing:'-.03em',marginBottom:24}}>{s.title}</h1>
+                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:24}}><h2 style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:8}}>{block.h}</h2><p style={{fontSize:14,color:TEXT2,lineHeight:1.75,margin:0}}>{block.t}</p></div>))}
+                <div style={{marginTop:32,padding:'16px 20px',background:'#e8f2fd',borderRadius:12,fontSize:13,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
               </div>
             </div>
           )}
@@ -670,29 +762,29 @@ export default function Login() {
       <Footer/>
 
       {showLogin&&(
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
-          <div style={{background:SURF,borderRadius:20,padding:isMobile?'24px 20px':32,width:'100%',maxWidth:380,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
-            <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:14,right:14,width:32,height:32,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✕</button>
-            <div style={{textAlign:'center',marginBottom:22}}>
-              <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>{LOGO}</div>
-              <div style={{fontSize:20,fontWeight:800,color:TEXT}}>Connexion</div>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.6)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
+          <div style={{background:SURF,borderRadius:22,padding:isMobile?'24px 20px':36,width:'100%',maxWidth:380,boxShadow:'0 32px 80px rgba(0,0,0,.2)',border:`1px solid ${BORDER}`,position:'relative'}}>
+            <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:16,right:16,width:32,height:32,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:15,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+            <div style={{textAlign:'center',marginBottom:24}}>
+              <div style={{display:'flex',justifyContent:'center',marginBottom:14}}>{LOGO_SM}</div>
+              <div style={{fontSize:21,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Connexion</div>
               <div style={{fontSize:13,color:TEXT2,marginTop:4}}>Accédez à votre espace Kronvo</div>
             </div>
             <form onSubmit={handleLogin}>
               <div style={{marginBottom:14}}>
-                <label style={{display:'block',fontSize:13,fontWeight:700,color:TEXT2,marginBottom:6}}>Email</label>
+                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Email</label>
                 <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required style={inp}
                 onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
               </div>
-              <div style={{marginBottom:20}}>
-                <label style={{display:'block',fontSize:13,fontWeight:700,color:TEXT2,marginBottom:6}}>Mot de passe</label>
+              <div style={{marginBottom:22}}>
+                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Mot de passe</label>
                 <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required style={inp}
                 onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
               </div>
               {error&&<div style={{padding:'10px 14px',background:'#fff2f1',border:'1px solid rgba(255,59,48,.2)',borderRadius:10,fontSize:13,color:'#b02020',marginBottom:16,fontWeight:600}}>{error}</div>}
-              <button type="submit" style={{width:'100%',height:50,borderRadius:12,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 16px rgba(0,113,227,.25)'}}>Se connecter</button>
+              <button type="submit" style={{width:'100%',height:52,borderRadius:12,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 20px rgba(0,113,227,.3)'}}>Se connecter</button>
             </form>
-            <div style={{textAlign:'center',marginTop:14}}>
+            <div style={{textAlign:'center',marginTop:16}}>
               <span style={{fontSize:13,color:TEXT3}}>Pas encore client ? </span>
               <span style={{fontSize:13,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{setShowLogin(false);goPage('contact')}}>Demander une démo</span>
             </div>
