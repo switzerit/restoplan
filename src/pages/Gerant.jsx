@@ -672,6 +672,14 @@ export default function Gerant() {
                     <span>{SECTEURS.find(s=>s.id===(currentResto.secteur||'restaurant'))?.label||'🍽️ Restaurant'}</span>
                     <span style={{color:'var(--text3)'}}>· Secteur défini par votre administrateur</span>
                   </div>
+                  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:12,padding:'16px'}}>
+                    <div style={{fontSize:13,fontWeight:700,marginBottom:4}}>🖥️ URL de la borne tablette</div>
+                    <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>Ouvrez ce lien sur la tablette à l'entrée de votre établissement</div>
+                    <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                      <div style={{flex:1,padding:'8px 12px',background:'var(--bg)',borderRadius:8,border:'1px solid var(--border2)',fontSize:11,color:'var(--text2)',fontFamily:'monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{window.location.origin}/borne?resto={currentResto.id}</div>
+                      <button onClick={()=>navigator.clipboard.writeText(window.location.origin+'/borne?resto='+currentResto.id).then(()=>showToast('URL copiée !'))} style={{padding:'8px 14px',borderRadius:8,border:'none',background:'var(--accent)',color:'white',fontSize:12,fontWeight:700,cursor:'pointer',flexShrink:0}}>Copier</button>
+                    </div>
+                  </div>
                   <div>
                     <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Nom</label>
                     <input defaultValue={currentResto.nom} id='resto-nom' style={{width:'100%',padding:'10px 14px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
