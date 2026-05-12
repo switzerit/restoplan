@@ -340,13 +340,13 @@ export default function Gerant() {
         <div style={{marginBottom:20}}>
           <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 8px',marginBottom:8}}>
             <div style={{width:32,height:32,background:'var(--accent)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>{{'restaurant':'🍽️','hotel':'🏨','garage':'🔧','commerce':'🏪','clinique':'🏥','spa':'💆','btp':'🏗️','logistique':'📦','education':'🎓','securite':'🛡️'}[currentResto?.secteur]||'🏢'}</div>
-            <div><div style={{fontSize:15,fontWeight:800}}>RestoPlan</div><div style={{fontSize:11,color:'var(--text3)'}}>Dashboard gérant</div></div>
+            <div><div style={{fontSize:15,fontWeight:800}}>PlanPro</div><div style={{fontSize:11,color:'var(--text3)'}}>Dashboard gérant</div></div>
           </div>
           <button onClick={()=>setShowRestoSwitch(!showRestoSwitch)} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'10px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',cursor:'pointer',textAlign:'left'}}>
             <div style={{width:28,height:28,borderRadius:7,background:'var(--accent-bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>🏪</div>
             <div style={{flex:1,overflow:'hidden'}}>
               <div style={{fontSize:12,fontWeight:700,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{currentResto.nom}</div>
-              <div style={{fontSize:10,color:'var(--text3)'}}>Changer de restaurant</div>
+              <div style={{fontSize:10,color:'var(--text3)'}}>Changer d'établissement</div>
             </div>
             <span style={{color:'var(--text3)',fontSize:12}}>{showRestoSwitch?'▲':'▼'}</span>
           </button>
