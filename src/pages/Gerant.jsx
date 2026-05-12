@@ -36,6 +36,10 @@ const SECTEURS = [
 ]
 
 function ini(p,n){return((p?.[0]||'')+(n?.[0]||'')).toUpperCase()}
+function getSecteurLabel(secteur){
+  const map={restaurant:'restaurant',hotel:'hôtel',garage:'garage',commerce:'commerce',clinique:'clinique',spa:'spa',btp:'chantier',logistique:'site',education:'établissement',securite:'site',autre:'établissement'}
+  return map[secteur]||'établissement'
+}
 function getMonday(d){const dt=new Date(d);const day=dt.getDay();const diff=dt.getDate()-day+(day===0?-6:1);return new Date(dt.setDate(diff))}
 function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt}
 function fmtDate(d){return d.toISOString().split('T')[0]}
@@ -335,7 +339,7 @@ export default function Gerant() {
       <div style={{width:220,background:'var(--surface)',borderRight:'1px solid var(--border)',display:'flex',flexDirection:'column',padding:'18px 10px',flexShrink:0}}>
         <div style={{marginBottom:20}}>
           <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 8px',marginBottom:8}}>
-            <div style={{width:32,height:32,background:'var(--accent)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🍽️</div>
+            <div style={{width:32,height:32,background:'var(--accent)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>{{'restaurant':'🍽️','hotel':'🏨','garage':'🔧','commerce':'🏪','clinique':'🏥','spa':'💆','btp':'🏗️','logistique':'📦','education':'🎓','securite':'🛡️'}[currentResto?.secteur]||'🏢'}</div>
             <div><div style={{fontSize:15,fontWeight:800}}>RestoPlan</div><div style={{fontSize:11,color:'var(--text3)'}}>Dashboard gérant</div></div>
           </div>
           <button onClick={()=>setShowRestoSwitch(!showRestoSwitch)} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'10px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',cursor:'pointer',textAlign:'left'}}>
@@ -353,7 +357,7 @@ export default function Gerant() {
                   {r.id===currentResto.id&&<span style={{color:'var(--accent)'}}>✓</span>}<span>{r.nom}</span>
                 </button>
               ))}
-              <button onClick={()=>{setShowRestoSwitch(false);setRestoModal(true)}} style={{width:'100%',padding:'10px 12px',border:'none',background:'transparent',cursor:'pointer',textAlign:'left',fontSize:13,fontWeight:600,color:'var(--accent)'}}>+ Ajouter un restaurant</button>
+              <button onClick={()=>{setShowRestoSwitch(false);setRestoModal(true)}} style={{width:'100%',padding:'10px 12px',border:'none',background:'transparent',cursor:'pointer',textAlign:'left',fontSize:13,fontWeight:600,color:'var(--accent)'}}>+ Ajouter un {getSecteurLabel(currentResto?.secteur)}</button>
             </div>
           )}
         </div>
@@ -381,7 +385,7 @@ export default function Gerant() {
       {/* TOPBAR MOBILE */}
       {isMobile && (
         <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'10px 16px',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
-          <div style={{width:28,height:28,background:'var(--accent)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>🍽️</div>
+          <div style={{width:28,height:28,background:'var(--accent)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>{{'restaurant':'🍽️','hotel':'🏨','garage':'🔧','commerce':'🏪','clinique':'🏥','spa':'💆','btp':'🏗️','logistique':'📦','education':'🎓','securite':'🛡️'}[currentResto?.secteur]||'🏢'}</div>
           <div style={{flex:1}}>
             <div style={{fontSize:13,fontWeight:800}}>RestoPlan</div>
             <div style={{fontSize:10,color:'var(--text3)'}}>{currentResto.nom}</div>
@@ -395,7 +399,7 @@ export default function Gerant() {
                   {r.id===currentResto.id?'✓ ':''}{r.nom}
                 </button>
               ))}
-              <button onClick={()=>{setShowRestoSwitch(false);setRestoModal(true)}} style={{width:'100%',padding:'12px 16px',border:'none',background:'transparent',cursor:'pointer',textAlign:'left',fontSize:14,fontWeight:600,color:'var(--accent)'}}>+ Ajouter un restaurant</button>
+              <button onClick={()=>{setShowRestoSwitch(false);setRestoModal(true)}} style={{width:'100%',padding:'12px 16px',border:'none',background:'transparent',cursor:'pointer',textAlign:'left',fontSize:14,fontWeight:600,color:'var(--accent)'}}>+ Ajouter un {getSecteurLabel(currentResto?.secteur)}</button>
             </div>
           )}
         </div>
@@ -817,7 +821,7 @@ export default function Gerant() {
       {restoModal&&(
         <div onClick={()=>setRestoModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
-            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Nouveau restaurant</div>
+            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Nouvel établissement</div>
             <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Il sera ajouté à votre compte</div>
             <div style={{marginBottom:12}}>
               <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Nom</label>
