@@ -56,7 +56,100 @@ function QRDisplay() {
         <div style={{height:2,background:'#e5e5ea',borderRadius:1}}>
           <div style={{height:'100%',background:'#0071e3',borderRadius:1,width:`${progress}%`,transition:'width .1s linear'}}/>
         </div>
-        <div style={{fontSize:9,color:'#8e8e93',textAlign:'center',marginTop:3,fontWeight:600,letterSpacing:'.02em'}}>Renouvellement {Math.ceil(30-(progress*30/100))}s</div>
+        <div style={{fontSize:9,color:'#8e8e93',textAlign:'center',marginTop:3,fontWeight:600}}>Renouvellement {Math.ceil(30-(progress*30/100))}s</div>
+      </div>
+    </div>
+  )
+}
+
+// ── ROI CALCULATOR (composant global) ──
+function RoiCalc({isMobile}) {
+  const [emp, setEmp] = useState(10)
+  const [hrs, setHrs] = useState(3)
+  const pertes = emp * hrs * 4
+  const cout = pertes * 60
+  const eco = cout * 12
+  return (
+    <div style={{background:'#ffffff',border:'1px solid #e5e5ea',borderRadius:20,padding:isMobile?'24px':'36px',maxWidth:720,margin:'0 auto'}}>
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:28,marginBottom:28}}>
+        <div>
+          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#6e6e73',marginBottom:10}}>
+            Nombre d'employés : <strong style={{color:'#1d1d1f'}}>{emp}</strong>
+          </label>
+          <input type="range" min="2" max="80" value={emp} onChange={e=>setEmp(Number(e.target.value))}
+          style={{width:'100%',accentColor:'#0071e3',cursor:'pointer'}}/>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:4}}>
+            <span>2</span><span>80</span>
+          </div>
+        </div>
+        <div>
+          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#6e6e73',marginBottom:10}}>
+            Heures perdues / semaine : <strong style={{color:'#1d1d1f'}}>{hrs}h</strong>
+          </label>
+          <input type="range" min="1" max="15" value={hrs} onChange={e=>setHrs(Number(e.target.value))}
+          style={{width:'100%',accentColor:'#0071e3',cursor:'pointer'}}/>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:4}}>
+            <span>1h</span><span>15h</span>
+          </div>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24}}>
+        <div style={{background:'#fff2f1',border:'1px solid #ffd0d0',borderRadius:14,padding:'18px',textAlign:'center'}}>
+          <div style={{fontSize:28,fontWeight:800,color:'#b02020',letterSpacing:'-.03em'}}>{pertes}h</div>
+          <div style={{fontSize:12,color:'#b02020',marginTop:4,fontWeight:500}}>perdues par mois</div>
+        </div>
+        <div style={{background:'#fff8ee',border:'1px solid #ffd9a0',borderRadius:14,padding:'18px',textAlign:'center'}}>
+          <div style={{fontSize:28,fontWeight:800,color:'#8a5a00',letterSpacing:'-.03em'}}>{cout.toLocaleString()}</div>
+          <div style={{fontSize:12,color:'#8a5a00',marginTop:4,fontWeight:500}}>CHF perdus/mois</div>
+        </div>
+        <div style={{background:'#f0faf3',border:'1px solid #b8e8c8',borderRadius:14,padding:'18px',textAlign:'center'}}>
+          <div style={{fontSize:28,fontWeight:800,color:'#1a6b35',letterSpacing:'-.03em'}}>{eco.toLocaleString()}</div>
+          <div style={{fontSize:12,color:'#1a6b35',marginTop:4,fontWeight:500}}>CHF économisés/an</div>
+        </div>
+      </div>
+      <div style={{background:'#e8f2fd',borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
+        <div style={{fontSize:14,color:'#0051a8',fontWeight:500}}>
+          Kronvo vous fait économiser <strong>{eco.toLocaleString()} CHF/an</strong> pour {emp} employés
+        </div>
+        <a href="/contact" style={{padding:'9px 18px',borderRadius:9,border:'none',background:'#0071e3',color:'white',fontSize:13,fontWeight:700,cursor:'pointer',flexShrink:0,textDecoration:'none',display:'inline-block'}}>
+          Calculer mon devis →
+        </a>
+      </div>
+    </div>
+  )
+}
+
+// ── FAQ (composant global) ──
+function FaqSection() {
+  const [open, setOpen] = useState(null)
+  const faqs = [
+    {q:"Combien de temps faut-il pour mettre en place Kronvo ?",a:"La mise en place complète prend en moyenne 2 à 4 heures avec notre équipe SwitzerIT. Cela inclut la configuration de votre établissement, l'import des employés, l'installation de la borne tablette et la formation de vos gérants. Vous n'avez rien à faire techniquement."},
+    {q:"Faut-il une tablette pour la borne QR ?",a:"Non, la borne tablette est optionnelle. Vos employés peuvent scanner le QR code directement depuis leur smartphone iPhone ou Android. La borne tablette fixe est recommandée pour les établissements avec une entrée unique, comme les restaurants ou cliniques."},
+    {q:"Que se passe-t-il si un employé oublie de badger ?",a:"Le gérant peut corriger manuellement les pointages depuis son tableau de bord. Il peut ajouter, modifier ou supprimer un pointage à tout moment. L'historique complet est conservé et consultable pour chaque employé."},
+    {q:"Est-ce que mes données sont sécurisées ?",a:"Oui. Toutes les données sont chiffrées en transit HTTPS et au repos. Chaque établissement a ses données complètement isolées. Kronvo est conforme au RGPD européen et à la LPD suisse. L'hébergement est assuré par des infrastructures de confiance."},
+    {q:"Peut-on personnaliser les postes selon notre activité ?",a:"Oui, chaque établissement peut configurer ses propres postes depuis le tableau de bord gérant. Un restaurant aura Cuisine, Salle, Bar. Une clinique aura Médecin, Infirmier, Accueil. Les postes sont entièrement personnalisables."},
+    {q:"Peut-on gérer plusieurs établissements ?",a:"Oui, Kronvo est conçu pour le multi-établissements. Un gérant peut gérer plusieurs sites depuis un seul tableau de bord. Chaque établissement a son propre QR code et ses données complètement isolées des autres."},
+    {q:"Y a-t-il un engagement minimum ?",a:"Non. Nous fonctionnons sans engagement de durée minimum. Vous pouvez arrêter à tout moment avec un préavis de 30 jours. La démo initiale est gratuite et sans obligation d'achat."},
+    {q:"Comment fonctionne le support ?",a:"Le support est assuré directement par l'équipe SwitzerIT, des humains et non un chatbot. Nous répondons par email sous 24h ouvrées. Les clients avec contrat de maintenance bénéficient d'une intervention sous 4 heures."},
+  ]
+  return (
+    <div style={{maxWidth:720,margin:'0 auto'}}>
+      {faqs.map((faq,i)=>(
+        <div key={i} style={{borderBottom:'1px solid #e5e5ea'}}>
+          <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:16}}>
+            <span style={{fontSize:15,fontWeight:600,color:'#1d1d1f',lineHeight:1.4}}>{faq.q}</span>
+            <span style={{fontSize:22,color:'#0071e3',flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block',lineHeight:1}}>{open===i?'−':'+'}</span>
+          </button>
+          {open===i&&(
+            <div style={{paddingBottom:18}}>
+              <p style={{fontSize:14,color:'#6e6e73',lineHeight:1.75,margin:0}}>{faq.a}</p>
+            </div>
+          )}
+        </div>
+      ))}
+      <div style={{textAlign:'center',marginTop:28}}>
+        <span style={{fontSize:14,color:'#6e6e73'}}>Autre question ? </span>
+        <a href="/contact" style={{fontSize:14,color:'#0071e3',fontWeight:600,cursor:'pointer',textDecoration:'none'}}>Contactez-nous →</a>
       </div>
     </div>
   )
@@ -174,8 +267,7 @@ export default function Login() {
           ].map(col=>(
             <div key={col.title}>
               <div style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.3)',letterSpacing:'.1em',textTransform:'uppercase',marginBottom:14}}>{col.title}</div>
-              {col.links.map(([l,p])=><div key={l} onClick={()=>goPage(p)} style={{fontSize:13,color:'rgba(255,255,255,.45)',marginBottom:10,cursor:'pointer',transition:'color .15s'}}
-              onMouseEnter={e=>e.target.style.color='rgba(255,255,255,.8)'} onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.45)'}>{l}</div>)}
+              {col.links.map(([l,p])=><div key={l} onClick={()=>goPage(p)} style={{fontSize:13,color:'rgba(255,255,255,.45)',marginBottom:10,cursor:'pointer'}}>{l}</div>)}
             </div>
           ))}
         </div>
@@ -193,20 +285,20 @@ export default function Login() {
 
   const PageHome=()=>(
     <>
-      {/* ══ HERO ══ */}
-      <section style={{paddingTop:56,background:`linear-gradient(160deg, #f0f6ff 0%, #ffffff 50%, #f5f5f7 100%)`,borderBottom:`1px solid ${BORDER}`}}>
+      {/* HERO */}
+      <section style={{paddingTop:56,background:`linear-gradient(160deg,#f0f6ff 0%,#ffffff 50%,#f5f5f7 100%)`,borderBottom:`1px solid ${BORDER}`}}>
         <div style={{...W,padding:isMobile?'52px 20px 44px':'72px 56px 64px',display:isMobile?'block':'grid',gridTemplateColumns:'55% 45%',gap:64,alignItems:'center'}}>
           <div>
             <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 14px',borderRadius:20,background:'rgba(0,113,227,.07)',border:'1px solid rgba(0,113,227,.12)',marginBottom:28}}>
               <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',boxShadow:'0 0 6px #34c759',display:'inline-block'}}></span>
-              <span style={{fontSize:12,fontWeight:600,color:A,letterSpacing:'.01em'}}>Planning · Badgeage QR · Présences</span>
+              <span style={{fontSize:12,fontWeight:600,color:A}}>Planning · Badgeage QR · Présences</span>
             </div>
             <h1 style={{fontSize:isMobile?40:58,fontWeight:900,lineHeight:1.04,margin:'0 0 22px',letterSpacing:'-.05em',color:TEXT}}>
               Gérez vos équipes.<br/>
-              <span style={{background:`linear-gradient(135deg, ${A} 0%, #5856d6 100%)`,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Sans la galère.</span>
+              <span style={{background:`linear-gradient(135deg,${A} 0%,#5856d6 100%)`,WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>Sans la galère.</span>
             </h1>
-            <p style={{fontSize:isMobile?16:18,color:TEXT2,lineHeight:1.75,marginBottom:36,maxWidth:440,fontWeight:400}}>
-              Fini les feuilles de présence et les erreurs de paie. Kronvo centralise tout en un seul endroit — accessible depuis n'importe quel téléphone.
+            <p style={{fontSize:isMobile?16:18,color:TEXT2,lineHeight:1.75,marginBottom:36,maxWidth:440}}>
+              Fini les feuilles de présence et les erreurs de paie. Kronvo centralise tout en un seul endroit, accessible depuis n'importe quel téléphone.
             </p>
             <div style={{display:'flex',gap:12,flexDirection:isMobile?'column':'row',marginBottom:32}}>
               <button onClick={()=>goPage('contact')} style={{padding:'16px 28px',borderRadius:13,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 24px rgba(0,113,227,.35)',display:'flex',alignItems:'center',gap:8}}>
@@ -217,7 +309,7 @@ export default function Login() {
               </button>
             </div>
             <div style={{display:'flex',gap:24,flexWrap:'wrap'}}>
-              {['Démo Teams gratuite','Sans engagement','Déploiement 5 min'].map(t=>(
+              {['Démo Teams gratuite','Sans engagement','Déploiement 2 à 4h'].map(t=>(
                 <div key={t} style={{display:'flex',alignItems:'center',gap:6}}>
                   <Icon name="check" size={14} color="#34c759"/>
                   <span style={{fontSize:13,color:TEXT3}}>{t}</span>
@@ -225,12 +317,11 @@ export default function Login() {
               ))}
             </div>
           </div>
-
           {!isMobile&&(
             <div style={{background:'white',borderRadius:22,padding:20,boxShadow:'0 20px 60px rgba(0,0,0,.08)',border:`1px solid ${BORDER}`}}>
               <div style={{background:'#0a0a0f',borderRadius:14,padding:'12px 16px',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <div>
-                  <div style={{fontSize:12,fontWeight:700,color:'white',letterSpacing:'-.01em'}}>Kronvo Dashboard</div>
+                  <div style={{fontSize:12,fontWeight:700,color:'white'}}>Kronvo Dashboard</div>
                   <div style={{fontSize:10,color:'rgba(255,255,255,.35)',marginTop:2}}>Restaurant Le Bistrot · En direct</div>
                 </div>
                 <div style={{display:'flex',gap:5}}>
@@ -242,14 +333,14 @@ export default function Login() {
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:12}}>
                 {[{v:'8',l:'Présents',bg:'#f0faf3',c:'#1a6b35'},{v:'3',l:'Absents',bg:'#fff2f1',c:'#b02020'},{v:'2',l:'En pause',bg:'#fffbea',c:'#8a5a00'}].map((s,i)=>(
                   <div key={i} style={{background:s.bg,borderRadius:10,padding:'10px 8px',textAlign:'center'}}>
-                    <div style={{fontSize:22,fontWeight:800,color:s.c,letterSpacing:'-.02em'}}>{s.v}</div>
+                    <div style={{fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
                     <div style={{fontSize:10,color:s.c,fontWeight:600,marginTop:1}}>{s.l}</div>
                   </div>
                 ))}
               </div>
               <div style={{background:BG,borderRadius:12,padding:'12px',marginBottom:10}}>
                 <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.08em',marginBottom:8}}>ÉQUIPE EN DIRECT</div>
-                {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#34c759',online:true},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#34c759',online:true},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#ff9500',online:false},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'#e5e5ea',online:false}].map((e,i)=>(
+                {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#34c759'},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#34c759'},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#ff9500'},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'#e5e5ea'}].map((e,i)=>(
                   <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:8,background:i%2===0?SURF:'transparent',marginBottom:2}}>
                     <div style={{width:26,height:26,borderRadius:'50%',background:'#e8f2fd',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:A,flexShrink:0,position:'relative'}}>
                       {e.n.split(' ').map(x=>x[0]).join('')}
@@ -259,7 +350,7 @@ export default function Login() {
                       <div style={{fontSize:11,fontWeight:600,color:TEXT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{e.n}</div>
                       <div style={{fontSize:9,color:TEXT3}}>{e.p}</div>
                     </div>
-                    <span style={{fontSize:10,color:TEXT2,fontWeight:500}}>{e.h}</span>
+                    <span style={{fontSize:10,color:TEXT2}}>{e.h}</span>
                   </div>
                 ))}
               </div>
@@ -279,20 +370,20 @@ export default function Login() {
         </div>
       </section>
 
-      {/* ══ LOGOS SECTEURS ══ */}
-      <section style={{background:SURF,borderBottom:`1px solid ${BORDER}`,padding:'18px 0',overflow:'hidden'}}>
+      {/* SECTEURS BANDE */}
+      <section style={{background:SURF,borderBottom:`1px solid ${BORDER}`,padding:'18px 0'}}>
         <div style={W}>
           <div style={{display:'flex',alignItems:'center',gap:isMobile?12:32,justifyContent:'center',flexWrap:'wrap'}}>
-            <span style={{fontSize:11,fontWeight:600,color:TEXT3,whiteSpace:'nowrap',letterSpacing:'.04em',textTransform:'uppercase'}}>Adapté pour</span>
+            <span style={{fontSize:11,fontWeight:600,color:TEXT3,letterSpacing:'.04em',textTransform:'uppercase'}}>Adapté pour</span>
             {['Restaurants','Hôtels','Cliniques','Garages','Commerce','BTP','Logistique'].map(s=>(
-              <span key={s} style={{fontSize:13,fontWeight:600,color:TEXT2,whiteSpace:'nowrap'}}>{s}</span>
+              <span key={s} style={{fontSize:13,fontWeight:600,color:TEXT2}}>{s}</span>
             ))}
             <span style={{fontSize:13,color:TEXT3}}>& plus</span>
           </div>
         </div>
       </section>
 
-      {/* ══ PROBLÈME / SOLUTION ══ */}
+      {/* PROBLÈME / SOLUTION */}
       <section style={{background:BG,padding:isMobile?'52px 20px':'72px 0'}}>
         <div style={W}>
           <div style={{textAlign:'center',marginBottom:48}}>
@@ -308,14 +399,7 @@ export default function Login() {
                 </div>
                 <span style={{fontSize:16,fontWeight:700,color:'#b02020'}}>Sans Kronvo</span>
               </div>
-              {[
-                'Feuilles de présence papier perdues ou illisibles',
-                'Appels incessants pour savoir qui est absent',
-                'Erreurs sur les bulletins de paie chaque mois',
-                'Aucune visibilité sur les présences en temps réel',
-                'Heures supplémentaires non tracées ni payées',
-                'Planning distribué par SMS ou affiché en salle',
-              ].map(p=>(
+              {['Feuilles de présence papier perdues ou illisibles','Appels incessants pour savoir qui est absent','Erreurs sur les bulletins de paie chaque mois','Aucune visibilité sur les présences en temps réel','Heures supplémentaires non tracées ni payées','Planning distribué par SMS ou affiché en salle'].map(p=>(
                 <div key={p} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:12}}>
                   <div style={{width:18,height:18,borderRadius:'50%',background:'#fff2f1',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
                     <Icon name="x" size={10} color="#ff3b30"/>
@@ -331,14 +415,7 @@ export default function Login() {
                 </div>
                 <span style={{fontSize:16,fontWeight:700,color:'#1a6b35'}}>Avec Kronvo</span>
               </div>
-              {[
-                'Badgeage QR en 2 secondes depuis le téléphone',
-                'Tableau de bord en direct — qui est là maintenant',
-                'Export PDF automatique prêt pour la paie',
-                'Planning publié en un clic, visible sur mobile',
-                'Heures planifiées vs pointées calculées automatiquement',
-                'Données sécurisées, accessibles partout 24h/24',
-              ].map(p=>(
+              {['Badgeage QR en 2 secondes depuis le téléphone','Tableau de bord en direct — qui est là maintenant','Export PDF automatique prêt pour la paie','Planning publié en un clic, visible sur mobile','Heures planifiées vs pointées calculées automatiquement','Données sécurisées, accessibles partout 24h/24'].map(p=>(
                 <div key={p} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:12}}>
                   <div style={{width:18,height:18,borderRadius:'50%',background:'#f0faf3',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
                     <Icon name="check" size={10} color="#34c759"/>
@@ -351,16 +428,11 @@ export default function Login() {
         </div>
       </section>
 
-      {/* ══ STATS BANDE ══ */}
+      {/* STATS */}
       <section style={{background:'#0a0a0f',padding:'36px 0'}}>
         <div style={W}>
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:0}}>
-            {[
-              {v:'< 5 min',l:'pour tout déployer',c:A},
-              {v:'30 sec',l:'pour badger',c:'white'},
-              {v:'8+',l:'secteurs couverts',c:'white'},
-              {v:'100%',l:'mobile & tablette',c:'white'},
-            ].map((s,i)=>(
+            {[{v:'2 à 4h',l:'pour tout déployer',c:A},{v:'30 sec',l:'pour badger',c:'white'},{v:'8+',l:'secteurs couverts',c:'white'},{v:'100%',l:'mobile & tablette',c:'white'}].map((s,i)=>(
               <div key={i} style={{textAlign:'center',borderRight:i<3?'1px solid rgba(255,255,255,.06)':'none',padding:isMobile?'8px':'12px 24px'}}>
                 <div style={{fontSize:isMobile?22:32,fontWeight:900,color:s.c,letterSpacing:'-.04em',lineHeight:1}}>{s.v}</div>
                 <div style={{fontSize:11,color:'rgba(255,255,255,.35)',marginTop:6,fontWeight:500}}>{s.l}</div>
@@ -370,22 +442,22 @@ export default function Login() {
         </div>
       </section>
 
-      {/* ══ FONCTIONNALITÉS ══ */}
+      {/* FONCTIONNALITÉS */}
       <section style={{background:SURF,padding:isMobile?'52px 20px':'72px 0'}}>
         <div style={W}>
           <div style={{textAlign:'center',marginBottom:52}}>
             <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Ce que vous obtenez</div>
             <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>Tout ce dont vous avez besoin</h2>
-            <p style={{fontSize:16,color:TEXT2,maxWidth:480,margin:'0 auto'}}>Une solution complète, conçue pour les équipes terrain. Pas besoin de formation, ça marche du premier jour.</p>
+            <p style={{fontSize:16,color:TEXT2,maxWidth:480,margin:'0 auto'}}>Une solution complète, conçue pour les équipes terrain. Ça marche dès le premier jour.</p>
           </div>
           <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:1,background:BORDER,borderRadius:20,overflow:'hidden'}}>
             {[
-              {icon:'calendar',title:'Planning intelligent',desc:'Créez et publiez les plannings en quelques clics. Shifts simples ou coupés. Postes adaptés à votre secteur d\'activité.',color:A},
-              {icon:'qr',title:'Badgeage QR Code',desc:'QR dynamique renouvelé toutes les 30 secondes. Vos employés scannent depuis leur téléphone. Borne tablette sécurisée disponible.',color:'#5856d6'},
-              {icon:'users',title:'Présences en direct',desc:'Voyez qui est présent maintenant. Écarts entre prévu et pointé calculés automatiquement. Historique complet.',color:'#34c759'},
-              {icon:'phone',title:'App mobile employé',desc:'Chaque employé a son espace personnel. Planning, badgeage, historique. Installable sur iPhone et Android.',color:'#ff9500'},
-              {icon:'file',title:'Export PDF paie',desc:'Rapports de présence détaillés générés en un clic. Par employé, par période. Prêt pour votre comptable.',color:'#ff3b30'},
-              {icon:'building',title:'Multi-établissements',desc:'Gérez plusieurs sites depuis un seul tableau de bord. Idéal pour les groupes. Données isolées par site.',color:'#8a2060'},
+              {icon:'calendar',title:'Planning intelligent',desc:"Créez et publiez les plannings en quelques clics. Shifts simples ou coupés. Postes adaptés à votre secteur.",color:A},
+              {icon:'qr',title:'Badgeage QR Code',desc:"QR dynamique renouvelé toutes les 30 secondes. Vos employés scannent depuis leur téléphone. Borne tablette disponible.",color:'#5856d6'},
+              {icon:'users',title:'Présences en direct',desc:"Voyez qui est présent maintenant. Écarts entre prévu et pointé calculés automatiquement. Historique complet.",color:'#34c759'},
+              {icon:'phone',title:'App mobile employé',desc:"Chaque employé a son espace personnel. Planning, badgeage, historique. Installable sur iPhone et Android.",color:'#ff9500'},
+              {icon:'file',title:'Export PDF paie',desc:"Rapports de présence détaillés générés en un clic. Par employé, par période. Prêt pour votre comptable.",color:'#ff3b30'},
+              {icon:'building',title:'Multi-établissements',desc:"Gérez plusieurs sites depuis un seul tableau de bord. Idéal pour les groupes. Données isolées par site.",color:'#8a2060'},
             ].map((f,i)=>(
               <div key={i} style={{background:SURF,padding:'28px 24px',transition:'background .15s'}}
               onMouseEnter={e=>{e.currentTarget.style.background='#fafafa'}}
@@ -393,7 +465,7 @@ export default function Login() {
                 <div style={{width:44,height:44,borderRadius:12,background:`${f.color}14`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16}}>
                   <Icon name={f.icon} size={20} color={f.color}/>
                 </div>
-                <div style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:8,letterSpacing:'-.01em'}}>{f.title}</div>
+                <div style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:8}}>{f.title}</div>
                 <div style={{fontSize:13,color:TEXT2,lineHeight:1.65}}>{f.desc}</div>
               </div>
             ))}
@@ -406,26 +478,26 @@ export default function Login() {
         </div>
       </section>
 
-      {/* ══ COMMENT CA MARCHE ══ */}
+      {/* COMMENT CA MARCHE */}
       <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'72px 0'}}>
         <div style={W}>
           <div style={{textAlign:'center',marginBottom:52}}>
             <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Mise en place</div>
-            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em'}}>Opérationnel en 5 minutes</h2>
+            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em'}}>Déployé en 2 à 4 heures</h2>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(4,1fr)',gap:16}}>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:16}}>
             {[
               {n:'01',title:'Démo Teams gratuite',desc:'On vous présente Kronvo en 30 min, adapté à votre secteur. Posez toutes vos questions.',icon:'clock'},
               {n:'02',title:'Configuration complète',desc:'SwitzerIT configure tout pour vous. Établissements, employés, borne. Vous ne faites rien.',icon:'zap'},
-              {n:'03',title:'Formation incluse',desc:'Gérants et employés formés en 30 min. Documentation fournie. Support disponible.',icon:'users'},
-              {n:'04',title:'C\'est parti !',desc:'Vos équipes scannent le QR depuis leur téléphone. Vous suivez tout en temps réel.',icon:'chart'},
+              {n:'03',title:'Formation incluse',desc:'Gérants et employés formés. Documentation fournie. Support disponible.',icon:'users'},
+              {n:'04',title:"C'est parti !",desc:'Vos équipes scannent le QR depuis leur téléphone. Vous suivez tout en temps réel.',icon:'chart'},
             ].map((s,i)=>(
               <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px 20px',position:'relative',overflow:'hidden'}}>
                 <div style={{position:'absolute',top:16,right:16,fontSize:32,fontWeight:900,color:`${A}08`,letterSpacing:'-.04em',lineHeight:1}}>{s.n}</div>
                 <div style={{width:40,height:40,borderRadius:12,background:'#e8f2fd',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16}}>
                   <Icon name={s.icon} size={18} color={A}/>
                 </div>
-                <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:8,letterSpacing:'-.01em'}}>{s.title}</div>
+                <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:8}}>{s.title}</div>
                 <div style={{fontSize:13,color:TEXT2,lineHeight:1.6}}>{s.desc}</div>
               </div>
             ))}
@@ -433,7 +505,7 @@ export default function Login() {
         </div>
       </section>
 
-      {/* ══ SECTEURS ══ */}
+      {/* SECTEURS GRID */}
       <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:isMobile?'44px 20px':'56px 0'}}>
         <div style={W}>
           <div style={{textAlign:'center',marginBottom:32}}>
@@ -442,18 +514,7 @@ export default function Login() {
             <p style={{fontSize:14,color:TEXT2}}>Kronvo s'adapte à votre secteur avec les postes et termes qui vous correspondent</p>
           </div>
           <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(5,1fr)',gap:8}}>
-            {[
-              {icon:'🍽️',label:'Restaurants'},
-              {icon:'🏨',label:'Hôtels'},
-              {icon:'🏥',label:'Cliniques'},
-              {icon:'🔧',label:'Garages'},
-              {icon:'🏪',label:'Commerce'},
-              {icon:'💆',label:'Spas & Salons'},
-              {icon:'🏗️',label:'BTP'},
-              {icon:'📦',label:'Logistique'},
-              {icon:'🎓',label:'Éducation'},
-              {icon:'🛡️',label:'Sécurité'},
-            ].map(s=>(
+            {[{icon:'🍽️',label:'Restaurants'},{icon:'🏨',label:'Hôtels'},{icon:'🏥',label:'Cliniques'},{icon:'🔧',label:'Garages'},{icon:'🏪',label:'Commerce'},{icon:'💆',label:'Spas & Salons'},{icon:'🏗️',label:'BTP'},{icon:'📦',label:'Logistique'},{icon:'🎓',label:'Éducation'},{icon:'🛡️',label:'Sécurité'}].map(s=>(
               <div key={s.label} style={{background:BG,border:`1px solid ${BORDER}`,borderRadius:12,padding:'14px 12px',textAlign:'center',transition:'all .15s'}}
               onMouseEnter={e=>{e.currentTarget.style.borderColor=A;e.currentTarget.style.background='#f0f6ff'}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.background=BG}}>
@@ -465,46 +526,20 @@ export default function Login() {
         </div>
       </section>
 
-
-      {/* ══ CALCULATEUR ROI ══ */}
-      <section style={{background:'#f9fafb',borderTop:`1px solid ${BORDER}`,padding:isMobile?'48px 20px':'72px 0'}}>
-        <div style={W}>
-          <div style={{textAlign:'center',marginBottom:44}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Calculateur</div>
-            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>Combien perdez-vous chaque mois ?</h2>
-            <p style={{fontSize:16,color:TEXT2,maxWidth:500,margin:'0 auto',lineHeight:1.7}}>Feuilles papier, appels inutiles, erreurs de paie... estimez le vrai coût avant Kronvo.</p>
-          </div>
-          <RoiCalc/>
-        </div>
-      </section>
-
-      {/* ══ FAQ ══ */}
-      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'48px 20px':'72px 0'}}>
-        <div style={W}>
-          <div style={{textAlign:'center',marginBottom:44}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Questions fréquentes</div>
-            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>On répond à tout</h2>
-            <p style={{fontSize:16,color:TEXT2}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
-          </div>
-          <FaqSection/>
-        </div>
-      </section>
-
-
-      {/* ══ CALCULATEUR ROI ══ */}
-      <section style={{background:'#f9fafb',borderTop:`1px solid ${BORDER}`,padding:isMobile?'48px 20px':'72px 0'}}>
+      {/* CALCULATEUR ROI */}
+      <section style={{background:'#f9fafb',borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'72px 0'}}>
         <div style={W}>
           <div style={{textAlign:'center',marginBottom:44}}>
             <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Calculateur</div>
             <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>Combien perdez-vous chaque mois ?</h2>
             <p style={{fontSize:16,color:TEXT2,maxWidth:500,margin:'0 auto',lineHeight:1.7}}>Feuilles papier, appels inutiles, erreurs de paie — estimez le vrai coût avant Kronvo.</p>
           </div>
-          <RoiCalc/>
+          <RoiCalc isMobile={isMobile}/>
         </div>
       </section>
 
-      {/* ══ FAQ ══ */}
-      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'48px 20px':'72px 0'}}>
+      {/* FAQ */}
+      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'72px 0'}}>
         <div style={W}>
           <div style={{textAlign:'center',marginBottom:44}}>
             <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Questions fréquentes</div>
@@ -515,9 +550,9 @@ export default function Login() {
         </div>
       </section>
 
-      {/* ══ CTA FINAL ══ */}
+      {/* CTA FINAL */}
       <section style={{background:'#0a0a0f',padding:isMobile?'64px 20px':'80px 0',position:'relative',overflow:'hidden'}}>
-        <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:600,height:600,borderRadius:'50%',background:'radial-gradient(circle, rgba(0,113,227,.15) 0%, transparent 70%)',pointerEvents:'none'}}></div>
+        <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:600,height:600,borderRadius:'50%',background:'radial-gradient(circle,rgba(0,113,227,.15) 0%,transparent 70%)',pointerEvents:'none'}}></div>
         <div style={{...W,textAlign:'center',position:'relative'}}>
           <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 16px',borderRadius:20,background:'rgba(0,113,227,.15)',border:'1px solid rgba(0,113,227,.25)',marginBottom:28}}>
             <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',boxShadow:'0 0 6px #34c759',display:'inline-block'}}></span>
@@ -552,19 +587,19 @@ export default function Login() {
           <p style={{fontSize:15,color:TEXT2,maxWidth:540,margin:'0 auto'}}>Une solution pensée pour les équipes terrain.</p>
         </div>
         {[
-          {icon:'calendar',title:'Planning intelligent',color:'#e8f2fd',ic:A,items:['Shifts simples (9h-17h) ou coupés (10h-15h puis 18h-22h)','Vue semaine sur desktop, vue jour par jour sur mobile','Postes personnalisables selon votre secteur activité','Publication du planning en un clic pour toute équipe','Modification rapide par simple clic sur une case planning']},
-          {icon:'qr',title:'Badgeage QR Code sécurisé',color:'#f0faf3',ic:'#1a6b35',items:['QR code dynamique qui change toutes les 30 secondes','Scan depuis le smartphone de chaque employé en 2s','Vérification que employé appartient au bon établissement','Badgeage multiple dans la journée avec pauses incluses','Borne tablette fixe avec PIN accès sécurisé disponible']},
-          {icon:'users',title:'Suivi des présences',color:'#fff8ee',ic:'#8a4a00',items:['Visualisation en temps réel de qui est présent maintenant','Comparaison automatique heures planifiées vs pointées','Calcul des écarts positifs et négatifs en temps réel','Historique complet des pointages par date consultable','Correction manuelle possible directement par le gérant']},
-          {icon:'file',title:'Rapports et export PDF',color:'#fff2f1',ic:'#b02020',items:['Génération de rapports PDF professionnels en un clic','Filtrage par période semaine mois ou dates personnalisées','Détail complet par employé avec toutes entrées et sorties','Total heures planifiées vs heures pointées avec écarts','Export immédiat depuis le dashboard gérant accessible']},
-          {icon:'phone',title:'Espace employé mobile',color:'#f0f0fc',ic:'#3a3880',items:['Application installable sur iPhone et Android en PWA','Planning personnel de la semaine toujours à jour','Bouton de scan QR intégré directement dans application','Historique complet des pointages personnels consultable','Fonctionne hors connexion pour consulter son planning']},
-          {icon:'building',title:'Multi-établissements',color:'#fdf0f8',ic:'#8a2060',items:['Gérez plusieurs sites depuis un seul tableau de bord','Données entièrement isolées et sécurisées par établissement','Dashboard super admin SwitzerIT pour gestion clients','Ajout de nouveaux établissements en quelques minutes']},
+          {icon:'calendar',title:'Planning intelligent',color:'#e8f2fd',ic:A,items:['Shifts simples ou coupés configurables','Vue semaine sur desktop, jour par jour sur mobile','Postes personnalisables selon votre secteur','Publication du planning en un clic','Modification rapide par simple clic']},
+          {icon:'qr',title:'Badgeage QR Code sécurisé',color:'#f0faf3',ic:'#1a6b35',items:['QR code dynamique renouvelé toutes les 30 secondes','Scan depuis le smartphone de chaque employé','Vérification que l\'employé appartient au bon établissement','Badgeage multiple dans la journée avec pauses','Borne tablette avec PIN sécurisé disponible']},
+          {icon:'users',title:'Suivi des présences',color:'#fff8ee',ic:'#8a4a00',items:['Visualisation en temps réel de qui est présent','Comparaison heures planifiées vs heures pointées','Calcul automatique des écarts positifs et négatifs','Historique complet des pointages par date','Correction manuelle possible par le gérant']},
+          {icon:'file',title:'Rapports et export PDF',color:'#fff2f1',ic:'#b02020',items:['Génération de rapports PDF professionnels','Filtrage par période semaine mois ou dates custom','Détail par employé avec toutes les entrées et sorties','Total heures planifiées vs pointées avec écarts','Export immédiat depuis le dashboard']},
+          {icon:'phone',title:'Espace employé mobile',color:'#f0f0fc',ic:'#3a3880',items:['Application installable sur iPhone et Android','Planning personnel toujours à jour','Bouton de scan QR intégré dans l\'application','Historique complet des pointages personnels','Consultable hors connexion']},
+          {icon:'building',title:'Multi-établissements',color:'#fdf0f8',ic:'#8a2060',items:['Gérez plusieurs sites depuis un seul tableau de bord','Données entièrement isolées par établissement','Dashboard super admin SwitzerIT','Ajout de nouveaux établissements en quelques minutes']},
         ].map((f,i)=>(
           <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:isMobile?'20px':'28px',marginBottom:10}}>
             <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:18}}>
               <div style={{width:52,height:52,background:f.color,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                 <Icon name={f.icon} size={22} color={f.ic}/>
               </div>
-              <div style={{fontSize:isMobile?18:22,fontWeight:800,color:TEXT,letterSpacing:'-.02em'}}>{f.title}</div>
+              <div style={{fontSize:isMobile?18:22,fontWeight:800,color:TEXT}}>{f.title}</div>
             </div>
             <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fit,minmax(200px,1fr))',gap:8}}>
               {f.items.map((item,j)=>(
@@ -577,7 +612,7 @@ export default function Login() {
           </div>
         ))}
         <div style={{background:`linear-gradient(135deg,#e8f2fd,#f0f0fc)`,borderRadius:16,padding:'32px',textAlign:'center',marginTop:8}}>
-          <div style={{fontSize:22,fontWeight:800,color:TEXT,marginBottom:10,letterSpacing:'-.02em'}}>Fonctionnalités à venir</div>
+          <div style={{fontSize:22,fontWeight:800,color:TEXT,marginBottom:10}}>Fonctionnalités à venir</div>
           <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap',marginBottom:20}}>
             {['Notifications email','Analytics avancées','Intégration logiciel paie','Messagerie équipe','Multi-langue'].map(f=>(
               <span key={f} style={{padding:'6px 14px',borderRadius:20,background:'rgba(0,113,227,.08)',border:'1px solid rgba(0,113,227,.15)',fontSize:12,fontWeight:600,color:A}}>{f}</span>
@@ -599,16 +634,16 @@ export default function Login() {
         </div>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:16,marginBottom:24}}>
           {[
-            {name:'Mise en place',icon:'zap',color:'#e8f2fd',ic:A,desc:'Installation et configuration complète par notre équipe SwitzerIT.',items:['Création compte et configuration','Paramétrage établissements','Import des employés','Installation borne tablette','Formation gérant une heure','Documentation complète'],tag:'Sur devis',featured:false},
+            {name:'Mise en place',icon:'zap',color:'#e8f2fd',ic:A,desc:'Installation et configuration complète par notre équipe SwitzerIT.',items:['Création compte et configuration','Paramétrage établissements','Import des employés','Installation borne tablette','Formation gérant','Documentation complète'],tag:'Sur devis',featured:false},
             {name:'Abonnement mensuel',icon:'chart',color:'#f0faf3',ic:'#1a6b35',desc:'Accès complet à Kronvo pour votre établissement.',items:['Planning et badgeage illimités','Tous les employés inclus','Rapports PDF complets','Support email réactif','Mises à jour automatiques','Hébergement sécurisé Suisse'],tag:'Sur devis · en CHF',featured:true},
-            {name:'Support et maintenance',icon:'shield',color:'#fff8ee',ic:'#8a4a00',desc:"Accompagnement continu pour votre sérénité au quotidien.",items:['Support prioritaire SwitzerIT','Intervention sous 4 heures','Formations supplémentaires','Évolutions personnalisées','Suivi trimestriel dédié','SLA garanti par contrat'],tag:'Options disponibles',featured:false},
+            {name:'Support et maintenance',icon:'shield',color:'#fff8ee',ic:'#8a4a00',desc:"Accompagnement continu pour votre sérénité.",items:['Support prioritaire SwitzerIT','Intervention sous 4 heures','Formations supplémentaires','Évolutions personnalisées','Suivi trimestriel dédié','SLA garanti par contrat'],tag:'Options disponibles',featured:false},
           ].map((plan,i)=>(
             <div key={i} style={{background:SURF,border:plan.featured?`2px solid ${A}`:`1px solid ${BORDER}`,borderRadius:18,padding:'26px',display:'flex',flexDirection:'column',position:'relative',boxShadow:plan.featured?'0 8px 40px rgba(0,113,227,.12)':'none'}}>
-              {plan.featured&&<div style={{position:'absolute',top:-13,left:'50%',transform:'translateX(-50%)',padding:'4px 16px',borderRadius:20,background:A,color:'white',fontSize:11,fontWeight:700,letterSpacing:'.04em',whiteSpace:'nowrap'}}>RECOMMANDÉ</div>}
+              {plan.featured&&<div style={{position:'absolute',top:-13,left:'50%',transform:'translateX(-50%)',padding:'4px 16px',borderRadius:20,background:A,color:'white',fontSize:11,fontWeight:700,whiteSpace:'nowrap'}}>RECOMMANDÉ</div>}
               <div style={{width:44,height:44,background:plan.color,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
                 <Icon name={plan.icon} size={20} color={plan.ic}/>
               </div>
-              <div style={{fontSize:18,fontWeight:800,color:TEXT,marginBottom:6,letterSpacing:'-.02em'}}>{plan.name}</div>
+              <div style={{fontSize:18,fontWeight:800,color:TEXT,marginBottom:6}}>{plan.name}</div>
               <div style={{fontSize:13,color:TEXT2,lineHeight:1.6,marginBottom:16}}>{plan.desc}</div>
               <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:18,flex:1}}>
                 {plan.items.map(f=>(
@@ -657,7 +692,7 @@ export default function Login() {
               </div>
             ):(
               <>
-                <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:4,letterSpacing:'-.02em'}}>Demander une démo Teams</div>
+                <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:4}}>Demander une démo Teams</div>
                 <div style={{fontSize:13,color:TEXT2,marginBottom:24}}>Gratuite · 30 minutes · Sans engagement</div>
                 {[{f:'nom',l:'Nom complet *',ph:'Jean Dupont',t:'text'},{f:'email',l:'Email professionnel *',ph:'jean@exemple.fr',t:'email'},{f:'entreprise',l:"Nom de l'établissement *",ph:'Mon Établissement',t:'text'}].map(({f,l,ph,t})=>(
                   <div key={f} style={{marginBottom:14}}>
@@ -692,7 +727,7 @@ export default function Login() {
               <div style={{width:44,height:44,borderRadius:12,background:'rgba(0,113,227,.2)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
                 <Icon name="clock" size={20} color={A}/>
               </div>
-              <div style={{fontSize:16,fontWeight:700,marginBottom:8,letterSpacing:'-.01em'}}>Démo Teams gratuite</div>
+              <div style={{fontSize:16,fontWeight:700,marginBottom:8}}>Démo Teams gratuite</div>
               <div style={{fontSize:13,color:'rgba(255,255,255,.5)',lineHeight:1.7}}>30 minutes pour voir Kronvo en action, adapté à votre secteur. Posez vos questions et repartez avec un devis.</div>
             </div>
             {[{icon:'zap',title:'Mise en place par SwitzerIT',desc:"Notre équipe s'occupe de tout. Vous n'avez rien à faire."},{icon:'shield',title:'Facturation en CHF',desc:'Tarification locale, sans conversion ni frais cachés.'}].map((info,i)=>(
@@ -739,11 +774,11 @@ export default function Login() {
         {h:"1. Responsable",t:"SwitzerIT, basé en Suisse. Contact : contact@switzerit.com"},
         {h:"2. Données collectées",t:"Données d'identification (nom, prénom, email), données professionnelles (établissement, poste), données de pointage."},
         {h:"3. Finalités",t:"Gestion des comptes, fonctionnement du service de planning et badgeage, génération de rapports."},
-        {h:"4. Base légale",t:"Exécution du contrat (accès au service), intérêt légitime (amélioration du service)."},
+        {h:"4. Base légale",t:"Exécution du contrat, intérêt légitime."},
         {h:"5. Conservation",t:"Durée du contrat + 3 ans pour la facturation. Données de pointage conservées 5 ans."},
         {h:"6. Partage",t:"Les données ne sont jamais vendues. Partagées uniquement avec nos sous-traitants (Supabase, Vercel) avec garanties contractuelles."},
         {h:"7. Vos droits",t:"Conformément à la LPD suisse et au RGPD, vous disposez des droits d'accès, rectification, effacement, portabilité. Contact : contact@switzerit.com"},
-        {h:"8. Sécurité",t:"Données chiffrées en transit (HTTPS/TLS) et au repos. Authentification sécurisée."},
+        {h:"8. Sécurité",t:"Données chiffrées en transit et au repos. Authentification sécurisée."},
       ]},
       rgpd:{title:"Conformité RGPD",last:"11 mai 2026",content:[
         {h:"Engagement",t:"Kronvo respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse."},
@@ -801,177 +836,6 @@ export default function Login() {
     )
   }
 
-
-  function RoiCalc(){
-    const [emp, setEmp] = useState(10)
-    const [hrs, setHrs] = useState(3)
-    const pertes = emp * hrs * 4
-    const cout = pertes * 60
-    const eco = cout * 12
-    const A2='#0071e3', BG2='#f5f5f7', SURF2='#ffffff', BORDER2='#e5e5ea', TEXT2b='#6e6e73'
-    return (
-      <div style={{background:SURF2,border:`1px solid ${BORDER2}`,borderRadius:20,padding:isMobile?'24px':'36px',maxWidth:720,margin:'0 auto'}}>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:28,marginBottom:28}}>
-          <div>
-            <label style={{display:'block',fontSize:13,fontWeight:600,color:TEXT2b,marginBottom:10}}>
-              Nombre d'employés : <strong style={{color:'#1d1d1f'}}>{emp}</strong>
-            </label>
-            <input type="range" min="2" max="80" value={emp} onChange={e=>setEmp(Number(e.target.value))}
-            style={{width:'100%',accentColor:A2,height:4,cursor:'pointer'}}/>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:4}}>
-              <span>2</span><span>80</span>
-            </div>
-          </div>
-          <div>
-            <label style={{display:'block',fontSize:13,fontWeight:600,color:TEXT2b,marginBottom:10}}>
-              Heures perdues / semaine : <strong style={{color:'#1d1d1f'}}>{hrs}h</strong>
-            </label>
-            <input type="range" min="1" max="15" value={hrs} onChange={e=>setHrs(Number(e.target.value))}
-            style={{width:'100%',accentColor:A2,height:4,cursor:'pointer'}}/>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:4}}>
-              <span>1h</span><span>15h</span>
-            </div>
-          </div>
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24}}>
-          <div style={{background:'#fff2f1',border:'1px solid #ffd0d0',borderRadius:14,padding:'18px',textAlign:'center'}}>
-            <div style={{fontSize:28,fontWeight:800,color:'#b02020',letterSpacing:'-.03em'}}>{pertes}h</div>
-            <div style={{fontSize:12,color:'#b02020',marginTop:4,fontWeight:500}}>perdues par mois</div>
-          </div>
-          <div style={{background:'#fff8ee',border:'1px solid #ffd9a0',borderRadius:14,padding:'18px',textAlign:'center'}}>
-            <div style={{fontSize:28,fontWeight:800,color:'#8a5a00',letterSpacing:'-.03em'}}>{cout.toLocaleString()}</div>
-            <div style={{fontSize:12,color:'#8a5a00',marginTop:4,fontWeight:500}}>CHF perdus/mois</div>
-          </div>
-          <div style={{background:'#f0faf3',border:'1px solid #b8e8c8',borderRadius:14,padding:'18px',textAlign:'center'}}>
-            <div style={{fontSize:28,fontWeight:800,color:'#1a6b35',letterSpacing:'-.03em'}}>{eco.toLocaleString()}</div>
-            <div style={{fontSize:12,color:'#1a6b35',marginTop:4,fontWeight:500}}>CHF économisés/an</div>
-          </div>
-        </div>
-        <div style={{background:'#e8f2fd',borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
-          <div style={{fontSize:14,color:'#0051a8',fontWeight:600}}>Kronvo vous fait économiser <strong>{eco.toLocaleString()} CHF par an</strong> pour {emp} employés</div>
-          <button onClick={()=>{window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}}
-          style={{padding:'9px 18px',borderRadius:9,border:'none',background:'#0071e3',color:'white',fontSize:13,fontWeight:700,cursor:'pointer',flexShrink:0}}>
-            Calculer mon devis →
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  function FaqSection(){
-    const [open, setOpen] = useState(null)
-    const faqs = [
-      {q:"Combien de temps faut-il pour mettre en place Kronvo ?",a:"La mise en place complète prend en moyenne 2 à 4 heures avec notre équipe SwitzerIT. Cela inclut la configuration de votre établissement, l'import des employés, l'installation de la borne tablette et la formation de vos gérants. Vous n'avez rien à faire techniquement — on s'occupe de tout."},
-      {q:"Faut-il une tablette pour la borne QR ?",a:"Non, la borne tablette est optionnelle. Vos employés peuvent scanner le QR code directement depuis leur smartphone (iPhone ou Android). La borne tablette fixe est recommandée pour les établissements avec une entrée unique, comme les restaurants ou cliniques."},
-      {q:"Que se passe-t-il si un employé oublie de badger ?",a:"Le gérant peut corriger manuellement les pointages depuis son tableau de bord. Il peut ajouter, modifier ou supprimer un pointage à tout moment. L'historique complet est conservé et consultable pour chaque employé."},
-      {q:"Est-ce que mes données sont sécurisées ?",a:"Oui. Toutes les données sont chiffrées en transit (HTTPS/TLS) et au repos. Chaque établissement a ses données complètement isolées. Kronvo est conforme au RGPD européen et à la LPD suisse. L'hébergement est assuré par des infrastructures de confiance."},
-      {q:"Peut-on personnaliser les postes selon notre activité ?",a:"Oui, chaque établissement peut configurer ses propres postes. Un restaurant pourra avoir Cuisine, Salle, Bar — une clinique aura Médecin, Infirmier, Accueil. Les postes sont entièrement personnalisables par le gérant depuis son tableau de bord."},
-      {q:"Que se passe-t-il si nous avons plusieurs établissements ?",a:"Kronvo est conçu pour le multi-établissements. Un gérant peut gérer plusieurs sites depuis un seul tableau de bord. Chaque établissement a son propre QR code, ses propres employés et ses propres données, complètement isolées des autres."},
-      {q:"Y a-t-il un engagement minimum ?",a:"Non. Nous fonctionnons sans engagement de durée minimum. Vous pouvez arrêter à tout moment avec un préavis de 30 jours. La démo initiale est gratuite et sans obligation d'achat."},
-      {q:"Comment fonctionne le support ?",a:"Le support est assuré directement par l'équipe SwitzerIT, des humains — pas un chatbot. Nous répondons par email sous 24h ouvrées. Pour les clients avec contrat de maintenance, nous garantissons une intervention sous 4 heures."},
-    ]
-    const BORDER3='#e5e5ea', TEXT3='#1d1d1f', TEXT4='#6e6e73', A3='#0071e3'
-    return (
-      <div style={{maxWidth:720,margin:'0 auto'}}>
-        {faqs.map((faq,i)=>(
-          <div key={i} style={{borderBottom:`1px solid ${BORDER3}`,overflow:'hidden'}}>
-            <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:16}}>
-              <span style={{fontSize:15,fontWeight:600,color:TEXT3,lineHeight:1.4}}>{faq.q}</span>
-              <span style={{fontSize:20,color:A3,flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block'}}>{open===i?'−':'+'}</span>
-            </button>
-            {open===i&&(
-              <div style={{paddingBottom:18}}>
-                <p style={{fontSize:14,color:TEXT4,lineHeight:1.75,margin:0}}>{faq.a}</p>
-              </div>
-            )}
-          </div>
-        ))}
-        <div style={{textAlign:'center',marginTop:28}}>
-          <span style={{fontSize:14,color:TEXT4}}>Autre question ? </span>
-          <span style={{fontSize:14,color:A3,fontWeight:600,cursor:'pointer'}} onClick={()=>window.location.href='/contact'}>Contactez-nous →</span>
-        </div>
-      </div>
-    )
-  }
-
-
-  function RoiCalc(){
-    const [emp, setEmp] = useState(10)
-    const [hrs, setHrs] = useState(3)
-    const pertes = emp * hrs * 4
-    const cout = pertes * 60
-    const eco = cout * 12
-    return (
-      <div style={{background:'#ffffff',border:'1px solid #e5e5ea',borderRadius:20,padding:isMobile?'24px':'36px',maxWidth:720,margin:'0 auto'}}>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:28,marginBottom:28}}>
-          <div>
-            <label style={{display:'block',fontSize:13,fontWeight:600,color:'#6e6e73',marginBottom:10}}>
-              Nombre d'employés : <strong style={{color:'#1d1d1f'}}>{emp}</strong>
-            </label>
-            <input type="range" min="2" max="80" value={emp} onChange={e=>setEmp(Number(e.target.value))} style={{width:'100%',accentColor:'#0071e3',cursor:'pointer'}}/>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:4}}><span>2</span><span>80</span></div>
-          </div>
-          <div>
-            <label style={{display:'block',fontSize:13,fontWeight:600,color:'#6e6e73',marginBottom:10}}>
-              Heures perdues / semaine : <strong style={{color:'#1d1d1f'}}>{hrs}h</strong>
-            </label>
-            <input type="range" min="1" max="15" value={hrs} onChange={e=>setHrs(Number(e.target.value))} style={{width:'100%',accentColor:'#0071e3',cursor:'pointer'}}/>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:4}}><span>1h</span><span>15h</span></div>
-          </div>
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24}}>
-          <div style={{background:'#fff2f1',border:'1px solid #ffd0d0',borderRadius:14,padding:'18px',textAlign:'center'}}>
-            <div style={{fontSize:28,fontWeight:800,color:'#b02020',letterSpacing:'-.03em'}}>{pertes}h</div>
-            <div style={{fontSize:12,color:'#b02020',marginTop:4,fontWeight:500}}>perdues par mois</div>
-          </div>
-          <div style={{background:'#fff8ee',border:'1px solid #ffd9a0',borderRadius:14,padding:'18px',textAlign:'center'}}>
-            <div style={{fontSize:28,fontWeight:800,color:'#8a5a00',letterSpacing:'-.03em'}}>{cout.toLocaleString()}</div>
-            <div style={{fontSize:12,color:'#8a5a00',marginTop:4,fontWeight:500}}>CHF perdus/mois</div>
-          </div>
-          <div style={{background:'#f0faf3',border:'1px solid #b8e8c8',borderRadius:14,padding:'18px',textAlign:'center'}}>
-            <div style={{fontSize:28,fontWeight:800,color:'#1a6b35',letterSpacing:'-.03em'}}>{eco.toLocaleString()}</div>
-            <div style={{fontSize:12,color:'#1a6b35',marginTop:4,fontWeight:500}}>CHF économisés/an</div>
-          </div>
-        </div>
-        <div style={{background:'#e8f2fd',borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
-          <div style={{fontSize:14,color:'#0051a8',fontWeight:500}}>Kronvo vous fait économiser <strong>{eco.toLocaleString()} CHF/an</strong> pour {emp} employés</div>
-          <button onClick={()=>window.location.href='/contact'} style={{padding:'9px 18px',borderRadius:9,border:'none',background:'#0071e3',color:'white',fontSize:13,fontWeight:700,cursor:'pointer',flexShrink:0}}>Calculer mon devis →</button>
-        </div>
-      </div>
-    )
-  }
-
-  function FaqSection(){
-    const [open, setOpen] = useState(null)
-    const faqs = [
-      {q:"Combien de temps prend la mise en place ?",a:"La mise en place complète prend en moyenne 2 à 4 heures avec notre équipe SwitzerIT. Cela inclut la configuration de votre établissement, l'import des employés, l'installation de la borne tablette et la formation de vos gérants. Vous n'avez rien à faire techniquement."},
-      {q:"Faut-il une tablette pour la borne QR ?",a:"Non, la borne tablette est optionnelle. Vos employés peuvent scanner le QR code directement depuis leur smartphone. La borne fixe est recommandée pour les établissements avec une entrée unique comme les restaurants ou cliniques."},
-      {q:"Que se passe-t-il si un employé oublie de badger ?",a:"Le gérant peut corriger manuellement les pointages depuis son tableau de bord à tout moment. L'historique complet est conservé et consultable pour chaque employé."},
-      {q:"Est-ce que mes données sont sécurisées ?",a:"Oui. Toutes les données sont chiffrées en transit et au repos. Chaque établissement a ses données complètement isolées. Kronvo est conforme au RGPD et à la LPD suisse."},
-      {q:"Peut-on personnaliser les postes selon notre activité ?",a:"Oui, chaque établissement configure ses propres postes depuis le tableau de bord gérant. Un restaurant aura Cuisine, Salle, Bar — une clinique aura Médecin, Infirmier, Accueil. Entièrement personnalisable."},
-      {q:"Peut-on gérer plusieurs établissements ?",a:"Oui, Kronvo est conçu pour le multi-établissements. Un gérant gère plusieurs sites depuis un seul tableau de bord. Chaque établissement a son propre QR code et ses données isolées."},
-      {q:"Y a-t-il un engagement minimum ?",a:"Non. Nous fonctionnons sans engagement de durée minimum. Vous pouvez arrêter avec un préavis de 30 jours. La démo est gratuite et sans obligation."},
-      {q:"Comment fonctionne le support ?",a:"Le support est assuré directement par l'équipe SwitzerIT — des humains, pas un chatbot. Nous répondons par email sous 24h ouvrées. Les clients avec contrat de maintenance bénéficient d'une intervention sous 4 heures."},
-    ]
-    return (
-      <div style={{maxWidth:720,margin:'0 auto'}}>
-        {faqs.map((faq,i)=>(
-          <div key={i} style={{borderBottom:'1px solid #e5e5ea'}}>
-            <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:16}}>
-              <span style={{fontSize:15,fontWeight:600,color:'#1d1d1f',lineHeight:1.4}}>{faq.q}</span>
-              <span style={{fontSize:22,color:'#0071e3',flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block',lineHeight:1}}>{open===i?'−':'+'}</span>
-            </button>
-            {open===i&&<div style={{paddingBottom:18}}><p style={{fontSize:14,color:'#6e6e73',lineHeight:1.75,margin:0}}>{faq.a}</p></div>}
-          </div>
-        ))}
-        <div style={{textAlign:'center',marginTop:28}}>
-          <span style={{fontSize:14,color:'#6e6e73'}}>Autre question ? </span>
-          <span style={{fontSize:14,color:'#0071e3',fontWeight:600,cursor:'pointer'}} onClick={()=>window.location.href='/contact'}>Contactez-nous →</span>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div style={{minHeight:'100vh',background:BG,fontFamily:'var(--font)',color:TEXT}}>
       <Nav/>
@@ -981,7 +845,6 @@ export default function Login() {
       {page==='contact'&&<PageContact/>}
       {page==='legal'&&<PageLegal/>}
       <Footer/>
-
       {showLogin&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.6)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
           <div style={{background:SURF,borderRadius:22,padding:isMobile?'24px 20px':36,width:'100%',maxWidth:380,boxShadow:'0 32px 80px rgba(0,0,0,.2)',border:`1px solid ${BORDER}`,position:'relative'}}>
