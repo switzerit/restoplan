@@ -333,7 +333,7 @@ export default function Login() {
               {icon:'📷',color:'#f0faf3',title:'Badgeage QR Code',desc:'QR dynamique toutes les 30s. Scan depuis le téléphone. Sécurisé par établissement.'},
               {icon:'👥',color:'#fff8ee',title:'Présences en direct',desc:'Heures prévues vs pointées, écarts calculés automatiquement en temps réel.'},
               {icon:'📱',color:'#f0f0fc',title:'App mobile employé',desc:'Planning perso, badgeage mobile. Installable sur iPhone et Android.'},
-              {icon:'📄',color:'#fff2f1',title:'Rapports PDF',desc:'Export PDF pour la paie, par période et par employé, avec totaux d'heures.'},
+              {icon:'📄',color:'#fff2f1',title:'Rapports PDF',desc:'Export PDF pour la paie, par période et par employé, avec totaux heures inclus.'},
               {icon:'🏢',color:'#fdf0f8',title:'Multi-établissements',desc:'Gérez plusieurs sites depuis un seul tableau de bord gérant.'},
             ].map((f,i)=>(
               <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'22px 20px',transition:'border-color .15s'}}
