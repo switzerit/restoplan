@@ -111,7 +111,7 @@ export default function Login() {
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2fr 1fr 1fr 1fr',gap:isMobile?28:40,marginBottom:32}}>
           <div>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-              <div style={{width:28,height:28,background:A,borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,color:'white',fontWeight:800}}>P</div>
+              <svg width="22" height="16" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
               <span style={{fontSize:16,fontWeight:800}}>Kronvo</span>
             </div>
             <div style={{fontSize:13,color:'rgba(255,255,255,.5)',lineHeight:1.7,maxWidth:240}}>La solution de gestion d'équipes pour tous les professionnels.</div>
