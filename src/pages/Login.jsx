@@ -465,6 +465,31 @@ export default function Login() {
         </div>
       </section>
 
+
+      {/* ══ CALCULATEUR ROI ══ */}
+      <section style={{background:'#f9fafb',borderTop:`1px solid ${BORDER}`,padding:isMobile?'48px 20px':'72px 0'}}>
+        <div style={W}>
+          <div style={{textAlign:'center',marginBottom:44}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Calculateur</div>
+            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>Combien perdez-vous chaque mois ?</h2>
+            <p style={{fontSize:16,color:TEXT2,maxWidth:500,margin:'0 auto',lineHeight:1.7}}>Feuilles papier, appels inutiles, erreurs de paie... estimez le vrai coût avant Kronvo.</p>
+          </div>
+          <RoiCalc/>
+        </div>
+      </section>
+
+      {/* ══ FAQ ══ */}
+      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'48px 20px':'72px 0'}}>
+        <div style={W}>
+          <div style={{textAlign:'center',marginBottom:44}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Questions fréquentes</div>
+            <h2 style={{fontSize:isMobile?28:40,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:12}}>On répond à tout</h2>
+            <p style={{fontSize:16,color:TEXT2}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
+          </div>
+          <FaqSection/>
+        </div>
+      </section>
+
       {/* ══ CTA FINAL ══ */}
       <section style={{background:'#0a0a0f',padding:isMobile?'64px 20px':'80px 0',position:'relative',overflow:'hidden'}}>
         <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:600,height:600,borderRadius:'50%',background:'radial-gradient(circle, rgba(0,113,227,.15) 0%, transparent 70%)',pointerEvents:'none'}}></div>
@@ -746,6 +771,99 @@ export default function Login() {
               </div>
             </div>
           )}
+        </div>
+      </div>
+    )
+  }
+
+
+  function RoiCalc(){
+    const [emp, setEmp] = useState(10)
+    const [hrs, setHrs] = useState(3)
+    const pertes = emp * hrs * 4
+    const cout = pertes * 60
+    const eco = cout * 12
+    const A2='#0071e3', BG2='#f5f5f7', SURF2='#ffffff', BORDER2='#e5e5ea', TEXT2b='#6e6e73'
+    return (
+      <div style={{background:SURF2,border:`1px solid ${BORDER2}`,borderRadius:20,padding:isMobile?'24px':'36px',maxWidth:720,margin:'0 auto'}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:28,marginBottom:28}}>
+          <div>
+            <label style={{display:'block',fontSize:13,fontWeight:600,color:TEXT2b,marginBottom:10}}>
+              Nombre d'employés : <strong style={{color:'#1d1d1f'}}>{emp}</strong>
+            </label>
+            <input type="range" min="2" max="80" value={emp} onChange={e=>setEmp(Number(e.target.value))}
+            style={{width:'100%',accentColor:A2,height:4,cursor:'pointer'}}/>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:4}}>
+              <span>2</span><span>80</span>
+            </div>
+          </div>
+          <div>
+            <label style={{display:'block',fontSize:13,fontWeight:600,color:TEXT2b,marginBottom:10}}>
+              Heures perdues / semaine : <strong style={{color:'#1d1d1f'}}>{hrs}h</strong>
+            </label>
+            <input type="range" min="1" max="15" value={hrs} onChange={e=>setHrs(Number(e.target.value))}
+            style={{width:'100%',accentColor:A2,height:4,cursor:'pointer'}}/>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:4}}>
+              <span>1h</span><span>15h</span>
+            </div>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24}}>
+          <div style={{background:'#fff2f1',border:'1px solid #ffd0d0',borderRadius:14,padding:'18px',textAlign:'center'}}>
+            <div style={{fontSize:28,fontWeight:800,color:'#b02020',letterSpacing:'-.03em'}}>{pertes}h</div>
+            <div style={{fontSize:12,color:'#b02020',marginTop:4,fontWeight:500}}>perdues par mois</div>
+          </div>
+          <div style={{background:'#fff8ee',border:'1px solid #ffd9a0',borderRadius:14,padding:'18px',textAlign:'center'}}>
+            <div style={{fontSize:28,fontWeight:800,color:'#8a5a00',letterSpacing:'-.03em'}}>{cout.toLocaleString()}</div>
+            <div style={{fontSize:12,color:'#8a5a00',marginTop:4,fontWeight:500}}>CHF perdus/mois</div>
+          </div>
+          <div style={{background:'#f0faf3',border:'1px solid #b8e8c8',borderRadius:14,padding:'18px',textAlign:'center'}}>
+            <div style={{fontSize:28,fontWeight:800,color:'#1a6b35',letterSpacing:'-.03em'}}>{eco.toLocaleString()}</div>
+            <div style={{fontSize:12,color:'#1a6b35',marginTop:4,fontWeight:500}}>CHF économisés/an</div>
+          </div>
+        </div>
+        <div style={{background:'#e8f2fd',borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
+          <div style={{fontSize:14,color:'#0051a8',fontWeight:600}}>Kronvo vous fait économiser <strong>{eco.toLocaleString()} CHF par an</strong> pour {emp} employés</div>
+          <button onClick={()=>{window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}}
+          style={{padding:'9px 18px',borderRadius:9,border:'none',background:'#0071e3',color:'white',fontSize:13,fontWeight:700,cursor:'pointer',flexShrink:0}}>
+            Calculer mon devis →
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  function FaqSection(){
+    const [open, setOpen] = useState(null)
+    const faqs = [
+      {q:"Combien de temps faut-il pour mettre en place Kronvo ?",a:"La mise en place complète prend en moyenne 2 à 4 heures avec notre équipe SwitzerIT. Cela inclut la configuration de votre établissement, l'import des employés, l'installation de la borne tablette et la formation de vos gérants. Vous n'avez rien à faire techniquement — on s'occupe de tout."},
+      {q:"Faut-il une tablette pour la borne QR ?",a:"Non, la borne tablette est optionnelle. Vos employés peuvent scanner le QR code directement depuis leur smartphone (iPhone ou Android). La borne tablette fixe est recommandée pour les établissements avec une entrée unique, comme les restaurants ou cliniques."},
+      {q:"Que se passe-t-il si un employé oublie de badger ?",a:"Le gérant peut corriger manuellement les pointages depuis son tableau de bord. Il peut ajouter, modifier ou supprimer un pointage à tout moment. L'historique complet est conservé et consultable pour chaque employé."},
+      {q:"Est-ce que mes données sont sécurisées ?",a:"Oui. Toutes les données sont chiffrées en transit (HTTPS/TLS) et au repos. Chaque établissement a ses données complètement isolées. Kronvo est conforme au RGPD européen et à la LPD suisse. L'hébergement est assuré par des infrastructures de confiance."},
+      {q:"Peut-on personnaliser les postes selon notre activité ?",a:"Oui, chaque établissement peut configurer ses propres postes. Un restaurant pourra avoir Cuisine, Salle, Bar — une clinique aura Médecin, Infirmier, Accueil. Les postes sont entièrement personnalisables par le gérant depuis son tableau de bord."},
+      {q:"Que se passe-t-il si nous avons plusieurs établissements ?",a:"Kronvo est conçu pour le multi-établissements. Un gérant peut gérer plusieurs sites depuis un seul tableau de bord. Chaque établissement a son propre QR code, ses propres employés et ses propres données, complètement isolées des autres."},
+      {q:"Y a-t-il un engagement minimum ?",a:"Non. Nous fonctionnons sans engagement de durée minimum. Vous pouvez arrêter à tout moment avec un préavis de 30 jours. La démo initiale est gratuite et sans obligation d'achat."},
+      {q:"Comment fonctionne le support ?",a:"Le support est assuré directement par l'équipe SwitzerIT, des humains — pas un chatbot. Nous répondons par email sous 24h ouvrées. Pour les clients avec contrat de maintenance, nous garantissons une intervention sous 4 heures."},
+    ]
+    const BORDER3='#e5e5ea', TEXT3='#1d1d1f', TEXT4='#6e6e73', A3='#0071e3'
+    return (
+      <div style={{maxWidth:720,margin:'0 auto'}}>
+        {faqs.map((faq,i)=>(
+          <div key={i} style={{borderBottom:`1px solid ${BORDER3}`,overflow:'hidden'}}>
+            <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'18px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:16}}>
+              <span style={{fontSize:15,fontWeight:600,color:TEXT3,lineHeight:1.4}}>{faq.q}</span>
+              <span style={{fontSize:20,color:A3,flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block'}}>{open===i?'−':'+'}</span>
+            </button>
+            {open===i&&(
+              <div style={{paddingBottom:18}}>
+                <p style={{fontSize:14,color:TEXT4,lineHeight:1.75,margin:0}}>{faq.a}</p>
+              </div>
+            )}
+          </div>
+        ))}
+        <div style={{textAlign:'center',marginTop:28}}>
+          <span style={{fontSize:14,color:TEXT4}}>Autre question ? </span>
+          <span style={{fontSize:14,color:A3,fontWeight:600,cursor:'pointer'}} onClick={()=>window.location.href='/contact'}>Contactez-nous →</span>
         </div>
       </div>
     )
