@@ -293,8 +293,8 @@ export default function Admin() {
   // VUE LISTE GERANTS
   return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
     <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12}}>
-      <div style={{width:36,height:36,background:"linear-gradient(135deg,#0071e3,#5856d6)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>⚡</div>
-      <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,color:"var(--text)"}}>RestoPlan Admin</div><div style={{fontSize:11,color:"var(--text3)"}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
+      <svg width="28" height="20" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
+      <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,color:"var(--text)"}}>Kronvo Admin</div><div style={{fontSize:11,color:"var(--text3)"}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
       <button onClick={()=>setCreateModal(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
       <button onClick={deconnexion} style={{padding:"8px 14px",borderRadius:10,border:"1px solid var(--border2)",background:"transparent",color:"var(--text2)",fontSize:13,cursor:"pointer",fontWeight:600}}>Deconnexion</button>
     </div>

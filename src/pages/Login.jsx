@@ -62,8 +62,8 @@ export default function Login() {
     <>
       <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:56,background:'rgba(255,255,255,.95)',backdropFilter:'blur(16px)',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',padding:'0 20px',gap:8}}>
         <div onClick={()=>goPage('home')} style={{display:'flex',alignItems:'center',gap:8,flex:1,cursor:'pointer'}}>
-          <div style={{width:32,height:32,background:A,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,color:'white',fontWeight:800}}>P</div>
-          <span style={{fontSize:17,fontWeight:800,color:TEXT,letterSpacing:'-.02em'}}>PlanPro</span>
+          <svg width="22" height="16" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
+          <span style={{fontSize:17,fontWeight:800,color:TEXT,letterSpacing:'-.02em'}}>Kronvo</span>
           <span style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,background:'#e8f2fd',color:A}}>Beta</span>
         </div>
         {isMobile ? (
@@ -112,7 +112,7 @@ export default function Login() {
           <div>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
               <div style={{width:28,height:28,background:A,borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,color:'white',fontWeight:800}}>P</div>
-              <span style={{fontSize:16,fontWeight:800}}>PlanPro</span>
+              <span style={{fontSize:16,fontWeight:800}}>Kronvo</span>
             </div>
             <div style={{fontSize:13,color:'rgba(255,255,255,.5)',lineHeight:1.7,maxWidth:240}}>La solution de gestion d'équipes pour tous les professionnels.</div>
             <div style={{fontSize:12,color:'rgba(255,255,255,.3)',marginTop:10}}>Propulsé par <a href="https://switzerit.com" target="_blank" rel="noreferrer" style={{color:'rgba(255,255,255,.5)',textDecoration:'none',fontWeight:600}}>SwitzerIT</a></div>
@@ -144,7 +144,7 @@ export default function Login() {
           )}
         </div>
         <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
-          <div style={{fontSize:11,color:'rgba(255,255,255,.3)'}}>© 2026 PlanPro by SwitzerIT · Suisse</div>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.3)'}}>© 2026 Kronvo by SwitzerIT · Suisse</div>
           <div style={{display:'flex',gap:14,fontSize:11}}>
             {[['Confidentialité','legal'],['CGU','legal'],['RGPD','legal']].map(([l,p])=>(
               <span key={l} onClick={()=>goPage(p)} style={{color:'rgba(255,255,255,.3)',cursor:'pointer'}}>{l}</span>
@@ -168,7 +168,7 @@ export default function Login() {
             Le planning et le badgeage<br/><span style={{color:A}}>réinventés.</span>
           </h1>
           <p style={{fontSize:isMobile?15:18,color:TEXT2,maxWidth:540,margin:'0 auto 32px',lineHeight:1.7}}>
-            PlanPro centralise la gestion des plannings, le badgeage QR code et le suivi des présences pour toutes vos équipes terrain.
+            Kronvo centralise la gestion des plannings, le badgeage QR code et le suivi des présences pour toutes vos équipes terrain.
           </p>
           <div style={{display:'flex',gap:12,justifyContent:'center',flexDirection:isMobile?'column':'row',padding:isMobile?'0 8px':0,marginBottom:32}}>
             <button onClick={()=>goPage('contact')} style={{padding:'15px 28px',borderRadius:12,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 20px rgba(0,113,227,.3)'}}>Demander une démo →</button>
@@ -226,7 +226,7 @@ export default function Login() {
         <div style={{maxWidth:800,margin:'0 auto',textAlign:'center'}}>
           <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Secteurs</div>
           <div style={{fontSize:isMobile?22:28,fontWeight:800,color:TEXT,marginBottom:6}}>Pour tous les professionnels</div>
-          <div style={{fontSize:13,color:TEXT2,marginBottom:24}}>PlanPro s'adapte à n'importe quel secteur avec des équipes terrain</div>
+          <div style={{fontSize:13,color:TEXT2,marginBottom:24}}>Kronvo s'adapte à n'importe quel secteur avec des équipes terrain</div>
           <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap'}}>
             {['🍽️ Restaurants','🏨 Hôtels','🔧 Garages','🏪 Commerce','🏥 Cliniques','💆 Spas','🏗️ BTP','📦 Logistique','🎓 Éducation','🛡️ Sécurité'].map(s=>(
               <span key={s} style={{padding:'7px 14px',borderRadius:20,background:BG,border:`1px solid ${BORDER}`,fontSize:12,fontWeight:600,color:TEXT2}}>{s}</span>
@@ -259,7 +259,7 @@ export default function Login() {
       <section style={{padding:isMobile?'48px 20px':'80px 24px',background:`linear-gradient(135deg,#e8f2fd,#f0f0fc)`,borderTop:`1px solid ${BORDER}`}}>
         <div style={{maxWidth:560,margin:'0 auto',textAlign:'center'}}>
           <div style={{fontSize:isMobile?26:38,fontWeight:800,color:TEXT,marginBottom:12,letterSpacing:'-.02em'}}>Prêt à moderniser votre gestion ?</div>
-          <div style={{fontSize:14,color:TEXT2,marginBottom:28,lineHeight:1.6}}>Réservez une démo Teams gratuite. Notre équipe vous présente PlanPro en 30 minutes.</div>
+          <div style={{fontSize:14,color:TEXT2,marginBottom:28,lineHeight:1.6}}>Réservez une démo Teams gratuite. Notre équipe vous présente Kronvo en 30 minutes.</div>
           <button onClick={()=>goPage('contact')} style={{padding:'15px 32px',borderRadius:12,border:'none',background:A,color:'white',fontSize:16,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 20px rgba(0,113,227,.25)',width:isMobile?'100%':'auto'}}>
             Réserver ma démo →
           </button>
@@ -275,7 +275,7 @@ export default function Login() {
       <div style={{maxWidth:960,margin:'0 auto',padding:isMobile?'32px 20px':'60px 24px'}}>
         <div style={{textAlign:'center',marginBottom:40}}>
           <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:10}}>Fonctionnalités</div>
-          <h1 style={{fontSize:isMobile?28:48,fontWeight:900,color:TEXT,letterSpacing:'-.03em',marginBottom:12}}>Tout ce que PlanPro peut faire</h1>
+          <h1 style={{fontSize:isMobile?28:48,fontWeight:900,color:TEXT,letterSpacing:'-.03em',marginBottom:12}}>Tout ce que Kronvo peut faire</h1>
           <p style={{fontSize:15,color:TEXT2,maxWidth:540,margin:'0 auto'}}>Une solution pensée pour les équipes terrain.</p>
         </div>
         {[
@@ -326,7 +326,7 @@ export default function Login() {
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fit,minmax(260px,1fr))',gap:14,marginBottom:24}}>
           {[
             {name:'Mise en place',icon:'🚀',color:'#e8f2fd',ic:A,desc:'Installation et configuration complète par SwitzerIT.',items:['Création du compte','Paramétrage des établissements','Import des employés','Installation borne tablette','Formation gérant (1h)','Documentation fournie'],tag:'Sur devis'},
-            {name:'Abonnement mensuel',icon:'📅',color:'#f0faf3',ic:'#1a6b35',desc:'Accès complet à PlanPro pour votre établissement.',items:['Planning & badgeage illimités','Tous les employés inclus','Rapports PDF','Support email','Mises à jour incluses','Hébergement sécurisé Suisse'],tag:'Sur devis · en CHF'},
+            {name:'Abonnement mensuel',icon:'📅',color:'#f0faf3',ic:'#1a6b35',desc:'Accès complet à Kronvo pour votre établissement.',items:['Planning & badgeage illimités','Tous les employés inclus','Rapports PDF','Support email','Mises à jour incluses','Hébergement sécurisé Suisse'],tag:'Sur devis · en CHF'},
             {name:'Support & maintenance',icon:'🛡️',color:'#fff8ee',ic:'#8a4a00',desc:"Accompagnement continu pour votre tranquillité.",items:['Support prioritaire','Intervention sous 4h','Formations supplémentaires','Évolutions personnalisées','Suivi trimestriel','SLA garanti'],tag:'Options disponibles'},
           ].map((plan,i)=>(
             <div key={i} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px',display:'flex',flexDirection:'column'}}>
@@ -349,7 +349,7 @@ export default function Login() {
           <div style={{fontSize:32,flexShrink:0}}>📹</div>
           <div style={{flex:1}}>
             <div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:4}}>Démo gratuite via Teams</div>
-            <div style={{fontSize:13,color:TEXT2}}>30 minutes pour voir PlanPro en action. Repartez avec un devis personnalisé.</div>
+            <div style={{fontSize:13,color:TEXT2}}>30 minutes pour voir Kronvo en action. Repartez avec un devis personnalisé.</div>
           </div>
           <button onClick={()=>goPage('contact')} style={{padding:'12px 20px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto'}}>Réserver ma démo →</button>
         </div>
@@ -408,7 +408,7 @@ export default function Login() {
             )}
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
-            {[{icon:'📹',title:'Démo Teams offerte',desc:'30 minutes pour voir PlanPro adapté à votre secteur.'},
+            {[{icon:'📹',title:'Démo Teams offerte',desc:'30 minutes pour voir Kronvo adapté à votre secteur.'},
               {icon:'🚀',title:'Mise en place par SwitzerIT',desc:"Notre équipe s'occupe de tout."},
               {icon:'🇨🇭',title:'Facturation en CHF',desc:'Tarification locale, sans surprise.'},
             ].map((info,i)=>(
@@ -438,12 +438,12 @@ export default function Login() {
   const PageLegal=()=>{
     const sections={
       cgu:{title:"Conditions Générales d'Utilisation",last:"11 mai 2026",content:[
-        {h:"1. Objet",t:"Les présentes CGU régissent l'accès et l'utilisation de la plateforme PlanPro, éditée par SwitzerIT, basée en Suisse. En accédant à la plateforme, l'utilisateur accepte sans réserve les présentes CGU."},
-        {h:"2. Description du service",t:"PlanPro est une solution SaaS de gestion d'équipes permettant la création de plannings, le badgeage par QR code, le suivi des présences et l'export de rapports."},
+        {h:"1. Objet",t:"Les présentes CGU régissent l'accès et l'utilisation de la plateforme Kronvo, éditée par SwitzerIT, basée en Suisse. En accédant à la plateforme, l'utilisateur accepte sans réserve les présentes CGU."},
+        {h:"2. Description du service",t:"Kronvo est une solution SaaS de gestion d'équipes permettant la création de plannings, le badgeage par QR code, le suivi des présences et l'export de rapports."},
         {h:"3. Accès au service",t:"L'accès est réservé aux professionnels. Chaque compte est associé à un établissement, géré par un gérant désigné."},
         {h:"4. Obligations de l'utilisateur",t:"L'utilisateur s'engage à fournir des informations exactes, maintenir la confidentialité de ses identifiants, utiliser le service conformément à sa destination."},
         {h:"5. Responsabilité",t:"SwitzerIT s'engage à assurer la disponibilité du service. Sa responsabilité est limitée au montant des sommes versées au cours des 12 derniers mois."},
-        {h:"6. Propriété intellectuelle",t:"L'ensemble des éléments de PlanPro est la propriété exclusive de SwitzerIT. Toute reproduction non autorisée est interdite."},
+        {h:"6. Propriété intellectuelle",t:"L'ensemble des éléments de Kronvo est la propriété exclusive de SwitzerIT. Toute reproduction non autorisée est interdite."},
         {h:"7. Résiliation",t:"Chaque partie peut résilier avec un préavis de 30 jours."},
         {h:"8. Droit applicable",t:"Les CGU sont soumises au droit suisse. Les tribunaux du canton de Vaud sont seuls compétents."},
       ]},
@@ -458,7 +458,7 @@ export default function Login() {
         {h:"8. Sécurité",t:"Données chiffrées en transit (HTTPS/TLS) et au repos. Authentification sécurisée."},
       ]},
       rgpd:{title:"Conformité RGPD",last:"11 mai 2026",content:[
-        {h:"Engagement",t:"PlanPro respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse."},
+        {h:"Engagement",t:"Kronvo respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse."},
         {h:"Données traitées",t:"Noms et prénoms des employés, emails professionnels, données de badgeage, informations sur le poste et l'établissement."},
         {h:"Conservation",t:"Employés actifs : durée du contrat. Facturation : 10 ans. Logs sécurité : 12 mois."},
         {h:"Sous-traitants",t:"Supabase Inc. (USA - clauses contractuelles types), Vercel Inc. (USA - clauses contractuelles types)."},
@@ -472,7 +472,7 @@ export default function Login() {
         {h:"Cookies fonctionnels",t:"Établissement sélectionné (restoplan_current_resto), état de la borne, préférences d'affichage."},
         {h:"Cookies analytiques",t:"Nous n'utilisons pas de cookies analytiques tiers."},
         {h:"Cookies tiers",t:"Supabase et Vercel déposent leurs propres cookies techniques nécessaires à l'infrastructure."},
-        {h:"Gestion",t:"Contrôlables via les paramètres de votre navigateur. La désactivation des cookies nécessaires peut empêcher le fonctionnement de PlanPro."},
+        {h:"Gestion",t:"Contrôlables via les paramètres de votre navigateur. La désactivation des cookies nécessaires peut empêcher le fonctionnement de Kronvo."},
         {h:"Durée",t:"Session : supprimés à la fermeture du navigateur. Persistants : maximum 12 mois."},
       ]},
     }
@@ -544,9 +544,9 @@ export default function Login() {
           <div style={{background:SURF,borderRadius:20,padding:isMobile?'24px 20px':32,width:'100%',maxWidth:380,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
             <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:14,right:14,width:32,height:32,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✕</button>
             <div style={{textAlign:'center',marginBottom:22}}>
-              <div style={{width:48,height:48,background:A,borderRadius:13,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,color:'white',fontWeight:800,margin:'0 auto 12px'}}>P</div>
+              <div style={{margin:"0 auto 12px"}}><svg width="22" height="16" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg></div>
               <div style={{fontSize:20,fontWeight:800,color:TEXT}}>Connexion</div>
-              <div style={{fontSize:13,color:TEXT2,marginTop:4}}>Accédez à votre espace PlanPro</div>
+              <div style={{fontSize:13,color:TEXT2,marginTop:4}}>Accédez à votre espace Kronvo</div>
             </div>
             <form onSubmit={handleLogin}>
               <div style={{marginBottom:14}}>
