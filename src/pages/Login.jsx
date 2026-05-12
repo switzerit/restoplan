@@ -159,7 +159,7 @@ export default function Login() {
   const PageHome=()=>(
     <>
       <section style={{paddingTop:56,background:`linear-gradient(180deg,#f0f7ff 0%,${BG} 100%)`}}>
-        <div style={{maxWidth:900,margin:'0 auto',padding:isMobile?'48px 20px 56px':'80px 24px',textAlign:'center'}}>
+        <div style={{maxWidth:900,margin:'0 auto',padding:isMobile?'32px 20px 36px':'48px 24px 40px',textAlign:'center'}}>
           <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 14px',borderRadius:20,background:'#e8f2fd',border:'1px solid rgba(0,113,227,.15)',marginBottom:20}}>
             <span style={{width:6,height:6,borderRadius:'50%',background:GREEN,boxShadow:`0 0 8px ${GREEN}`,display:'inline-block'}}></span>
             <span style={{fontSize:12,fontWeight:600,color:A}}>Nouveau · Badgeage QR Code sécurisé</span>
@@ -193,7 +193,7 @@ export default function Login() {
         </div>
       </section>
 
-      <section style={{padding:isMobile?'48px 20px':'80px 24px',maxWidth:1000,margin:'0 auto'}}>
+      <section style={{padding:isMobile?'32px 20px':'48px 24px',maxWidth:1000,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:36}}>
           <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Fonctionnalités clés</div>
           <div style={{fontSize:isMobile?24:36,fontWeight:800,color:TEXT,marginBottom:8}}>Tout ce dont vous avez besoin</div>
@@ -222,7 +222,7 @@ export default function Login() {
         </div>
       </section>
 
-      <section style={{padding:isMobile?'40px 20px':'60px 24px',background:SURF,borderTop:`1px solid ${BORDER}`}}>
+      <section style={{padding:isMobile?'28px 20px':'36px 24px',background:SURF,borderTop:`1px solid ${BORDER}`}}>
         <div style={{maxWidth:800,margin:'0 auto',textAlign:'center'}}>
           <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Secteurs</div>
           <div style={{fontSize:isMobile?22:28,fontWeight:800,color:TEXT,marginBottom:6}}>Pour tous les professionnels</div>
@@ -235,7 +235,7 @@ export default function Login() {
         </div>
       </section>
 
-      <section style={{padding:isMobile?'48px 20px':'80px 24px',maxWidth:900,margin:'0 auto'}}>
+      <section style={{padding:isMobile?'28px 20px':'48px 24px',maxWidth:900,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:36}}>
           <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:8}}>Mise en place</div>
           <div style={{fontSize:isMobile?22:32,fontWeight:800,color:TEXT}}>Opérationnel en 5 minutes</div>
@@ -256,7 +256,7 @@ export default function Login() {
         </div>
       </section>
 
-      <section style={{padding:isMobile?'48px 20px':'80px 24px',background:`linear-gradient(135deg,#e8f2fd,#f0f0fc)`,borderTop:`1px solid ${BORDER}`}}>
+      <section style={{padding:isMobile?'32px 20px':'48px 24px',background:`linear-gradient(135deg,#e8f2fd,#f0f0fc)`,borderTop:`1px solid ${BORDER}`}}>
         <div style={{maxWidth:560,margin:'0 auto',textAlign:'center'}}>
           <div style={{fontSize:isMobile?26:38,fontWeight:800,color:TEXT,marginBottom:12,letterSpacing:'-.02em'}}>Prêt à moderniser votre gestion ?</div>
           <div style={{fontSize:14,color:TEXT2,marginBottom:28,lineHeight:1.6}}>Réservez une démo Teams gratuite. Notre équipe vous présente Kronvo en 30 minutes.</div>
