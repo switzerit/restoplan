@@ -797,4 +797,61 @@ export default function Login() {
               <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:12,padding:'16px 12px',position:'sticky',top:72}}>
                 <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>Légal</div>
                 {[['cgu','CGU'],['confidentialite','Confidentialité'],['rgpd','RGPD'],['cookies','Cookies']].map(([id,label])=>(
-                  <button key={id} onClick={()=>setLegalSection(id)} style={{width:'
+                  <button key={id} onClick={()=>setLegalSection(id)} style={{width:'100%',padding:'8px 11px',borderRadius:8,border:'none',background:legalSection===id?'#e8f2fd':'transparent',color:legalSection===id?A:TEXT2,fontSize:13,fontWeight:legalSection===id?600:400,cursor:'pointer',textAlign:'left',marginBottom:2,display:'block'}}>{label}</button>
+                ))}
+              </div>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:14,padding:'32px'}}>
+                <div style={{fontSize:10,color:TEXT3,marginBottom:6}}>Mise à jour : {s.last}</div>
+                <h1 style={{fontSize:26,fontWeight:900,color:TEXT,letterSpacing:'-.03em',marginBottom:22}}>{s.title}</h1>
+                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:20}}><h2 style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>{block.h}</h2><p style={{fontSize:13,color:TEXT2,lineHeight:1.75,margin:0}}>{block.t}</p></div>))}
+                <div style={{marginTop:28,padding:'14px 18px',background:'#e8f2fd',borderRadius:10,fontSize:13,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{minHeight:'100vh',background:BG,fontFamily:'var(--font)',color:TEXT}}>
+      <Nav/>
+      {page==='home'&&<PageHome/>}
+      {page==='fonctionnalites'&&<PageFeatures/>}
+      {page==='tarifs'&&<PagePricing/>}
+      {page==='contact'&&<PageContact/>}
+      {page==='legal'&&<PageLegal/>}
+      <Footer/>
+      {showLogin&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.6)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
+          <div style={{background:SURF,borderRadius:20,padding:isMobile?'22px 18px':32,width:'100%',maxWidth:360,boxShadow:'0 32px 80px rgba(0,0,0,.2)',border:`1px solid ${BORDER}`,position:'relative'}}>
+            <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+            <div style={{textAlign:'center',marginBottom:22}}>
+              <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>{LOGO_SM}</div>
+              <div style={{fontSize:20,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Connexion</div>
+              <div style={{fontSize:12,color:TEXT2,marginTop:3}}>Accédez à votre espace Kronvo</div>
+            </div>
+            <form onSubmit={handleLogin}>
+              <div style={{marginBottom:12}}>
+                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:5}}>Email</label>
+                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required style={inp}
+                onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
+              </div>
+              <div style={{marginBottom:20}}>
+                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:5}}>Mot de passe</label>
+                <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required style={inp}
+                onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
+              </div>
+              {error&&<div style={{padding:'9px 12px',background:'#fff2f1',border:'1px solid rgba(255,59,48,.2)',borderRadius:9,fontSize:13,color:'#b02020',marginBottom:14,fontWeight:600}}>{error}</div>}
+              <button type="submit" style={{width:'100%',height:48,borderRadius:11,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 16px rgba(0,113,227,.25)'}}>Se connecter</button>
+            </form>
+            <div style={{textAlign:'center',marginTop:14}}>
+              <span style={{fontSize:12,color:TEXT3}}>Pas encore client ? </span>
+              <span style={{fontSize:12,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{setShowLogin(false);goPage('contact')}}>Demander une démo</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
