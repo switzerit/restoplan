@@ -5,13 +5,12 @@ import { useNavigate, useLocation } from 'react-router-dom'
 const LOGO_SM = <svg width="24" height="17" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
 
 const Chk = ({size=14,color='#0071e3'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-const Xmark = ({size=14,color='#ff3b30'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 const Arr = ({size=16,color='white'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
 
 function QRDisplay() {
-  const [seed, setSeed] = useState(0)
-  const [progress, setProgress] = useState(0)
-  const [fade, setFade] = useState(false)
+  const [seed,setSeed]=useState(0)
+  const [progress,setProgress]=useState(0)
+  const [fade,setFade]=useState(false)
   useEffect(()=>{
     let p=0
     const iv=setInterval(()=>{
@@ -55,16 +54,12 @@ function RoiCalc({isMobile}) {
     <div style={{background:'white',border:'1px solid #e5e5ea',borderRadius:16,padding:isMobile?'24px':'36px',maxWidth:660,margin:'0 auto'}}>
       <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:24,marginBottom:24}}>
         <div>
-          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#6e6e73',marginBottom:8}}>
-            Nombre d'employés : <strong style={{color:'#1d1d1f'}}>{emp}</strong>
-          </label>
+          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#6e6e73',marginBottom:8}}>Nombre d'employés : <strong style={{color:'#1d1d1f'}}>{emp}</strong></label>
           <input type="range" min="2" max="80" value={emp} onChange={e=>setEmp(Number(e.target.value))} style={{width:'100%',accentColor:'#0071e3',cursor:'pointer'}}/>
           <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:3}}><span>2</span><span>80</span></div>
         </div>
         <div>
-          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#6e6e73',marginBottom:8}}>
-            Heures perdues / semaine : <strong style={{color:'#1d1d1f'}}>{hrs}h</strong>
-          </label>
+          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#6e6e73',marginBottom:8}}>Heures perdues / semaine : <strong style={{color:'#1d1d1f'}}>{hrs}h</strong></label>
           <input type="range" min="1" max="15" value={hrs} onChange={e=>setHrs(Number(e.target.value))} style={{width:'100%',accentColor:'#0071e3',cursor:'pointer'}}/>
           <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#aeaeb2',marginTop:3}}><span>1h</span><span>15h</span></div>
         </div>
@@ -78,7 +73,7 @@ function RoiCalc({isMobile}) {
         ))}
       </div>
       <div style={{background:'#f0f6ff',borderRadius:10,padding:'13px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
-        <span style={{fontSize:13,color:'#0051a8',fontWeight:500}}>Kronvo vous économise <strong>{eco.toLocaleString('fr-CH')} CHF/an</strong> pour {emp} employés</span>
+        <span style={{fontSize:13,color:'#0051a8',fontWeight:500}}>Économie estimée : <strong>{eco.toLocaleString('fr-CH')} CHF/an</strong> pour {emp} employés</span>
         <a href="/contact" style={{padding:'8px 16px',borderRadius:8,background:'#0071e3',color:'white',fontSize:13,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>Demander un devis →</a>
       </div>
     </div>
@@ -114,6 +109,11 @@ function FaqSection() {
     </div>
   )
 }
+
+const IcoFile=()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b02020" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+const IcoPhone=()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8a5a00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.14 14a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.05 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 10a16 16 0 0 0 6.29 6.29l1.35-1.35a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+const IcoCoin=()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a3880" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+const IcoBuild=()=><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M3 15h6M15 9h3M15 15h3"/></svg>
 
 export default function Login() {
   const [email,setEmail]=useState('')
@@ -161,7 +161,9 @@ export default function Login() {
 
   const A='#0071e3',BG='#f5f5f7',SURF='#ffffff',BORDER='#e5e5ea'
   const TEXT='#1d1d1f',TEXT2='#6e6e73',TEXT3='#aeaeb2'
+  const DARK='#0f172a'
   const W={maxWidth:1100,margin:'0 auto',padding:isMobile?'0 20px':'0 56px'}
+  const WN={maxWidth:900,margin:'0 auto',padding:isMobile?'0 20px':'0 40px'}
 
   const scrollTop=()=>window.scrollTo({top:0,behavior:'smooth'})
   const pageMap={'home':'/','fonctionnalites':'/fonctionnalites','tarifs':'/tarifs','contact':'/contact','legal':'/legal'}
@@ -170,9 +172,9 @@ export default function Login() {
   const page=path==='login'?'home':path||'home'
   const inp={width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:BG,fontSize:15,color:TEXT,outline:'none',boxSizing:'border-box'}
 
-  const SLabel=({t})=><div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>{t}</div>
-  const STitle=({t,size})=><h2 style={{fontSize:isMobile?26:(size||36),fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:12,lineHeight:1.1}}>{t}</h2>
-  const SSub=({t})=><p style={{fontSize:15,color:TEXT2,lineHeight:1.7,marginBottom:0}}>{t}</p>
+  const SL=({t,dark})=><div style={{fontSize:11,fontWeight:700,color:dark?'#60a5fa':A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:10}}>{t}</div>
+  const ST=({t,dark,size})=><h2 style={{fontSize:isMobile?24:(size||32),fontWeight:800,color:dark?'white':TEXT,letterSpacing:'-.04em',marginBottom:10,lineHeight:1.1}}>{t}</h2>
+  const SS=({t,dark})=><p style={{fontSize:14,color:dark?'rgba(255,255,255,.5)':TEXT2,lineHeight:1.7,maxWidth:480,margin:'0 auto'}}>{t}</p>
 
   const Nav=()=>(
     <>
@@ -249,7 +251,7 @@ export default function Login() {
 
   const PageHome=()=>(
     <>
-      {/* 1. HERO — fond blanc, typographie grande noire */}
+      {/* ── HERO ── */}
       <section style={{paddingTop:56,background:SURF,borderBottom:`1px solid ${BORDER}`}}>
         <div style={{...W,padding:isMobile?'52px 20px 40px':'72px 56px 64px',display:isMobile?'block':'grid',gridTemplateColumns:'52% 48%',gap:56,alignItems:'center'}}>
           <div>
@@ -258,8 +260,7 @@ export default function Login() {
               <span style={{fontSize:12,fontWeight:600,color:A}}>Planning · Badgeage QR · Présences</span>
             </div>
             <h1 style={{fontSize:isMobile?38:58,fontWeight:900,lineHeight:1.04,margin:'0 0 20px',letterSpacing:'-.05em',color:TEXT}}>
-              Gérez vos équipes.<br/>
-              <span style={{color:A}}>Sans la galère.</span>
+              Gérez vos équipes.<br/><span style={{color:A}}>Sans la galère.</span>
             </h1>
             <p style={{fontSize:isMobile?15:17,color:TEXT2,lineHeight:1.75,marginBottom:32,maxWidth:420}}>
               Fini les feuilles de présence et les erreurs de paie. Kronvo centralise tout en un seul endroit, accessible depuis n'importe quel téléphone.
@@ -281,7 +282,6 @@ export default function Login() {
               ))}
             </div>
           </div>
-
           {!isMobile&&(
             <div style={{background:'#fafafa',borderRadius:18,padding:16,border:`1px solid ${BORDER}`}}>
               <div style={{background:TEXT,borderRadius:11,padding:'10px 14px',marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -289,9 +289,7 @@ export default function Login() {
                   <div style={{fontSize:11,fontWeight:700,color:'white'}}>Kronvo Dashboard</div>
                   <div style={{fontSize:9,color:'rgba(255,255,255,.4)',marginTop:1}}>Restaurant Le Bistrot · En direct</div>
                 </div>
-                <div style={{display:'flex',gap:4}}>
-                  {['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:7,height:7,borderRadius:'50%',background:c}}></div>)}
-                </div>
+                <div style={{display:'flex',gap:4}}>{['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:7,height:7,borderRadius:'50%',background:c}}></div>)}</div>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7,marginBottom:10}}>
                 {[{v:'8',l:'Présents',bg:'#f0faf3',c:'#1a6b35'},{v:'3',l:'Absents',bg:'#fff2f1',c:'#b02020'},{v:'2',l:'En pause',bg:'#fff8ee',c:'#8a5a00'}].map((s,i)=>(
@@ -333,93 +331,92 @@ export default function Login() {
         </div>
       </section>
 
-      {/* 2. BANDE SECTEURS — très épurée */}
-      <section style={{background:BG,borderBottom:`1px solid ${BORDER}`,padding:'16px 0'}}>
+      {/* ── TRUST BAR ── */}
+      <section style={{background:SURF,borderBottom:`1px solid ${BORDER}`,padding:'14px 0'}}>
         <div style={W}>
-          <div style={{display:'flex',alignItems:'center',gap:isMobile?10:24,justifyContent:'center',flexWrap:'wrap'}}>
-            <span style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.1em',textTransform:'uppercase'}}>Adapté pour</span>
-            {['Restaurants','Hôtels','Cliniques','Garages','Commerce','BTP','Logistique'].map(s=>(
-              <span key={s} style={{fontSize:13,color:TEXT2,fontWeight:500}}>{s}</span>
-            ))}
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:isMobile?12:28,flexWrap:'wrap'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <div style={{display:'flex'}}>
+                {[{bg:'#dbeafe',c:'#1d4ed8',t:'SM'},{bg:'#dcfce7',c:'#15803d',t:'JD'},{bg:'#fef9c3',c:'#854d0e',t:'AL'}].map((a,i)=>(
+                  <div key={i} style={{width:26,height:26,borderRadius:'50%',background:a.bg,border:'2px solid white',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-6:0,zIndex:3-i}}>
+                    {a.t}
+                  </div>
+                ))}
+              </div>
+              <span style={{fontSize:12,color:TEXT,fontWeight:600}}>Équipes terrain qui font confiance à Kronvo</span>
+            </div>
+            <div style={{width:1,height:20,background:BORDER}}></div>
+            <div style={{display:'flex',alignItems:'center',gap:5}}>
+              <span style={{color:'#f59e0b',fontSize:13,letterSpacing:1}}>★★★★★</span>
+              <span style={{fontSize:12,fontWeight:700,color:TEXT}}>4.8/5</span>
+              <span style={{fontSize:11,color:TEXT3}}>support SwitzerIT</span>
+            </div>
+            {!isMobile&&<>
+              <div style={{width:1,height:20,background:BORDER}}></div>
+              <span style={{fontSize:12,color:TEXT2}}>Restaurants · Hôtels · Cliniques · Garages · BTP & plus</span>
+            </>}
           </div>
         </div>
       </section>
 
-      {/* 3. STATS — fond bleu profond */}
-      <section style={{background:'#0f172a',padding:'36px 0'}}>
-        <div style={W}>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)'}}>
-            {[{v:'2–4h',l:'mise en place',c:'#60a5fa'},{v:'30s',l:'par badgeage',c:'white'},{v:'8+',l:'secteurs',c:'white'},{v:'100%',l:'mobile',c:'white'}].map((s,i)=>(
-              <div key={i} style={{textAlign:'center',borderRight:i<3?'1px solid rgba(255,255,255,.07)':'none',padding:isMobile?'8px 4px':'10px 20px'}}>
+      {/* ── STATS TABLEAU ── */}
+      <section style={{background:'#f9fafb',padding:'36px 0',borderBottom:`1px solid ${BORDER}`}}>
+        <div style={WN}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',border:`1px solid ${BORDER}`,borderRadius:14,overflow:'hidden',background:SURF}}>
+            {[{v:'2-4h',l:'mise en place',c:A},{v:'30s',l:'par badgeage',c:TEXT},{v:'8+',l:'secteurs couverts',c:TEXT},{v:'100%',l:'mobile & tablette',c:TEXT}].map((s,i)=>(
+              <div key={i} style={{padding:isMobile?'16px 8px':'22px',textAlign:'center',borderRight:i<3?`1px solid ${BORDER}`:'none'}}>
                 <div style={{fontSize:isMobile?24:34,fontWeight:900,color:s.c,letterSpacing:'-.04em',lineHeight:1}}>{s.v}</div>
-                <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginTop:5}}>{s.l}</div>
+                <div style={{fontSize:11,color:TEXT2,marginTop:5}}>{s.l}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4. PROBLÈME / SOLUTION */}
-      <section style={{background:SURF,padding:isMobile?'52px 20px':'80px 0'}}>
-        <div style={W}>
-          <div style={{textAlign:'center',marginBottom:48}}>
-            <SLabel t="Le problème"/>
-            <STitle t="Vous perdez du temps chaque jour"/>
-            <SSub t="Les feuilles papier, les appels inutiles et les erreurs de paie coûtent cher. Il existe une meilleure façon."/>
+      {/* ── BÉNÉFICES (remplace Problème/Solution) ── */}
+      <section style={{background:SURF,padding:isMobile?'52px 20px':'72px 0'}}>
+        <div style={WN}>
+          <div style={{textAlign:'center',marginBottom:44}}>
+            <SL t="Pourquoi Kronvo"/>
+            <ST t="Tout ce que vous pouvez arrêter de faire"/>
+            <SS t="Fini les tâches manuelles qui n'apportent aucune valeur. Kronvo les remplace automatiquement."/>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:16}}>
-            <div style={{background:SURF,border:'1px solid #ffd0d0',borderRadius:16,padding:'28px',borderLeft:'3px solid #ff3b30'}}>
-              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
-                <div style={{width:32,height:32,borderRadius:9,background:'#fff2f1',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <Xmark/>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12}}>
+            {[
+              {ico:<IcoFile/>,bg:'#fff2f1',title:'Feuilles papier',desc:"Perdues, illisibles, impossibles à retrouver. Un vrai cauchemar chaque fin de mois pour la paie.",sol:'Remplacé par le badgeage QR'},
+              {ico:<IcoPhone/>,bg:'#fff8ee',title:'Appels sans fin',desc:'"Qui est là aujourd\'hui ?" — une question qui revient trop souvent et vous fait perdre un temps précieux.',sol:'Tableau de bord en temps réel'},
+              {ico:<IcoCoin/>,bg:'#f0f0fc',title:'Erreurs de paie',desc:'Heures non tracées, heures supp oubliées, bulletins contestés. Un coût réel chaque mois.',sol:'Export PDF automatique pour la paie'},
+            ].map((c,i)=>(
+              <div key={i} style={{background:'#f9fafb',border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px'}}>
+                <div style={{width:40,height:40,background:c.bg,borderRadius:11,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16}}>{c.ico}</div>
+                <div style={{fontSize:16,fontWeight:700,color:TEXT,marginBottom:8}}>{c.title}</div>
+                <div style={{fontSize:13,color:TEXT2,lineHeight:1.65,marginBottom:14}}>{c.desc}</div>
+                <div style={{display:'flex',alignItems:'center',gap:7,padding:'10px 12px',background:SURF,border:'1px solid #b8e8c8',borderRadius:9}}>
+                  <Chk size={13} color="#34c759"/>
+                  <span style={{fontSize:12,fontWeight:600,color:'#1a6b35'}}>{c.sol}</span>
                 </div>
-                <span style={{fontSize:15,fontWeight:700,color:'#b02020'}}>Sans Kronvo</span>
               </div>
-              {['Feuilles de présence papier perdues','Appels pour savoir qui est absent','Erreurs sur les bulletins de paie','Aucune visibilité en temps réel','Heures supplémentaires non tracées','Planning distribué par SMS'].map(p=>(
-                <div key={p} style={{display:'flex',gap:10,alignItems:'flex-start',marginBottom:11}}>
-                  <div style={{width:18,height:18,borderRadius:'50%',background:'#fff2f1',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
-                    <Xmark size={9}/>
-                  </div>
-                  <span style={{fontSize:14,color:TEXT2,lineHeight:1.5}}>{p}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{background:SURF,border:'1px solid #b8e8c8',borderRadius:16,padding:'28px',borderLeft:'3px solid #34c759'}}>
-              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:20}}>
-                <div style={{width:32,height:32,borderRadius:9,background:'#f0faf3',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <Chk size={14} color="#34c759"/>
-                </div>
-                <span style={{fontSize:15,fontWeight:700,color:'#1a6b35'}}>Avec Kronvo</span>
-              </div>
-              {['Badgeage QR en 2 secondes','Tableau de bord en direct','Export PDF prêt pour la paie','Planning publié en un clic','Heures calculées automatiquement','Données sécurisées partout 24h/24'].map(p=>(
-                <div key={p} style={{display:'flex',gap:10,alignItems:'flex-start',marginBottom:11}}>
-                  <div style={{width:18,height:18,borderRadius:'50%',background:'#f0faf3',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
-                    <Chk size={9} color="#34c759"/>
-                  </div>
-                  <span style={{fontSize:14,color:TEXT2,lineHeight:1.5}}>{p}</span>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 5. FONCTIONNALITÉS */}
-      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'80px 0'}}>
+      {/* ── FONCTIONNALITÉS ── */}
+      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'72px 0'}}>
         <div style={W}>
-          <div style={{textAlign:'center',marginBottom:48}}>
-            <SLabel t="Fonctionnalités"/>
-            <STitle t="Tout ce dont vous avez besoin"/>
-            <SSub t="Une solution complète pour les équipes terrain. Pas besoin de formation, ça marche dès le premier jour."/>
+          <div style={{textAlign:'center',marginBottom:44}}>
+            <SL t="Fonctionnalités"/>
+            <ST t="Tout ce dont vous avez besoin"/>
+            <SS t="Une solution complète pour les équipes terrain. Ça marche dès le premier jour."/>
           </div>
           <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:1,background:BORDER,borderRadius:16,overflow:'hidden',marginBottom:20}}>
             {[
-              {icon:'📅',title:'Planning intelligent',desc:'Shifts simples ou coupés. Postes adaptés à votre secteur. Publication en un clic.',bg:'#e8f2fd',c:A},
-              {icon:'📷',title:'Badgeage QR',desc:'QR renouvelé toutes les 30s. Scan depuis le téléphone. Borne tablette sécurisée.',bg:'#f0f0fc',c:'#5856d6'},
-              {icon:'👥',title:'Présences live',desc:'Qui est là maintenant. Heures prévues vs pointées. Écarts calculés auto.',bg:'#f0faf3',c:'#1a6b35'},
-              {icon:'📱',title:'App employé',desc:'Planning, badgeage, historique. Installable sur iPhone et Android.',bg:'#fff8ee',c:'#8a5a00'},
-              {icon:'📄',title:'Export PDF',desc:'Rapports détaillés en un clic. Par employé, par période. Prêt pour la paie.',bg:'#fff2f1',c:'#b02020'},
-              {icon:'🏢',title:'Multi-sites',desc:'Plusieurs établissements, un seul tableau de bord. Données isolées par site.',bg:'#fdf0f8',c:'#8a2060'},
+              {icon:'📅',title:'Planning intelligent',desc:'Shifts simples ou coupés. Postes adaptés à votre secteur. Publication en un clic.',bg:'#e8f2fd'},
+              {icon:'📷',title:'Badgeage QR',desc:'QR renouvelé toutes les 30s. Scan depuis le téléphone. Borne tablette sécurisée.',bg:'#f0f0fc'},
+              {icon:'👥',title:'Présences live',desc:'Qui est là maintenant. Heures prévues vs pointées. Écarts calculés automatiquement.',bg:'#f0faf3'},
+              {icon:'📱',title:'App employé',desc:'Planning, badgeage, historique. Installable sur iPhone et Android.',bg:'#fff8ee'},
+              {icon:'📄',title:'Export PDF',desc:'Rapports détaillés en un clic. Par employé, par période. Prêt pour la paie.',bg:'#fff2f1'},
+              {icon:'🏢',title:'Multi-sites',desc:'Plusieurs établissements, un seul tableau de bord. Données isolées par site.',bg:'#fdf0f8'},
             ].map((f,i)=>(
               <div key={i} style={{background:SURF,padding:'24px 20px',transition:'background .15s'}}
               onMouseEnter={e=>{e.currentTarget.style.background='#fafafa'}}
@@ -438,95 +435,126 @@ export default function Login() {
         </div>
       </section>
 
-      {/* 6. COMMENT CA MARCHE */}
-      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'80px 0'}}>
-        <div style={W}>
-          <div style={{textAlign:'center',marginBottom:48}}>
-            <SLabel t="Mise en place"/>
-            <STitle t="En place en 2 à 4 heures"/>
-            <SSub t="Notre équipe SwitzerIT s'occupe de tout. Vous n'avez rien à faire techniquement."/>
+      {/* ── MISE EN PLACE — timeline fond sombre ── */}
+      <section style={{background:DARK,padding:isMobile?'52px 20px':'72px 0'}}>
+        <div style={WN}>
+          <div style={{textAlign:'center',marginBottom:44}}>
+            <SL t="Mise en place" dark/>
+            <ST t="Opérationnel en 2 à 4 heures" dark/>
+            <SS t="Notre équipe s'occupe de tout. Vous n'avez rien à faire techniquement." dark/>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:12}}>
-            {[
-              {n:'01',title:'Démo gratuite',desc:'On vous présente Kronvo en 30 min, adapté à votre secteur.',emoji:'📹'},
-              {n:'02',title:'On configure tout',desc:'SwitzerIT s\'occupe de tout. Établissements, employés, borne.',emoji:'⚙️'},
-              {n:'03',title:'Formation incluse',desc:'Gérants et employés formés. Documentation fournie.',emoji:'🎓'},
-              {n:'04',title:"C'est parti !",desc:'Vos équipes scannent le QR. Vous suivez en temps réel.',emoji:'🚀'},
-            ].map((s,i)=>(
-              <div key={i} style={{background:BG,border:`1px solid ${BORDER}`,borderRadius:14,padding:'20px 16px',position:'relative'}}>
-                <div style={{position:'absolute',top:14,right:14,fontSize:24}}>{s.emoji}</div>
-                <div style={{width:32,height:32,borderRadius:9,background:'#e8f2fd',color:A,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,marginBottom:12}}>{s.n}</div>
-                <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>{s.title}</div>
-                <div style={{fontSize:13,color:TEXT2,lineHeight:1.6}}>{s.desc}</div>
-              </div>
-            ))}
+          <div style={{position:'relative'}}>
+            {!isMobile&&<div style={{position:'absolute',top:20,left:'10%',right:'10%',height:1,background:'rgba(255,255,255,.08)'}}></div>}
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:isMobile?12:0}}>
+              {[
+                {e:'📹',n:'01',t:'Démo 30 min',d:"On vous présente Kronvo adapté à votre secteur, sans engagement."},
+                {e:'⚙️',n:'02',t:'Configuration',d:"SwitzerIT configure tout : établissements, employés, borne tablette."},
+                {e:'🎓',n:'03',t:'Formation',d:"Gérants et équipes formés. Documentation fournie. Support disponible."},
+                {e:'🚀',n:'04',t:'En production',d:"Vos équipes scannent le QR. Vous suivez tout en temps réel."},
+              ].map((s,i)=>(
+                <div key={i} style={{padding:isMobile?'16px':'0 16px',textAlign:'center',position:'relative',zIndex:1}}>
+                  <div style={{width:40,height:40,borderRadius:'50%',background:'#1e293b',border:'1px solid rgba(255,255,255,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,margin:'0 auto 16px'}}>{s.e}</div>
+                  <div style={{fontSize:10,fontWeight:700,color:'#60a5fa',marginBottom:5,letterSpacing:'.06em'}}>{s.n}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'white',marginBottom:6}}>{s.t}</div>
+                  <div style={{fontSize:12,color:'rgba(255,255,255,.4)',lineHeight:1.6}}>{s.d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{marginTop:36,background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.08)',borderRadius:14,padding:'20px 24px',display:'flex',alignItems:isMobile?'flex-start':'center',gap:16,flexDirection:isMobile?'column':'row'}}>
+            <div style={{fontSize:28,flexShrink:0}}>💬</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:14,fontWeight:700,color:'white',marginBottom:4}}>Inclus : formation complète</div>
+              <div style={{fontSize:13,color:'rgba(255,255,255,.45)',lineHeight:1.6}}>Nous formons vos gérants et vos employés. Documentation fournie. Support SwitzerIT disponible 24h après le lancement.</div>
+            </div>
+            <button onClick={()=>goPage('contact')} style={{padding:'12px 20px',borderRadius:10,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto'}}>Réserver ma démo →</button>
           </div>
         </div>
       </section>
 
-      {/* 7. CALCULATEUR ROI */}
-      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'80px 0'}}>
+      {/* ── SECTEURS — cards avec postes ── */}
+      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'72px 0'}}>
+        <div style={WN}>
+          <div style={{textAlign:'center',marginBottom:36}}>
+            <SL t="Secteurs"/>
+            <ST t="Votre secteur, vos postes"/>
+            <SS t="Kronvo s'adapte à votre activité avec les termes exacts que vous utilisez au quotidien."/>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:10}}>
+            {[
+              {bg:'#e8f2fd',c:'#0071e3',title:'Restaurants & Hôtels',postes:'Cuisine · Salle · Bar · Réception · Ménage'},
+              {bg:'#fff2f1',c:'#b02020',title:'Cliniques & Santé',postes:'Médecin · Infirmier · Accueil · Admin'},
+              {bg:'#fff8ee',c:'#8a5a00',title:'Garages & BTP',postes:'Mécanicien · Chef atelier · Chantier · Accueil'},
+              {bg:'#f0f0fc',c:'#3a3880',title:'Commerce & Distribution',postes:'Caissier · Rayon · Manager · Réserve'},
+              {bg:'#f0faf3',c:'#1a6b35',title:'Logistique',postes:'Préparateur · Chef équipe · Quai · Contrôle'},
+              {bg:'#fdf0f8',c:'#8a2060',title:'Spas, Éducation & plus',postes:'Esthéticien · Formateur · Accueil · Sécurité'},
+            ].map((s,i)=>(
+              <div key={i} style={{border:`1px solid ${BORDER}`,borderRadius:13,padding:'18px 16px',display:'flex',alignItems:'center',gap:14,transition:'border-color .15s',cursor:'default'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=A}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER}}>
+                <div style={{width:40,height:40,borderRadius:10,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:s.c}}>
+                  <IcoBuild/>
+                </div>
+                <div>
+                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:4}}>{s.title}</div>
+                  <div style={{fontSize:11,color:TEXT3,lineHeight:1.6}}>{s.postes}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{textAlign:'center',marginTop:20}}>
+            <span style={{fontSize:13,color:TEXT2}}>Votre secteur n'est pas listé ? </span>
+            <span onClick={()=>goPage('contact')} style={{fontSize:13,color:A,fontWeight:600,cursor:'pointer'}}>Contactez-nous →</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CALCULATEUR ROI ── */}
+      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'72px 0'}}>
         <div style={W}>
           <div style={{textAlign:'center',marginBottom:44}}>
-            <SLabel t="Calculateur"/>
-            <STitle t="Combien perdez-vous chaque mois ?"/>
-            <SSub t="Estimez le vrai coût avant Kronvo."/>
+            <SL t="Calculateur"/>
+            <ST t="Combien perdez-vous chaque mois ?"/>
+            <SS t="Estimez le vrai coût avant Kronvo."/>
           </div>
           <RoiCalc isMobile={isMobile}/>
         </div>
       </section>
 
-      {/* 8. FAQ */}
-      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'80px 0'}}>
+      {/* ── FAQ ── */}
+      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:isMobile?'52px 20px':'72px 0'}}>
         <div style={W}>
           <div style={{textAlign:'center',marginBottom:44}}>
-            <SLabel t="FAQ"/>
-            <STitle t="Questions fréquentes"/>
-            <SSub t="Tout ce que vous voulez savoir avant de commencer."/>
+            <SL t="FAQ"/>
+            <ST t="Questions fréquentes"/>
+            <SS t="Tout ce que vous voulez savoir avant de commencer."/>
           </div>
           <FaqSection/>
         </div>
       </section>
 
-      {/* 9. SECTEURS */}
-      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:isMobile?'44px 20px':'56px 0'}}>
-        <div style={W}>
-          <div style={{textAlign:'center',marginBottom:28}}>
-            <SLabel t="Secteurs"/>
-            <STitle t="Pour tous les professionnels" size={30}/>
-            <SSub t="Postes et termes adaptés à votre secteur d'activité"/>
+      {/* ── CTA FINAL fond sombre sobre ── */}
+      <section style={{background:DARK,padding:isMobile?'64px 20px':'80px 0'}}>
+        <div style={{...WN,textAlign:'center'}}>
+          <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 14px',borderRadius:20,background:'rgba(96,165,250,.1)',border:'1px solid rgba(96,165,250,.2)',marginBottom:22}}>
+            <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',display:'inline-block'}}></span>
+            <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.6)'}}>Démo disponible cette semaine</span>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(5,1fr)',gap:8}}>
-            {[{icon:'🍽️',l:'Restaurants'},{icon:'🏨',l:'Hôtels'},{icon:'🏥',l:'Cliniques'},{icon:'🔧',l:'Garages'},{icon:'🏪',l:'Commerce'},{icon:'💆',l:'Spas & Salons'},{icon:'🏗️',l:'BTP'},{icon:'📦',l:'Logistique'},{icon:'🎓',l:'Éducation'},{icon:'🛡️',l:'Sécurité'}].map(s=>(
-              <div key={s.l} style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:12,padding:'14px',textAlign:'center',cursor:'default',transition:'all .15s'}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=A;e.currentTarget.style.background='#f0f6ff'}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.background=SURF}}>
-                <div style={{fontSize:22,marginBottom:5}}>{s.icon}</div>
-                <div style={{fontSize:12,fontWeight:600,color:TEXT2}}>{s.l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 10. CTA FINAL — fond bleu uni propre */}
-      <section style={{background:A,padding:isMobile?'64px 20px':'80px 0'}}>
-        <div style={{...W,textAlign:'center'}}>
           <h2 style={{fontSize:isMobile?30:44,fontWeight:900,color:'white',letterSpacing:'-.05em',marginBottom:14,lineHeight:1.06}}>
-            Prêt à gagner du temps chaque jour ?
+            Prêt à simplifier<br/>la gestion de votre équipe ?
           </h2>
-          <p style={{fontSize:16,color:'rgba(255,255,255,.75)',marginBottom:36,lineHeight:1.7,maxWidth:440,margin:'0 auto 36px'}}>
-            Démo gratuite via Teams, sans engagement. Notre équipe s'occupe de tout.
+          <p style={{fontSize:15,color:'rgba(255,255,255,.45)',marginBottom:36,lineHeight:1.7,maxWidth:380,margin:'0 auto 36px'}}>
+            Démo gratuite via Teams. Notre équipe configure tout pour vous, sans engagement.
           </p>
-          <div style={{display:'flex',gap:12,justifyContent:'center',flexDirection:isMobile?'column':'row',padding:isMobile?'0 20px':0}}>
-            <button onClick={()=>goPage('contact')} style={{padding:'15px 28px',borderRadius:12,border:'none',background:'white',color:A,fontSize:15,fontWeight:800,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:9,justifyContent:'center'}}>
-              Réserver ma démo gratuite <Arr color={A}/>
+          <div style={{display:'flex',gap:10,justifyContent:'center',flexDirection:isMobile?'column':'row',padding:isMobile?'0 20px':0}}>
+            <button onClick={()=>goPage('contact')} style={{padding:'15px 28px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:9,justifyContent:'center'}}>
+              Réserver ma démo gratuite <Arr/>
             </button>
-            <button onClick={()=>setShowLogin(true)} style={{padding:'15px 22px',borderRadius:12,border:'2px solid rgba(255,255,255,.3)',background:'transparent',color:'white',fontSize:15,fontWeight:600,cursor:'pointer'}}>
+            <button onClick={()=>setShowLogin(true)} style={{padding:'15px 22px',borderRadius:12,border:'1px solid rgba(255,255,255,.15)',background:'transparent',color:'rgba(255,255,255,.6)',fontSize:15,fontWeight:600,cursor:'pointer'}}>
               Déjà client — Se connecter
             </button>
           </div>
-          <div style={{fontSize:12,color:'rgba(255,255,255,.5)',marginTop:14}}>Démo gratuite · Sans carte bancaire · Réponse sous 24h</div>
+          <div style={{fontSize:12,color:'rgba(255,255,255,.25)',marginTop:14}}>Sans carte bancaire · Sans engagement · Réponse sous 24h</div>
         </div>
       </section>
     </>
@@ -536,9 +564,9 @@ export default function Login() {
     <div style={{paddingTop:56,minHeight:'100vh',background:BG}}>
       <div style={{...W,padding:isMobile?'40px 20px':'56px 56px'}}>
         <div style={{textAlign:'center',marginBottom:44}}>
-          <SLabel t="Fonctionnalités"/>
-          <STitle t="Tout ce que Kronvo peut faire" size={44}/>
-          <SSub t="Une solution pensée pour les équipes terrain."/>
+          <SL t="Fonctionnalités"/>
+          <ST t="Tout ce que Kronvo peut faire" size={44}/>
+          <SS t="Une solution pensée pour les équipes terrain."/>
         </div>
         {[
           {icon:'📅',title:'Planning intelligent',color:'#e8f2fd',ic:A,items:['Shifts simples ou coupés','Vue semaine desktop, vue jour mobile','Postes personnalisables selon votre secteur','Publication en un clic','Modification rapide par clic']},
@@ -580,9 +608,9 @@ export default function Login() {
     <div style={{paddingTop:56,minHeight:'100vh',background:BG}}>
       <div style={{...W,padding:isMobile?'40px 20px':'56px 56px'}}>
         <div style={{textAlign:'center',marginBottom:44}}>
-          <SLabel t="Tarifs"/>
-          <STitle t="Tarification sur mesure" size={44}/>
-          <SSub t="Devis personnalisé selon vos besoins. Démo gratuite via Teams incluse."/>
+          <SL t="Tarifs"/>
+          <ST t="Tarification sur mesure" size={44}/>
+          <SS t="Devis personnalisé selon vos besoins. Démo gratuite via Teams incluse."/>
         </div>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:14,marginBottom:20}}>
           {[
@@ -623,9 +651,9 @@ export default function Login() {
     <div style={{paddingTop:56,minHeight:'100vh',background:BG}}>
       <div style={{...W,padding:isMobile?'40px 20px':'56px 56px'}}>
         <div style={{textAlign:'center',marginBottom:40}}>
-          <SLabel t="Contact"/>
-          <STitle t="Parlons de votre projet" size={42}/>
-          <SSub t="Nous vous recontactons sous 24h pour une démo Teams gratuite."/>
+          <SL t="Contact"/>
+          <ST t="Parlons de votre projet" size={42}/>
+          <SS t="Nous vous recontactons sous 24h pour une démo Teams gratuite."/>
         </div>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1.2fr 1fr',gap:20}}>
           <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'26px'}}>
@@ -671,7 +699,7 @@ export default function Login() {
             )}
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
-            <div style={{background:'#0f172a',borderRadius:14,padding:'22px',color:'white'}}>
+            <div style={{background:DARK,borderRadius:14,padding:'22px',color:'white'}}>
               <div style={{fontSize:32,marginBottom:12}}>📹</div>
               <div style={{fontSize:15,fontWeight:700,marginBottom:6}}>Démo Teams gratuite</div>
               <div style={{fontSize:13,color:'rgba(255,255,255,.5)',lineHeight:1.7}}>30 min pour voir Kronvo en action. Repartez avec un devis personnalisé.</div>
