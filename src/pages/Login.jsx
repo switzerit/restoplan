@@ -249,14 +249,11 @@ export default function Login() {
 
   const PageHome=()=>(
     <>
-      {/* 1. HERO — fond blanc, typographie grande noire */}
+      {/* 1. HERO */}
       <section style={{paddingTop:56,background:SURF,borderBottom:`1px solid ${BORDER}`}}>
-        <div style={{...W,padding:isMobile?'52px 20px 40px':'72px 56px 64px',display:isMobile?'block':'grid',gridTemplateColumns:'52% 48%',gap:56,alignItems:'center'}}>
+        <div style={{...W,padding:isMobile?'52px 20px 40px':'72px 56px 64px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:52,alignItems:'center'}}>
           <div>
-            <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 12px',borderRadius:20,background:'#f0f6ff',border:'1px solid rgba(0,113,227,.15)',marginBottom:24}}>
-              <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',display:'inline-block'}}></span>
-              <span style={{fontSize:12,fontWeight:600,color:A}}>Planning · Badgeage QR · Présences</span>
-            </div>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:20}}>Gestion d'équipes terrain</div>
             <h1 style={{fontSize:isMobile?38:58,fontWeight:900,lineHeight:1.04,margin:'0 0 20px',letterSpacing:'-.05em',color:TEXT}}>
               Gérez vos équipes.<br/>
               <span style={{color:A}}>Sans la galère.</span>
@@ -264,14 +261,9 @@ export default function Login() {
             <p style={{fontSize:isMobile?15:17,color:TEXT2,lineHeight:1.75,marginBottom:32,maxWidth:420}}>
               Fini les feuilles de présence et les erreurs de paie. Kronvo centralise tout en un seul endroit, accessible depuis n'importe quel téléphone.
             </p>
-            <div style={{display:'flex',gap:10,flexDirection:isMobile?'column':'row',marginBottom:24}}>
-              <button onClick={()=>goPage('contact')} style={{padding:'14px 24px',borderRadius:11,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:8,justifyContent:'center',boxShadow:'0 2px 12px rgba(0,113,227,.25)'}}>
-                Demander une démo gratuite <Arr/>
-              </button>
-              <button onClick={()=>goPage('fonctionnalites')} style={{padding:'14px 20px',borderRadius:11,border:`1.5px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:15,fontWeight:600,cursor:'pointer'}}>
-                Voir les fonctionnalités
-              </button>
-            </div>
+            <button onClick={()=>goPage('contact')} style={{padding:'14px 24px',borderRadius:11,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:8,marginBottom:18}}>
+              Demander une démo →
+            </button>
             <div style={{display:'flex',gap:18,flexWrap:'wrap'}}>
               {['Démo gratuite','Sans engagement','Support humain'].map(t=>(
                 <div key={t} style={{display:'flex',alignItems:'center',gap:5}}>
@@ -283,48 +275,34 @@ export default function Login() {
           </div>
 
           {!isMobile&&(
-            <div style={{background:'#fafafa',borderRadius:18,padding:16,border:`1px solid ${BORDER}`}}>
-              <div style={{background:TEXT,borderRadius:11,padding:'10px 14px',marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                <div>
-                  <div style={{fontSize:11,fontWeight:700,color:'white'}}>Kronvo Dashboard</div>
-                  <div style={{fontSize:9,color:'rgba(255,255,255,.4)',marginTop:1}}>Restaurant Le Bistrot · En direct</div>
-                </div>
-                <div style={{display:'flex',gap:4}}>
-                  {['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:7,height:7,borderRadius:'50%',background:c}}></div>)}
-                </div>
-              </div>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7,marginBottom:10}}>
-                {[{v:'8',l:'Présents',bg:'#f0faf3',c:'#1a6b35'},{v:'3',l:'Absents',bg:'#fff2f1',c:'#b02020'},{v:'2',l:'En pause',bg:'#fff8ee',c:'#8a5a00'}].map((s,i)=>(
-                  <div key={i} style={{background:s.bg,border:`1px solid ${BORDER}`,borderRadius:9,padding:'10px 6px',textAlign:'center'}}>
-                    <div style={{fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
-                    <div style={{fontSize:9,color:s.c,fontWeight:600,marginTop:1}}>{s.l}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:10,padding:'10px',marginBottom:10}}>
-                <div style={{fontSize:9,fontWeight:700,color:TEXT3,letterSpacing:'.08em',marginBottom:7}}>ÉQUIPE EN DIRECT</div>
-                {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#34c759'},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#34c759'},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#ff9500'},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'#e5e5ea'}].map((e,i)=>(
-                  <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'4px 7px',borderRadius:7,background:i%2===0?BG:'transparent',marginBottom:2}}>
-                    <div style={{width:24,height:24,borderRadius:'50%',background:'#e8f2fd',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:A,flexShrink:0,position:'relative'}}>
-                      {e.n.split(' ').map(x=>x[0]).join('')}
-                      <div style={{position:'absolute',bottom:0,right:0,width:6,height:6,borderRadius:'50%',background:e.s,border:'1.5px solid white'}}></div>
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'20px'}}>
+                <div style={{fontSize:11,fontWeight:700,color:TEXT3,letterSpacing:'.08em',marginBottom:14}}>PRÉSENCES AUJOURD'HUI</div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:14}}>
+                  {[{v:'8',l:'Présents',bg:'#f0faf3',c:'#1a6b35'},{v:'3',l:'Absents',bg:'#fff2f1',c:'#b02020'},{v:'2',l:'En pause',bg:'#fff8ee',c:'#8a5a00'}].map((s,i)=>(
+                    <div key={i} style={{background:s.bg,borderRadius:10,padding:'12px 8px',textAlign:'center'}}>
+                      <div style={{fontSize:28,fontWeight:800,color:s.c,letterSpacing:'-.02em'}}>{s.v}</div>
+                      <div style={{fontSize:10,color:s.c,fontWeight:600,marginTop:2}}>{s.l}</div>
                     </div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:10,fontWeight:600,color:TEXT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{e.n}</div>
-                      <div style={{fontSize:8,color:TEXT3}}>{e.p}</div>
+                  ))}
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                  {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#34c759'},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#34c759'},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#ff9500'}].map((e,i)=>(
+                    <div key={i} style={{display:'flex',alignItems:'center',gap:9,padding:'7px 10px',background:BG,borderRadius:8}}>
+                      <div style={{width:8,height:8,borderRadius:'50%',background:e.s,flexShrink:0}}></div>
+                      <span style={{fontSize:13,fontWeight:600,color:TEXT,flex:1}}>{e.n}</span>
+                      <span style={{fontSize:11,color:TEXT2}}>{e.p} · {e.h}</span>
                     </div>
-                    <span style={{fontSize:9,color:TEXT2}}>{e.h}</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:10}}>
-                <QRDisplay/>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'16px',display:'flex',alignItems:'center',gap:12}}>
+                <div style={{background:'#f0f6ff',borderRadius:10,padding:'12px',fontSize:24,flexShrink:0}}>📷</div>
                 <div>
-                  <div style={{fontSize:10,fontWeight:700,color:TEXT,marginBottom:2}}>QR Code actif</div>
-                  <div style={{fontSize:9,color:TEXT2,lineHeight:1.5}}>Employés scannent<br/>depuis leur téléphone</div>
-                  <div style={{display:'flex',alignItems:'center',gap:3,marginTop:4}}>
-                    <div style={{width:5,height:5,borderRadius:'50%',background:'#34c759'}}></div>
-                    <span style={{fontSize:8,color:'#34c759',fontWeight:600}}>Sécurisé</span>
+                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:3}}>QR Code actif</div>
+                  <div style={{fontSize:12,color:TEXT2,marginBottom:6}}>Renouvellement automatique toutes les 30 secondes</div>
+                  <div style={{height:3,background:BORDER,borderRadius:2,width:120}}>
+                    <div style={{width:'60%',height:'100%',background:A,borderRadius:2}}></div>
                   </div>
                 </div>
               </div>
@@ -333,20 +311,8 @@ export default function Login() {
         </div>
       </section>
 
-      {/* 2. BANDE SECTEURS — très épurée */}
-      <section style={{background:BG,borderBottom:`1px solid ${BORDER}`,padding:'16px 0'}}>
-        <div style={W}>
-          <div style={{display:'flex',alignItems:'center',gap:isMobile?10:24,justifyContent:'center',flexWrap:'wrap'}}>
-            <span style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.1em',textTransform:'uppercase'}}>Adapté pour</span>
-            {['Restaurants','Hôtels','Cliniques','Garages','Commerce','BTP','Logistique'].map(s=>(
-              <span key={s} style={{fontSize:13,color:TEXT2,fontWeight:500}}>{s}</span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. STATS — fond bleu profond */}
-      <section style={{background:'#0f172a',padding:'36px 0'}}>
+      {/* 2. STATS FOND BLEU NUIT */}
+      <section style={{background:'#0f172a',padding:'32px 0'}}>
         <div style={W}>
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)'}}>
             {[{v:'2–4h',l:'mise en place',c:'#60a5fa'},{v:'30s',l:'par badgeage',c:'white'},{v:'8+',l:'secteurs',c:'white'},{v:'100%',l:'mobile',c:'white'}].map((s,i)=>(
