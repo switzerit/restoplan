@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate, useLocation } from 'react-router-dom'
 
-const LOGO_SM = <svg width="24" height="17" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
+const LOGO_SM = <svg width="24" height="17" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#3b9eff"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#3b9eff"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
 const Arr = ({size=16,color='white'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
 const Chk = ({size=14,color='#0071e3'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
 
@@ -134,21 +134,21 @@ function FaqSection() {
       {faqs.map((faq,i)=>(
         <Reveal key={i} delay={i*40}>
           <div style={{borderBottom:'1px solid #e5e5ea'}}>
-            <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'22px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:16}}>
-              <span style={{fontSize:16,fontWeight:600,color:'#1d1d1f',lineHeight:1.4}}>{faq.q}</span>
+            <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'22px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:16,color:'inherit'}}>
+              <span style={{fontSize:16,fontWeight:600,color:'#eef2ff',lineHeight:1.4}}>{faq.q}</span>
               <span style={{fontSize:22,color:'#0071e3',flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block',lineHeight:1}}>{open===i?'−':'+'}</span>
             </button>
             {open===i&&(
               <div style={{paddingBottom:20}}>
-                <p style={{fontSize:15,color:'#6e6e73',lineHeight:1.8,margin:0}}>{faq.a}</p>
+                <p style={{fontSize:15,color:'#7a9ec4',lineHeight:1.8,margin:0}}>{faq.a}</p>
               </div>
             )}
           </div>
         </Reveal>
       ))}
       <div style={{textAlign:'center',marginTop:32,paddingTop:24}}>
-        <span style={{fontSize:14,color:'#6e6e73'}}>Une autre question ? </span>
-        <a href="/contact" style={{fontSize:14,color:'#0071e3',fontWeight:600,textDecoration:'none'}}>On vous répond →</a>
+        <span style={{fontSize:14,color:'#7a9ec4'}}>Une autre question ? </span>
+        <a href="/contact" style={{fontSize:14,color:'#3b9eff',fontWeight:600,textDecoration:'none'}}>On vous répond →</a>
       </div>
     </div>
   )
@@ -394,7 +394,7 @@ export default function Login() {
       </section>
 
       {/* ══ TRUST + STATS ══ */}
-      <section style={{background:DARK}}>
+      <section style={{background:'#0c1a30',borderTop:'1px solid rgba(255,255,255,.06)',borderBottom:'1px solid rgba(255,255,255,.06)'}}>
         <div style={{borderBottom:'1px solid rgba(255,255,255,.06)',padding:'18px 0'}}>
           <div style={W}>
             <Reveal>
@@ -407,17 +407,17 @@ export default function Login() {
                       </div>
                     ))}
                   </div>
-                  <span style={{fontSize:13,color:'rgba(255,255,255,.55)',fontWeight:500}}>Des équipes terrain font confiance à Kronvo</span>
+                  <span style={{fontSize:13,color:'rgba(255,255,255,.75)',fontWeight:500}}>Des équipes terrain font confiance à Kronvo</span>
                 </div>
                 <div style={{width:1,height:22,background:'rgba(255,255,255,.08)'}}></div>
                 <div style={{display:'flex',alignItems:'center',gap:7}}>
                   <span style={{color:'#f59e0b',fontSize:15,letterSpacing:1}}>★★★★★</span>
                   <span style={{fontSize:13,fontWeight:700,color:'white'}}>4.8</span>
-                  <span style={{fontSize:12,color:'rgba(255,255,255,.3)'}}>/5 · support SwitzerIT</span>
+                  <span style={{fontSize:12,color:'rgba(255,255,255,.5)'}}>/5 · support SwitzerIT</span>
                 </div>
                 {!isMobile&&<>
                   <div style={{width:1,height:22,background:'rgba(255,255,255,.08)'}}></div>
-                  <span style={{fontSize:12,color:'rgba(255,255,255,.3)'}}>Restaurants · Hôtels · Cliniques · Garages · BTP & plus</span>
+                  <span style={{fontSize:12,color:'rgba(255,255,255,.5)'}}>Restaurants · Hôtels · Cliniques · Garages · BTP & plus</span>
                 </>}
               </div>
             </Reveal>
@@ -435,8 +435,8 @@ export default function Login() {
                 ].map((s,i)=>(
                   <div key={i} style={{textAlign:'center',borderRight:i<3?'1px solid rgba(255,255,255,.06)':'none',padding:isMobile?'10px 4px':'16px 28px'}}>
                     <div style={{fontSize:isMobile?26:42,fontWeight:900,color:s.c,letterSpacing:'-.05em',lineHeight:1,marginBottom:6}}>{s.v}</div>
-                    <div style={{fontSize:13,color:'rgba(255,255,255,.55)',fontWeight:600,marginBottom:4}}>{s.l}</div>
-                    {!isMobile&&<div style={{fontSize:11,color:'rgba(255,255,255,.25)'}}>{s.sub}</div>}
+                    <div style={{fontSize:13,color:'rgba(255,255,255,.7)',fontWeight:600,marginBottom:4}}>{s.l}</div>
+                    {!isMobile&&<div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>{s.sub}</div>}
                   </div>
                 ))}
               </div>
