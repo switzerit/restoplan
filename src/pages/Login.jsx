@@ -7,7 +7,7 @@ const Arr = ({size=16,color='white'}) => <svg width={size} height={size} viewBox
 const Chk = ({size=14,color='#0071e3'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
 
 // Hook animation au scroll
-function useReveal(threshold=0.15) {
+function useReveal(threshold=0.08) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
   useEffect(()=>{
@@ -28,7 +28,7 @@ function Reveal({children, delay=0, y=32}) {
     <div ref={ref} style={{
       opacity: visible ? 1 : 0,
       transform: visible ? 'none' : `translateY(${y}px)`,
-      transition: `opacity .65s cubic-bezier(.22,1,.36,1) ${delay}ms, transform .65s cubic-bezier(.22,1,.36,1) ${delay}ms`
+      transition: `opacity .9s cubic-bezier(.16,1,.3,1) ${delay}ms, transform .9s cubic-bezier(.16,1,.3,1) ${delay}ms`
     }}>
       {children}
     </div>
@@ -198,15 +198,15 @@ export default function Login() {
 
   if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#fff',color:'#888',fontFamily:'var(--font)'}}>Chargement...</div>
 
-  const A='#0071e3',SURF='#ffffff',BORDER='#e5e5ea'
-  const BG='#f8fafc',TEXT='#1d1d1f',TEXT2='#6e6e73',TEXT3='#aeaeb2',DARK='#0f172a'
+  const A='#3b9eff',SURF='#0e1f38',BORDER='rgba(255,255,255,.1)'
+  const BG='#0a1628',TEXT='#f0f4ff',TEXT2='#8ba8cc',TEXT3='#4d6a8a',DARK='#060f1a'
   const W={maxWidth:1080,margin:'0 auto',padding:isMobile?'0 24px':'0 56px'}
   const WM={maxWidth:860,margin:'0 auto',padding:isMobile?'0 24px':'0 56px'}
   const SEC=isMobile?'72px 24px':'110px 0'
 
-  const scrollTop=()=>window.scrollTo({top:0,behavior:'smooth'})
+  const scrollTop=()=>{setTimeout(()=>window.scrollTo({top:0,left:0,behavior:"instant"}),20)}
   const pageMap={'home':'/','fonctionnalites':'/fonctionnalites','tarifs':'/tarifs','contact':'/contact','legal':'/legal'}
-  const goPage=(p)=>{navigate(pageMap[p]||'/'+p);scrollTop();setMenuOpen(false)}
+  const goPage=(p)=>{navigate(pageMap[p]||"/"+p);setMenuOpen(false);scrollTop()}
   const path=location.pathname.replace('/','') || 'home'
   const page=path==='login'?'home':path||'home'
   const inp={width:'100%',padding:'13px 16px',borderRadius:11,border:`1.5px solid ${BORDER}`,background:'#f9fafb',fontSize:15,color:TEXT,outline:'none',boxSizing:'border-box',transition:'border-color .2s'}
