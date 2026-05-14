@@ -211,12 +211,70 @@ function ContactForm({goPage,setShowLogin}) {
   )
 }
 
+
+function LoginModal({onClose, goPage}) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+
+  async function handleLogin(e) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    const {data, error} = await supabase.auth.signInWithPassword({email, password})
+    if(error) { setError('Email ou mot de passe incorrect'); setLoading(false); return }
+    const {data:p} = await supabase.from('profils').select('role').eq('user_id', data.user.id).single()
+    if(p?.role==='super_admin') navigate('/admin')
+    else if(p?.role==='gerant') navigate('/gerant')
+    else navigate('/moi')
+    setLoading(false)
+  }
+
+  const A='#0066cc', BORDER='#e8e8e8', TEXT='#111111', TEXT2='#555555', TEXT3='#999999', BG='#f8fafc'
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
+      <div style={{background:'white',borderRadius:20,padding:34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
+        <button onClick={onClose} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+        <div style={{textAlign:'center',marginBottom:22}}>
+          <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
+            <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0066cc"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
+          </div>
+          <div style={{fontSize:20,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Connexion</div>
+          <div style={{fontSize:12,color:TEXT3,marginTop:4}}>Accédez à votre espace Kronvo</div>
+        </div>
+        <form onSubmit={handleLogin}>
+          <div style={{marginBottom:13}}>
+            <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Email</label>
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required
+              style={{width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:'#fafafa',fontSize:14,color:TEXT,outline:'none',boxSizing:'border-box'}}
+              onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
+          </div>
+          <div style={{marginBottom:22}}>
+            <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Mot de passe</label>
+            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required
+              style={{width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:'white',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}}
+              onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
+          </div>
+          {error&&<div style={{padding:'9px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:9,fontSize:13,color:'#dc2626',marginBottom:14,fontWeight:600}}>{error}</div>}
+          <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:11,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
+            {loading?'Connexion...':'Se connecter'}
+          </button>
+        </form>
+        <div style={{textAlign:'center',marginTop:14}}>
+          <span style={{fontSize:12,color:TEXT3}}>Pas encore client ? </span>
+          <span style={{fontSize:12,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{onClose();goPage('contact')}}>Demander une démo</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ══════════════════════════════════════════════════════════════════════
 export default function Login() {
-  const [email,setEmail]=useState('')
-  const [password,setPassword]=useState('')
   const [loading,setLoading]=useState(true)
-  const [error,setError]=useState('')
   const [showLogin,setShowLogin]=useState(false)
   const [menuOpen,setMenuOpen]=useState(false)
   const [legalSection,setLegalSection]=useState('cgu')
@@ -235,17 +293,6 @@ export default function Login() {
       } else {setLoading(false);if(location.pathname==='/login')setShowLogin(true)}
     })
   },[])
-
-  async function handleLogin(e){
-    e.preventDefault();setLoading(true);setError('')
-    const {data,error}=await supabase.auth.signInWithPassword({email,password})
-    if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
-    const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
-    if(p?.role==='super_admin')navigate('/admin')
-    else if(p?.role==='gerant')navigate('/gerant')
-    else navigate('/moi')
-    setLoading(false)
-  }
 
   if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'white',color:'#aaa',fontFamily:'var(--font)'}}>Chargement...</div>
 
@@ -979,7 +1026,7 @@ export default function Login() {
             {[
               {delay:80,content:(
                 <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'22px',overflow:'hidden',position:'relative'}}>
-                  <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&q=70" alt="Team" style={{width:'100%',height:140,objectFit:'cover',borderRadius:10,display:'block',marginBottom:14}} onError={e=>e.target.style.display='none'}/>
+                  <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=500&q=80" alt="Demo Teams" style={{width:'100%',height:160,objectFit:'cover',borderRadius:10,display:'block',marginBottom:14}} onError={e=>e.target.style.display='none'}/>
                   <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>📹 Démo Teams gratuite</div>
                   <div style={{fontSize:13,color:TEXT2,lineHeight:1.7,marginBottom:12}}>30 min adaptées à votre secteur. Repartez avec un devis personnalisé.</div>
                   <div style={{display:'flex',flexDirection:'column',gap:7}}>
@@ -1106,8 +1153,8 @@ export default function Login() {
       {page==='legal'&&<PageLegal/>}
       <Footer/>
 
-      {/* MODALE CONNEXION */}
-      {showLogin&&(
+      {showLogin&&<LoginModal onClose={()=>setShowLogin(false)} goPage={goPage}/>}
+      {false&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
           <div style={{background:SURF,borderRadius:20,padding:isMobile?'24px 20px':34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
             <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
