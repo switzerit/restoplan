@@ -593,7 +593,7 @@ export default function Login() {
           <Reveal>
             <div style={{textAlign:'center',marginTop:28}}>
               <button onClick={()=>goPage('fonctionnalites')} style={{padding:'11px 22px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:SURF,color:A,fontSize:13,fontWeight:600,cursor:'pointer',transition:'all .15s'}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=A;e.currentTarget.style.background:AG}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=A;e.currentTarget.style.background=AG}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.background=SURF}}>
                 Toutes les fonctionnalités →
               </button>
