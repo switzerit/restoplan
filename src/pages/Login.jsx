@@ -390,29 +390,29 @@ export default function Login() {
       </section>
 
       {/* TRUST + STATS */}
-      <section style={{background:'#0c1a2e',borderTop:`1px solid ${BORDER}`,borderBottom:`1px solid ${BORDER}`}}>
+      <section style={{background:'#0f2347',borderTop:'1px solid rgba(59,158,255,.15)',borderBottom:'1px solid rgba(59,158,255,.15)'}}>
         <div style={{borderBottom:`1px solid ${BORDER}`,padding:'16px 0'}}>
           <div style={W}>
             <Reveal>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:isMobile?12:32,flexWrap:'wrap'}}>
-                <div style={{display:'flex',alignItems:'center',gap:10}}>
+              <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:14,textAlign:'center'}}>
+                <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap',justifyContent:'center'}}>
                   <div style={{display:'flex'}}>
-                    {[{bg:'rgba(59,158,255,.25)',t:'SM'},{bg:'rgba(52,199,89,.25)',t:'JD'},{bg:'rgba(255,149,0,.25)',t:'AL'}].map((a,i)=>(
-                      <div key={i} style={{width:30,height:30,borderRadius:'50%',background:a.bg,border:'2px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'rgba(255,255,255,.7)',marginRight:i<2?-8:0,zIndex:3-i}}>{a.t}</div>
+                    {[{bg:'rgba(59,158,255,.3)',t:'SM'},{bg:'rgba(52,199,89,.3)',t:'JD'},{bg:'rgba(255,149,0,.3)',t:'AL'}].map((a,i)=>(
+                      <div key={i} style={{width:32,height:32,borderRadius:'50%',background:a.bg,border:'2px solid rgba(255,255,255,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'white',marginRight:i<2?-9:0,zIndex:3-i}}>{a.t}</div>
                     ))}
                   </div>
-                  <span style={{fontSize:13,color:'rgba(255,255,255,.6)',fontWeight:500}}>Des équipes terrain font confiance à Kronvo</span>
+                  <span style={{fontSize:14,color:'white',fontWeight:600}}>Des équipes terrain font confiance à Kronvo</span>
+                  <div style={{display:'flex',alignItems:'center',gap:6,background:'rgba(245,158,11,.1)',border:'1px solid rgba(245,158,11,.25)',borderRadius:20,padding:'4px 12px'}}>
+                    <span style={{color:'#f59e0b',fontSize:13}}>★★★★★</span>
+                    <span style={{fontSize:13,fontWeight:700,color:'white'}}>4.8/5</span>
+                    <span style={{fontSize:11,color:'rgba(255,255,255,.5)'}}>support SwitzerIT</span>
+                  </div>
                 </div>
-                <div style={{width:1,height:20,background:BORDER}}></div>
-                <div style={{display:'flex',alignItems:'center',gap:7}}>
-                  <span style={{color:'#f59e0b',fontSize:15,letterSpacing:1}}>★★★★★</span>
-                  <span style={{fontSize:13,fontWeight:700,color:'white'}}>4.8</span>
-                  <span style={{fontSize:12,color:'rgba(255,255,255,.4)'}}>/5 · support SwitzerIT</span>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap',justifyContent:'center'}}>
+                  {['Restaurants','Hôtels','Cliniques','Garages','Commerce','BTP','Logistique'].map(s=>(
+                    <span key={s} style={{fontSize:12,color:'rgba(255,255,255,.55)',padding:'3px 10px',borderRadius:12,background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)'}}>{s}</span>
+                  ))}
                 </div>
-                {!isMobile&&<>
-                  <div style={{width:1,height:20,background:BORDER}}></div>
-                  <span style={{fontSize:12,color:'rgba(255,255,255,.4)'}}>Restaurants · Hôtels · Cliniques · Garages · BTP & plus</span>
-                </>}
               </div>
             </Reveal>
           </div>
@@ -429,7 +429,7 @@ export default function Login() {
                 ].map((s,i)=>(
                   <div key={i} style={{textAlign:'center',borderRight:i<3?`1px solid ${BORDER}`:'none',padding:isMobile?'10px 4px':'16px 28px'}}>
                     <div style={{fontSize:isMobile?26:42,fontWeight:900,color:s.c,letterSpacing:'-.05em',lineHeight:1,marginBottom:6}}>{s.v}</div>
-                    <div style={{fontSize:13,color:'rgba(255,255,255,.6)',fontWeight:600,marginBottom:4}}>{s.l}</div>
+                    <div style={{fontSize:13,color:'rgba(255,255,255,.6)',fontWeight:600,marginBottom:4,color:'rgba(255,255,255,.75)'}}>{s.l}</div>
                     {!isMobile&&<div style={{fontSize:11,color:'rgba(255,255,255,.3)'}}>{s.sub}</div>}
                   </div>
                 ))}
@@ -538,19 +538,19 @@ export default function Login() {
             </Reveal>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
               {[
-                {bg:'rgba(59,158,255,.1)',border:'rgba(59,158,255,.2)',c:A,title:'Restaurants & Hôtels',postes:'Cuisine · Salle · Bar · Réception · Ménage'},
-                {bg:'rgba(255,59,48,.08)',border:'rgba(255,59,48,.2)',c:'#ff6b6b',title:'Cliniques & Santé',postes:'Médecin · Infirmier · Accueil · Admin'},
+                {bg:'rgba(59,158,255,.15)',border:'rgba(59,158,255,.3)',c:'#7dd3fc',title:'Restaurants & Hôtels',postes:'Cuisine · Salle · Bar · Réception · Ménage'},
+                {bg:'rgba(255,59,48,.12)',border:'rgba(255,59,48,.3)',c:'#fca5a5',title:'Cliniques & Santé',postes:'Médecin · Infirmier · Accueil · Admin'},
                 {bg:'rgba(255,149,0,.08)',border:'rgba(255,149,0,.2)',c:'#ffb347',title:'Garages & BTP',postes:'Mécanicien · Chef atelier · Chantier'},
-                {bg:'rgba(120,116,255,.08)',border:'rgba(120,116,255,.2)',c:'#a78bfa',title:'Commerce',postes:'Caissier · Rayon · Manager · Réserve'},
-                {bg:'rgba(52,199,89,.08)',border:'rgba(52,199,89,.2)',c:'#4cd964',title:'Logistique',postes:'Préparateur · Chef équipe · Quai'},
-                {bg:'rgba(167,139,250,.08)',border:'rgba(167,139,250,.2)',c:'#c4b5fd',title:'Spas, Éducation & +',postes:'Esthéticien · Formateur · Accueil'},
+                {bg:'rgba(120,116,255,.15)',border:'rgba(120,116,255,.3)',c:'#c4b5fd',title:'Commerce',postes:'Caissier · Rayon · Manager · Réserve'},
+                {bg:'rgba(52,199,89,.15)',border:'rgba(52,199,89,.3)',c:'#86efac',title:'Logistique',postes:'Préparateur · Chef équipe · Quai'},
+                {bg:'rgba(167,139,250,.15)',border:'rgba(167,139,250,.3)',c:'#e9d5ff',title:'Spas, Éducation & +',postes:'Esthéticien · Formateur · Accueil'},
               ].map((s,i)=>(
                 <Reveal key={i} delay={i*60}>
                   <div style={{background:s.bg,borderRadius:16,padding:'18px',border:`1px solid ${s.border}`,transition:'transform .2s'}}
                   onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
                   onMouseLeave={e=>e.currentTarget.style.transform='none'}>
                     <div style={{fontSize:13,fontWeight:700,color:s.c,marginBottom:7}}>{s.title}</div>
-                    <div style={{fontSize:11,color:s.c,opacity:.6,lineHeight:1.7}}>{s.postes}</div>
+                    <div style={{fontSize:11,color:s.c,opacity:.8,lineHeight:1.7}}>{s.postes}</div>
                   </div>
                 </Reveal>
               ))}
@@ -872,7 +872,7 @@ export default function Login() {
                     style={{...inp,resize:'vertical',fontFamily:'var(--font)'}}
                     onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
                   </div>
-                  <button onClick={()=>{if(!contactForm.nom||!contactForm.email||!contactForm.entreprise){alert('Remplis les champs obligatoires');return}setContactSent(true)}}
+                  <button onClick={(e)=>{e.preventDefault();if(!contactForm.nom||!contactForm.email||!contactForm.entreprise){return}setContactSent(true)}}
                   style={{width:'100%',height:54,borderRadius:13,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 20px rgba(59,158,255,.2)',transition:'opacity .2s'}}
                   onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
                   onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
