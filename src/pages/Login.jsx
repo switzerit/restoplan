@@ -2,126 +2,122 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate, useLocation } from 'react-router-dom'
 
-const LOGO_SM = <svg width="26" height="18" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="10" fill="#3b9eff"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
+// ── LOGO ──────────────────────────────────────────────────────────────
+const LOGO_SM = (
+  <svg width="28" height="28" viewBox="0 0 34 34" fill="none">
+    <rect width="34" height="34" rx="9" fill="#0066cc"/>
+    <path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="24" cy="17" r="2.5" fill="white"/>
+  </svg>
+)
 
-const Arr = ({size=16,color='white'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-const Chk = ({size=14,color='#3b9eff'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+// ── ICONS SVG ─────────────────────────────────────────────────────────
+const IcoCalendar = ({c='#0066cc'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+const IcoQR = ({c='#7c3aed'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill={c}/><rect x="16" y="5" width="3" height="3" fill={c}/><rect x="5" y="16" width="3" height="3" fill={c}/><path d="M14 14h3v3h-3zM17 17h4M17 14v4"/></svg>
+const IcoUsers = ({c='#16a34a'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+const IcoPhone = ({c='#ea580c'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+const IcoFile = ({c='#0891b2'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+const IcoBuilding = ({c='#be185d'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M3 9h6M3 15h6M15 9h3M15 15h3"/></svg>
+const IcoChk = ({size=14,c='#0066cc'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+const IcoArr = ({size=16,c='white'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+const IcoShield = ({c='#0066cc'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+const IcoZap = ({c='#0066cc'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+const IcoClock = ({c='#0066cc'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 
-// Animation hero — apparaît dès le chargement
-function HeroReveal({children, delay=0}) {
-  const [visible, setVisible] = useState(false)
-  useEffect(()=>{ const t=setTimeout(()=>setVisible(true), delay); return()=>clearTimeout(t) },[])
-  return (
-    <div style={{
-      opacity: visible?1:0,
-      transform: visible?'none':'translateY(20px)',
-      transition:`opacity 1.1s cubic-bezier(.16,1,.3,1) 0ms, transform 1.1s cubic-bezier(.16,1,.3,1) 0ms`
-    }}>{children}</div>
-  )
+// ── ANIMATIONS ────────────────────────────────────────────────────────
+function HeroReveal({children,delay=0}) {
+  const [v,setV]=useState(false)
+  useEffect(()=>{const t=setTimeout(()=>setV(true),delay);return()=>clearTimeout(t)},[])
+  return <div style={{opacity:v?1:0,transform:v?'none':'translateY(18px)',transition:`opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)`}}>{children}</div>
 }
-
-// Animation scroll — uniquement sur titres + cards, pas sur tout
-function Reveal({children, delay=0}) {
-  const ref = useRef(null)
-  const [visible, setVisible] = useState(false)
+function Reveal({children,delay=0}) {
+  const ref=useRef(null)
+  const [v,setV]=useState(false)
   useEffect(()=>{
-    const el=ref.current; if(!el) return
-    const obs=new IntersectionObserver(([e])=>{ if(e.isIntersecting){setVisible(true);obs.disconnect()} },{threshold:0.08})
-    obs.observe(el); return()=>obs.disconnect()
+    const el=ref.current;if(!el)return
+    const obs=new IntersectionObserver(([e])=>{if(e.isIntersecting){setV(true);obs.disconnect()}},{threshold:0.08})
+    obs.observe(el);return()=>obs.disconnect()
   },[])
-  return (
-    <div ref={ref} style={{
-      opacity:visible?1:0,
-      transform:visible?'none':'translateY(24px)',
-      transition:`opacity 1s cubic-bezier(.16,1,.3,1) ${delay}ms, transform 1s cubic-bezier(.16,1,.3,1) ${delay}ms`
-    }}>{children}</div>
-  )
+  return <div ref={ref} style={{opacity:v?1:0,transform:v?'none':'translateY(20px)',transition:`opacity .9s cubic-bezier(.16,1,.3,1) ${delay}ms,transform .9s cubic-bezier(.16,1,.3,1) ${delay}ms`}}>{children}</div>
 }
 
+// ── QR ANIMÉ ──────────────────────────────────────────────────────────
 function QRDisplay() {
   const [seed,setSeed]=useState(0)
-  const [progress,setProgress]=useState(0)
+  const [prog,setProg]=useState(0)
   const [fade,setFade]=useState(false)
   useEffect(()=>{
     let p=0
     const iv=setInterval(()=>{
       p+=100/300
-      if(p>=100){setFade(true);setTimeout(()=>{setSeed(s=>s+1);setProgress(0);setFade(false);p=0},300)}
-      else setProgress(p)
+      if(p>=100){setFade(true);setTimeout(()=>{setSeed(s=>s+1);setProg(0);setFade(false);p=0},300)}
+      else setProg(p)
     },100)
     return()=>clearInterval(iv)
   },[])
   const rng=(x,y,s)=>((x*7+y*13+s*31)%17>7)
   const sz=11,cs=5,tot=sz*cs+(sz-1)
   const cells=[]
-  for(let r=0;r<sz;r++) for(let c=0;c<sz;c++) cells.push({r,c,v:rng(r,c,seed)})
+  for(let r=0;r<sz;r++)for(let c=0;c<sz;c++)cells.push({r,c,v:rng(r,c,seed)})
   const isFixed=(r,c)=>(r<3&&c<3)||(r<3&&c>=sz-3)||(r>=sz-3&&c<3)
   return (
-    <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6}}>
-      <div style={{background:'white',borderRadius:6,padding:8,opacity:fade?.15:1,transition:fade?'opacity .25s':'none',border:'1px solid rgba(255,255,255,.1)'}}>
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5}}>
+      <div style={{background:'white',borderRadius:6,padding:8,opacity:fade?.2:1,transition:fade?'opacity .25s':'none',border:'1px solid #e5e5e5',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
         <svg width={tot} height={tot} viewBox={`0 0 ${tot} ${tot}`}>
           {cells.map(({r,c,v})=>{
             const x=c*(cs+1),y=r*(cs+1)
-            const fill=isFixed(r,c)?(r===0||r===2||c===0||c===2||(r>=sz-3&&(c===0||c===2))?'#1d1d1f':'white'):(v?'#1d1d1f':'white')
+            const fill=isFixed(r,c)?(r===0||r===2||c===0||c===2||(r>=sz-3&&(c===0||c===2))?'#111':'white'):(v?'#111':'white')
             return <rect key={`${r}-${c}`} x={x} y={y} width={cs} height={cs} rx={0.5} fill={fill}/>
           })}
         </svg>
       </div>
-      <div style={{width:76}}>
-        <div style={{height:2,background:'rgba(255,255,255,.15)',borderRadius:1}}>
-          <div style={{height:'100%',background:'#3b9eff',borderRadius:1,width:`${progress}%`,transition:'width .1s linear'}}/>
+      <div style={{width:72}}>
+        <div style={{height:2,background:'#e5e5e5',borderRadius:1}}>
+          <div style={{height:'100%',background:'#0066cc',borderRadius:1,width:`${prog}%`,transition:'width .1s linear'}}/>
         </div>
-        <div style={{fontSize:9,color:'rgba(255,255,255,.35)',textAlign:'center',marginTop:3,fontWeight:600}}>Renouvellement {Math.ceil(30-(progress*30/100))}s</div>
+        <div style={{fontSize:9,color:'#aaa',textAlign:'center',marginTop:3,fontWeight:500}}>Renouvellement {Math.ceil(30-(prog*30/100))}s</div>
       </div>
     </div>
   )
 }
 
-function RoiCalc({isMobile,A,SURF,BORDER,TEXT,TEXT2,BG}) {
+// ── CALCULATEUR ROI ───────────────────────────────────────────────────
+function RoiCalc({isMobile}) {
   const [emp,setEmp]=useState(10)
   const [hrs,setHrs]=useState(3)
-  const pertes=emp*hrs*4, cout=pertes*60, eco=cout*12
+  const p=emp*hrs*4,c=p*60,e=c*12
   return (
-    <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:24,padding:isMobile?'28px':'48px',maxWidth:660,margin:'0 auto'}}>
-      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:32,marginBottom:32}}>
+    <div style={{background:'white',border:'1px solid #e8e8e8',borderRadius:20,padding:isMobile?'24px':'40px',maxWidth:640,margin:'0 auto',boxShadow:'0 4px 24px rgba(0,0,0,.04)'}}>
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:24,marginBottom:28}}>
         <div>
-          <label style={{display:'block',fontSize:13,fontWeight:600,color:TEXT2,marginBottom:12}}>
-            Nombre d'employés — <strong style={{color:TEXT}}>{emp}</strong>
-          </label>
-          <input type="range" min="2" max="80" value={emp} onChange={e=>setEmp(Number(e.target.value))} style={{width:'100%',accentColor:A,cursor:'pointer'}}/>
-          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:TEXT2,marginTop:5,opacity:.5}}><span>2</span><span>80</span></div>
+          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#444',marginBottom:10}}>Nombre d'employés — <strong style={{color:'#111'}}>{emp}</strong></label>
+          <input type="range" min="2" max="80" value={emp} onChange={ev=>setEmp(Number(ev.target.value))} style={{width:'100%',accentColor:'#0066cc',cursor:'pointer'}}/>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#bbb',marginTop:4}}><span>2</span><span>80</span></div>
         </div>
         <div>
-          <label style={{display:'block',fontSize:13,fontWeight:600,color:TEXT2,marginBottom:12}}>
-            Heures perdues / semaine — <strong style={{color:TEXT}}>{hrs}h</strong>
-          </label>
-          <input type="range" min="1" max="15" value={hrs} onChange={e=>setHrs(Number(e.target.value))} style={{width:'100%',accentColor:A,cursor:'pointer'}}/>
-          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:TEXT2,marginTop:5,opacity:.5}}><span>1h</span><span>15h</span></div>
+          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#444',marginBottom:10}}>Heures perdues / semaine — <strong style={{color:'#111'}}>{hrs}h</strong></label>
+          <input type="range" min="1" max="15" value={hrs} onChange={ev=>setHrs(Number(ev.target.value))} style={{width:'100%',accentColor:'#0066cc',cursor:'pointer'}}/>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#bbb',marginTop:4}}><span>1h</span><span>15h</span></div>
         </div>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24}}>
-        {[
-          {v:`${pertes}h`,l:'perdues / mois',bg:'rgba(176,32,32,.12)',bc:'rgba(176,32,32,.25)',c:'#ff6b6b'},
-          {v:cout.toLocaleString('fr-CH'),l:'CHF perdus / mois',bg:'rgba(138,90,0,.12)',bc:'rgba(138,90,0,.25)',c:'#ffb347'},
-          {v:eco.toLocaleString('fr-CH'),l:'CHF économisés / an',bg:'rgba(26,107,53,.15)',bc:'rgba(52,199,89,.25)',c:'#4cd964'}
-        ].map((s,i)=>(
-          <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:16,padding:'20px 12px',textAlign:'center'}}>
-            <div style={{fontSize:isMobile?22:28,fontWeight:900,color:s.c,letterSpacing:'-.03em',lineHeight:1}}>{s.v}</div>
-            <div style={{fontSize:11,color:s.c,marginTop:6,fontWeight:500,opacity:.8,lineHeight:1.4}}>{s.l}</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:20}}>
+        {[{v:`${p}h`,l:'perdues/mois',bg:'#fef2f2',bc:'#fecaca',c:'#dc2626'},{v:c.toLocaleString('fr-CH'),l:'CHF perdus/mois',bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c'},{v:e.toLocaleString('fr-CH'),l:'CHF économisés/an',bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a'}].map((s,i)=>(
+          <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:14,padding:'18px 12px',textAlign:'center'}}>
+            <div style={{fontSize:isMobile?20:26,fontWeight:900,color:s.c,letterSpacing:'-.02em'}}>{s.v}</div>
+            <div style={{fontSize:11,color:s.c,marginTop:5,fontWeight:500,opacity:.8}}>{s.l}</div>
           </div>
         ))}
       </div>
-      <div style={{background:'rgba(59,158,255,.1)',border:'1px solid rgba(59,158,255,.2)',borderRadius:14,padding:'16px 22px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
-        <span style={{fontSize:13,color:'rgba(59,158,255,.9)',fontWeight:500}}>Économie estimée : <strong>{eco.toLocaleString('fr-CH')} CHF / an</strong> pour {emp} employés</span>
-        <a href="/contact" style={{padding:'10px 20px',borderRadius:10,background:A,color:'white',fontSize:13,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap',display:'inline-flex',alignItems:'center',gap:6}}>
-          Obtenir mon devis <Arr size={13}/>
-        </a>
+      <div style={{background:'#f0f7ff',border:'1px solid #d0e8ff',borderRadius:12,padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+        <span style={{fontSize:13,color:'#0052a3',fontWeight:500}}>Économie estimée : <strong>{e.toLocaleString('fr-CH')} CHF/an</strong> pour {emp} employés</span>
+        <a href="/contact" style={{padding:'9px 18px',borderRadius:9,background:'#0066cc',color:'white',fontSize:13,fontWeight:700,textDecoration:'none',display:'inline-flex',alignItems:'center',gap:6}}>Obtenir mon devis <IcoArr size={13}/></a>
       </div>
     </div>
   )
 }
 
-function FaqSection({TEXT,TEXT2,BORDER,A}) {
+// ── FAQ ───────────────────────────────────────────────────────────────
+function FaqSection() {
   const [open,setOpen]=useState(null)
   const faqs=[
     {q:"Combien de temps prend la mise en place ?",a:"En moyenne 2 à 4 heures avec notre équipe SwitzerIT. Configuration, import des employés, installation de la borne et formation. Vous n'avez rien à faire techniquement."},
@@ -130,94 +126,92 @@ function FaqSection({TEXT,TEXT2,BORDER,A}) {
     {q:"Nos données sont-elles sécurisées ?",a:"Oui. Données chiffrées en transit et au repos. Chaque établissement a ses données isolées. Conforme au RGPD et à la LPD suisse."},
     {q:"Peut-on personnaliser les postes ?",a:"Oui, chaque établissement configure ses propres postes. Restaurant : Cuisine, Salle, Bar. Clinique : Médecin, Infirmier, Accueil."},
     {q:"Y a-t-il un engagement minimum ?",a:"Non. Sans engagement de durée. Arrêt avec un préavis de 30 jours. La démo est gratuite et sans obligation."},
-    {q:"Comment fonctionne le support ?",a:"Support assuré par l'équipe SwitzerIT — des humains. Réponse par email sous 24h ouvrées. Les clients maintenance bénéficient d'une intervention sous 4 heures."},
+    {q:"Comment fonctionne le support ?",a:"Support assuré par l'équipe SwitzerIT — des humains. Réponse par email sous 24h ouvrées."},
   ]
   return (
-    <div>
+    <div style={{maxWidth:620,margin:'0 auto'}}>
       {faqs.map((faq,i)=>(
-        <div key={i} style={{borderBottom:`1px solid ${BORDER}`}}>
+        <div key={i} style={{borderBottom:'1px solid #f0f0f0'}}>
           <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:16}}>
-            <span style={{fontSize:15,fontWeight:600,color:TEXT,lineHeight:1.4}}>{faq.q}</span>
-            <span style={{fontSize:22,color:A,flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block',lineHeight:1}}>{open===i?'−':'+'}</span>
+            <span style={{fontSize:15,fontWeight:600,color:'#111',lineHeight:1.4}}>{faq.q}</span>
+            <span style={{fontSize:20,color:'#0066cc',flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block',lineHeight:1}}>{open===i?'−':'+'}</span>
           </button>
-          {open===i&&<div style={{paddingBottom:18}}><p style={{fontSize:14,color:TEXT2,lineHeight:1.8,margin:0}}>{faq.a}</p></div>}
+          {open===i&&<div style={{paddingBottom:18}}><p style={{fontSize:14,color:'#555',lineHeight:1.8,margin:0}}>{faq.a}</p></div>}
         </div>
       ))}
-      <div style={{textAlign:'center',marginTop:28,paddingTop:20,borderTop:`1px solid ${BORDER}`}}>
-        <span style={{fontSize:14,color:TEXT2}}>Une autre question ? </span>
-        <a href="/contact" style={{fontSize:14,color:A,fontWeight:600,textDecoration:'none'}}>On vous répond →</a>
+      <div style={{textAlign:'center',marginTop:28,paddingTop:20}}>
+        <span style={{fontSize:14,color:'#888'}}>Une autre question ? </span>
+        <a href="/contact" style={{fontSize:14,color:'#0066cc',fontWeight:600,textDecoration:'none'}}>On vous répond →</a>
       </div>
     </div>
   )
 }
 
-
-function ContactForm({A, SURF, BORDER, TEXT, TEXT2, TEXT3, BG, CARD, inp, goPage, setShowLogin}) {
-  const [contactForm, setContactForm] = useState({nom:'',email:'',entreprise:'',secteur:'',message:''})
-  const [contactSent, setContactSent] = useState(false)
-  const [errors, setErrors] = useState({})
-
-  const submit = (e) => {
+// ── CONTACT FORM isolé ────────────────────────────────────────────────
+function ContactForm({goPage,setShowLogin}) {
+  const [form,setForm]=useState({nom:'',email:'',entreprise:'',secteur:'',message:''})
+  const [sent,setSent]=useState(false)
+  const [errs,setErrs]=useState({})
+  const inp={width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid #e5e5e5',background:'#fafafa',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box',transition:'border-color .2s'}
+  const submit=(e)=>{
     e.preventDefault()
-    const errs = {}
-    if(!contactForm.nom) errs.nom = true
-    if(!contactForm.email) errs.email = true
-    if(!contactForm.entreprise) errs.entreprise = true
-    if(Object.keys(errs).length > 0) { setErrors(errs); return }
-    setContactSent(true)
+    const er={}
+    if(!form.nom)er.nom=true
+    if(!form.email)er.email=true
+    if(!form.entreprise)er.entreprise=true
+    if(Object.keys(er).length){setErrs(er);return}
+    setSent(true)
   }
-
-  if(contactSent) return (
+  if(sent) return (
     <div style={{textAlign:'center',padding:'52px 20px'}}>
-      <div style={{width:72,height:72,borderRadius:'50%',background:'rgba(52,199,89,.12)',border:'1px solid rgba(52,199,89,.25)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px'}}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4cd964" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <div style={{width:68,height:68,borderRadius:'50%',background:'#f0fdf4',border:'1px solid #bbf7d0',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 22px'}}>
+        <IcoChk size={30} c="#16a34a"/>
       </div>
-      <div style={{fontSize:24,fontWeight:800,color:TEXT,marginBottom:12}}>Demande envoyée !</div>
-      <div style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:24}}>Notre équipe vous contactera sous 24h pour organiser la démo Teams.</div>
-      <button onClick={()=>{setContactSent(false);setContactForm({nom:'',email:'',entreprise:'',secteur:'',message:''});setErrors({})}} style={{padding:'11px 24px',borderRadius:10,border:`1px solid ${BORDER}`,background:'transparent',color:TEXT2,fontSize:13,fontWeight:600,cursor:'pointer'}}>Nouvelle demande</button>
+      <div style={{fontSize:22,fontWeight:800,color:'#111',marginBottom:10}}>Demande envoyée !</div>
+      <div style={{fontSize:14,color:'#666',lineHeight:1.8,marginBottom:22}}>Notre équipe vous contacte sous 24h pour organiser la démo Teams.</div>
+      <button onClick={()=>{setSent(false);setForm({nom:'',email:'',entreprise:'',secteur:'',message:''});setErrs({})}} style={{padding:'10px 22px',borderRadius:9,border:'1.5px solid #e5e5e5',background:'white',color:'#555',fontSize:13,fontWeight:600,cursor:'pointer'}}>Nouvelle demande</button>
     </div>
   )
-
   return (
     <>
-      <div style={{fontSize:18,fontWeight:800,color:TEXT,marginBottom:6}}>Demander une démo Teams</div>
-      <div style={{fontSize:13,color:TEXT2,marginBottom:28}}>Gratuite · 30 min · Sans engagement</div>
-      {[{f:'nom',l:'Nom complet *',ph:'Jean Dupont',t:'text'},{f:'email',l:'Email *',ph:'jean@exemple.fr',t:'email'},{f:'entreprise',l:"Établissement *",ph:'Mon Établissement',t:'text'}].map(({f,l,ph,t})=>(
-        <div key={f} style={{marginBottom:16}}>
-          <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>{l}</label>
-          <input type={t} placeholder={ph} value={contactForm[f]}
-            onChange={ev=>{ setContactForm(ff=>({...ff,[f]:ev.target.value})); setErrors(er=>({...er,[f]:false})) }}
-            style={{...inp, borderColor: errors[f] ? '#ff6b6b' : BORDER}}
-            onFocus={e=>e.target.style.borderColor=A}
-            onBlur={e=>e.target.style.borderColor=errors[f]?'#ff6b6b':BORDER}/>
-          {errors[f] && <div style={{fontSize:11,color:'#ff6b6b',marginTop:4}}>Ce champ est requis</div>}
+      <div style={{fontSize:18,fontWeight:800,color:'#111',marginBottom:5}}>Demander une démo Teams</div>
+      <div style={{fontSize:13,color:'#888',marginBottom:24}}>Gratuite · 30 min · Sans engagement</div>
+      {[{f:'nom',l:'Nom complet *',ph:'Jean Dupont',t:'text'},{f:'email',l:'Email *',ph:'jean@exemple.fr',t:'email'},{f:'entreprise',l:'Établissement *',ph:'Mon Établissement',t:'text'}].map(({f,l,ph,t})=>(
+        <div key={f} style={{marginBottom:14}}>
+          <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>{l}</label>
+          <input type={t} placeholder={ph} value={form[f]}
+            onChange={ev=>{setForm(ff=>({...ff,[f]:ev.target.value}));setErrs(er=>({...er,[f]:false}))}}
+            style={{...inp,borderColor:errs[f]?'#ef4444':'#e5e5e5'}}
+            onFocus={e=>e.target.style.borderColor='#0066cc'}
+            onBlur={e=>e.target.style.borderColor=errs[f]?'#ef4444':'#e5e5e5'}/>
+          {errs[f]&&<div style={{fontSize:11,color:'#ef4444',marginTop:3}}>Champ requis</div>}
         </div>
       ))}
-      <div style={{marginBottom:16}}>
-        <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>Secteur</label>
-        <select value={contactForm.secteur} onChange={e=>setContactForm(f=>({...f,secteur:e.target.value}))} style={{...inp,appearance:'auto'}}>
+      <div style={{marginBottom:14}}>
+        <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Secteur</label>
+        <select value={form.secteur} onChange={e=>setForm(f=>({...f,secteur:e.target.value}))} style={{...inp,appearance:'auto'}}>
           <option value="">Sélectionner...</option>
           {['Restaurant','Hôtel','Garage','Commerce','Clinique','Spa & Salon','BTP','Logistique','Éducation','Autre'].map(s=><option key={s}>{s}</option>)}
         </select>
       </div>
-      <div style={{marginBottom:28}}>
-        <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>Message (optionnel)</label>
-        <textarea placeholder="Nombre d'employés, besoin spécifique..." value={contactForm.message}
-          onChange={e=>setContactForm(f=>({...f,message:e.target.value}))} rows={3}
+      <div style={{marginBottom:24}}>
+        <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Message (optionnel)</label>
+        <textarea placeholder="Nombre d'employés, besoin spécifique..." value={form.message}
+          onChange={e=>setForm(f=>({...f,message:e.target.value}))} rows={3}
           style={{...inp,resize:'vertical',fontFamily:'var(--font)'}}
-          onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
+          onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e5e5e5'}/>
       </div>
-      <button onClick={submit}
-        style={{width:'100%',height:54,borderRadius:13,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',transition:'opacity .2s'}}
-        onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
-        onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+      <button onClick={submit} style={{width:'100%',height:52,borderRadius:12,border:'none',background:'#0066cc',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',transition:'opacity .15s'}}
+      onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
+      onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
         Envoyer ma demande →
       </button>
-      <div style={{fontSize:12,color:TEXT3,textAlign:'center',marginTop:12}}>Réponse sous 24h · Démo Teams offerte</div>
+      <div style={{fontSize:11,color:'#aaa',textAlign:'center',marginTop:10}}>Réponse sous 24h · Démo Teams offerte</div>
     </>
   )
 }
 
+// ══════════════════════════════════════════════════════════════════════
 export default function Login() {
   const [email,setEmail]=useState('')
   const [password,setPassword]=useState('')
@@ -230,14 +224,13 @@ export default function Login() {
   const navigate=useNavigate()
   const location=useLocation()
 
-  useEffect(()=>{ const h=()=>setIsMobile(window.innerWidth<900); window.addEventListener('resize',h); return()=>window.removeEventListener('resize',h) },[])
-
+  useEffect(()=>{const h=()=>setIsMobile(window.innerWidth<900);window.addEventListener('resize',h);return()=>window.removeEventListener('resize',h)},[])
   useEffect(()=>{
     supabase.auth.getSession().then(async({data})=>{
       if(data.session){
-        const {data:profil}=await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
-        if(profil?.role==='super_admin') navigate('/admin')
-        else if(profil?.role==='gerant') navigate('/gerant')
+        const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
+        if(p?.role==='super_admin')navigate('/admin')
+        else if(p?.role==='gerant')navigate('/gerant')
         else navigate('/moi')
       } else {setLoading(false);if(location.pathname==='/login')setShowLogin(true)}
     })
@@ -247,87 +240,93 @@ export default function Login() {
     e.preventDefault();setLoading(true);setError('')
     const {data,error}=await supabase.auth.signInWithPassword({email,password})
     if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
-    const {data:profil}=await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
-    if(profil?.role==='super_admin') navigate('/admin')
-    else if(profil?.role==='gerant') navigate('/gerant')
+    const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
+    if(p?.role==='super_admin')navigate('/admin')
+    else if(p?.role==='gerant')navigate('/gerant')
     else navigate('/moi')
     setLoading(false)
   }
 
-  if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#0a1628',color:'rgba(255,255,255,.4)',fontFamily:'var(--font)'}}>Chargement...</div>
+  if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'white',color:'#aaa',fontFamily:'var(--font)'}}>Chargement...</div>
 
-  const A='#3b9eff'
-  const SURF='#0e1f38'
-  const BORDER='rgba(255,255,255,.08)'
-  const BG='#0a1628'
-  const TEXT='#eef2ff'
-  const TEXT2='#7a9ec4'
-  const TEXT3='#3d5a7a'
-  const DARK='#060f1a'
-  const CARD='#112236'
+  // ── DESIGN TOKENS ──────────────────────────────────────────────────
+  const A='#0066cc'       // bleu accent
+  const AG='#f0f7ff'      // bleu très clair
+  const AB='#d0e8ff'      // bleu border
+  const TEXT='#111111'
+  const TEXT2='#555555'
+  const TEXT3='#999999'
+  const BORDER='#e8e8e8'
+  const BG='#f8fafc'
+  const SURF='#ffffff'
 
-  const W={maxWidth:1080,margin:'0 auto',padding:isMobile?'0 24px':'0 56px'}
-  const WM={maxWidth:860,margin:'0 auto',padding:isMobile?'0 24px':'0 56px'}
-  const SEC=isMobile?'72px 24px':'108px 0'
+  const W={maxWidth:1080,margin:'0 auto',padding:isMobile?'0 20px':'0 56px'}
+  const WM={maxWidth:860,margin:'0 auto',padding:isMobile?'0 20px':'0 56px'}
+  const SEC=isMobile?'72px 20px':'100px 0'
 
   const scrollTop=()=>{setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'instant'}),20)}
   const pageMap={'home':'/','fonctionnalites':'/fonctionnalites','tarifs':'/tarifs','contact':'/contact','legal':'/legal'}
   const goPage=(p)=>{navigate(pageMap[p]||'/'+p);setMenuOpen(false);scrollTop()}
   const path=location.pathname.replace('/','') || 'home'
   const page=path==='login'?'home':path||'home'
-  const inp={width:'100%',padding:'13px 16px',borderRadius:11,border:`1.5px solid ${BORDER}`,background:'rgba(255,255,255,.06)',fontSize:15,color:TEXT,outline:'none',boxSizing:'border-box',transition:'border-color .2s'}
 
+  // ── NAV ────────────────────────────────────────────────────────────
   const Nav=()=>(
     <>
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:64,background:'rgba(10,22,40,.95)',backdropFilter:'blur(24px)',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',padding:'0 40px'}}>
-        <div onClick={()=>goPage('home')} style={{display:'flex',alignItems:'center',gap:10,flex:1,cursor:'pointer',userSelect:'none'}}>
+      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:62,background:'rgba(255,255,255,.97)',backdropFilter:'blur(20px)',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',padding:'0 40px'}}>
+        <div onClick={()=>goPage('home')} style={{display:'flex',alignItems:'center',gap:9,flex:1,cursor:'pointer',userSelect:'none'}}>
           {LOGO_SM}
-          <span style={{fontSize:17,fontWeight:800,color:'white',letterSpacing:'-.04em'}}>Kronvo</span>
-          <span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:20,background:'rgba(59,158,255,.15)',color:A,letterSpacing:'.04em',marginLeft:2,border:'1px solid rgba(59,158,255,.2)'}}>BETA</span>
+          <span style={{fontSize:17,fontWeight:800,color:TEXT,letterSpacing:'-.04em'}}>Kronvo</span>
+          <span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:20,background:AG,color:A,letterSpacing:'.04em',marginLeft:2,border:`1px solid ${AB}`}}>BETA</span>
         </div>
         {isMobile?(
           <div style={{display:'flex',gap:8}}>
             <button onClick={()=>setShowLogin(true)} style={{padding:'8px 16px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Connexion</button>
-            <button onClick={()=>setMenuOpen(!menuOpen)} style={{width:38,height:38,borderRadius:9,border:`1px solid ${BORDER}`,background:'rgba(255,255,255,.06)',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:4.5}}>
-              {[0,1,2].map(i=><span key={i} style={{width:15,height:1.5,background:'rgba(255,255,255,.6)',borderRadius:1,display:'block'}}></span>)}
+            <button onClick={()=>setMenuOpen(!menuOpen)} style={{width:38,height:38,borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:4.5}}>
+              {[0,1,2].map(i=><span key={i} style={{width:15,height:1.5,background:'#333',borderRadius:1,display:'block'}}></span>)}
             </button>
           </div>
         ):(
           <div style={{display:'flex',gap:1,alignItems:'center'}}>
             {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([l,id])=>(
-              <button key={id} onClick={()=>goPage(id)} style={{padding:'7px 15px',borderRadius:9,border:'none',background:page===id?'rgba(59,158,255,.12)':'transparent',color:page===id?A:'rgba(255,255,255,.55)',fontSize:13,fontWeight:page===id?600:500,cursor:'pointer',transition:'all .15s'}}>{l}</button>
+              <button key={id} onClick={()=>goPage(id)} style={{padding:'7px 15px',borderRadius:9,border:'none',background:page===id?AG:'transparent',color:page===id?A:TEXT2,fontSize:13,fontWeight:page===id?600:500,cursor:'pointer',transition:'all .15s'}}>{l}</button>
             ))}
             <div style={{width:1,height:18,background:BORDER,margin:'0 14px'}}/>
-            <button onClick={()=>setShowLogin(true)} style={{padding:'8px 18px',borderRadius:9,border:`1px solid ${BORDER}`,background:'transparent',color:'rgba(255,255,255,.6)',fontSize:13,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
-            onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,.06)';e.currentTarget.style.color='white'}}
-            onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='rgba(255,255,255,.6)'}}>Connexion</button>
+            <button onClick={()=>setShowLogin(true)} style={{padding:'8px 18px',borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,color:TEXT2,fontSize:13,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor='#aaa'}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER}}>Connexion</button>
             <button onClick={()=>goPage('contact')} style={{padding:'8px 18px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer',marginLeft:6,transition:'opacity .15s'}}
-            onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
+            onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
             onMouseLeave={e=>e.currentTarget.style.opacity='1'}>Demander une démo</button>
           </div>
         )}
       </nav>
       {isMobile&&menuOpen&&(
-        <div style={{position:'fixed',top:64,left:0,right:0,zIndex:99,background:'#0a1628',borderBottom:`1px solid ${BORDER}`,padding:'8px 0 20px'}}>
+        <div style={{position:'fixed',top:62,left:0,right:0,zIndex:99,background:SURF,borderBottom:`1px solid ${BORDER}`,boxShadow:'0 8px 24px rgba(0,0,0,.06)',padding:'8px 0 18px'}}>
           {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([l,id])=>(
-            <button key={id} onClick={()=>goPage(id)} style={{width:'100%',padding:'14px 28px',border:'none',background:'transparent',color:'rgba(255,255,255,.7)',fontSize:14,fontWeight:500,cursor:'pointer',textAlign:'left',display:'block'}}>{l}</button>
+            <button key={id} onClick={()=>goPage(id)} style={{width:'100%',padding:'13px 24px',border:'none',background:'transparent',color:TEXT,fontSize:14,fontWeight:500,cursor:'pointer',textAlign:'left',display:'block'}}>{l}</button>
           ))}
-          <div style={{margin:'10px 24px 0',paddingTop:14,borderTop:`1px solid ${BORDER}`}}>
-            <button onClick={()=>{goPage('contact');setMenuOpen(false)}} style={{width:'100%',padding:'15px',borderRadius:11,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
+          <div style={{margin:'8px 20px 0',paddingTop:12,borderTop:`1px solid ${BORDER}`}}>
+            <button onClick={()=>{goPage('contact');setMenuOpen(false)}} style={{width:'100%',padding:'14px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
           </div>
         </div>
       )}
     </>
   )
 
+  // ── FOOTER ─────────────────────────────────────────────────────────
   const Footer=()=>(
-    <footer style={{background:DARK,borderTop:`1px solid ${BORDER}`,color:'white',padding:isMobile?'56px 24px 36px':'72px 0 40px'}}>
+    <footer style={{background:TEXT,color:'white',padding:isMobile?'52px 20px 32px':'64px 0 36px'}}>
       <div style={W}>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2.5fr 1fr 1fr 1fr',gap:isMobile?32:56,marginBottom:48}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2.5fr 1fr 1fr 1fr',gap:isMobile?28:48,marginBottom:40}}>
           <div>
-            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:18}}>{LOGO_SM}<span style={{fontSize:16,fontWeight:800,color:'white',letterSpacing:'-.03em'}}>Kronvo</span></div>
-            <div style={{fontSize:14,color:'rgba(255,255,255,.35)',lineHeight:1.85,maxWidth:240,marginBottom:20}}>La solution de gestion d'équipes pour les professionnels terrain.</div>
-            <div style={{fontSize:12,color:'rgba(255,255,255,.2)'}}>Propulsé par <a href="https://switzerit.com" target="_blank" rel="noreferrer" style={{color:'rgba(255,255,255,.4)',textDecoration:'none',fontWeight:600}}>SwitzerIT</a></div>
+            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>{LOGO_SM}<span style={{fontSize:15,fontWeight:800,color:'white',letterSpacing:'-.03em'}}>Kronvo</span></div>
+            <div style={{fontSize:13,color:'rgba(255,255,255,.4)',lineHeight:1.85,maxWidth:230,marginBottom:16}}>La solution de gestion d'équipes pour les professionnels terrain. Propulsé par SwitzerIT.</div>
+            <div style={{display:'flex',gap:8}}>
+              {[{l:'🇨🇭',t:'Suisse'},{l:'🔒',t:'RGPD'},{l:'⚡',t:'2-4h setup'}].map(b=>(
+                <span key={b.t} style={{fontSize:11,padding:'4px 9px',borderRadius:20,background:'rgba(255,255,255,.07)',color:'rgba(255,255,255,.5)',border:'1px solid rgba(255,255,255,.1)'}}>{b.l} {b.t}</span>
+              ))}
+            </div>
           </div>
           {[
             {title:'Produit',links:[['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']]},
@@ -335,20 +334,20 @@ export default function Login() {
             {title:'Légal',links:[['CGU','legal'],['Confidentialité','legal'],['RGPD','legal']]},
           ].map(col=>(
             <div key={col.title}>
-              <div style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.2)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:18}}>{col.title}</div>
+              <div style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.25)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:16}}>{col.title}</div>
               {col.links.map(([l,p])=>(
-                <div key={l} onClick={()=>goPage(p)} style={{fontSize:13,color:'rgba(255,255,255,.35)',marginBottom:12,cursor:'pointer',transition:'color .15s'}}
-                onMouseEnter={e=>e.target.style.color='rgba(255,255,255,.7)'}
-                onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.35)'}>{l}</div>
+                <div key={l} onClick={()=>goPage(p)} style={{fontSize:13,color:'rgba(255,255,255,.4)',marginBottom:11,cursor:'pointer',transition:'color .15s'}}
+                onMouseEnter={e=>e.target.style.color='rgba(255,255,255,.75)'}
+                onMouseLeave={e=>e.target.style.color='rgba(255,255,255,.4)'}>{l}</div>
               ))}
             </div>
           ))}
         </div>
-        <div style={{borderTop:`1px solid ${BORDER}`,paddingTop:24,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
-          <div style={{fontSize:12,color:'rgba(255,255,255,.2)'}}>© 2026 Kronvo by SwitzerIT · Suisse</div>
-          <div style={{display:'flex',gap:20,fontSize:12}}>
+        <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.25)'}}>© 2026 Kronvo by SwitzerIT · Suisse</div>
+          <div style={{display:'flex',gap:18,fontSize:11}}>
             {[['Confidentialité','legal'],['CGU','legal'],['RGPD','legal']].map(([l,p])=>(
-              <span key={l} onClick={()=>goPage(p)} style={{color:'rgba(255,255,255,.2)',cursor:'pointer'}}>{l}</span>
+              <span key={l} onClick={()=>goPage(p)} style={{color:'rgba(255,255,255,.25)',cursor:'pointer'}}>{l}</span>
             ))}
           </div>
         </div>
@@ -356,95 +355,101 @@ export default function Login() {
     </footer>
   )
 
+  // ══ PAGE HOME ═══════════════════════════════════════════════════════
   const PageHome=()=>(
     <>
-      {/* HERO */}
-      <section style={{paddingTop:64,background:BG}}>
-        <div style={{...W,padding:isMobile?'80px 24px 72px':'100px 56px 96px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:72,alignItems:'center'}}>
+      {/* 1. HERO */}
+      <section style={{paddingTop:62,background:SURF}}>
+        <div style={{...W,padding:isMobile?'72px 20px 64px':'96px 56px 88px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:64,alignItems:'center'}}>
           <div>
-            <HeroReveal delay={100}>
-              <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'6px 14px',borderRadius:20,background:'rgba(59,158,255,.1)',border:'1px solid rgba(59,158,255,.2)',marginBottom:32}}>
-                <span style={{width:7,height:7,borderRadius:'50%',background:'#34c759',boxShadow:'0 0 0 3px rgba(52,199,89,.2)',display:'inline-block'}}></span>
+            <HeroReveal delay={80}>
+              <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 13px',borderRadius:20,background:AG,border:`1px solid ${AB}`,marginBottom:28}}>
+                <span style={{width:7,height:7,borderRadius:'50%',background:'#22c55e',boxShadow:'0 0 0 2px rgba(34,197,94,.2)',display:'inline-block'}}></span>
                 <span style={{fontSize:12,fontWeight:600,color:A}}>Badgeage QR · Planning · Présences</span>
               </div>
             </HeroReveal>
-            <HeroReveal delay={200}>
-              <h1 style={{fontSize:isMobile?40:64,fontWeight:900,lineHeight:1.02,margin:'0 0 6px',letterSpacing:'-.06em',color:TEXT}}>Le planning qui</h1>
-              <h1 style={{fontSize:isMobile?40:64,fontWeight:900,lineHeight:1.02,margin:'0 0 28px',letterSpacing:'-.06em',color:A}}>se gère tout seul.</h1>
+            <HeroReveal delay={180}>
+              <h1 style={{fontSize:isMobile?38:62,fontWeight:900,lineHeight:1.03,margin:'0 0 6px',letterSpacing:'-.06em',color:TEXT}}>Le planning qui</h1>
+              <h1 style={{fontSize:isMobile?38:62,fontWeight:900,lineHeight:1.03,margin:'0 0 24px',letterSpacing:'-.06em',color:A}}>se gère tout seul.</h1>
             </HeroReveal>
-            <HeroReveal delay={320}>
-              <p style={{fontSize:isMobile?16:18,color:TEXT2,lineHeight:1.8,marginBottom:40,maxWidth:420}}>
+            <HeroReveal delay={300}>
+              <p style={{fontSize:isMobile?15:17,color:TEXT2,lineHeight:1.8,marginBottom:36,maxWidth:400}}>
                 Badgeage QR, présences en direct, export paie automatique. Tout ce dont votre équipe terrain a besoin — sans la paperasse.
               </p>
             </HeroReveal>
-            <HeroReveal delay={420}>
-              <div style={{display:'flex',gap:12,flexDirection:isMobile?'column':'row',marginBottom:32}}>
-                <button onClick={()=>goPage('contact')} style={{padding:'16px 28px',borderRadius:13,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',boxShadow:'0 4px 24px rgba(59,158,255,.25)',transition:'transform .2s,box-shadow .2s'}}
-                onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 8px 32px rgba(59,158,255,.35)'}}
-                onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 24px rgba(59,158,255,.25)'}}>
-                  Demander une démo gratuite <Arr/>
+            <HeroReveal delay={400}>
+              <div style={{display:'flex',gap:10,flexDirection:isMobile?'column':'row',marginBottom:28}}>
+                <button onClick={()=>goPage('contact')} style={{padding:'15px 26px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',boxShadow:'0 4px 20px rgba(0,102,204,.25)',transition:'transform .2s,box-shadow .2s'}}
+                onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 8px 28px rgba(0,102,204,.3)'}}
+                onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 20px rgba(0,102,204,.25)'}}>
+                  Demander une démo gratuite <IcoArr/>
                 </button>
-                <button onClick={()=>goPage('fonctionnalites')} style={{padding:'16px 22px',borderRadius:13,border:`1.5px solid ${BORDER}`,background:'transparent',color:'rgba(255,255,255,.7)',fontSize:15,fontWeight:600,cursor:'pointer',transition:'border-color .2s,color .2s'}}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.3)';e.currentTarget.style.color='white'}}
-                onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.color='rgba(255,255,255,.7)'}}>
+                <button onClick={()=>goPage('fonctionnalites')} style={{padding:'15px 20px',borderRadius:12,border:`1.5px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:15,fontWeight:600,cursor:'pointer',transition:'border-color .15s'}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor='#999'}
+                onMouseLeave={e=>e.currentTarget.style.borderColor=BORDER}>
                   Voir les fonctionnalités
                 </button>
               </div>
-              <div style={{display:'flex',gap:22,flexWrap:'wrap'}}>
+              <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
                 {['Démo gratuite','Sans engagement','2-4h mise en place'].map(t=>(
                   <div key={t} style={{display:'flex',alignItems:'center',gap:6}}>
-                    <Chk size={13}/>
-                    <span style={{fontSize:13,color:TEXT3,fontWeight:500}}>{t}</span>
+                    <IcoChk size={13}/>
+                    <span style={{fontSize:13,color:TEXT3}}>{t}</span>
                   </div>
                 ))}
               </div>
             </HeroReveal>
           </div>
+
           {!isMobile&&(
-            <HeroReveal delay={150}>
-              <div style={{background:CARD,borderRadius:22,padding:20,border:`1px solid ${BORDER}`,boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
-                <div style={{background:DARK,borderRadius:14,padding:'13px 18px',marginBottom:14,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <HeroReveal delay={120}>
+              <div style={{background:'#f8fafc',borderRadius:20,padding:18,border:`1px solid ${BORDER}`,boxShadow:'0 8px 40px rgba(0,0,0,.06)'}}>
+                {/* Barre titre */}
+                <div style={{background:TEXT,borderRadius:12,padding:'11px 16px',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div>
-                    <div style={{fontSize:12,fontWeight:700,color:'white'}}>Kronvo · Le Bistrot</div>
-                    <div style={{display:'flex',alignItems:'center',gap:5,marginTop:3}}>
-                      <span style={{width:5,height:5,borderRadius:'50%',background:'#34c759',display:'inline-block'}}></span>
-                      <span style={{fontSize:10,color:'rgba(255,255,255,.35)'}}>En direct</span>
+                    <div style={{fontSize:11,fontWeight:700,color:'white'}}>Kronvo · Le Bistrot</div>
+                    <div style={{display:'flex',alignItems:'center',gap:5,marginTop:2}}>
+                      <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
+                      <span style={{fontSize:9,color:'rgba(255,255,255,.4)'}}>En direct</span>
                     </div>
                   </div>
-                  <div style={{display:'flex',gap:5}}>{['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:8,height:8,borderRadius:'50%',background:c}}></div>)}</div>
+                  <div style={{display:'flex',gap:4}}>{['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:8,height:8,borderRadius:'50%',background:c}}></div>)}</div>
                 </div>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:12}}>
-                  {[{v:'8',l:'Présents',bg:'rgba(52,199,89,.12)',c:'#4cd964'},{v:'3',l:'Absents',bg:'rgba(255,59,48,.12)',c:'#ff6b6b'},{v:'2',l:'En pause',bg:'rgba(255,149,0,.12)',c:'#ffb347'}].map((s,i)=>(
-                    <div key={i} style={{background:s.bg,border:`1px solid ${BORDER}`,borderRadius:10,padding:'12px 6px',textAlign:'center'}}>
-                      <div style={{fontSize:24,fontWeight:900,color:s.c,letterSpacing:'-.03em',lineHeight:1}}>{s.v}</div>
-                      <div style={{fontSize:10,color:s.c,fontWeight:600,marginTop:3,opacity:.8}}>{s.l}</div>
+                {/* Stats */}
+                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7,marginBottom:10}}>
+                  {[{v:'8',l:'Présents',bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a'},{v:'3',l:'Absents',bg:'#fef2f2',bc:'#fecaca',c:'#dc2626'},{v:'2',l:'En pause',bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c'}].map((s,i)=>(
+                    <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:9,padding:'10px 6px',textAlign:'center'}}>
+                      <div style={{fontSize:22,fontWeight:900,color:s.c,letterSpacing:'-.03em'}}>{s.v}</div>
+                      <div style={{fontSize:9,color:s.c,fontWeight:600,marginTop:2}}>{s.l}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{background:'rgba(255,255,255,.04)',border:`1px solid ${BORDER}`,borderRadius:12,padding:'12px',marginBottom:12}}>
-                  <div style={{fontSize:9,fontWeight:700,color:TEXT3,letterSpacing:'.1em',marginBottom:10}}>ÉQUIPE EN DIRECT</div>
-                  {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#34c759'},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#34c759'},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#ff9500'},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'rgba(255,255,255,.2)'}].map((e,i)=>(
-                    <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:8,background:i%2===0?'rgba(255,255,255,.03)':'transparent',marginBottom:2}}>
-                      <div style={{width:27,height:27,borderRadius:'50%',background:'rgba(59,158,255,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:A,flexShrink:0,position:'relative'}}>
+                {/* Équipe */}
+                <div style={{background:'white',border:`1px solid ${BORDER}`,borderRadius:10,padding:'10px',marginBottom:10}}>
+                  <div style={{fontSize:9,fontWeight:700,color:TEXT3,letterSpacing:'.08em',marginBottom:8}}>ÉQUIPE EN DIRECT</div>
+                  {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#22c55e'},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#22c55e'},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#f97316'},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'#e5e5e5'}].map((e,i)=>(
+                    <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'4px 7px',borderRadius:7,background:i%2===0?'#f8fafc':'transparent',marginBottom:2}}>
+                      <div style={{width:25,height:25,borderRadius:'50%',background:AG,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:A,flexShrink:0,position:'relative'}}>
                         {e.n.split(' ').map(x=>x[0]).join('')}
-                        <div style={{position:'absolute',bottom:0,right:0,width:7,height:7,borderRadius:'50%',background:e.s,border:'1.5px solid #0e1f38'}}></div>
+                        <div style={{position:'absolute',bottom:0,right:0,width:6,height:6,borderRadius:'50%',background:e.s,border:'1.5px solid white'}}></div>
                       </div>
                       <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:11,fontWeight:600,color:TEXT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{e.n}</div>
-                        <div style={{fontSize:9,color:TEXT3}}>{e.p}</div>
+                        <div style={{fontSize:10,fontWeight:600,color:TEXT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{e.n}</div>
+                        <div style={{fontSize:8,color:TEXT3}}>{e.p}</div>
                       </div>
-                      <span style={{fontSize:10,color:TEXT2,fontWeight:500}}>{e.h}</span>
+                      <span style={{fontSize:9,color:TEXT2,fontWeight:500}}>{e.h}</span>
                     </div>
                   ))}
                 </div>
-                <div style={{background:'rgba(255,255,255,.04)',border:`1px solid ${BORDER}`,borderRadius:12,padding:'12px 14px',display:'flex',alignItems:'center',gap:14}}>
+                {/* QR */}
+                <div style={{background:'white',border:`1px solid ${BORDER}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:12}}>
                   <QRDisplay/>
                   <div>
-                    <div style={{fontSize:11,fontWeight:700,color:TEXT,marginBottom:4}}>QR Code actif</div>
-                    <div style={{fontSize:10,color:TEXT2,lineHeight:1.6}}>Vos employés scannent depuis leur téléphone</div>
-                    <div style={{display:'flex',alignItems:'center',gap:4,marginTop:6}}>
-                      <span style={{width:5,height:5,borderRadius:'50%',background:'#34c759',display:'inline-block'}}></span>
-                      <span style={{fontSize:9,color:'#34c759',fontWeight:600}}>Sécurisé · Renouvelé automatiquement</span>
+                    <div style={{fontSize:10,fontWeight:700,color:TEXT,marginBottom:3}}>QR Code actif</div>
+                    <div style={{fontSize:9,color:TEXT2,lineHeight:1.5}}>Vos employés scannent<br/>depuis leur téléphone</div>
+                    <div style={{display:'flex',alignItems:'center',gap:4,marginTop:5}}>
+                      <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
+                      <span style={{fontSize:8,color:'#16a34a',fontWeight:600}}>Sécurisé · Renouvelé auto</span>
                     </div>
                   </div>
                 </div>
@@ -454,130 +459,142 @@ export default function Login() {
         </div>
       </section>
 
-      {/* TRUST + STATS */}
-      <section style={{background:'#0f2347',borderTop:'1px solid rgba(59,158,255,.15)',borderBottom:'1px solid rgba(59,158,255,.15)'}}>
-        <div style={{borderBottom:`1px solid ${BORDER}`,padding:'16px 0'}}>
-          <div style={W}>
-            <Reveal>
-              <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:14,textAlign:'center'}}>
-                <div style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap',justifyContent:'center'}}>
-                  <div style={{display:'flex'}}>
-                    {[{bg:'rgba(59,158,255,.3)',t:'SM'},{bg:'rgba(52,199,89,.3)',t:'JD'},{bg:'rgba(255,149,0,.3)',t:'AL'}].map((a,i)=>(
-                      <div key={i} style={{width:32,height:32,borderRadius:'50%',background:a.bg,border:'2px solid rgba(255,255,255,.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'white',marginRight:i<2?-9:0,zIndex:3-i}}>{a.t}</div>
-                    ))}
-                  </div>
-                  <span style={{fontSize:14,color:'white',fontWeight:600}}>Des équipes terrain font confiance à Kronvo</span>
-                  <div style={{display:'flex',alignItems:'center',gap:6,background:'rgba(245,158,11,.1)',border:'1px solid rgba(245,158,11,.25)',borderRadius:20,padding:'4px 12px'}}>
-                    <span style={{color:'#f59e0b',fontSize:13}}>★★★★★</span>
-                    <span style={{fontSize:13,fontWeight:700,color:'white'}}>4.8/5</span>
-                    <span style={{fontSize:11,color:'rgba(255,255,255,.5)'}}>support SwitzerIT</span>
-                  </div>
-                </div>
-                <div style={{display:'flex',gap:8,flexWrap:'wrap',justifyContent:'center'}}>
-                  {['Restaurants','Hôtels','Cliniques','Garages','Commerce','BTP','Logistique'].map(s=>(
-                    <span key={s} style={{fontSize:12,color:'rgba(255,255,255,.55)',padding:'3px 10px',borderRadius:12,background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)'}}>{s}</span>
+      {/* 2. TRUST BAR */}
+      <section style={{background:'#fafafa',borderTop:`1px solid ${BORDER}`,borderBottom:`1px solid ${BORDER}`,padding:'14px 0'}}>
+        <div style={W}>
+          <Reveal>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:isMobile?10:28,flexWrap:'wrap'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{display:'flex'}}>
+                  {[{bg:AG,c:A,t:'SM'},{bg:'#f0fdf4',c:'#16a34a',t:'JD'},{bg:'#fff7ed',c:'#ea580c',t:'AL'}].map((a,i)=>(
+                    <div key={i} style={{width:28,height:28,borderRadius:'50%',background:a.bg,border:'2px solid white',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-7:0,zIndex:3-i,boxShadow:'0 1px 3px rgba(0,0,0,.08)'}}>{a.t}</div>
                   ))}
                 </div>
+                <span style={{fontSize:13,color:TEXT2,fontWeight:500}}>Des équipes terrain font confiance à Kronvo</span>
               </div>
-            </Reveal>
-          </div>
+              <div style={{width:1,height:18,background:BORDER}}></div>
+              <div style={{display:'flex',alignItems:'center',gap:6,background:'#fffbeb',border:'1px solid #fde68a',borderRadius:20,padding:'4px 12px'}}>
+                <span style={{color:'#f59e0b',fontSize:13}}>★★★★★</span>
+                <span style={{fontSize:13,fontWeight:700,color:'#111'}}>4.8/5</span>
+                <span style={{fontSize:11,color:'#888'}}>support SwitzerIT</span>
+              </div>
+              {!isMobile&&<>
+                <div style={{width:1,height:18,background:BORDER}}></div>
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {['Restaurants','Hôtels','Cliniques','Garages','BTP'].map(s=>(
+                    <span key={s} style={{fontSize:12,color:TEXT2,padding:'3px 9px',borderRadius:12,background:'white',border:`1px solid ${BORDER}`}}>{s}</span>
+                  ))}
+                  <span style={{fontSize:12,color:TEXT3}}>& plus</span>
+                </div>
+              </>}
+            </div>
+          </Reveal>
         </div>
-        <div style={{padding:'44px 0'}}>
-          <div style={WM}>
+      </section>
+
+      {/* 3. STATS */}
+      <section style={{background:SURF,padding:'40px 0',borderBottom:`1px solid ${BORDER}`}}>
+        <div style={WM}>
+          <Reveal>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',border:`1px solid ${BORDER}`,borderRadius:16,overflow:'hidden'}}>
+              {[{v:'2-4h',l:'mise en place',c:A},{v:'30s',l:'par badgeage',c:TEXT},{v:'8+',l:'secteurs',c:TEXT},{v:'100%',l:'mobile',c:TEXT}].map((s,i)=>(
+                <div key={i} style={{padding:isMobile?'16px 8px':'24px',textAlign:'center',borderRight:i<3?`1px solid ${BORDER}`:'none',background:i===0?AG:SURF}}>
+                  <div style={{fontSize:isMobile?24:36,fontWeight:900,color:s.c,letterSpacing:'-.05em',lineHeight:1}}>{s.v}</div>
+                  <div style={{fontSize:12,color:TEXT3,marginTop:5}}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* 4. PHOTO + ACCROCHE */}
+      <section style={{background:BG,padding:SEC}}>
+        <div style={WM}>
+          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:56,alignItems:'center'}}>
             <Reveal>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)'}}>
+              <div style={{marginBottom:isMobile?32:0}}>
+                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Pourquoi Kronvo</div>
+                <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:20,lineHeight:1.06}}>Arrêtez de perdre du temps sur des tâches qui n'apportent rien.</h2>
+                <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Feuilles papier, appels incessants, erreurs de paie — tout ça a un coût réel chaque mois. Kronvo les remplace automatiquement en 2 à 4 heures.</p>
                 {[
-                  {v:'2-4h',l:'mise en place',sub:'clé en main par SwitzerIT',c:A},
-                  {v:'30s',l:'par badgeage',sub:'scan QR depuis le téléphone',c:'white'},
-                  {v:'8+',l:'secteurs',sub:'restaurants, hôtels, cliniques...',c:'white'},
-                  {v:'100%',l:'mobile',sub:'iPhone, Android & tablette',c:'white'},
-                ].map((s,i)=>(
-                  <div key={i} style={{textAlign:'center',borderRight:i<3?`1px solid ${BORDER}`:'none',padding:isMobile?'10px 4px':'16px 28px'}}>
-                    <div style={{fontSize:isMobile?26:42,fontWeight:900,color:s.c,letterSpacing:'-.05em',lineHeight:1,marginBottom:6}}>{s.v}</div>
-                    <div style={{fontSize:13,color:'rgba(255,255,255,.6)',fontWeight:600,marginBottom:4,color:'rgba(255,255,255,.75)'}}>{s.l}</div>
-                    {!isMobile&&<div style={{fontSize:11,color:'rgba(255,255,255,.3)'}}>{s.sub}</div>}
+                  {c:'#dc2626',bg:'#fef2f2',bc:'#fecaca',t:'Feuilles de présence perdues',s:'→ Badgeage QR en 2 secondes'},
+                  {c:'#ea580c',bg:'#fff7ed',bc:'#fed7aa',t:'Appels pour savoir qui est là',s:'→ Dashboard en temps réel'},
+                  {c:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff',t:'Erreurs sur les bulletins de paie',s:'→ Export PDF automatique'},
+                ].map((item,i)=>(
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:12,marginBottom:12,padding:'12px 14px',background:item.bg,border:`1px solid ${item.bc}`,borderRadius:10}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:13,fontWeight:600,color:item.c,textDecoration:'line-through',opacity:.7}}>{item.t}</div>
+                      <div style={{fontSize:13,fontWeight:600,color:'#16a34a',marginTop:2}}>{item.s}</div>
+                    </div>
                   </div>
                 ))}
               </div>
             </Reveal>
+            <Reveal delay={100}>
+              <div style={{borderRadius:20,overflow:'hidden',boxShadow:'0 12px 48px rgba(0,0,0,.1)',border:`1px solid ${BORDER}`}}>
+                <img
+                  src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80"
+                  alt="Équipe restaurant"
+                  style={{width:'100%',height:320,objectFit:'cover',display:'block'}}
+                  onError={e=>{e.target.style.display='none'}}
+                />
+                <div style={{background:SURF,padding:'16px 20px',display:'flex',alignItems:'center',gap:12}}>
+                  <div style={{width:36,height:36,borderRadius:'50%',background:AG,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <span style={{fontSize:16}}>👨‍🍳</span>
+                  </div>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:600,color:TEXT}}>Restaurant Le Bistrot</div>
+                    <div style={{fontSize:11,color:TEXT3}}>8 employés · Badgeage QR actif</div>
+                  </div>
+                  <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:5,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:20,padding:'4px 10px'}}>
+                    <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
+                    <span style={{fontSize:11,color:'#16a34a',fontWeight:600}}>En direct</span>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* PROBLÈME */}
-      <section style={{background:BG,padding:SEC}}>
-        <div style={WM}>
+      {/* 5. FONCTIONNALITÉS */}
+      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
+        <div style={W}>
           <Reveal>
-            <div style={{textAlign:'center',marginBottom:64}}>
-              <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.14em',textTransform:'uppercase',marginBottom:16}}>Le problème</div>
-              <h2 style={{fontSize:isMobile?30:48,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:18,lineHeight:1.04}}>Vous perdez des heures<br/>sur des tâches inutiles.</h2>
-              <p style={{fontSize:17,color:TEXT2,lineHeight:1.8,maxWidth:500,margin:'0 auto'}}>Feuilles papier, appels incessants, erreurs de paie — tout ça a un coût réel. Kronvo les élimine.</p>
+            <div style={{textAlign:'center',marginBottom:56}}>
+              <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Fonctionnalités</div>
+              <h2 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.04}}>Tout ce dont vous avez besoin.</h2>
+              <p style={{fontSize:16,color:TEXT2,maxWidth:440,margin:'0 auto',lineHeight:1.8}}>Une solution complète, sans complexité. Ça marche dès le premier jour.</p>
             </div>
           </Reveal>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:16}}>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12}}>
             {[
-              {bg:'rgba(176,32,32,.08)',border:'rgba(176,32,32,.2)',top:'#ff6b6b',
-               icon:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>,
-               title:'Feuilles de présence',desc:'Perdues, illisibles, recopiées à la main chaque semaine. Un cauchemar pour la paie de fin de mois.',sol:'Badgeage QR en 2 secondes'},
-              {bg:'rgba(138,90,0,.08)',border:'rgba(255,149,0,.2)',top:'#ffb347',
-               icon:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffb347" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.14 14a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.05 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 10a16 16 0 0 0 6.29 6.29l1.35-1.35a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
-               title:'Appels sans fin',desc:'"Qui est là aujourd\'hui ?" — une question répétée chaque matin qui vous fait perdre un temps précieux.',sol:'Tableau de bord en temps réel'},
-              {bg:'rgba(58,56,128,.08)',border:'rgba(120,116,255,.2)',top:'#a78bfa',
-               icon:<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-               title:'Erreurs sur la paie',desc:'Heures non comptées, heures supp oubliées, bulletins contestés. Un coût financier et humain chaque mois.',sol:'Export PDF automatique'},
-            ].map((c,i)=>(
-              <Reveal key={i} delay={i*100}>
-                <div style={{background:c.bg,border:`1px solid ${c.border}`,borderRadius:20,padding:'32px',overflow:'hidden',position:'relative',transition:'transform .3s',height:'100%'}}
-                onMouseEnter={e=>e.currentTarget.style.transform='translateY(-3px)'}
-                onMouseLeave={e=>e.currentTarget.style.transform='none'}>
-                  <div style={{position:'absolute',top:0,left:0,right:0,height:2,background:c.top,borderRadius:'20px 20px 0 0',opacity:.5}}></div>
-                  <div style={{width:52,height:52,background:'rgba(255,255,255,.05)',borderRadius:15,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:20,border:`1px solid ${c.border}`}}>{c.icon}</div>
-                  <div style={{fontSize:17,fontWeight:700,color:TEXT,marginBottom:10}}>{c.title}</div>
-                  <div style={{fontSize:14,color:TEXT2,lineHeight:1.75,marginBottom:20}}>{c.desc}</div>
-                  <div style={{display:'flex',alignItems:'center',gap:9,padding:'12px 16px',background:'rgba(52,199,89,.08)',border:'1px solid rgba(52,199,89,.2)',borderRadius:11}}>
-                    <Chk size={14} color="#4cd964"/>
-                    <span style={{fontSize:13,fontWeight:600,color:'#4cd964'}}>Kronvo — {c.sol}</span>
+              {Icon:IcoCalendar,bg:'#f0f7ff',bc:'#d0e8ff',c:A,title:'Planning intelligent',desc:'Créez et publiez les plannings en quelques clics. Shifts simples ou coupés. Postes adaptés à votre secteur.'},
+              {Icon:IcoQR,bg:'#faf5ff',bc:'#e9d5ff',c:'#7c3aed',title:'Badgeage QR Code',desc:'QR dynamique renouvelé toutes les 30s. Scan depuis le téléphone. Borne tablette disponible.'},
+              {Icon:IcoUsers,bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a',title:'Présences en direct',desc:'Qui est là maintenant. Heures prévues vs pointées. Écarts calculés automatiquement.'},
+              {Icon:IcoPhone,bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c',title:'App mobile employé',desc:'Planning, badgeage, historique. Installable sur iPhone et Android.'},
+              {Icon:IcoFile,bg:'#f0f9ff',bc:'#bae6fd',c:'#0891b2',title:'Export PDF paie',desc:'Rapports détaillés en un clic. Par employé, par période. Prêt pour votre comptable.'},
+              {Icon:IcoBuilding,bg:'#fdf2f8',bc:'#fbcfe8',c:'#be185d',title:'Multi-établissements',desc:'Gérez plusieurs sites depuis un seul tableau de bord. Données isolées par site.'},
+            ].map((f,i)=>(
+              <Reveal key={i} delay={i*60}>
+                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px',transition:'transform .2s,box-shadow .2s,border-color .2s',height:'100%'}}
+                onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-3px)';e.currentTarget.style.boxShadow='0 8px 28px rgba(0,0,0,.07)';e.currentTarget.style.borderColor=f.bc}}
+                onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';e.currentTarget.style.borderColor=BORDER}}>
+                  <div style={{width:44,height:44,borderRadius:12,background:f.bg,border:`1px solid ${f.bc}`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16}}>
+                    <f.Icon c={f.c}/>
                   </div>
+                  <div style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:8,letterSpacing:'-.01em'}}>{f.title}</div>
+                  <div style={{fontSize:13,color:TEXT2,lineHeight:1.7}}>{f.desc}</div>
                 </div>
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* FONCTIONNALITÉS */}
-      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
-        <div style={W}>
           <Reveal>
-            <div style={{textAlign:'center',marginBottom:64}}>
-              <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.14em',textTransform:'uppercase',marginBottom:16}}>Fonctionnalités</div>
-              <h2 style={{fontSize:isMobile?30:48,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:18,lineHeight:1.04}}>Tout ce dont vous avez besoin.</h2>
-              <p style={{fontSize:17,color:TEXT2,maxWidth:460,margin:'0 auto',lineHeight:1.8}}>Une solution complète pour les équipes terrain. Sans formation, sans complexité.</p>
-            </div>
-          </Reveal>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:2,background:BORDER,borderRadius:20,overflow:'hidden',marginBottom:28}}>
-            {[
-              {icon:'📅',title:'Planning intelligent',desc:'Créez et publiez les plannings en quelques clics. Shifts simples ou coupés. Postes adaptés à votre secteur.',bg:'rgba(59,158,255,.08)'},
-              {icon:'📷',title:'Badgeage QR Code',desc:'QR dynamique renouvelé toutes les 30s. Scan depuis le téléphone. Borne tablette disponible.',bg:'rgba(120,116,255,.08)'},
-              {icon:'👥',title:'Présences en direct',desc:'Visualisez qui est là maintenant. Heures prévues vs heures pointées. Écarts calculés automatiquement.',bg:'rgba(52,199,89,.08)'},
-              {icon:'📱',title:'App mobile employé',desc:'Chaque employé consulte son planning, badge et voit son historique. iPhone et Android.',bg:'rgba(255,149,0,.08)'},
-              {icon:'📄',title:'Export PDF paie',desc:'Rapports générés en un clic. Par employé, par période. Prêt pour votre comptable.',bg:'rgba(255,59,48,.08)'},
-              {icon:'🏢',title:'Multi-établissements',desc:'Gérez plusieurs sites depuis un seul tableau de bord. Données isolées par établissement.',bg:'rgba(167,139,250,.08)'},
-            ].map((f,i)=>(
-              <div key={i} style={{background:SURF,padding:'32px 26px',transition:'background .2s,transform .2s'}}
-              onMouseEnter={e=>{e.currentTarget.style.background=CARD}}
-              onMouseLeave={e=>{e.currentTarget.style.background=SURF}}>
-                <div style={{width:48,height:48,borderRadius:14,background:f.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,marginBottom:18}}>{f.icon}</div>
-                <div style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:10}}>{f.title}</div>
-                <div style={{fontSize:14,color:TEXT2,lineHeight:1.7}}>{f.desc}</div>
-              </div>
-            ))}
-          </div>
-          <Reveal>
-            <div style={{textAlign:'center'}}>
-              <button onClick={()=>goPage('fonctionnalites')} style={{padding:'12px 24px',borderRadius:11,border:`1.5px solid ${BORDER}`,background:'transparent',color:A,fontSize:14,fontWeight:600,cursor:'pointer',transition:'all .2s'}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=A;e.currentTarget.style.background='rgba(59,158,255,.08)'}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.background='transparent'}}>
+            <div style={{textAlign:'center',marginTop:28}}>
+              <button onClick={()=>goPage('fonctionnalites')} style={{padding:'11px 22px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:SURF,color:A,fontSize:13,fontWeight:600,cursor:'pointer',transition:'all .15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=A;e.currentTarget.style.background:AG}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.background=SURF}}>
                 Toutes les fonctionnalités →
               </button>
             </div>
@@ -585,108 +602,118 @@ export default function Login() {
         </div>
       </section>
 
-      {/* SECTEURS */}
+      {/* 6. PHOTO ÉQUIPE + SECTEURS */}
       <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
         <div style={WM}>
-          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1.5fr',gap:72,alignItems:'center'}}>
-            <Reveal>
-              <div style={{marginBottom:isMobile?40:0}}>
-                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.14em',textTransform:'uppercase',marginBottom:16}}>Secteurs</div>
-                <h2 style={{fontSize:isMobile?30:42,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:20,lineHeight:1.06}}>Votre secteur,<br/>vos postes.</h2>
-                <p style={{fontSize:16,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Kronvo s'adapte à votre activité avec les termes exacts que vous utilisez. Chaque établissement configure ses propres postes.</p>
-                <button onClick={()=>goPage('contact')} style={{padding:'13px 24px',borderRadius:11,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:8,transition:'opacity .2s'}}
-                onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
-                onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-                  Vérifier mon secteur <Arr size={14}/>
-                </button>
+          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1.4fr 1fr',gap:56,alignItems:'center'}}>
+            <div>
+              <Reveal>
+                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Secteurs</div>
+                <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:16,lineHeight:1.06}}>Votre secteur,<br/>vos postes.</h2>
+                <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Kronvo s'adapte à votre activité avec les termes exacts que vous utilisez. Chaque établissement configure ses propres postes — restaurant, clinique, garage ou autre.</p>
+              </Reveal>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                {[
+                  {bg:AG,bc:AB,c:A,title:'Restaurants & Hôtels',postes:'Cuisine · Salle · Bar · Réception'},
+                  {bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a',title:'Cliniques & Santé',postes:'Médecin · Infirmier · Accueil'},
+                  {bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c',title:'Garages & BTP',postes:'Mécanicien · Atelier · Chantier'},
+                  {bg:'#faf5ff',bc:'#e9d5ff',c:'#7c3aed',title:'Commerce',postes:'Caissier · Rayon · Manager'},
+                  {bg:'#f0f9ff',bc:'#bae6fd',c:'#0891b2',title:'Logistique',postes:'Préparateur · Chef équipe'},
+                  {bg:'#fdf2f8',bc:'#fbcfe8',c:'#be185d',title:'Spas & Éducation',postes:'Esthéticien · Formateur'},
+                ].map((s,i)=>(
+                  <Reveal key={i} delay={i*50}>
+                    <div style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:12,padding:'14px 16px',transition:'transform .2s'}}
+                    onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
+                    onMouseLeave={e=>e.currentTarget.style.transform='none'}>
+                      <div style={{fontSize:13,fontWeight:700,color:s.c,marginBottom:5}}>{s.title}</div>
+                      <div style={{fontSize:11,color:s.c,opacity:.7,lineHeight:1.6}}>{s.postes}</div>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+              <Reveal>
+                <div style={{marginTop:16}}>
+                  <span style={{fontSize:13,color:TEXT2}}>Votre secteur n'est pas listé ? </span>
+                  <span onClick={()=>goPage('contact')} style={{fontSize:13,color:A,fontWeight:600,cursor:'pointer'}}>Contactez-nous →</span>
+                </div>
+              </Reveal>
+            </div>
+            <Reveal delay={100}>
+              <div style={{borderRadius:20,overflow:'hidden',boxShadow:'0 12px 48px rgba(0,0,0,.08)',border:`1px solid ${BORDER}`,marginTop:isMobile?32:0}}>
+                <img
+                  src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500&q=80"
+                  alt="Équipe médicale"
+                  style={{width:'100%',height:280,objectFit:'cover',display:'block'}}
+                  onError={e=>{e.target.style.display='none'}}
+                />
+                <img
+                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&q=80"
+                  alt="Équipe logistique"
+                  style={{width:'100%',height:180,objectFit:'cover',display:'block',borderTop:`1px solid ${BORDER}`}}
+                  onError={e=>{e.target.style.display='none'}}
+                />
               </div>
             </Reveal>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-              {[
-                {bg:'rgba(59,158,255,.15)',border:'rgba(59,158,255,.3)',c:'#7dd3fc',title:'Restaurants & Hôtels',postes:'Cuisine · Salle · Bar · Réception · Ménage'},
-                {bg:'rgba(255,59,48,.12)',border:'rgba(255,59,48,.3)',c:'#fca5a5',title:'Cliniques & Santé',postes:'Médecin · Infirmier · Accueil · Admin'},
-                {bg:'rgba(255,149,0,.08)',border:'rgba(255,149,0,.2)',c:'#ffb347',title:'Garages & BTP',postes:'Mécanicien · Chef atelier · Chantier'},
-                {bg:'rgba(120,116,255,.15)',border:'rgba(120,116,255,.3)',c:'#c4b5fd',title:'Commerce',postes:'Caissier · Rayon · Manager · Réserve'},
-                {bg:'rgba(52,199,89,.15)',border:'rgba(52,199,89,.3)',c:'#86efac',title:'Logistique',postes:'Préparateur · Chef équipe · Quai'},
-                {bg:'rgba(167,139,250,.15)',border:'rgba(167,139,250,.3)',c:'#e9d5ff',title:'Spas, Éducation & +',postes:'Esthéticien · Formateur · Accueil'},
-              ].map((s,i)=>(
-                <Reveal key={i} delay={i*60}>
-                  <div style={{background:s.bg,borderRadius:16,padding:'18px',border:`1px solid ${s.border}`,transition:'transform .2s'}}
-                  onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
-                  onMouseLeave={e=>e.currentTarget.style.transform='none'}>
-                    <div style={{fontSize:13,fontWeight:700,color:s.c,marginBottom:7}}>{s.title}</div>
-                    <div style={{fontSize:11,color:s.c,opacity:.8,lineHeight:1.7}}>{s.postes}</div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
           </div>
         </div>
       </section>
 
-      {/* ROI */}
+      {/* 7. CALCULATEUR ROI */}
       <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
         <div style={W}>
           <Reveal>
-            <div style={{textAlign:'center',marginBottom:56}}>
-              <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.14em',textTransform:'uppercase',marginBottom:16}}>Calculateur</div>
-              <h2 style={{fontSize:isMobile?30:48,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:18,lineHeight:1.04}}>Combien vous coûte<br/>l'ancien système ?</h2>
-              <p style={{fontSize:17,color:TEXT2,maxWidth:420,margin:'0 auto',lineHeight:1.8}}>Calculez ce que vous perdez chaque mois avec les feuilles papier et les appels inutiles.</p>
+            <div style={{textAlign:'center',marginBottom:52}}>
+              <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Calculateur</div>
+              <h2 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.04}}>Combien vous coûte<br/>l'ancien système ?</h2>
+              <p style={{fontSize:16,color:TEXT2,maxWidth:400,margin:'0 auto',lineHeight:1.8}}>Calculez le vrai coût des feuilles papier et des appels inutiles.</p>
             </div>
           </Reveal>
-          <Reveal delay={100}>
-            <RoiCalc isMobile={isMobile} A={A} SURF={CARD} BORDER={BORDER} TEXT={TEXT} TEXT2={TEXT2} BG={BG}/>
-          </Reveal>
+          <Reveal delay={80}><RoiCalc isMobile={isMobile}/></Reveal>
         </div>
       </section>
 
-      {/* FAQ + CTA */}
+      {/* 8. FAQ + CTA */}
       <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
         <div style={W}>
-          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:88,alignItems:'start'}}>
+          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:72,alignItems:'start'}}>
             <div>
               <Reveal>
-                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.14em',textTransform:'uppercase',marginBottom:16}}>Questions fréquentes</div>
-                <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:12,lineHeight:1.08}}>Tout ce que vous voulez savoir.</h2>
-                <p style={{fontSize:16,color:TEXT2,marginBottom:40,lineHeight:1.8}}>Avant de commencer, voici les réponses aux questions les plus fréquentes.</p>
+                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Questions fréquentes</div>
+                <h2 style={{fontSize:isMobile?26:38,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:12,lineHeight:1.08}}>Tout ce que vous voulez savoir.</h2>
+                <p style={{fontSize:15,color:TEXT2,marginBottom:36,lineHeight:1.8}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
               </Reveal>
-              <FaqSection TEXT={TEXT} TEXT2={TEXT2} BORDER={BORDER} A={A}/>
+              <FaqSection/>
             </div>
-            <div style={{marginTop:isMobile?56:0}}>
-              <Reveal delay={150}>
-                <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:24,padding:'40px',marginBottom:14}}>
-                  <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 13px',borderRadius:20,background:'rgba(59,158,255,.1)',border:'1px solid rgba(59,158,255,.18)',marginBottom:24}}>
-                    <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',boxShadow:'0 0 0 2px rgba(52,199,89,.2)',display:'inline-block'}}></span>
-                    <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.5)'}}>Démo disponible cette semaine</span>
+            <div style={{marginTop:isMobile?52:0}}>
+              <Reveal delay={120}>
+                <div style={{background:TEXT,borderRadius:22,padding:'36px',marginBottom:12}}>
+                  <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 12px',borderRadius:20,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.12)',marginBottom:22}}>
+                    <span style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
+                    <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.55)'}}>Démo disponible cette semaine</span>
                   </div>
-                  <h3 style={{fontSize:isMobile?24:32,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:16,lineHeight:1.08}}>Prêt à simplifier<br/>la gestion de votre équipe ?</h3>
-                  <p style={{fontSize:15,color:TEXT2,marginBottom:32,lineHeight:1.75}}>Démo gratuite via Teams. Notre équipe configure tout pour vous, sans engagement.</p>
-                  <button onClick={()=>goPage('contact')} style={{width:'100%',padding:'16px',borderRadius:13,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',marginBottom:10,boxShadow:'0 4px 24px rgba(59,158,255,.25)',transition:'opacity .2s'}}
-                  onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
+                  <h3 style={{fontSize:isMobile?22:28,fontWeight:900,color:'white',letterSpacing:'-.04em',marginBottom:14,lineHeight:1.08}}>Prêt à simplifier<br/>la gestion de votre équipe ?</h3>
+                  <p style={{fontSize:14,color:'rgba(255,255,255,.45)',marginBottom:28,lineHeight:1.75}}>Démo gratuite via Teams. Notre équipe configure tout pour vous, sans engagement.</p>
+                  <button onClick={()=>goPage('contact')} style={{width:'100%',padding:'15px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',marginBottom:10,transition:'opacity .15s'}}
+                  onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
                   onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-                    Réserver ma démo gratuite <Arr/>
+                    Réserver ma démo gratuite <IcoArr/>
                   </button>
-                  <button onClick={()=>setShowLogin(true)} style={{width:'100%',padding:'14px',borderRadius:13,border:`1px solid ${BORDER}`,background:'transparent',color:'rgba(255,255,255,.4)',fontSize:14,fontWeight:500,cursor:'pointer',transition:'all .2s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.2)';e.currentTarget.style.color='rgba(255,255,255,.65)'}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.color='rgba(255,255,255,.4)'}}>
+                  <button onClick={()=>setShowLogin(true)} style={{width:'100%',padding:'13px',borderRadius:12,border:'1px solid rgba(255,255,255,.12)',background:'transparent',color:'rgba(255,255,255,.45)',fontSize:14,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.25)';e.currentTarget.style.color='rgba(255,255,255,.65)'}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.12)';e.currentTarget.style.color='rgba(255,255,255,.45)'}}>
                     Déjà client — Se connecter
                   </button>
-                  <div style={{fontSize:11,color:'rgba(255,255,255,.15)',textAlign:'center',marginTop:16}}>Sans carte bancaire · Sans engagement · Réponse sous 24h</div>
+                  <div style={{fontSize:11,color:'rgba(255,255,255,.18)',textAlign:'center',marginTop:14}}>Sans carte bancaire · Sans engagement · Réponse sous 24h</div>
                 </div>
               </Reveal>
-              <Reveal delay={200}>
-                <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px'}}>
-                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:18}}>Mise en place en 4 étapes</div>
-                  {[
-                    {e:'📹',t:'Démo 30 min',d:'On vous présente Kronvo adapté à votre secteur.'},
-                    {e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},
-                    {e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés. Documentation fournie.'},
-                    {e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'},
-                  ].map((s,i)=>(
-                    <div key={i} style={{display:'flex',gap:14,alignItems:'flex-start',marginBottom:i<3?16:0}}>
-                      <div style={{width:36,height:36,borderRadius:10,background:'rgba(255,255,255,.05)',border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>{s.e}</div>
+              <Reveal delay={180}>
+                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'22px'}}>
+                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:16}}>Mise en place en 4 étapes</div>
+                  {[{e:'📹',t:'Démo 30 min',d:'Présentation Kronvo adaptée à votre secteur.'},{e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},{e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés, documentation fournie.'},{e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'}].map((s,i)=>(
+                    <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:i<3?14:0}}>
+                      <div style={{width:34,height:34,borderRadius:9,background:BG,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,flexShrink:0}}>{s.e}</div>
                       <div style={{paddingTop:3}}>
-                        <div style={{fontSize:13,fontWeight:600,color:TEXT,marginBottom:3}}>{s.t}</div>
+                        <div style={{fontSize:13,fontWeight:600,color:TEXT,marginBottom:2}}>{s.t}</div>
                         <div style={{fontSize:12,color:TEXT2,lineHeight:1.5}}>{s.d}</div>
                       </div>
                     </div>
@@ -700,259 +727,236 @@ export default function Login() {
     </>
   )
 
+  // ══ PAGE FONCTIONNALITÉS ════════════════════════════════════════════
   const PageFeatures=()=>(
-    <div style={{paddingTop:64,minHeight:'100vh',background:BG}}>
-      <div style={{...W,padding:isMobile?'56px 24px':'80px 56px'}}>
+    <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
+      <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
         <Reveal>
-          <div style={{textAlign:'center',marginBottom:72}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.14em',textTransform:'uppercase',marginBottom:16}}>Fonctionnalités</div>
-            <h1 style={{fontSize:isMobile?32:56,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:20,lineHeight:1.02}}>Tout ce que Kronvo<br/>peut faire pour vous.</h1>
-            <p style={{fontSize:17,color:TEXT2,maxWidth:520,margin:'0 auto',lineHeight:1.8}}>Une solution pensée pour les équipes terrain. Zéro complexité, 100% efficace dès le premier jour.</p>
+          <div style={{textAlign:'center',marginBottom:64}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Fonctionnalités</div>
+            <h1 style={{fontSize:isMobile?30:52,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.02}}>Tout ce que Kronvo<br/>peut faire pour vous.</h1>
+            <p style={{fontSize:16,color:TEXT2,maxWidth:500,margin:'0 auto',lineHeight:1.8}}>Une solution pensée pour les équipes terrain. Zéro complexité, 100% efficace dès le premier jour.</p>
           </div>
         </Reveal>
-
-        {/* Feature principale mise en avant */}
+        {/* Feature principale */}
         <Reveal>
-          <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:24,padding:isMobile?'28px':'48px',marginBottom:16,display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:48,alignItems:'center'}}>
+          <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:20,padding:isMobile?'24px':'40px',marginBottom:12,display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:40,alignItems:'center'}}>
             <div>
-              <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 12px',borderRadius:20,background:'rgba(59,158,255,.1)',border:'1px solid rgba(59,158,255,.2)',marginBottom:20}}>
-                <span style={{fontSize:12}}>📅</span>
-                <span style={{fontSize:11,fontWeight:600,color:A}}>Fonctionnalité clé</span>
+              <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 12px',borderRadius:20,background:AG,border:`1px solid ${AB}`,marginBottom:18}}>
+                <IcoCalendar c={A}/>
+                <span style={{fontSize:12,fontWeight:600,color:A}}>Fonctionnalité clé</span>
               </div>
-              <h2 style={{fontSize:isMobile?24:32,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:16}}>Planning intelligent</h2>
-              <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:24}}>Créez des plannings complets en quelques minutes. Shifts simples ou coupés, postes adaptés à votre secteur, publication en un clic pour toute votre équipe.</p>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {['Shifts simples ou coupés configurables','Postes personnalisables selon votre activité','Publication instantanée pour toute l\'équipe','Modification en temps réel depuis le dashboard','Vue semaine desktop, vue jour sur mobile'].map((item,j)=>(
-                  <div key={j} style={{display:'flex',alignItems:'center',gap:10}}>
-                    <Chk size={13}/>
-                    <span style={{fontSize:14,color:TEXT2}}>{item}</span>
+              <h2 style={{fontSize:isMobile?22:30,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:14}}>Planning intelligent</h2>
+              <p style={{fontSize:14,color:TEXT2,lineHeight:1.8,marginBottom:20}}>Créez des plannings complets en quelques minutes. Shifts simples ou coupés, postes adaptés, publication en un clic.</p>
+              <div style={{display:'flex',flexDirection:'column',gap:9}}>
+                {['Shifts simples ou coupés','Postes personnalisables','Publication instantanée','Vue semaine / jour','Modification en temps réel'].map((item,j)=>(
+                  <div key={j} style={{display:'flex',alignItems:'center',gap:9}}>
+                    <IcoChk size={12}/>
+                    <span style={{fontSize:13,color:TEXT2}}>{item}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{background:'rgba(59,158,255,.05)',borderRadius:16,padding:'24px',border:'1px solid rgba(59,158,255,.1)',marginTop:isMobile?24:0}}>
-              <div style={{fontSize:11,fontWeight:700,color:TEXT3,letterSpacing:'.1em',marginBottom:14}}>PLANNING SEMAINE</div>
+            <div style={{background:BG,borderRadius:14,padding:'20px',border:`1px solid ${BORDER}`,marginTop:isMobile?20:0}}>
+              <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.1em',marginBottom:12}}>PLANNING SEMAINE</div>
               {['Lundi','Mardi','Mercredi','Jeudi','Vendredi'].map((j,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-                  <div style={{fontSize:12,color:TEXT3,width:60,flexShrink:0}}>{j}</div>
-                  <div style={{flex:1,height:28,borderRadius:7,background:`rgba(59,158,255,${0.15+i*0.05})`,display:'flex',alignItems:'center',paddingLeft:10}}>
-                    <span style={{fontSize:11,color:A,fontWeight:600}}>{['Sophie M.','Marc D.','Julie B.','Sophie M.','Marc D.'][i]} · {['09:00-17:00','10:00-18:00','09:00-15:00','11:00-19:00','09:00-17:00'][i]}</span>
+                <div key={i} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                  <div style={{fontSize:11,color:TEXT3,width:52,flexShrink:0}}>{j}</div>
+                  <div style={{flex:1,height:26,borderRadius:7,background:AG,display:'flex',alignItems:'center',paddingLeft:10,border:`1px solid ${AB}`}}>
+                    <span style={{fontSize:10,color:A,fontWeight:600}}>{['Sophie M. · 09:00-17:00','Marc D. · 10:00-18:00','Julie B. · 09:00-15:00','Sophie M. · 11:00-19:00','Marc D. · 09:00-17:00'][i]}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         </Reveal>
-
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,1fr)',gap:16,marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,1fr)',gap:12,marginBottom:12}}>
           {[
-            {icon:'📷',title:'Badgeage QR Code sécurisé',color:'rgba(120,116,255,.08)',border:'rgba(120,116,255,.15)',items:['QR dynamique renouvelé toutes les 30s','Scan depuis le smartphone','Vérification d\'appartenance à l\'établissement','Borne tablette fixe avec PIN sécurisé']},
-            {icon:'👥',title:'Suivi des présences',color:'rgba(52,199,89,.08)',border:'rgba(52,199,89,.15)',items:['Vue temps réel de qui est présent','Heures planifiées vs heures pointées','Calcul automatique des écarts','Correction manuelle par le gérant']},
-            {icon:'📄',title:'Rapports et export PDF',color:'rgba(255,59,48,.08)',border:'rgba(255,59,48,.15)',items:['Rapports PDF professionnels en un clic','Filtrage par période personnalisable','Détail complet par employé','Export immédiat depuis le dashboard']},
-            {icon:'📱',title:'App mobile employé',color:'rgba(255,149,0,.08)',border:'rgba(255,149,0,.15)',items:['Installable sur iPhone et Android','Planning personnel toujours à jour','Bouton scan QR intégré','Consultable hors connexion']},
+            {Icon:IcoQR,bg:'#faf5ff',bc:'#e9d5ff',c:'#7c3aed',title:'Badgeage QR Code sécurisé',items:['QR dynamique renouvelé toutes les 30s','Scan depuis le smartphone','Vérification d\'appartenance','Borne tablette avec PIN']},
+            {Icon:IcoUsers,bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a',title:'Suivi des présences',items:['Vue temps réel','Heures planifiées vs pointées','Calcul auto des écarts','Correction manuelle']},
+            {Icon:IcoFile,bg:'#f0f9ff',bc:'#bae6fd',c:'#0891b2',title:'Rapports et export PDF',items:['PDF professionnels en 1 clic','Filtrage par période','Détail par employé','Export immédiat']},
+            {Icon:IcoPhone,bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c',title:'App mobile employé',items:['iPhone et Android (PWA)','Planning toujours à jour','Bouton scan QR intégré','Hors connexion']},
           ].map((f,i)=>(
-            <Reveal key={i} delay={i*80}>
-              <div style={{background:f.color,border:`1px solid ${f.border}`,borderRadius:20,padding:'28px',height:'100%',transition:'transform .2s'}}
+            <Reveal key={i} delay={i*70}>
+              <div style={{background:f.bg,border:`1px solid ${f.bc}`,borderRadius:16,padding:'24px',transition:'transform .2s'}}
               onMouseEnter={e=>e.currentTarget.style.transform='translateY(-3px)'}
               onMouseLeave={e=>e.currentTarget.style.transform='none'}>
-                <div style={{fontSize:28,marginBottom:16}}>{f.icon}</div>
-                <div style={{fontSize:17,fontWeight:700,color:TEXT,marginBottom:14}}>{f.title}</div>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
+                  <div style={{width:40,height:40,background:'white',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',border:`1px solid ${f.bc}`}}><f.Icon c={f.c}/></div>
+                  <div style={{fontSize:15,fontWeight:700,color:TEXT}}>{f.title}</div>
+                </div>
                 {f.items.map((item,j)=>(
-                  <div key={j} style={{display:'flex',alignItems:'center',gap:9,marginBottom:9}}>
-                    <Chk size={12}/>
-                    <span style={{fontSize:13,color:TEXT2,lineHeight:1.5}}>{item}</span>
+                  <div key={j} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                    <IcoChk size={11} c={f.c}/>
+                    <span style={{fontSize:13,color:TEXT2}}>{item}</span>
                   </div>
                 ))}
               </div>
             </Reveal>
           ))}
         </div>
-
         <Reveal>
-          <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:20,padding:'32px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:32,alignItems:'center'}}>
+          <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'28px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:28,alignItems:'center',marginBottom:12}}>
             <div>
-              <div style={{fontSize:28,marginBottom:12}}>🏢</div>
-              <h3 style={{fontSize:20,fontWeight:800,color:TEXT,marginBottom:10,letterSpacing:'-.02em'}}>Multi-établissements</h3>
-              <p style={{fontSize:14,color:TEXT2,lineHeight:1.75}}>Gérez plusieurs sites depuis un seul tableau de bord. Données entièrement isolées par établissement. Idéal pour les groupes et franchises.</p>
-            </div>
-            <div style={{marginTop:isMobile?20:0}}>
-              <div style={{background:'rgba(59,158,255,.05)',border:'1px solid rgba(59,158,255,.1)',borderRadius:12,padding:'20px'}}>
-                <div style={{fontSize:11,fontWeight:700,color:TEXT3,letterSpacing:'.1em',marginBottom:14}}>VOS ÉTABLISSEMENTS</div>
-                {['Le Bistrot · Paris','Hotel Lumière · Lyon','Clinique Santé · Genève'].map((e,i)=>(
-                  <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'9px 12px',borderRadius:9,background:'rgba(255,255,255,.03)',border:`1px solid ${BORDER}`,marginBottom:8}}>
-                    <span style={{fontSize:13,color:TEXT,fontWeight:500}}>{e}</span>
-                    <span style={{fontSize:11,color:'#4cd964',fontWeight:600}}>● Actif</span>
-                  </div>
-                ))}
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+                <div style={{width:40,height:40,background:'#fdf2f8',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid #fbcfe8'}}><IcoBuilding c="#be185d"/></div>
+                <div style={{fontSize:15,fontWeight:700,color:TEXT}}>Multi-établissements</div>
               </div>
+              <p style={{fontSize:13,color:TEXT2,lineHeight:1.75}}>Gérez plusieurs sites depuis un seul tableau de bord. Données entièrement isolées. Idéal pour les groupes et franchises.</p>
+            </div>
+            <div style={{background:BG,border:`1px solid ${BORDER}`,borderRadius:12,padding:'16px',marginTop:isMobile?16:0}}>
+              {['Le Bistrot · Paris','Hotel Lumière · Lyon','Clinique Santé · Genève'].map((e,i)=>(
+                <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 12px',background:SURF,border:`1px solid ${BORDER}`,borderRadius:8,marginBottom:8}}>
+                  <span style={{fontSize:12,color:TEXT,fontWeight:500}}>{e}</span>
+                  <span style={{fontSize:10,color:'#16a34a',fontWeight:600,display:'flex',alignItems:'center',gap:4}}><span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>Actif</span>
+                </div>
+              ))}
             </div>
           </div>
         </Reveal>
-
         <Reveal>
-          <div style={{background:'rgba(59,158,255,.05)',border:'1px solid rgba(59,158,255,.1)',borderRadius:20,padding:'36px',textAlign:'center',marginTop:16}}>
-            <div style={{fontSize:22,fontWeight:800,color:TEXT,marginBottom:12}}>Fonctionnalités à venir</div>
-            <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap',marginBottom:24}}>
+          <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:16,padding:'28px',textAlign:'center'}}>
+            <h3 style={{fontSize:18,fontWeight:800,color:TEXT,marginBottom:10}}>Fonctionnalités à venir</h3>
+            <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap',marginBottom:20}}>
               {['Notifications email','Analytics avancées','Intégration paie','Messagerie équipe','Multi-langue'].map(f=>(
-                <span key={f} style={{padding:'7px 16px',borderRadius:20,background:'rgba(59,158,255,.08)',border:'1px solid rgba(59,158,255,.15)',fontSize:13,fontWeight:600,color:A}}>{f}</span>
+                <span key={f} style={{padding:'6px 14px',borderRadius:20,background:'white',border:`1px solid ${AB}`,fontSize:12,fontWeight:600,color:A}}>{f}</span>
               ))}
             </div>
-            <button onClick={()=>goPage('contact')} style={{padding:'14px 28px',borderRadius:11,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
+            <button onClick={()=>goPage('contact')} style={{padding:'12px 24px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
           </div>
         </Reveal>
       </div>
     </div>
   )
 
+  // ══ PAGE TARIFS ════════════════════════════════════════════════════
   const PagePricing=()=>(
-    <div style={{paddingTop:64,minHeight:'100vh',background:BG}}>
-      <div style={{...W,padding:isMobile?'56px 24px':'80px 56px'}}>
+    <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
+      <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
         <Reveal>
-          <div style={{textAlign:'center',marginBottom:72}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.14em',textTransform:'uppercase',marginBottom:16}}>Tarifs</div>
-            <h1 style={{fontSize:isMobile?32:56,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:20,lineHeight:1.02}}>Investissez dans<br/>ce qui compte vraiment.</h1>
-            <p style={{fontSize:17,color:TEXT2,maxWidth:520,margin:'0 auto',lineHeight:1.8}}>Un tarif sur mesure adapté à votre taille et vos besoins. Démo gratuite incluse, sans engagement.</p>
+          <div style={{textAlign:'center',marginBottom:64}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Tarifs</div>
+            <h1 style={{fontSize:isMobile?30:52,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.02}}>Investissez dans<br/>ce qui compte vraiment.</h1>
+            <p style={{fontSize:16,color:TEXT2,maxWidth:480,margin:'0 auto',lineHeight:1.8}}>Tarif sur mesure adapté à votre taille et vos besoins. Démo gratuite, sans engagement.</p>
           </div>
         </Reveal>
-
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:16,marginBottom:32}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:14,marginBottom:28}}>
           {[
-            {name:'Mise en place',icon:'🚀',bg:'rgba(59,158,255,.08)',border:'rgba(59,158,255,.15)',c:A,
-             desc:'SwitzerIT configure tout pour vous de A à Z.',
-             items:['Création et configuration du compte','Paramétrage de vos établissements','Import de vos employés','Installation borne tablette','Formation complète des gérants','Documentation et support au lancement'],
+            {name:'Mise en place',icon:'🚀',bg:'white',border:BORDER,c:A,
+             desc:'Configuration complète par SwitzerIT.',
+             items:['Création et configuration','Paramétrage établissements','Import des employés','Installation borne tablette','Formation gérant','Documentation complète'],
              tag:'Sur devis',featured:false},
-            {name:'Abonnement mensuel',icon:'✨',bg:'rgba(59,158,255,.08)',border:A,c:A,
+            {name:'Abonnement mensuel',icon:'✨',bg:'white',border:A,c:A,
              desc:'Accès complet à Kronvo pour votre établissement.',
-             items:['Planning et badgeage illimités','Tous vos employés inclus','Rapports PDF illimités','Support email réactif sous 24h','Mises à jour automatiques incluses','Hébergement sécurisé en Suisse'],
-             tag:'Sur devis · facturé en CHF',featured:true},
-            {name:'Support & maintenance',icon:'🛡️',bg:'rgba(167,139,250,.08)',border:'rgba(167,139,250,.2)',c:'#a78bfa',
+             items:['Planning et badgeage illimités','Tous vos employés inclus','Rapports PDF illimités','Support email sous 24h','Mises à jour automatiques','Hébergement sécurisé Suisse'],
+             tag:'Sur devis · en CHF',featured:true},
+            {name:'Support & maintenance',icon:'🛡️',bg:'white',border:BORDER,c:'#7c3aed',
              desc:'Accompagnement continu pour votre sérénité.',
-             items:['Support prioritaire SwitzerIT','Intervention garantie sous 4h','Formations supplémentaires incluses','Évolutions personnalisées possibles','Suivi trimestriel dédié','SLA garanti par contrat'],
+             items:['Support prioritaire','Intervention sous 4h','Formations supplémentaires','Évolutions personnalisées','Suivi trimestriel','SLA garanti'],
              tag:'Options disponibles',featured:false},
           ].map((plan,i)=>(
             <Reveal key={i} delay={i*80}>
-              <div style={{background:plan.bg,border:`${plan.featured?'2px':'1px'} solid ${plan.border}`,borderRadius:20,padding:'28px',display:'flex',flexDirection:'column',position:'relative',boxShadow:plan.featured?'0 0 40px rgba(59,158,255,.1)':'none',height:'100%'}}>
-                {plan.featured&&<div style={{position:'absolute',top:-14,left:'50%',transform:'translateX(-50%)',padding:'4px 18px',borderRadius:20,background:A,color:'white',fontSize:10,fontWeight:700,whiteSpace:'nowrap',letterSpacing:'.06em'}}>RECOMMANDÉ</div>}
-                <div style={{fontSize:32,marginBottom:14}}>{plan.icon}</div>
-                <div style={{fontSize:19,fontWeight:800,color:TEXT,marginBottom:8,letterSpacing:'-.02em'}}>{plan.name}</div>
-                <div style={{fontSize:14,color:TEXT2,lineHeight:1.65,marginBottom:20}}>{plan.desc}</div>
-                <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:24,flex:1}}>
+              <div style={{background:plan.bg,border:`${plan.featured?'2px':'1px'} solid ${plan.border}`,borderRadius:20,padding:'26px',display:'flex',flexDirection:'column',position:'relative',boxShadow:plan.featured?'0 8px 40px rgba(0,102,204,.1)':'none',height:'100%'}}>
+                {plan.featured&&<div style={{position:'absolute',top:-13,left:'50%',transform:'translateX(-50%)',padding:'4px 16px',borderRadius:20,background:A,color:'white',fontSize:10,fontWeight:700,whiteSpace:'nowrap'}}>RECOMMANDÉ</div>}
+                <div style={{fontSize:28,marginBottom:12}}>{plan.icon}</div>
+                <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:7}}>{plan.name}</div>
+                <div style={{fontSize:13,color:TEXT2,lineHeight:1.6,marginBottom:18}}>{plan.desc}</div>
+                <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20,flex:1}}>
                   {plan.items.map(f=>(
-                    <div key={f} style={{display:'flex',alignItems:'flex-start',gap:10,fontSize:13,color:TEXT2}}>
-                      <div style={{flexShrink:0,marginTop:2}}><Chk size={12} color={plan.c}/></div>{f}
+                    <div key={f} style={{display:'flex',alignItems:'flex-start',gap:9,fontSize:13,color:TEXT2}}>
+                      <div style={{flexShrink:0,marginTop:2}}><IcoChk size={11} c={plan.c}/></div>{f}
                     </div>
                   ))}
                 </div>
-                <div style={{padding:'10px 16px',background:'rgba(255,255,255,.04)',border:`1px solid ${BORDER}`,borderRadius:10,fontSize:13,fontWeight:700,color:plan.c,textAlign:'center',marginBottom:14}}>{plan.tag}</div>
-                <button onClick={()=>goPage('contact')} style={{width:'100%',height:46,borderRadius:11,border:plan.featured?'none':`1.5px solid ${plan.c}`,background:plan.featured?A:'transparent',color:plan.featured?'white':plan.c,fontSize:14,fontWeight:700,cursor:'pointer',transition:'opacity .2s'}}
+                <div style={{padding:'9px 14px',background:plan.featured?AG:BG,border:`1px solid ${plan.featured?AB:BORDER}`,borderRadius:9,fontSize:13,fontWeight:700,color:plan.c,textAlign:'center',marginBottom:12}}>{plan.tag}</div>
+                <button onClick={()=>goPage('contact')} style={{width:'100%',height:42,borderRadius:10,border:plan.featured?'none':`1.5px solid ${A}`,background:plan.featured?A:'transparent',color:plan.featured?'white':A,fontSize:13,fontWeight:700,cursor:'pointer',transition:'opacity .15s'}}
                 onMouseEnter={e=>e.currentTarget.style.opacity='.8'}
                 onMouseLeave={e=>e.currentTarget.style.opacity='1'}>Demander un devis</button>
               </div>
             </Reveal>
           ))}
         </div>
-
         <Reveal>
-          <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:20,padding:'32px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:40,alignItems:'center',marginBottom:16}}>
+          <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:18,padding:'28px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:32,alignItems:'center',marginBottom:14}}>
             <div>
-              <div style={{fontSize:13,fontWeight:700,color:A,marginBottom:10}}>Pourquoi choisir Kronvo ?</div>
-              <h3 style={{fontSize:isMobile?20:26,fontWeight:800,color:TEXT,marginBottom:16,letterSpacing:'-.03em'}}>Un investissement qui se rentabilise en moins d'un mois.</h3>
-              <p style={{fontSize:14,color:TEXT2,lineHeight:1.75}}>En moyenne, nos clients économisent 2 à 4 heures de travail administratif par semaine. Pour un gérant à 60 CHF/h, Kronvo se rentabilise dès le premier mois.</p>
+              <h3 style={{fontSize:isMobile?18:24,fontWeight:800,color:TEXT,marginBottom:12,letterSpacing:'-.03em'}}>Un investissement qui se rentabilise en moins d'un mois.</h3>
+              <p style={{fontSize:13,color:TEXT2,lineHeight:1.75}}>En moyenne, nos clients économisent 2 à 4 heures de travail administratif par semaine. Pour un gérant à 60 CHF/h, Kronvo se rentabilise dès le premier mois.</p>
             </div>
             <div style={{marginTop:isMobile?20:0}}>
-              {[
-                {label:'Temps économisé / semaine',val:'2-4h',c:A},
-                {label:'Erreurs de paie évitées',val:'100%',c:'#4cd964'},
-                {label:'Mise en place',val:'2-4h',c:'#ffb347'},
-                {label:'Retour sur investissement',val:'< 1 mois',c:'#a78bfa'},
-              ].map((s,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 0',borderBottom:i<3?`1px solid ${BORDER}`:'none'}}>
+              {[{label:'Temps économisé / semaine',val:'2-4h',c:A},{label:'Erreurs de paie évitées',val:'100%',c:'#16a34a'},{label:'Mise en place',val:'2-4h',c:'#ea580c'},{label:'Retour sur investissement',val:'< 1 mois',c:'#7c3aed'}].map((s,i)=>(
+                <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'11px 0',borderBottom:i<3?`1px solid ${BORDER}`:'none'}}>
                   <span style={{fontSize:13,color:TEXT2}}>{s.label}</span>
-                  <span style={{fontSize:15,fontWeight:800,color:s.c}}>{s.val}</span>
+                  <span style={{fontSize:14,fontWeight:800,color:s.c}}>{s.val}</span>
                 </div>
               ))}
             </div>
           </div>
         </Reveal>
-
         <Reveal>
-          <div style={{background:'rgba(59,158,255,.06)',border:'1px solid rgba(59,158,255,.15)',borderRadius:16,padding:'28px',display:'flex',alignItems:isMobile?'flex-start':'center',gap:18,flexDirection:isMobile?'column':'row'}}>
-            <div style={{fontSize:36,flexShrink:0}}>📹</div>
+          <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:14,padding:'24px',display:'flex',alignItems:isMobile?'flex-start':'center',gap:16,flexDirection:isMobile?'column':'row'}}>
+            <div style={{fontSize:32,flexShrink:0}}>📹</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:6}}>Démo gratuite via Teams — 30 minutes</div>
-              <div style={{fontSize:14,color:TEXT2,lineHeight:1.65}}>On vous présente Kronvo adapté à votre secteur et repartez avec un devis personnalisé. Sans engagement.</div>
+              <div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:5}}>Démo gratuite via Teams — 30 minutes</div>
+              <div style={{fontSize:13,color:TEXT2,lineHeight:1.65}}>On vous présente Kronvo adapté à votre secteur. Repartez avec un devis personnalisé. Sans engagement.</div>
             </div>
-            <button onClick={()=>goPage('contact')} style={{padding:'14px 24px',borderRadius:11,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto',transition:'opacity .2s'}}
-            onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
-            onMouseLeave={e=>e.currentTarget.style.opacity='1'}>Réserver ma démo →</button>
+            <button onClick={()=>goPage('contact')} style={{padding:'13px 22px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto'}}>Réserver ma démo →</button>
           </div>
         </Reveal>
       </div>
     </div>
   )
 
+  // ══ PAGE CONTACT ═══════════════════════════════════════════════════
   const PageContact=()=>(
-    <div style={{paddingTop:64,minHeight:'100vh',background:BG}}>
-      <div style={{...W,padding:isMobile?'56px 24px':'80px 56px'}}>
+    <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
+      <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
         <Reveal>
-          <div style={{textAlign:'center',marginBottom:60}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.14em',textTransform:'uppercase',marginBottom:16}}>Contact</div>
-            <h1 style={{fontSize:isMobile?30:52,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.02}}>Parlons de votre projet.</h1>
-            <p style={{fontSize:17,color:TEXT2,maxWidth:440,margin:'0 auto',lineHeight:1.8}}>Notre équipe vous répond sous 24h et organise une démo Teams gratuite adaptée à votre secteur.</p>
+          <div style={{textAlign:'center',marginBottom:56}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Contact</div>
+            <h1 style={{fontSize:isMobile?28:48,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:14,lineHeight:1.02}}>Parlons de votre projet.</h1>
+            <p style={{fontSize:16,color:TEXT2,maxWidth:420,margin:'0 auto',lineHeight:1.8}}>Notre équipe vous répond sous 24h et organise une démo Teams gratuite.</p>
           </div>
         </Reveal>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1.3fr 1fr',gap:24}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1.3fr 1fr',gap:20}}>
           <Reveal>
-            <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:22,padding:'36px'}}>
-              <ContactForm A={A} SURF={SURF} BORDER={BORDER} TEXT={TEXT} TEXT2={TEXT2} TEXT3={TEXT3} BG={BG} CARD={CARD} inp={inp} goPage={goPage} setShowLogin={setShowLogin}/>
+            <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:20,padding:'32px'}}>
+              <ContactForm goPage={goPage} setShowLogin={setShowLogin}/>
             </div>
           </Reveal>
-          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {[
-              {delay:100,content:(
-                <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:18,padding:'26px'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16}}>
-                    <span style={{fontSize:28}}>📹</span>
-                    <div style={{fontSize:15,fontWeight:700,color:TEXT}}>Démo Teams gratuite</div>
-                  </div>
-                  <div style={{fontSize:13,color:TEXT2,lineHeight:1.75,marginBottom:16}}>30 minutes pour voir Kronvo en action adapté à votre secteur. Repartez avec un devis personnalisé.</div>
-                  <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                    {['Présentation adaptée à votre secteur','Questions/réponses illimitées','Devis personnalisé inclus','Aucun engagement requis'].map((t,i)=>(
-                      <div key={i} style={{display:'flex',alignItems:'center',gap:8}}>
-                        <Chk size={12}/>
-                        <span style={{fontSize:13,color:TEXT2}}>{t}</span>
+              {delay:80,content:(
+                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'22px',overflow:'hidden',position:'relative'}}>
+                  <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&q=70" alt="Team" style={{width:'100%',height:140,objectFit:'cover',borderRadius:10,display:'block',marginBottom:14}} onError={e=>e.target.style.display='none'}/>
+                  <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>📹 Démo Teams gratuite</div>
+                  <div style={{fontSize:13,color:TEXT2,lineHeight:1.7,marginBottom:12}}>30 min adaptées à votre secteur. Repartez avec un devis personnalisé.</div>
+                  <div style={{display:'flex',flexDirection:'column',gap:7}}>
+                    {['Présentation adaptée','Questions illimitées','Devis inclus','Sans engagement'].map((t,i)=>(
+                      <div key={i} style={{display:'flex',alignItems:'center',gap:7}}>
+                        <IcoChk size={12}/><span style={{fontSize:12,color:TEXT2}}>{t}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )},
-              {delay:160,content:(
-                <div style={{background:'rgba(59,158,255,.06)',border:'1px solid rgba(59,158,255,.15)',borderRadius:14,padding:'20px'}}>
-                  <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:14}}>Ce qui est inclus</div>
-                  {[{icon:'🚀',t:'Mise en place par SwitzerIT',d:"Notre équipe configure tout."},{icon:'🇨🇭',t:'Facturation en CHF',d:'Sans frais cachés.'},{icon:'🔒',t:'Données sécurisées',d:'RGPD & LPD suisse.'}].map((info,i)=>(
-                    <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:i<2?14:0}}>
-                      <span style={{fontSize:20,flexShrink:0}}>{info.icon}</span>
-                      <div>
-                        <div style={{fontSize:13,fontWeight:600,color:TEXT,marginBottom:2}}>{info.t}</div>
-                        <div style={{fontSize:12,color:TEXT2}}>{info.d}</div>
-                      </div>
+              {delay:140,content:(
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                  {[{icon:<IcoShield c={A}/>,bg:AG,bc:AB,t:'RGPD & LPD Suisse',d:'Données sécurisées'},{icon:<IcoZap c='#ea580c'/>,bg:'#fff7ed',bc:'#fed7aa',t:'Mise en place rapide',d:'2 à 4 heures'},{icon:<IcoClock c='#16a34a'/>,bg:'#f0fdf4',bc:'#bbf7d0',t:'Réponse sous 24h',d:'Équipe humaine'},{icon:<span style={{fontSize:18}}>🇨🇭</span>,bg:'#f8fafc',bc:BORDER,t:'Basé en Suisse',d:'Facturation CHF'}].map((info,i)=>(
+                    <div key={i} style={{background:info.bg,border:`1px solid ${info.bc}`,borderRadius:12,padding:'14px'}}>
+                      <div style={{marginBottom:8}}>{info.icon}</div>
+                      <div style={{fontSize:12,fontWeight:700,color:TEXT,marginBottom:3}}>{info.t}</div>
+                      <div style={{fontSize:11,color:TEXT2}}>{info.d}</div>
                     </div>
                   ))}
                 </div>
               )},
-              {delay:200,content:(
-                <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:14,padding:'20px'}}>
-                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:14}}>Déjà client ?</div>
-                  <div style={{fontSize:13,color:TEXT2,marginBottom:14}}>Accédez directement à votre espace gérant.</div>
-                  <button onClick={()=>setShowLogin(true)} style={{width:'100%',padding:'11px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Se connecter →</button>
-                </div>
-              )},
-              {delay:240,content:(
-                <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:14,padding:'20px'}}>
-                  <div style={{fontSize:12,fontWeight:700,color:TEXT,marginBottom:12}}>Contact direct</div>
-                  <div style={{fontSize:13,color:TEXT2,marginBottom:6}}>📧 contact@switzerit.com</div>
-                  <div style={{fontSize:13,color:TEXT2,marginBottom:6}}>🌐 switzerit.com</div>
-                  <div style={{fontSize:13,color:TEXT2}}>🇨🇭 Basé en Suisse</div>
+              {delay:180,content:(
+                <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:12,padding:'16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10}}>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:4}}>Déjà client ?</div>
+                    <div style={{fontSize:12,color:TEXT2}}>Accédez à votre espace gérant.</div>
+                  </div>
+                  <button onClick={()=>setShowLogin(true)} style={{padding:'9px 18px',borderRadius:9,border:'none',background:A,color:'white',fontSize:12,fontWeight:700,cursor:'pointer',flexShrink:0}}>Se connecter →</button>
                 </div>
               )},
             ].map((item,i)=>(
@@ -964,14 +968,15 @@ export default function Login() {
     </div>
   )
 
+  // ══ PAGE LÉGAL ═════════════════════════════════════════════════════
   const PageLegal=()=>{
     const sections={
       cgu:{title:"Conditions Générales d'Utilisation",last:"11 mai 2026",content:[
         {h:"1. Objet",t:"Les présentes CGU régissent l'accès et l'utilisation de la plateforme Kronvo, éditée par SwitzerIT, basée en Suisse."},
         {h:"2. Description",t:"Kronvo est une solution SaaS de gestion d'équipes permettant la création de plannings, le badgeage par QR code, le suivi des présences et l'export de rapports."},
-        {h:"3. Accès",t:"L'accès est réservé aux professionnels. Chaque compte est associé à un établissement, géré par un gérant désigné."},
-        {h:"4. Obligations",t:"L'utilisateur s'engage à fournir des informations exactes, maintenir la confidentialité de ses identifiants, utiliser le service conformément à sa destination."},
-        {h:"5. Responsabilité",t:"Sa responsabilité est limitée au montant des sommes versées au cours des 12 derniers mois."},
+        {h:"3. Accès",t:"L'accès est réservé aux professionnels. Chaque compte est associé à un établissement géré par un gérant désigné."},
+        {h:"4. Obligations",t:"L'utilisateur s'engage à fournir des informations exactes et à maintenir la confidentialité de ses identifiants."},
+        {h:"5. Responsabilité",t:"La responsabilité est limitée au montant des sommes versées au cours des 12 derniers mois."},
         {h:"6. Propriété intellectuelle",t:"L'ensemble des éléments de Kronvo est la propriété exclusive de SwitzerIT. Toute reproduction non autorisée est interdite."},
         {h:"7. Résiliation",t:"Chaque partie peut résilier avec un préavis de 30 jours."},
         {h:"8. Droit applicable",t:"Les CGU sont soumises au droit suisse. Les tribunaux du canton de Vaud sont seuls compétents."},
@@ -980,7 +985,7 @@ export default function Login() {
         {h:"Responsable",t:"SwitzerIT, basé en Suisse. Contact : contact@switzerit.com"},
         {h:"Données collectées",t:"Données d'identification, données professionnelles, données de pointage."},
         {h:"Finalités",t:"Gestion des comptes, fonctionnement du service, génération de rapports."},
-        {h:"Conservation",t:"Durée du contrat + 3 ans. Données de pointage conservées 5 ans."},
+        {h:"Conservation",t:"Durée du contrat + 3 ans. Données de pointage : 5 ans."},
         {h:"Partage",t:"Les données ne sont jamais vendues. Partagées uniquement avec nos sous-traitants avec garanties contractuelles."},
         {h:"Vos droits",t:"Conformément à la LPD suisse et au RGPD : accès, rectification, effacement, portabilité. Contact : contact@switzerit.com"},
         {h:"Sécurité",t:"Données chiffrées en transit et au repos. Authentification sécurisée."},
@@ -989,12 +994,11 @@ export default function Login() {
         {h:"Engagement",t:"Kronvo respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse."},
         {h:"Données traitées",t:"Noms et prénoms des employés, emails professionnels, données de badgeage."},
         {h:"Conservation",t:"Employés actifs : durée du contrat. Facturation : 10 ans. Logs sécurité : 12 mois."},
-        {h:"Sous-traitants",t:"Supabase Inc. (USA - clauses contractuelles types), Vercel Inc. (USA - clauses contractuelles types)."},
+        {h:"Sous-traitants",t:"Supabase Inc. et Vercel Inc. (clauses contractuelles types)."},
         {h:"Contact DPO",t:"contact@switzerit.com — réponse sous 30 jours."},
-        {h:"Réclamation",t:"Auprès du PFPDT (Suisse) ou de l'autorité de contrôle de votre pays UE."},
       ]},
       cookies:{title:"Politique de Cookies",last:"11 mai 2026",content:[
-        {h:"Cookies nécessaires",t:"Cookies d'authentification, préférences, sécurité CSRF. Ils ne peuvent pas être désactivés."},
+        {h:"Cookies nécessaires",t:"Cookies d'authentification, préférences, sécurité CSRF. Non désactivables."},
         {h:"Cookies fonctionnels",t:"Établissement sélectionné, état de la borne, préférences d'affichage."},
         {h:"Cookies analytiques",t:"Nous n'utilisons pas de cookies analytiques tiers."},
         {h:"Durée",t:"Session : supprimés à la fermeture. Persistants : maximum 12 mois."},
@@ -1002,35 +1006,35 @@ export default function Login() {
     }
     const s=sections[legalSection]
     return (
-      <div style={{paddingTop:64,minHeight:'100vh',background:BG}}>
-        <div style={{...W,padding:isMobile?'32px 24px':'64px 56px'}}>
+      <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
+        <div style={{...W,padding:isMobile?'28px 20px':'56px 56px'}}>
           {isMobile?(
             <>
-              <div style={{display:'flex',gap:8,marginBottom:24,overflowX:'auto',paddingBottom:4}}>
+              <div style={{display:'flex',gap:8,marginBottom:22,overflowX:'auto',paddingBottom:4}}>
                 {[['cgu','CGU'],['confidentialite','Confidentialité'],['rgpd','RGPD'],['cookies','Cookies']].map(([id,label])=>(
-                  <button key={id} onClick={()=>setLegalSection(id)} style={{padding:'8px 17px',borderRadius:20,border:'none',background:legalSection===id?A:'transparent',color:legalSection===id?'white':TEXT2,fontSize:13,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>{label}</button>
+                  <button key={id} onClick={()=>setLegalSection(id)} style={{padding:'7px 16px',borderRadius:20,border:'none',background:legalSection===id?A:'transparent',color:legalSection===id?'white':TEXT2,fontSize:13,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>{label}</button>
                 ))}
               </div>
-              <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:16,padding:'26px'}}>
-                <div style={{fontSize:11,color:TEXT3,marginBottom:7}}>Mise à jour : {s.last}</div>
-                <h1 style={{fontSize:24,fontWeight:900,color:TEXT,marginBottom:22}}>{s.title}</h1>
-                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:22}}><h2 style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:7}}>{block.h}</h2><p style={{fontSize:14,color:TEXT2,lineHeight:1.8,margin:0}}>{block.t}</p></div>))}
-                <div style={{marginTop:24,padding:'14px 18px',background:'rgba(59,158,255,.08)',borderRadius:11,fontSize:13,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:14,padding:'24px'}}>
+                <div style={{fontSize:10,color:TEXT3,marginBottom:6}}>Mise à jour : {s.last}</div>
+                <h1 style={{fontSize:22,fontWeight:900,color:TEXT,marginBottom:20}}>{s.title}</h1>
+                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:20}}><h2 style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:6}}>{block.h}</h2><p style={{fontSize:13,color:TEXT2,lineHeight:1.75,margin:0}}>{block.t}</p></div>))}
+                <div style={{marginTop:22,padding:'13px 16px',background:AG,borderRadius:10,fontSize:13,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
               </div>
             </>
           ):(
-            <div style={{display:'grid',gridTemplateColumns:'200px 1fr',gap:28,alignItems:'start'}}>
-              <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:14,padding:'18px 14px',position:'sticky',top:76}}>
-                <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Légal</div>
+            <div style={{display:'grid',gridTemplateColumns:'190px 1fr',gap:24,alignItems:'start'}}>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:13,padding:'16px 13px',position:'sticky',top:74}}>
+                <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:13}}>Légal</div>
                 {[['cgu','CGU'],['confidentialite','Confidentialité'],['rgpd','RGPD'],['cookies','Cookies']].map(([id,label])=>(
-                  <button key={id} onClick={()=>setLegalSection(id)} style={{width:'100%',padding:'9px 13px',borderRadius:9,border:'none',background:legalSection===id?'rgba(59,158,255,.1)':'transparent',color:legalSection===id?A:TEXT2,fontSize:13,fontWeight:legalSection===id?600:400,cursor:'pointer',textAlign:'left',marginBottom:2,display:'block',transition:'all .15s'}}>{label}</button>
+                  <button key={id} onClick={()=>setLegalSection(id)} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'none',background:legalSection===id?AG:'transparent',color:legalSection===id?A:TEXT2,fontSize:13,fontWeight:legalSection===id?600:400,cursor:'pointer',textAlign:'left',marginBottom:2,display:'block'}}>{label}</button>
                 ))}
               </div>
-              <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:18,padding:'40px'}}>
-                <div style={{fontSize:11,color:TEXT3,marginBottom:9}}>Mise à jour : {s.last}</div>
-                <h1 style={{fontSize:30,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:28}}>{s.title}</h1>
-                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:26}}><h2 style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:9}}>{block.h}</h2><p style={{fontSize:14,color:TEXT2,lineHeight:1.85,margin:0}}>{block.t}</p></div>))}
-                <div style={{marginTop:36,padding:'18px 22px',background:'rgba(59,158,255,.08)',borderRadius:12,fontSize:14,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'36px'}}>
+                <div style={{fontSize:10,color:TEXT3,marginBottom:8}}>Mise à jour : {s.last}</div>
+                <h1 style={{fontSize:28,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:24}}>{s.title}</h1>
+                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:22}}><h2 style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:7}}>{block.h}</h2><p style={{fontSize:13,color:TEXT2,lineHeight:1.8,margin:0}}>{block.t}</p></div>))}
+                <div style={{marginTop:28,padding:'14px 18px',background:AG,borderRadius:10,fontSize:13,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
               </div>
             </div>
           )}
@@ -1039,6 +1043,7 @@ export default function Login() {
     )
   }
 
+  // ══ RENDER ═════════════════════════════════════════════════════════
   return (
     <div style={{minHeight:'100vh',background:BG,fontFamily:'var(--font)',color:TEXT}}>
       <Nav/>
@@ -1048,37 +1053,36 @@ export default function Login() {
       {page==='contact'&&<PageContact/>}
       {page==='legal'&&<PageLegal/>}
       <Footer/>
+
+      {/* MODALE CONNEXION */}
       {showLogin&&(
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.7)',backdropFilter:'blur(16px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
-          <div style={{background:CARD,borderRadius:22,padding:isMobile?'26px 22px':38,width:'100%',maxWidth:380,boxShadow:'0 32px 80px rgba(0,0,0,.4)',border:`1px solid ${BORDER}`,position:'relative'}}>
-            <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:16,right:16,width:32,height:32,borderRadius:'50%',border:`1px solid ${BORDER}`,background:'rgba(255,255,255,.06)',color:'rgba(255,255,255,.5)',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}
-            onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,.1)'}
-            onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.06)'}>✕</button>
-            <div style={{textAlign:'center',marginBottom:24}}>
-              <div style={{display:'flex',justifyContent:'center',marginBottom:14}}>{LOGO_SM}</div>
-              <div style={{fontSize:21,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Connexion</div>
-              <div style={{fontSize:13,color:TEXT2,marginTop:5}}>Accédez à votre espace Kronvo</div>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
+          <div style={{background:SURF,borderRadius:20,padding:isMobile?'24px 20px':34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
+            <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+            <div style={{textAlign:'center',marginBottom:22}}>
+              <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>{LOGO_SM}</div>
+              <div style={{fontSize:20,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Connexion</div>
+              <div style={{fontSize:12,color:TEXT3,marginTop:4}}>Accédez à votre espace Kronvo</div>
             </div>
             <form onSubmit={handleLogin}>
-              <div style={{marginBottom:14}}>
-                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>Email</label>
-                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required style={inp}
+              <div style={{marginBottom:13}}>
+                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Email</label>
+                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required
+                style={{width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:'#fafafa',fontSize:14,color:TEXT,outline:'none',boxSizing:'border-box'}}
                 onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
               </div>
-              <div style={{marginBottom:24}}>
-                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>Mot de passe</label>
+              <div style={{marginBottom:22}}>
+                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Mot de passe</label>
                 <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required
-                style={{...inp,color:'#1d1d1f',background:'white'}}
-                onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor='#e5e5ea'}/>
+                style={{width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:'white',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}}
+                onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
               </div>
-              {error&&<div style={{padding:'10px 14px',background:'rgba(255,59,48,.1)',border:'1px solid rgba(255,59,48,.2)',borderRadius:10,fontSize:13,color:'#ff6b6b',marginBottom:16,fontWeight:600}}>{error}</div>}
-              <button type="submit" style={{width:'100%',height:50,borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 18px rgba(59,158,255,.25)',transition:'opacity .2s'}}
-              onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
-              onMouseLeave={e=>e.currentTarget.style.opacity='1'}>Se connecter</button>
+              {error&&<div style={{padding:'9px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:9,fontSize:13,color:'#dc2626',marginBottom:14,fontWeight:600}}>{error}</div>}
+              <button type="submit" style={{width:'100%',height:48,borderRadius:11,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer'}}>Se connecter</button>
             </form>
-            <div style={{textAlign:'center',marginTop:18}}>
-              <span style={{fontSize:13,color:TEXT3}}>Pas encore client ? </span>
-              <span style={{fontSize:13,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{setShowLogin(false);goPage('contact')}}>Demander une démo</span>
+            <div style={{textAlign:'center',marginTop:14}}>
+              <span style={{fontSize:12,color:TEXT3}}>Pas encore client ? </span>
+              <span style={{fontSize:12,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{setShowLogin(false);goPage('contact')}}>Demander une démo</span>
             </div>
           </div>
         </div>
