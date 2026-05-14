@@ -262,7 +262,7 @@ export default function Login() {
 
   const W={maxWidth:1080,margin:'0 auto',padding:isMobile?'0 20px':'0 56px'}
   const WM={maxWidth:860,margin:'0 auto',padding:isMobile?'0 20px':'0 56px'}
-  const SEC=isMobile?'72px 20px':'100px 0'
+  const SEC=isMobile?'56px 20px':'80px 0'
 
   const scrollTop=()=>{setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'instant'}),20)}
   const pageMap={'home':'/','fonctionnalites':'/fonctionnalites','tarifs':'/tarifs','contact':'/contact','legal':'/legal'}
@@ -509,16 +509,8 @@ export default function Login() {
               {!isMobile&&(
                 <div style={{borderRadius:16,overflow:'hidden',border:`1px solid ${BORDER}`,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
                   <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80" alt="Équipe au travail"
-                    style={{width:'100%',height:220,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
-                  <div style={{background:SURF,padding:'14px 18px',display:'flex',alignItems:'center',gap:10,borderTop:`1px solid ${BORDER}`}}>
-                    <div style={{width:36,height:36,borderRadius:'50%',background:AG,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                      <span style={{fontSize:16}}>👨‍💼</span>
-                    </div>
-                    <div>
-                      <div style={{fontSize:13,fontWeight:600,color:TEXT}}>Déployé par SwitzerIT</div>
-                      <div style={{fontSize:11,color:TEXT3}}>Configuration complète en 2 à 4 heures</div>
-                    </div>
-                  </div>
+                    style={{width:'100%',height:240,objectFit:'cover',display:'block',borderRadius:16}} onError={e=>e.target.style.display='none'}/>
+
                 </div>
               )}
             </div>
@@ -772,10 +764,16 @@ export default function Login() {
     <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
       <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
         <Reveal>
-          <div style={{textAlign:'center',marginBottom:64}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Fonctionnalités</div>
-            <h1 style={{fontSize:isMobile?30:52,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.02}}>Tout ce que Kronvo<br/>peut faire pour vous.</h1>
-            <p style={{fontSize:16,color:TEXT2,maxWidth:500,margin:'0 auto',lineHeight:1.8}}>Une solution pensée pour les équipes terrain. Zéro complexité, 100% efficace dès le premier jour.</p>
+          <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${BORDER}`,marginBottom:52,position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,.07)'}}>
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80" alt="Équipe Kronvo"
+              style={{width:'100%',height:isMobile?180:260,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
+            <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(0,0,0,.7) 0%,rgba(0,0,0,.15) 60%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.6)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:10}}>Fonctionnalités</div>
+                <div style={{fontSize:isMobile?22:36,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1.1,marginBottom:8}}>Tout ce que Kronvo<br/>peut faire pour vous.</div>
+                <div style={{fontSize:13,color:'rgba(255,255,255,.65)'}}>Planning · Badgeage QR · Présences · Export PDF</div>
+              </div>
+            </div>
           </div>
         </Reveal>
         {/* Feature principale */}
@@ -874,10 +872,16 @@ export default function Login() {
     <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
       <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
         <Reveal>
-          <div style={{textAlign:'center',marginBottom:64}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Tarifs</div>
-            <h1 style={{fontSize:isMobile?30:52,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.02}}>Investissez dans<br/>ce qui compte vraiment.</h1>
-            <p style={{fontSize:16,color:TEXT2,maxWidth:480,margin:'0 auto',lineHeight:1.8}}>Tarif sur mesure adapté à votre taille et vos besoins. Démo gratuite, sans engagement.</p>
+          <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${BORDER}`,marginBottom:52,position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,.07)'}}>
+            <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=80" alt="Tarifs Kronvo"
+              style={{width:'100%',height:isMobile?160:240,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
+            <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,.12) 65%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.6)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:10}}>Tarifs</div>
+                <div style={{fontSize:isMobile?22:36,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1.1,marginBottom:8}}>Investissez dans<br/>ce qui compte vraiment.</div>
+                <div style={{fontSize:13,color:'rgba(255,255,255,.65)'}}>Tarification sur mesure · Démo gratuite · Sans engagement</div>
+              </div>
+            </div>
           </div>
         </Reveal>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:14,marginBottom:28}}>
