@@ -151,6 +151,73 @@ function FaqSection({TEXT,TEXT2,BORDER,A}) {
   )
 }
 
+
+function ContactForm({A, SURF, BORDER, TEXT, TEXT2, TEXT3, BG, CARD, inp, goPage, setShowLogin}) {
+  const [contactForm, setContactForm] = useState({nom:'',email:'',entreprise:'',secteur:'',message:''})
+  const [contactSent, setContactSent] = useState(false)
+  const [errors, setErrors] = useState({})
+
+  const submit = (e) => {
+    e.preventDefault()
+    const errs = {}
+    if(!contactForm.nom) errs.nom = true
+    if(!contactForm.email) errs.email = true
+    if(!contactForm.entreprise) errs.entreprise = true
+    if(Object.keys(errs).length > 0) { setErrors(errs); return }
+    setContactSent(true)
+  }
+
+  if(contactSent) return (
+    <div style={{textAlign:'center',padding:'52px 20px'}}>
+      <div style={{width:72,height:72,borderRadius:'50%',background:'rgba(52,199,89,.12)',border:'1px solid rgba(52,199,89,.25)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px'}}>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4cd964" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div style={{fontSize:24,fontWeight:800,color:TEXT,marginBottom:12}}>Demande envoyée !</div>
+      <div style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:24}}>Notre équipe vous contactera sous 24h pour organiser la démo Teams.</div>
+      <button onClick={()=>{setContactSent(false);setContactForm({nom:'',email:'',entreprise:'',secteur:'',message:''});setErrors({})}} style={{padding:'11px 24px',borderRadius:10,border:`1px solid ${BORDER}`,background:'transparent',color:TEXT2,fontSize:13,fontWeight:600,cursor:'pointer'}}>Nouvelle demande</button>
+    </div>
+  )
+
+  return (
+    <>
+      <div style={{fontSize:18,fontWeight:800,color:TEXT,marginBottom:6}}>Demander une démo Teams</div>
+      <div style={{fontSize:13,color:TEXT2,marginBottom:28}}>Gratuite · 30 min · Sans engagement</div>
+      {[{f:'nom',l:'Nom complet *',ph:'Jean Dupont',t:'text'},{f:'email',l:'Email *',ph:'jean@exemple.fr',t:'email'},{f:'entreprise',l:"Établissement *",ph:'Mon Établissement',t:'text'}].map(({f,l,ph,t})=>(
+        <div key={f} style={{marginBottom:16}}>
+          <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>{l}</label>
+          <input type={t} placeholder={ph} value={contactForm[f]}
+            onChange={ev=>{ setContactForm(ff=>({...ff,[f]:ev.target.value})); setErrors(er=>({...er,[f]:false})) }}
+            style={{...inp, borderColor: errors[f] ? '#ff6b6b' : BORDER}}
+            onFocus={e=>e.target.style.borderColor=A}
+            onBlur={e=>e.target.style.borderColor=errors[f]?'#ff6b6b':BORDER}/>
+          {errors[f] && <div style={{fontSize:11,color:'#ff6b6b',marginTop:4}}>Ce champ est requis</div>}
+        </div>
+      ))}
+      <div style={{marginBottom:16}}>
+        <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>Secteur</label>
+        <select value={contactForm.secteur} onChange={e=>setContactForm(f=>({...f,secteur:e.target.value}))} style={{...inp,appearance:'auto'}}>
+          <option value="">Sélectionner...</option>
+          {['Restaurant','Hôtel','Garage','Commerce','Clinique','Spa & Salon','BTP','Logistique','Éducation','Autre'].map(s=><option key={s}>{s}</option>)}
+        </select>
+      </div>
+      <div style={{marginBottom:28}}>
+        <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>Message (optionnel)</label>
+        <textarea placeholder="Nombre d'employés, besoin spécifique..." value={contactForm.message}
+          onChange={e=>setContactForm(f=>({...f,message:e.target.value}))} rows={3}
+          style={{...inp,resize:'vertical',fontFamily:'var(--font)'}}
+          onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
+      </div>
+      <button onClick={submit}
+        style={{width:'100%',height:54,borderRadius:13,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',transition:'opacity .2s'}}
+        onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
+        onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+        Envoyer ma demande →
+      </button>
+      <div style={{fontSize:12,color:TEXT3,textAlign:'center',marginTop:12}}>Réponse sous 24h · Démo Teams offerte</div>
+    </>
+  )
+}
+
 export default function Login() {
   const [email,setEmail]=useState('')
   const [password,setPassword]=useState('')
@@ -159,8 +226,6 @@ export default function Login() {
   const [showLogin,setShowLogin]=useState(false)
   const [menuOpen,setMenuOpen]=useState(false)
   const [legalSection,setLegalSection]=useState('cgu')
-  const [contactForm,setContactForm]=useState({nom:'',email:'',entreprise:'',secteur:'',message:''})
-  const [contactSent,setContactSent]=useState(false)
   const [isMobile,setIsMobile]=useState(window.innerWidth<900)
   const navigate=useNavigate()
   const location=useLocation()
@@ -839,48 +904,7 @@ export default function Login() {
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1.3fr 1fr',gap:24}}>
           <Reveal>
             <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:22,padding:'36px'}}>
-              {contactSent?(
-                <div style={{textAlign:'center',padding:'52px 20px'}}>
-                  <div style={{width:72,height:72,borderRadius:'50%',background:'rgba(52,199,89,.12)',border:'1px solid rgba(52,199,89,.25)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px'}}>
-                    <Chk size={32} color="#4cd964"/>
-                  </div>
-                  <div style={{fontSize:24,fontWeight:800,color:TEXT,marginBottom:12}}>Demande envoyée !</div>
-                  <div style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:24}}>Notre équipe vous contactera sous 24h pour organiser la démo Teams.</div>
-                  <button onClick={()=>{setContactSent(false);setContactForm({nom:'',email:'',entreprise:'',secteur:'',message:''})}} style={{padding:'11px 24px',borderRadius:10,border:`1px solid ${BORDER}`,background:'transparent',color:TEXT2,fontSize:13,fontWeight:600,cursor:'pointer'}}>Nouvelle demande</button>
-                </div>
-              ):(
-                <>
-                  <div style={{fontSize:18,fontWeight:800,color:TEXT,marginBottom:6}}>Demander une démo Teams</div>
-                  <div style={{fontSize:13,color:TEXT2,marginBottom:28}}>Gratuite · 30 min · Sans engagement</div>
-                  {[{f:'nom',l:'Nom complet *',ph:'Jean Dupont',t:'text'},{f:'email',l:'Email *',ph:'jean@exemple.fr',t:'email'},{f:'entreprise',l:"Établissement *",ph:'Mon Établissement',t:'text'}].map(({f,l,ph,t})=>(
-                    <div key={f} style={{marginBottom:16}}>
-                      <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>{l}</label>
-                      <input type={t} placeholder={ph} value={contactForm[f]} onChange={e=>setContactForm(ff=>({...ff,[f]:e.target.value}))} style={inp}
-                      onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
-                    </div>
-                  ))}
-                  <div style={{marginBottom:16}}>
-                    <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>Secteur</label>
-                    <select value={contactForm.secteur} onChange={e=>setContactForm(f=>({...f,secteur:e.target.value}))} style={{...inp,appearance:'auto'}}>
-                      <option value="">Sélectionner...</option>
-                      {['Restaurant','Hôtel','Garage','Commerce','Clinique','Spa & Salon','BTP','Logistique','Éducation','Autre'].map(s=><option key={s}>{s}</option>)}
-                    </select>
-                  </div>
-                  <div style={{marginBottom:28}}>
-                    <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:7}}>Message (optionnel)</label>
-                    <textarea placeholder="Nombre d'employés, besoin spécifique..." value={contactForm.message} onChange={e=>setContactForm(f=>({...f,message:e.target.value}))} rows={3}
-                    style={{...inp,resize:'vertical',fontFamily:'var(--font)'}}
-                    onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
-                  </div>
-                  <button onClick={(e)=>{e.preventDefault();if(!contactForm.nom||!contactForm.email||!contactForm.entreprise){return}setContactSent(true)}}
-                  style={{width:'100%',height:54,borderRadius:13,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',boxShadow:'0 4px 20px rgba(59,158,255,.2)',transition:'opacity .2s'}}
-                  onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
-                  onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-                    Envoyer ma demande →
-                  </button>
-                  <div style={{fontSize:12,color:TEXT3,textAlign:'center',marginTop:12}}>Réponse sous 24h · Démo Teams offerte</div>
-                </>
-              )}
+              <ContactForm A={A} SURF={SURF} BORDER={BORDER} TEXT={TEXT} TEXT2={TEXT2} TEXT3={TEXT3} BG={BG} CARD={CARD} inp={inp} goPage={goPage} setShowLogin={setShowLogin}/>
             </div>
           </Reveal>
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
