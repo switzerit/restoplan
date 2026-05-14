@@ -399,6 +399,58 @@ export default function Login() {
                 ))}
               </div>
             </HeroReveal>
+
+            {isMobile&&(
+              <div style={{marginTop:32}}>
+                <div style={{background:'white',borderRadius:16,padding:14,border:'1px solid #e8e8e8',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+                  <div style={{background:'#111',borderRadius:10,padding:'9px 14px',marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                    <div>
+                      <div style={{fontSize:11,fontWeight:700,color:'white'}}>Kronvo · Le Bistrot</div>
+                      <div style={{display:'flex',alignItems:'center',gap:5,marginTop:2}}>
+                        <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
+                        <span style={{fontSize:9,color:'rgba(255,255,255,.4)'}}>En direct</span>
+                      </div>
+                    </div>
+                    <div style={{display:'flex',gap:4}}>{['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:7,height:7,borderRadius:'50%',background:c}}></div>)}</div>
+                  </div>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7,marginBottom:10}}>
+                    {[{v:'8',l:'Présents',bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a'},{v:'3',l:'Absents',bg:'#fef2f2',bc:'#fecaca',c:'#dc2626'},{v:'2',l:'En pause',bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c'}].map((s,i)=>(
+                      <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:9,padding:'10px 6px',textAlign:'center'}}>
+                        <div style={{fontSize:22,fontWeight:900,color:s.c,letterSpacing:'-.03em'}}>{s.v}</div>
+                        <div style={{fontSize:9,color:s.c,fontWeight:600,marginTop:2}}>{s.l}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{background:'#f8fafc',border:'1px solid #e8e8e8',borderRadius:10,padding:'10px',marginBottom:10}}>
+                    <div style={{fontSize:9,fontWeight:700,color:'#999',letterSpacing:'.08em',marginBottom:8}}>ÉQUIPE EN DIRECT</div>
+                    {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#22c55e'},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#22c55e'},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#f97316'},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'#e5e5e5'}].map((e,i)=>(
+                      <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'4px 7px',borderRadius:7,background:i%2===0?'white':'transparent',marginBottom:2}}>
+                        <div style={{width:25,height:25,borderRadius:'50%',background:'#f0f7ff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:'#0066cc',flexShrink:0,position:'relative'}}>
+                          {e.n.split(' ').map(x=>x[0]).join('')}
+                          <div style={{position:'absolute',bottom:0,right:0,width:6,height:6,borderRadius:'50%',background:e.s,border:'1.5px solid white'}}></div>
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:10,fontWeight:600,color:'#111',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{e.n}</div>
+                          <div style={{fontSize:8,color:'#999'}}>{e.p}</div>
+                        </div>
+                        <span style={{fontSize:9,color:'#555',fontWeight:500}}>{e.h}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{background:'#f8fafc',border:'1px solid #e8e8e8',borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:12}}>
+                    <QRDisplay/>
+                    <div>
+                      <div style={{fontSize:10,fontWeight:700,color:'#111',marginBottom:3}}>QR Code actif</div>
+                      <div style={{fontSize:9,color:'#555',lineHeight:1.5}}>Vos employés scannent depuis leur téléphone</div>
+                      <div style={{display:'flex',alignItems:'center',gap:4,marginTop:5}}>
+                        <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
+                        <span style={{fontSize:8,color:'#16a34a',fontWeight:600}}>Sécurisé · Renouvelé auto</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {!isMobile&&(
