@@ -211,70 +211,12 @@ function ContactForm({goPage,setShowLogin}) {
   )
 }
 
-
-function LoginModal({onClose, goPage}) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const navigate = useNavigate()
-
-  async function handleLogin(e) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    const {data, error} = await supabase.auth.signInWithPassword({email, password})
-    if(error) { setError('Email ou mot de passe incorrect'); setLoading(false); return }
-    const {data:p} = await supabase.from('profils').select('role').eq('user_id', data.user.id).single()
-    if(p?.role==='super_admin') navigate('/admin')
-    else if(p?.role==='gerant') navigate('/gerant')
-    else navigate('/moi')
-    setLoading(false)
-  }
-
-  const A='#0066cc', BORDER='#e8e8e8', TEXT='#111111', TEXT2='#555555', TEXT3='#999999', BG='#f8fafc'
-
-  return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
-      <div style={{background:'white',borderRadius:20,padding:34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
-        <button onClick={onClose} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
-        <div style={{textAlign:'center',marginBottom:22}}>
-          <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
-            <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0066cc"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
-          </div>
-          <div style={{fontSize:20,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Connexion</div>
-          <div style={{fontSize:12,color:TEXT3,marginTop:4}}>Accédez à votre espace Kronvo</div>
-        </div>
-        <form onSubmit={handleLogin}>
-          <div style={{marginBottom:13}}>
-            <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Email</label>
-            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required
-              style={{width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:'#fafafa',fontSize:14,color:TEXT,outline:'none',boxSizing:'border-box'}}
-              onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
-          </div>
-          <div style={{marginBottom:22}}>
-            <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Mot de passe</label>
-            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required
-              style={{width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:'white',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}}
-              onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
-          </div>
-          {error&&<div style={{padding:'9px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:9,fontSize:13,color:'#dc2626',marginBottom:14,fontWeight:600}}>{error}</div>}
-          <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:11,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
-            {loading?'Connexion...':'Se connecter'}
-          </button>
-        </form>
-        <div style={{textAlign:'center',marginTop:14}}>
-          <span style={{fontSize:12,color:TEXT3}}>Pas encore client ? </span>
-          <span style={{fontSize:12,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{onClose();goPage('contact')}}>Demander une démo</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ══════════════════════════════════════════════════════════════════════
 export default function Login() {
+  const [email,setEmail]=useState('')
+  const [password,setPassword]=useState('')
   const [loading,setLoading]=useState(true)
+  const [error,setError]=useState('')
   const [showLogin,setShowLogin]=useState(false)
   const [menuOpen,setMenuOpen]=useState(false)
   const [legalSection,setLegalSection]=useState('cgu')
@@ -293,6 +235,17 @@ export default function Login() {
       } else {setLoading(false);if(location.pathname==='/login')setShowLogin(true)}
     })
   },[])
+
+  async function handleLogin(e){
+    e.preventDefault();setLoading(true);setError('')
+    const {data,error}=await supabase.auth.signInWithPassword({email,password})
+    if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
+    const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
+    if(p?.role==='super_admin')navigate('/admin')
+    else if(p?.role==='gerant')navigate('/gerant')
+    else navigate('/moi')
+    setLoading(false)
+  }
 
   if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'white',color:'#aaa',fontFamily:'var(--font)'}}>Chargement...</div>
 
@@ -446,58 +399,6 @@ export default function Login() {
                 ))}
               </div>
             </HeroReveal>
-
-            {isMobile&&(
-              <div style={{marginTop:32}}>
-                <div style={{background:'white',borderRadius:16,padding:14,border:'1px solid #e8e8e8',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-                  <div style={{background:'#111',borderRadius:10,padding:'9px 14px',marginBottom:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                    <div>
-                      <div style={{fontSize:11,fontWeight:700,color:'white'}}>Kronvo · Le Bistrot</div>
-                      <div style={{display:'flex',alignItems:'center',gap:5,marginTop:2}}>
-                        <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-                        <span style={{fontSize:9,color:'rgba(255,255,255,.4)'}}>En direct</span>
-                      </div>
-                    </div>
-                    <div style={{display:'flex',gap:4}}>{['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:7,height:7,borderRadius:'50%',background:c}}></div>)}</div>
-                  </div>
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7,marginBottom:10}}>
-                    {[{v:'8',l:'Présents',bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a'},{v:'3',l:'Absents',bg:'#fef2f2',bc:'#fecaca',c:'#dc2626'},{v:'2',l:'En pause',bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c'}].map((s,i)=>(
-                      <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:9,padding:'10px 6px',textAlign:'center'}}>
-                        <div style={{fontSize:22,fontWeight:900,color:s.c,letterSpacing:'-.03em'}}>{s.v}</div>
-                        <div style={{fontSize:9,color:s.c,fontWeight:600,marginTop:2}}>{s.l}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{background:'#f8fafc',border:'1px solid #e8e8e8',borderRadius:10,padding:'10px',marginBottom:10}}>
-                    <div style={{fontSize:9,fontWeight:700,color:'#999',letterSpacing:'.08em',marginBottom:8}}>ÉQUIPE EN DIRECT</div>
-                    {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#22c55e'},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#22c55e'},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#f97316'},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'#e5e5e5'}].map((e,i)=>(
-                      <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'4px 7px',borderRadius:7,background:i%2===0?'white':'transparent',marginBottom:2}}>
-                        <div style={{width:25,height:25,borderRadius:'50%',background:'#f0f7ff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:'#0066cc',flexShrink:0,position:'relative'}}>
-                          {e.n.split(' ').map(x=>x[0]).join('')}
-                          <div style={{position:'absolute',bottom:0,right:0,width:6,height:6,borderRadius:'50%',background:e.s,border:'1.5px solid white'}}></div>
-                        </div>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{fontSize:10,fontWeight:600,color:'#111',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{e.n}</div>
-                          <div style={{fontSize:8,color:'#999'}}>{e.p}</div>
-                        </div>
-                        <span style={{fontSize:9,color:'#555',fontWeight:500}}>{e.h}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{background:'#f8fafc',border:'1px solid #e8e8e8',borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:12}}>
-                    <QRDisplay/>
-                    <div>
-                      <div style={{fontSize:10,fontWeight:700,color:'#111',marginBottom:3}}>QR Code actif</div>
-                      <div style={{fontSize:9,color:'#555',lineHeight:1.5}}>Vos employés scannent depuis leur téléphone</div>
-                      <div style={{display:'flex',alignItems:'center',gap:4,marginTop:5}}>
-                        <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-                        <span style={{fontSize:8,color:'#16a34a',fontWeight:600}}>Sécurisé · Renouvelé auto</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {!isMobile&&(
@@ -595,13 +496,31 @@ export default function Login() {
       <section style={{background:SURF,padding:'40px 0',borderBottom:`1px solid ${BORDER}`}}>
         <div style={WM}>
           <Reveal>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',border:`1px solid ${BORDER}`,borderRadius:16,overflow:'hidden'}}>
-              {[{v:'2-4h',l:'mise en place',c:A},{v:'30s',l:'par badgeage',c:TEXT},{v:'8+',l:'secteurs',c:TEXT},{v:'100%',l:'mobile',c:TEXT}].map((s,i)=>(
-                <div key={i} style={{padding:isMobile?'16px 8px':'24px',textAlign:'center',borderRight:i<3?`1px solid ${BORDER}`:'none',background:i===0?AG:SURF}}>
-                  <div style={{fontSize:isMobile?24:36,fontWeight:900,color:s.c,letterSpacing:'-.05em',lineHeight:1}}>{s.v}</div>
-                  <div style={{fontSize:12,color:TEXT3,marginTop:5}}>{s.l}</div>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:16,alignItems:'center'}}>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:10}}>
+                {[{v:'2-4h',l:'mise en place',sub:'clé en main',c:A,bg:AG,bc:AB},{v:'30s',l:'par badgeage',sub:'scan QR',c:'#16a34a',bg:'#f0fdf4',bc:'#bbf7d0'},{v:'8+',l:'secteurs',sub:'couverts',c:'#ea580c',bg:'#fff7ed',bc:'#fed7aa'},{v:'100%',l:'mobile',sub:'iPhone & Android',c:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff'}].map((s,i)=>(
+                  <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:14,padding:'20px 16px',textAlign:'center'}}>
+                    <div style={{fontSize:isMobile?28:36,fontWeight:900,color:s.c,letterSpacing:'-.05em',lineHeight:1}}>{s.v}</div>
+                    <div style={{fontSize:13,color:s.c,marginTop:5,fontWeight:600}}>{s.l}</div>
+                    <div style={{fontSize:11,color:s.c,opacity:.6,marginTop:3}}>{s.sub}</div>
+                  </div>
+                ))}
+              </div>
+              {!isMobile&&(
+                <div style={{borderRadius:16,overflow:'hidden',border:`1px solid ${BORDER}`,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+                  <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80" alt="Équipe au travail"
+                    style={{width:'100%',height:220,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
+                  <div style={{background:SURF,padding:'14px 18px',display:'flex',alignItems:'center',gap:10,borderTop:`1px solid ${BORDER}`}}>
+                    <div style={{width:36,height:36,borderRadius:'50%',background:AG,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                      <span style={{fontSize:16}}>👨‍💼</span>
+                    </div>
+                    <div>
+                      <div style={{fontSize:13,fontWeight:600,color:TEXT}}>Déployé par SwitzerIT</div>
+                      <div style={{fontSize:11,color:TEXT3}}>Configuration complète en 2 à 4 heures</div>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              )}
             </div>
           </Reveal>
         </div>
@@ -698,6 +617,20 @@ export default function Login() {
               </button>
             </div>
           </Reveal>
+
+          <Reveal>
+            <div style={{marginTop:48,borderRadius:20,overflow:'hidden',border:`1px solid ${BORDER}`,boxShadow:'0 8px 32px rgba(0,0,0,.07)',position:'relative'}}>
+              <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80" alt="Restaurant équipe"
+                style={{width:'100%',height:isMobile?200:300,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
+              <div style={{position:'absolute',inset:0,background:'linear-gradient(to right, rgba(0,0,0,.65) 0%, rgba(0,0,0,.1) 65%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
+                <div>
+                  <div style={{fontSize:isMobile?18:28,fontWeight:800,color:'white',letterSpacing:'-.03em',marginBottom:8,lineHeight:1.2}}>Kronvo s'adapte à tous<br/>vos établissements</div>
+                  <div style={{fontSize:isMobile?12:14,color:'rgba(255,255,255,.7)',marginBottom:16}}>Restaurants, hôtels, cliniques, garages et plus</div>
+                  <button onClick={()=>goPage('contact')} style={{padding:'10px 20px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Voir les secteurs →</button>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -785,7 +718,10 @@ export default function Login() {
             </div>
             <div style={{marginTop:isMobile?52:0}}>
               <Reveal delay={120}>
-                <div style={{background:TEXT,borderRadius:22,padding:'36px',marginBottom:12}}>
+                <div style={{background:TEXT,borderRadius:22,padding:'36px',marginBottom:12,overflow:'hidden',position:'relative'}}>
+                  <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=60" alt="Team"
+                    style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:.08,display:'block'}} onError={e=>e.target.style.display='none'}/>
+                  <div style={{position:'relative'}}>
                   <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 12px',borderRadius:20,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.12)',marginBottom:22}}>
                     <span style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
                     <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.55)'}}>Démo disponible cette semaine</span>
@@ -803,20 +739,25 @@ export default function Login() {
                     Déjà client — Se connecter
                   </button>
                   <div style={{fontSize:11,color:'rgba(255,255,255,.18)',textAlign:'center',marginTop:14}}>Sans carte bancaire · Sans engagement · Réponse sous 24h</div>
+                  </div>
                 </div>
               </Reveal>
               <Reveal delay={180}>
-                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'22px'}}>
-                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:16}}>Mise en place en 4 étapes</div>
-                  {[{e:'📹',t:'Démo 30 min',d:'Présentation Kronvo adaptée à votre secteur.'},{e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},{e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés, documentation fournie.'},{e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'}].map((s,i)=>(
-                    <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:i<3?14:0}}>
-                      <div style={{width:34,height:34,borderRadius:9,background:BG,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,flexShrink:0}}>{s.e}</div>
-                      <div style={{paddingTop:3}}>
-                        <div style={{fontSize:13,fontWeight:600,color:TEXT,marginBottom:2}}>{s.t}</div>
-                        <div style={{fontSize:12,color:TEXT2,lineHeight:1.5}}>{s.d}</div>
+                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,overflow:'hidden'}}>
+                  <img src="https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=600&q=80" alt="Démo Teams"
+                    style={{width:'100%',height:130,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
+                  <div style={{padding:'20px'}}>
+                    <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:14}}>Mise en place en 4 étapes</div>
+                    {[{e:'📹',t:'Démo 30 min',d:'Présentation Kronvo adaptée à votre secteur.'},{e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},{e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés, documentation fournie.'},{e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'}].map((s,i)=>(
+                      <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:i<3?12:0}}>
+                        <div style={{width:32,height:32,borderRadius:9,background:BG,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>{s.e}</div>
+                        <div style={{paddingTop:2}}>
+                          <div style={{fontSize:13,fontWeight:600,color:TEXT,marginBottom:2}}>{s.t}</div>
+                          <div style={{fontSize:12,color:TEXT2,lineHeight:1.5}}>{s.d}</div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </Reveal>
             </div>
@@ -1026,7 +967,7 @@ export default function Login() {
             {[
               {delay:80,content:(
                 <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'22px',overflow:'hidden',position:'relative'}}>
-                  <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=500&q=80" alt="Demo Teams" style={{width:'100%',height:160,objectFit:'cover',borderRadius:10,display:'block',marginBottom:14}} onError={e=>e.target.style.display='none'}/>
+                  <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&q=70" alt="Team" style={{width:'100%',height:140,objectFit:'cover',borderRadius:10,display:'block',marginBottom:14}} onError={e=>e.target.style.display='none'}/>
                   <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>📹 Démo Teams gratuite</div>
                   <div style={{fontSize:13,color:TEXT2,lineHeight:1.7,marginBottom:12}}>30 min adaptées à votre secteur. Repartez avec un devis personnalisé.</div>
                   <div style={{display:'flex',flexDirection:'column',gap:7}}>
@@ -1153,8 +1094,8 @@ export default function Login() {
       {page==='legal'&&<PageLegal/>}
       <Footer/>
 
-      {showLogin&&<LoginModal onClose={()=>setShowLogin(false)} goPage={goPage}/>}
-      {false&&(
+      {/* MODALE CONNEXION */}
+      {showLogin&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
           <div style={{background:SURF,borderRadius:20,padding:isMobile?'24px 20px':34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
             <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
