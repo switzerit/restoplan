@@ -479,9 +479,12 @@ export default function Login() {
                 <span style={{fontSize:10,color:"#999"}}>· SwitzerIT</span>
               </div>
               <div style={{width:1,height:14,background:BORDER}}></div>
-              <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                {["2-4h setup","30s badgeage","8+ secteurs","100% mobile"].map(t=>(
-                  <span key={t} style={{fontSize:11,color:TEXT2,padding:"3px 8px",borderRadius:10,background:"white",border:"1px solid #e8e8e8"}}>{t}</span>
+              <div style={{display:"flex",gap:5,alignItems:"center"}}>
+                {[{t:"2-4h",s:"setup"},{t:"30s",s:"badgeage"},{t:"8+",s:"secteurs"},{t:"100%",s:"mobile"}].map(({t,s},i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"baseline",gap:3,padding:"4px 10px",borderRadius:10,background:"white",border:"1px solid #e8e8e8",boxShadow:"0 1px 2px rgba(0,0,0,.04)"}}>
+                    <span style={{fontSize:13,fontWeight:800,color:i===0?A:"#111",letterSpacing:"-.02em"}}>{t}</span>
+                    <span style={{fontSize:10,color:TEXT3}}>{s}</span>
+                  </div>
                 ))}
               </div>
             </div>
