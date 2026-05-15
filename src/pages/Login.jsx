@@ -462,44 +462,46 @@ export default function Login() {
       {/* 2+3. TRUST + STATS */}
       <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,borderBottom:`1px solid ${BORDER}`}}>
         <Reveal>
-          <div style={{padding:'24px 0 0'}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:14,flexWrap:'wrap',marginBottom:18,padding:'0 20px'}}>
-              <div style={{display:'flex'}}>
-                {[{bg:AG,c:A,t:'SM'},{bg:'#f0fdf4',c:'#16a34a',t:'JD'},{bg:'#fff7ed',c:'#ea580c',t:'AL'}].map((a,i)=>(
-                  <div key={i} style={{width:30,height:30,borderRadius:'50%',background:a.bg,border:'2.5px solid white',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-8:0,zIndex:3-i,boxShadow:'0 1px 4px rgba(0,0,0,.1)'}}>{a.t}</div>
+          <div style={{padding:"20px 0 0"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12,flexWrap:"wrap",marginBottom:16,padding:"0 20px"}}>
+              <div style={{display:"flex"}}>
+                {[{bg:AG,c:A,t:"SM"},{bg:"#f0fdf4",c:"#16a34a",t:"JD"},{bg:"#fff7ed",c:"#ea580c",t:"AL"}].map((a,i)=>(
+                  <div key={i} style={{width:28,height:28,borderRadius:"50%",background:a.bg,border:"2px solid white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-7:0,zIndex:3-i,boxShadow:"0 1px 3px rgba(0,0,0,.1)"}}>{a.t}</div>
                 ))}
               </div>
-              <span style={{fontSize:13,color:TEXT2,fontWeight:500}}>Des équipes terrain font déjà confiance à <strong style={{color:TEXT}}>Kronvo</strong></span>
-              <div style={{display:'flex',alignItems:'center',gap:5,background:'#fffbeb',border:'1px solid #fde68a',borderRadius:20,padding:'4px 12px'}}>
-                <span style={{color:'#f59e0b',fontSize:13}}>★★★★★</span>
-                <span style={{fontSize:13,fontWeight:800,color:'#111'}}>4.8/5</span>
-                <span style={{fontSize:11,color:'#999'}}>SwitzerIT</span>
+              <span style={{fontSize:13,color:TEXT2}}>Des équipes terrain font déjà confiance à <strong style={{color:TEXT}}>Kronvo</strong></span>
+              <div style={{display:"flex",alignItems:"center",gap:5,background:"#fffbeb",border:"1px solid #fde68a",borderRadius:20,padding:"4px 11px"}}>
+                <span style={{color:"#f59e0b",fontSize:12}}>★★★★★</span>
+                <span style={{fontSize:12,fontWeight:800,color:"#111"}}>4.8/5</span>
+                <span style={{fontSize:11,color:"#999"}}>SwitzerIT</span>
               </div>
             </div>
-            <div style={{position:'relative',overflow:'hidden',paddingBottom:22}}>
-              <div style={{position:'absolute',left:0,top:0,bottom:0,width:64,background:'linear-gradient(to right,white,transparent)',zIndex:2,pointerEvents:'none'}}></div>
-              <div style={{position:'absolute',right:0,top:0,bottom:0,width:64,background:'linear-gradient(to left,white,transparent)',zIndex:2,pointerEvents:'none'}}></div>
-              <style>{`@keyframes kscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}.ktrack{display:flex;animation:kscroll 26s linear infinite;width:max-content}.ktrack:hover{animation-play-state:paused}.kpill{display:flex;align-items:center;gap:7px;padding:8px 16px;background:white;border:1px solid #e8e8e8;border-radius:100px;white-space:nowrap;margin:0 5px;box-shadow:0 1px 3px rgba(0,0,0,.04);font-size:12px;color:#333;font-weight:500}`}</style>
-              <div className="ktrack">
-                {[['🍽️','Restaurants'],['🏨','Hôtels'],['🏥','Cliniques'],['🔧','Garages'],['🛒','Commerce'],['📦','Logistique'],['💆','Spas'],['🏗️','BTP'],['🎓','Éducation'],['🏪','Distribution'],['🍽️','Restaurants'],['🏨','Hôtels'],['🏥','Cliniques'],['🔧','Garages'],['🛒','Commerce'],['📦','Logistique'],['💆','Spas'],['🏗️','BTP'],['🎓','Éducation'],['🏪','Distribution']].map(([e,t],i)=>(
-                  <div key={i} className="kpill"><span>{e}</span><span>{t}</span></div>
+            <div style={{position:"relative",overflow:"hidden",paddingBottom:20}}>
+              <div style={{position:"absolute",left:0,top:0,bottom:0,width:56,background:"linear-gradient(to right,white,transparent)",zIndex:2,pointerEvents:"none"}}></div>
+              <div style={{position:"absolute",right:0,top:0,bottom:0,width:56,background:"linear-gradient(to left,white,transparent)",zIndex:2,pointerEvents:"none"}}></div>
+              <div style={{display:"flex",animation:"kscroll 28s linear infinite",width:"max-content"}}>
+                <style>{`@keyframes kscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
+                {[["🍽️","Restaurants"],["🏨","Hôtels"],["🏥","Cliniques"],["🔧","Garages"],["🛒","Commerce"],["📦","Logistique"],["💆","Spas"],["🏗️","BTP"],["🎓","Éducation"],["🏪","Distribution"],["🍽️","Restaurants"],["🏨","Hôtels"],["🏥","Cliniques"],["🔧","Garages"],["🛒","Commerce"],["📦","Logistique"],["💆","Spas"],["🏗️","BTP"],["🎓","Éducation"],["🏪","Distribution"]].map(([e,t],i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 14px",background:"white",border:"1px solid #e8e8e8",borderRadius:100,whiteSpace:"nowrap",margin:"0 4px",boxShadow:"0 1px 2px rgba(0,0,0,.04)",fontSize:12,color:"#333",fontWeight:500,flexShrink:0}}>
+                    <span>{e}</span><span>{t}</span>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
-          <div style={{borderTop:`1px solid ${BORDER}`,display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)'}}>
+          <div style={{borderTop:`1px solid ${BORDER}`,display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(4,1fr)"}}>
             {[
-              {v:'2-4h',l:'Mise en place',sub:'Clé en main par SwitzerIT',c:A,bg:AG,icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>},
-              {v:'30s',l:'Par badgeage',sub:'Scan QR depuis le téléphone',c:'#16a34a',bg:'#f0fdf4',icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#16a34a"/><rect x="16" y="5" width="3" height="3" fill="#16a34a"/><rect x="5" y="16" width="3" height="3" fill="#16a34a"/><path d="M14 14h3v3h-3zM17 17h4M17 14v4"/></svg>},
-              {v:'8+',l:'Secteurs couverts',sub:'Restaurants, cliniques, BTP...',c:'#ea580c',bg:'#fff7ed',icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M3 9h6M3 15h6M15 9h3M15 15h3"/></svg>},
-              {v:'100%',l:'Mobile-first',sub:'iPhone, Android & tablette',c:'#7c3aed',bg:'#faf5ff',icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>},
+              {v:"2-4h",l:"Mise en place",sub:"Clé en main · SwitzerIT",c:A,bg:AG,icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={A} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>},
+              {v:"30s",l:"Par badgeage",sub:"Scan QR téléphone",c:"#16a34a",bg:"#f0fdf4",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#16a34a"/><rect x="16" y="5" width="3" height="3" fill="#16a34a"/><rect x="5" y="16" width="3" height="3" fill="#16a34a"/><path d="M14 14h3v3h-3zM17 17h4M17 14v4"/></svg>},
+              {v:"8+",l:"Secteurs",sub:"Restaurants, cliniques...",c:"#ea580c",bg:"#fff7ed",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M3 9h6M3 15h6M15 9h3M15 15h3"/></svg>},
+              {v:"100%",l:"Mobile",sub:"iPhone & Android",c:"#7c3aed",bg:"#faf5ff",icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>},
             ].map((s,i)=>(
-              <div key={i} style={{padding:isMobile?'18px 14px':'24px 22px',borderRight:i<3?`1px solid ${BORDER}`:'none',borderBottom:isMobile&&i<2?`1px solid ${BORDER}`:'none',display:'flex',flexDirection:'column',gap:10}}>
-                <div style={{width:36,height:36,background:s.bg,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center'}}>{s.icon}</div>
+              <div key={i} style={{padding:isMobile?"14px 12px":"18px 20px",borderRight:i<3?`1px solid ${BORDER}`:"none",borderBottom:isMobile&&i<2?`1px solid ${BORDER}`:"none",display:"flex",alignItems:"center",gap:12}}>
+                <div style={{width:32,height:32,background:s.bg,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{s.icon}</div>
                 <div>
-                  <div style={{fontSize:isMobile?26:32,fontWeight:900,color:s.c,letterSpacing:'-.05em',lineHeight:1}}>{s.v}</div>
-                  <div style={{fontSize:13,fontWeight:600,color:TEXT,marginTop:5}}>{s.l}</div>
-                  <div style={{fontSize:11,color:TEXT3,marginTop:3}}>{s.sub}</div>
+                  <div style={{fontSize:isMobile?20:24,fontWeight:900,color:s.c,letterSpacing:"-.04em",lineHeight:1}}>{s.v}</div>
+                  <div style={{fontSize:12,fontWeight:600,color:TEXT,marginTop:3}}>{s.l}</div>
+                  <div style={{fontSize:11,color:TEXT3,marginTop:1}}>{s.sub}</div>
                 </div>
               </div>
             ))}
