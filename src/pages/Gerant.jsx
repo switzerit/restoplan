@@ -57,7 +57,7 @@ export default function Gerant() {
   const [empModal, setEmpModal] = useState(false)
   const [correctModal, setCorrectModal] = useState(null)
   const [restoModal, setRestoModal] = useState(false)
-  const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00'})
+  const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00',coupe:false,heure_debut_2:'',heure_fin_2:''})
   const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
   const [restoForm, setRestoForm] = useState({nom:'',adresse:''})
   const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:'',date:''})
@@ -132,9 +132,9 @@ export default function Gerant() {
     const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
     if(existing){
-      await supabase.from('shifts').update({poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin}).eq('id',existing.id)
+      await supabase.from('shifts').update({poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null}).eq('id',existing.id)
     } else {
-      await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,restaurant_id:currentResto.id})
+      await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null,restaurant_id:currentResto.id})
     }
     setShiftModal(null);loadShifts();showToast('Shift enregistré')
   }
@@ -285,7 +285,7 @@ export default function Gerant() {
 
   function openShift(empId,dayIdx){
     const existing = getShift(empId,dayIdx)
-    setForm(existing?{poste:existing.poste,heure_debut:existing.heure_debut.slice(0,5),heure_fin:existing.heure_fin.slice(0,5)}:{poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00'})
+    setForm(existing?{poste:existing.poste,heure_debut:existing.heure_debut.slice(0,5),heure_fin:existing.heure_fin.slice(0,5),coupe:!!(existing.heure_debut_2&&existing.heure_fin_2),heure_debut_2:existing.heure_debut_2?.slice(0,5)||'',heure_fin_2:existing.heure_fin_2?.slice(0,5)||''}:{poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00',coupe:false,heure_debut_2:'',heure_fin_2:''})
     setShiftModal({empId,dayIdx,existing:!!existing})
   }
 
@@ -794,6 +794,19 @@ export default function Gerant() {
               ))}
             </div>
             <div style={{display:'flex',gap:8}}>
+              {/* Shift coupé */}
+              <div style={{gridColumn:'1/-1'}}>
+                <label style={{display:'flex',alignItems:'center',gap:10,cursor:'pointer',padding:'10px 14px',background:form.coupe?'#f0fdf4':'var(--bg)',border:'1px solid var(--border)',borderRadius:10,transition:'all .2s'}}>
+                  <input type="checkbox" checked={form.coupe} onChange={e=>setForm(f=>({...f,coupe:e.target.checked,heure_debut_2:e.target.checked?'14:00':'',heure_fin_2:e.target.checked?'18:00':''}))} style={{width:16,height:16,accentColor:'#16a34a',cursor:'pointer'}}/>
+                  <span style={{fontSize:13,fontWeight:600,color:form.coupe?'#16a34a':'var(--text)'}}>Shift coupé (2 plages horaires)</span>
+                </label>
+              </div>
+              {form.coupe&&['heure_debut_2','heure_fin_2'].map(fld=>(
+                <div key={fld}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{fld==='heure_debut_2'?'Début 2ème partie':'Fin 2ème partie'}</label>
+                  <input type="time" value={form[fld]} onChange={e=>setForm(f=>({...f,[fld]:e.target.value}))} style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:14,color:'var(--text)',outline:'none'}}/>
+                </div>
+              ))}
               <button onClick={()=>setShiftModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
               <button onClick={saveShift} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
             </div>
