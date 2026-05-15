@@ -210,7 +210,6 @@ function ContactForm({goPage,setShowLogin}) {
     </>
   )
 }
-})
 
 // ══════════════════════════════════════════════════════════════════════
 export default function Login() {
@@ -240,17 +239,23 @@ export default function Login() {
   // Bloquer le scroll du body quand la modale est ouverte
   useEffect(()=>{
     if(showLogin){
+      const y = window.scrollY
       document.body.style.overflow='hidden'
       document.body.style.position='fixed'
+      document.body.style.top=`-${y}px`
       document.body.style.width='100%'
     } else {
+      const top = document.body.style.top
       document.body.style.overflow=''
       document.body.style.position=''
+      document.body.style.top=''
       document.body.style.width=''
+      if(top) window.scrollTo(0, -parseInt(top||'0'))
     }
     return()=>{
       document.body.style.overflow=''
       document.body.style.position=''
+      document.body.style.top=''
       document.body.style.width=''
     }
   },[showLogin])
