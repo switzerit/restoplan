@@ -76,7 +76,7 @@ export default function Employe() {
   )
 
   const todayShift = shifts.find(s=>s.date===selectedDay)
-  const todayPointage = pointages[0]
+  const todayPointage = pointages.find(p => p.heure_arrivee && !p.heure_depart) || pointages[pointages.length-1]
   const isPresent = todayPointage?.heure_arrivee && !todayPointage?.heure_depart
   const isParti = false // On peut toujours badger
   const empColor = COLORS[0]
