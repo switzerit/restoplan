@@ -793,20 +793,27 @@ export default function Gerant() {
                 </div>
               ))}
             </div>
-            <div style={{display:'flex',gap:8}}>
-              {/* Shift coupé */}
-              <div style={{gridColumn:'1/-1'}}>
-                <label style={{display:'flex',alignItems:'center',gap:10,cursor:'pointer',padding:'10px 14px',background:form.coupe?'#f0fdf4':'var(--bg)',border:'1px solid var(--border)',borderRadius:10,transition:'all .2s'}}>
-                  <input type="checkbox" checked={form.coupe} onChange={e=>setForm(f=>({...f,coupe:e.target.checked,heure_debut_2:e.target.checked?'14:00':'',heure_fin_2:e.target.checked?'18:00':''}))} style={{width:16,height:16,accentColor:'#16a34a',cursor:'pointer'}}/>
-                  <span style={{fontSize:13,fontWeight:600,color:form.coupe?'#16a34a':'var(--text)'}}>Shift coupé (2 plages horaires)</span>
-                </label>
+            {/* Shift coupé toggle */}
+            <div style={{marginBottom:12}}>
+              <label style={{display:'flex',alignItems:'center',gap:10,cursor:'pointer',padding:'10px 14px',background:form.coupe?'#f0fdf4':'var(--bg)',border:'1px solid var(--border)',borderRadius:10,transition:'all .2s'}}>
+                <input type="checkbox" checked={form.coupe} onChange={e=>setForm(f=>({...f,coupe:e.target.checked,heure_debut_2:e.target.checked?'14:00':'',heure_fin_2:e.target.checked?'18:00':''}))} style={{width:16,height:16,accentColor:'#16a34a',cursor:'pointer'}}/>
+                <span style={{fontSize:13,fontWeight:600,color:form.coupe?'#16a34a':'var(--text)'}}>Shift coupé (2 plages horaires)</span>
+              </label>
+            </div>
+            {/* 2ème plage horaire */}
+            {form.coupe&&(
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16,padding:12,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:12}}>
+                <div style={{gridColumn:'1/-1',fontSize:11,fontWeight:700,color:'#16a34a',marginBottom:4}}>2ÈME PLAGE HORAIRE</div>
+                {['heure_debut_2','heure_fin_2'].map(fld=>(
+                  <div key={fld}>
+                    <label style={{display:'block',fontSize:11,fontWeight:700,color:'#16a34a',marginBottom:5}}>{fld==='heure_debut_2'?'Début':'Fin'}</label>
+                    <input type="time" value={form[fld]} onChange={e=>setForm(f=>({...f,[fld]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid #bbf7d0',background:'white',fontSize:13,color:'#111',outline:'none'}}/>
+                  </div>
+                ))}
               </div>
-              {form.coupe&&['heure_debut_2','heure_fin_2'].map(fld=>(
-                <div key={fld}>
-                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{fld==='heure_debut_2'?'Début 2ème partie':'Fin 2ème partie'}</label>
-                  <input type="time" value={form[fld]} onChange={e=>setForm(f=>({...f,[fld]:e.target.value}))} style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:14,color:'var(--text)',outline:'none'}}/>
-                </div>
-              ))}
+            )}
+            {/* Boutons */}
+            <div style={{display:'flex',gap:8}}>
               <button onClick={()=>setShiftModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
               <button onClick={saveShift} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
             </div>
