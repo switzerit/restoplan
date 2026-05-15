@@ -176,11 +176,11 @@ export default function Gerant() {
       role:editEmpForm.role
     }).eq('id',editEmpModal.id)
     if(error){showToast('Erreur: '+error.message);return}
-    // Si mot de passe fourni, vérifier si compte existe déjà
+    // Si mot de passe fourni
     if(editEmpForm.password && editEmpForm.password.length>=6){
-      const {data:profilExist} = await supabase.from('profils').select('employe_id').eq('employe_id',editEmpModal.id).maybeSingle()
-      if(profilExist){
-        // Compte existant — reset password
+      const aDejaUnCompte = !!profilsMap[editEmpModal.id]
+      if(aDejaUnCompte){
+        // Compte existant — reset password via Edge Function
         const {data,error:fnErr} = await supabase.functions.invoke('reset-password',{
           body:{email:editEmpForm.email, new_password:editEmpForm.password}
         })
