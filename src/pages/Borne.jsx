@@ -356,10 +356,10 @@ export default function Borne() {
 
   // ── ACTIVE ─────────────────────────────────────────────────────────
   return (
-    <div style={{height:'100vh',display:'flex',flexDirection:'column',background:'#f8fafc',fontFamily:'var(--font)',userSelect:'none',overflow:'hidden'}}>
+    <div style={{height:'100vh',display:'flex',flexDirection:'column',background:'white',fontFamily:'var(--font)',userSelect:'none',overflow:'hidden'}}>
 
       {/* Header */}
-      <div style={{background:'#111',padding:'14px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+      <div style={{background:'#111',padding:'14px 28px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           {LOGO}
           <div>
@@ -368,65 +368,56 @@ export default function Borne() {
           </div>
         </div>
         <div style={{textAlign:'right'}}>
-          <div style={{fontSize:30,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1,fontVariantNumeric:'tabular-nums'}}>{fmt(heure)}</div>
+          <div style={{fontSize:32,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1,fontVariantNumeric:'tabular-nums'}}>{fmt(heure)}</div>
           <div style={{display:'flex',alignItems:'center',gap:5,justifyContent:'flex-end',marginTop:3}}>
-            <span style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-            <span style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>En direct</span>
+            <span style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',display:'inline-block',boxShadow:'0 0 0 2px rgba(34,197,94,.25)'}}></span>
+            <span style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>Borne active</span>
           </div>
         </div>
       </div>
 
-      {/* Corps — 2 colonnes */}
-      <div style={{flex:1,display:'grid',gridTemplateColumns:'1fr 1fr',gap:0,overflow:'hidden'}}>
+      {/* Corps — centré */}
+      <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:32,gap:28}}>
 
-        {/* Gauche — QR */}
-        <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:32,borderRight:'1px solid #e8e8e8',background:'white',gap:20}}>
-
-          {/* Flash badge */}
-          {lastBadge && (
-            <div style={{
-              background:lastBadge.type==='entree'?'#f0fdf4':'#fff7ed',
-              border:`1px solid ${lastBadge.type==='entree'?'#bbf7d0':'#fed7aa'}`,
-              borderRadius:14,padding:'14px 24px',textAlign:'center',
-              animation:'fadeIn .3s ease',width:'100%',maxWidth:260
-            }}>
-              <div style={{fontSize:28,marginBottom:4}}>{lastBadge.type==='entree'?'✅':'👋'}</div>
-              <div style={{fontSize:17,fontWeight:700,color:'#111'}}>{lastBadge.nom}</div>
-              <div style={{fontSize:12,color:'#666',marginTop:2}}>{lastBadge.type==='entree'?'Arrivée':'Départ'} · {lastBadge.heure}</div>
+        {/* Flash badge — affiché 4 secondes puis disparaît */}
+        {lastBadge ? (
+          <div style={{
+            background:lastBadge.type==='entree'?'#f0fdf4':'#fff7ed',
+            border:`2px solid ${lastBadge.type==='entree'?'#22c55e':'#f97316'}`,
+            borderRadius:20,padding:'28px 40px',textAlign:'center',
+            animation:'fadeIn .4s cubic-bezier(.16,1,.3,1)',
+            boxShadow:lastBadge.type==='entree'?'0 8px 32px rgba(34,197,94,.15)':'0 8px 32px rgba(249,115,22,.15)'
+          }}>
+            <div style={{fontSize:52,marginBottom:8}}>{lastBadge.type==='entree'?'✅':'👋'}</div>
+            <div style={{fontSize:22,fontWeight:800,color:'#111',marginBottom:4}}>Bonjour, {lastBadge.nom.split(' ')[0]} !</div>
+            <div style={{fontSize:15,color:lastBadge.type==='entree'?'#16a34a':'#ea580c',fontWeight:600}}>
+              {lastBadge.type==='entree'?'Arrivée enregistrée':'Départ enregistré'}
             </div>
-          )}
-
+          </div>
+        ) : (
           <div style={{textAlign:'center'}}>
-            <div style={{fontSize:15,fontWeight:600,color:'#333',marginBottom:16}}>Scannez pour badger</div>
+            <div style={{fontSize:16,fontWeight:600,color:'#555',marginBottom:20}}>
+              Scannez pour badger
+            </div>
             {restaurant && <RealQR restoId={restaurant.id} secret={restaurant.qr_secret}/>}
+            <div style={{fontSize:13,color:'#bbb',marginTop:16,lineHeight:1.7}}>
+              Ouvrez l'app Kronvo sur votre téléphone<br/>et scannez ce QR code
+            </div>
           </div>
-
-          <div style={{fontSize:12,color:'#aaa',textAlign:'center',lineHeight:1.6}}>
-            Ouvrez votre app Kronvo<br/>et scannez ce QR code
-          </div>
-        </div>
-
-        {/* Droite — Présences */}
-        <div style={{display:'flex',flexDirection:'column',padding:24,overflowY:'auto',background:'#f8fafc'}}>
-          <div style={{fontSize:13,fontWeight:700,color:'#333',marginBottom:16,display:'flex',alignItems:'center',gap:7}}>
-            <span style={{width:8,height:8,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-            Présences aujourd'hui
-          </div>
-          {restaurant && <PresencesLive restoId={restaurant.id}/>}
-        </div>
+        )}
 
       </div>
 
       {/* Footer */}
-      <div style={{background:'white',borderTop:'1px solid #f0f0f0',padding:'10px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+      <div style={{background:'#fafafa',borderTop:'1px solid #f0f0f0',padding:'10px 28px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
         <div style={{fontSize:11,color:'#ccc'}}>Kronvo by SwitzerIT · 🇨🇭</div>
         <div style={{display:'flex',alignItems:'center',gap:5}}>
           <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-          <span style={{fontSize:11,color:'#aaa'}}>QR sécurisé · renouvelé toutes les 30s</span>
+          <span style={{fontSize:11,color:'#bbb'}}>QR sécurisé · renouvelé toutes les 30s</span>
         </div>
       </div>
 
-      <style>{`@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}`}</style>
+      <style>{`@keyframes fadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}`}</style>
     </div>
   )
 }
