@@ -57,7 +57,22 @@ export default function Employe() {
     return()=>clearInterval(t)
   },[])
 
-  useEffect(()=>{if(employe){loadShifts();loadPointages();loadHistorique()}},[employe])
+  useEffect(()=>{
+    if(!employe) return
+    loadShifts();loadPointages();loadHistorique()
+    // Realtime shifts
+    const chShifts = supabase.channel('employe-shifts')
+      .on('postgres_changes',{event:'*',schema:'public',table:'shifts',filter:`employe_id=eq.${employe.id}`},()=>loadShifts())
+      .subscribe()
+    // Realtime pointages
+    const chPointages = supabase.channel('employe-pointages')
+      .on('postgres_changes',{event:'*',schema:'public',table:'pointages',filter:`employe_id=eq.${employe.id}`},()=>{loadPointages();loadHistorique()})
+      .subscribe()
+    return()=>{
+      supabase.removeChannel(chShifts)
+      supabase.removeChannel(chPointages)
+    }
+  },[employe])
 
   async function loadEmployeFromSession(){
     const {data:{session}}=await supabase.auth.getSession()
