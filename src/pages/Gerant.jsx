@@ -105,9 +105,8 @@ export default function Gerant() {
     setPointages(pMap)
     // Charger les profils pour savoir qui a un compte app
     if(e&&e.length>0){
-      const {data:profils} = await supabase.from('profils').select('employe_id').in('employe_id',e.map(emp=>emp.id))
       const map={}
-      profils?.forEach(p=>map[p.employe_id]=true)
+      e.forEach(emp=>{ if(emp.a_un_compte) map[emp.id]=true })
       setProfilsMap(map)
     }
     loadShifts()
@@ -193,7 +192,10 @@ export default function Gerant() {
           body:{email:editEmpForm.email, password:editEmpForm.password, skip_employe:true, employe_id:editEmpModal.id}
         })
         if(fnErr||data?.error) showToast('Erreur: '+(data?.error||fnErr?.message))
-        else showToast(editEmpForm.prenom+' — compte créé !')
+        else {
+          await supabase.from('employes').update({a_un_compte:true}).eq('id',editEmpModal.id)
+          showToast(editEmpForm.prenom+' — compte créé !')
+        }
       }
     }
     setEditEmpModal(null)
