@@ -131,6 +131,20 @@ export default function Gerant() {
   async function saveShift(){
     const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
+    // Validation horaires
+    const toMins = t => { const [h,m]=t.split(':').map(Number); return h*60+m }
+    if(toMins(form.heure_fin) <= toMins(form.heure_debut)){
+      showToast('Erreur : la fin doit être après le début'); return
+    }
+    if(form.coupe){
+      if(!form.heure_debut_2||!form.heure_fin_2){ showToast('Remplis les horaires de la 2ème partie'); return }
+      if(toMins(form.heure_debut_2) < toMins(form.heure_fin)){
+        showToast('Erreur : la 2ème partie doit commencer après la fin de la 1ère'); return
+      }
+      if(toMins(form.heure_fin_2) <= toMins(form.heure_debut_2)){
+        showToast('Erreur : la fin 2ème partie doit être après le début'); return
+      }
+    }
     if(existing){
       await supabase.from('shifts').update({poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null}).eq('id',existing.id)
     } else {
