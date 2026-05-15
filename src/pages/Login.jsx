@@ -460,47 +460,49 @@ export default function Login() {
       </section>
 
       {/* 2+3. TRUST + STATS */}
-      <section style={{background:"#fafafa",borderTop:"1px solid #f0f0f0",borderBottom:"1px solid #f0f0f0"}}>
-        <div style={{maxWidth:860,margin:"0 auto",padding:"0 24px"}}>
+      <section style={{background:"#fafafa",borderTop:"1px solid #ebebeb",borderBottom:"1px solid #ebebeb"}}> 
+        <div style={{maxWidth:900,margin:"0 auto",padding:"0 24px"}}>
           <Reveal>
-            <div style={{padding:"14px 0 10px",display:"flex",alignItems:"center",justifyContent:"center",gap:16,flexWrap:"wrap"}}>
+            {/* Ligne trust */}
+            <div style={{padding:"16px 0 12px",display:"flex",alignItems:"center",justifyContent:"center",gap:14,flexWrap:"wrap",borderBottom:"1px solid #f0f0f0"}}>
               <div style={{display:"flex",alignItems:"center",gap:8}}>
                 <div style={{display:"flex"}}>
                   {[{bg:AG,c:A,t:"SM"},{bg:"#f0fdf4",c:"#16a34a",t:"JD"},{bg:"#fff7ed",c:"#ea580c",t:"AL"}].map((a,i)=>(
-                    <div key={i} style={{width:26,height:26,borderRadius:"50%",background:a.bg,border:"2px solid white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:700,color:a.c,marginRight:i<2?-6:0,zIndex:3-i,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>{a.t}</div>
+                    <div key={i} style={{width:28,height:28,borderRadius:"50%",background:a.bg,border:"2px solid white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-7:0,zIndex:3-i,boxShadow:"0 1px 3px rgba(0,0,0,.1)"}}>{a.t}</div>
                   ))}
                 </div>
-                <span style={{fontSize:12,color:TEXT2}}>Des équipes terrain font confiance à <strong style={{color:TEXT}}>Kronvo</strong></span>
+                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111"}}>Kronvo</strong></span>
               </div>
-              <div style={{width:1,height:14,background:BORDER}}></div>
-              <div style={{display:"flex",alignItems:"center",gap:4,background:"#fffbeb",border:"1px solid #fde68a",borderRadius:20,padding:"3px 10px"}}>
-                <span style={{color:"#f59e0b",fontSize:11}}>★★★★★</span>
-                <span style={{fontSize:12,fontWeight:700,color:"#111"}}>4.8/5</span>
-                <span style={{fontSize:10,color:"#999"}}>· SwitzerIT</span>
+              <div style={{width:1,height:16,background:"#e8e8e8"}}></div>
+              <div style={{display:"flex",alignItems:"center",gap:4,background:"#fffbeb",border:"1px solid #fde68a",borderRadius:20,padding:"4px 12px"}}>
+                <span style={{color:"#f59e0b",fontSize:12}}>★★★★★</span>
+                <span style={{fontSize:13,fontWeight:700,color:"#111"}}>4.8/5</span>
+                <span style={{fontSize:11,color:"#999"}}>· SwitzerIT</span>
               </div>
-              <div style={{width:1,height:14,background:BORDER}}></div>
-              <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                {[{v:"2-4h",l:"mise en place",c:A,bg:AG,bc:AB},{v:"30s",l:"badgeage",c:"#16a34a",bg:"#f0fdf4",bc:"#bbf7d0"},{v:"8+",l:"secteurs",c:"#ea580c",bg:"#fff7ed",bc:"#fed7aa"},{v:"100%",l:"mobile",c:"#7c3aed",bg:"#faf5ff",bc:"#e9d5ff"}].map((s,i)=>(
-                  <div key={i} style={{display:"flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:10,background:s.bg,border:`1px solid ${s.bc}`}}>
-                    <span style={{fontSize:15,fontWeight:900,color:s.c,letterSpacing:"-.03em",lineHeight:1}}>{s.v}</span>
-                    <span style={{fontSize:11,color:s.c,fontWeight:500,opacity:.8}}>{s.l}</span>
+            </div>
+            {/* Stats en ligne bien visibles */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",borderBottom:"1px solid #f0f0f0"}}>
+              {[{v:"2-4h",l:"Mise en place",c:A,bg:AG},{v:"30s",l:"Par badgeage",c:"#16a34a",bg:"#f0fdf4"},{v:"8+",l:"Secteurs",c:"#ea580c",bg:"#fff7ed"},{v:"100%",l:"Mobile",c:"#7c3aed",bg:"#faf5ff"}].map((s,i)=>(
+                <div key={i} style={{padding:"14px 0",textAlign:"center",borderRight:i<3?"1px solid #f0f0f0":"none",background:i===0?AG:"white"}}>
+                  <div style={{fontSize:22,fontWeight:900,color:s.c,letterSpacing:"-.04em",lineHeight:1}}>{s.v}</div>
+                  <div style={{fontSize:11,color:s.c,marginTop:3,fontWeight:500,opacity:.8}}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+            {/* Bande défilante */}
+            <div style={{position:"relative",overflow:"hidden",padding:"10px 0"}}>
+              <div style={{position:"absolute",left:0,top:0,bottom:0,width:40,background:"linear-gradient(to right,#fafafa,transparent)",zIndex:2,pointerEvents:"none"}}></div>
+              <div style={{position:"absolute",right:0,top:0,bottom:0,width:40,background:"linear-gradient(to left,#fafafa,transparent)",zIndex:2,pointerEvents:"none"}}></div>
+              <style>{`@keyframes kscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
+              <div style={{display:"flex",animation:"kscroll 28s linear infinite",width:"max-content"}}>
+                {[["🍽️","Restaurants"],["🏨","Hôtels"],["🏥","Cliniques"],["🔧","Garages"],["🛒","Commerce"],["📦","Logistique"],["💆","Spas"],["🏗️","BTP"],["🎓","Éducation"],["🏪","Distribution"],["🍽️","Restaurants"],["🏨","Hôtels"],["🏥","Cliniques"],["🔧","Garages"],["🛒","Commerce"],["📦","Logistique"],["💆","Spas"],["🏗️","BTP"],["🎓","Éducation"],["🏪","Distribution"]].map(([e,t],i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:5,padding:"5px 13px",background:"white",border:"1px solid #e8e8e8",borderRadius:100,whiteSpace:"nowrap",margin:"0 4px",fontSize:12,color:"#444",fontWeight:500,flexShrink:0,boxShadow:"0 1px 2px rgba(0,0,0,.04)"}}>
+                    <span>{e}</span><span>{t}</span>
                   </div>
                 ))}
               </div>
             </div>
           </Reveal>
-          <div style={{position:"relative",overflow:"hidden",paddingBottom:12}}>
-            <div style={{position:"absolute",left:0,top:0,bottom:0,width:40,background:"linear-gradient(to right,#fafafa,transparent)",zIndex:2,pointerEvents:"none"}}></div>
-            <div style={{position:"absolute",right:0,top:0,bottom:0,width:40,background:"linear-gradient(to left,#fafafa,transparent)",zIndex:2,pointerEvents:"none"}}></div>
-            <style>{`@keyframes kscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
-            <div style={{display:"flex",animation:"kscroll 28s linear infinite",width:"max-content"}}>
-              {[["🍽️","Restaurants"],["🏨","Hôtels"],["🏥","Cliniques"],["🔧","Garages"],["🛒","Commerce"],["📦","Logistique"],["💆","Spas"],["🏗️","BTP"],["🎓","Éducation"],["🏪","Distribution"],["🍽️","Restaurants"],["🏨","Hôtels"],["🏥","Cliniques"],["🔧","Garages"],["🛒","Commerce"],["📦","Logistique"],["💆","Spas"],["🏗️","BTP"],["🎓","Éducation"],["🏪","Distribution"]].map(([e,t],i)=>(
-                <div key={i} style={{display:"flex",alignItems:"center",gap:5,padding:"5px 12px",background:"white",border:"1px solid #e8e8e8",borderRadius:100,whiteSpace:"nowrap",margin:"0 3px",fontSize:11,color:"#555",fontWeight:500,flexShrink:0}}>
-                  <span style={{fontSize:12}}>{e}</span><span>{t}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
       {/* 4. PHOTO + ACCROCHE */}
