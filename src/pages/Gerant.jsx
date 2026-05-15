@@ -771,7 +771,7 @@ export default function Gerant() {
       )}
 
       {shiftModal&&(
-        <div onClick={()=>setShiftModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
             <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>{shiftModal.existing?'Modifier':'Nouveau'} shift</div>
             <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{employes.find(e=>e.id===shiftModal.empId)?.prenom} — {DAYS[shiftModal.dayIdx]} {fmtLabel(addDays(weekStart,shiftModal.dayIdx))}</div>
