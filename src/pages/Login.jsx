@@ -260,8 +260,8 @@ export default function Login() {
   const BG='#f8fafc'
   const SURF='#ffffff'
 
-  const W={maxWidth:1080,margin:'0 auto',padding:isMobile?'0 20px':'0 56px'}
-  const WM={maxWidth:860,margin:'0 auto',padding:isMobile?'0 20px':'0 56px'}
+  const W={maxWidth:1020,margin:'0 auto',padding:isMobile?'0 20px':'0 48px'}
+  const WM={maxWidth:1020,margin:'0 auto',padding:isMobile?'0 20px':'0 48px'}
   const SEC=isMobile?'56px 20px':'80px 0'
 
   const scrollTop=()=>{setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'instant'}),20)}
@@ -461,7 +461,7 @@ export default function Login() {
 
       {/* 2+3. TRUST + STATS */}
       <section style={{background:"#fafafa",borderTop:"1px solid #ebebeb",borderBottom:"1px solid #ebebeb"}}> 
-        <div style={{maxWidth:900,margin:"0 auto",padding:"0 24px"}}>
+        <div style={{maxWidth:1020,margin:"0 auto",padding:isMobile?"0 20px":"0 48px"}}>
           <Reveal>
             {/* Ligne trust */}
             <div style={{padding:"16px 0 12px",display:"flex",alignItems:"center",justifyContent:"center",gap:14,flexWrap:"wrap",borderBottom:"1px solid #f0f0f0"}}>
