@@ -302,7 +302,7 @@ export default function Login() {
         )}
       </nav>
       {isMobile&&menuOpen&&(
-        <div style={{position:'fixed',top:62,left:0,right:0,zIndex:99,background:SURF,borderBottom:`1px solid ${BORDER}`,boxShadow:'0 8px 24px rgba(0,0,0,.06)',padding:'8px 0 18px'}}>
+        <div style={{position:'fixed',top:62,left:0,right:0,zIndex:99,background:SURF,boxShadow:'0 8px 24px rgba(0,0,0,.06)',padding:'8px 0 18px'}}>
           {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([l,id])=>(
             <button key={id} onClick={()=>goPage(id)} style={{width:'100%',padding:'13px 24px',border:'none',background:'transparent',color:TEXT,fontSize:14,fontWeight:500,cursor:'pointer',textAlign:'left',display:'block'}}>{l}</button>
           ))}
@@ -460,11 +460,11 @@ export default function Login() {
       </section>
 
       {/* 2+3. TRUST + STATS */}
-      <section style={{background:"#fafafa",borderTop:"1px solid #ebebeb",borderBottom:"1px solid #ebebeb"}}> 
+      <section style={{background:"#f8fafc"}}> 
         <div style={{maxWidth:1020,margin:"0 auto",padding:isMobile?"0 20px":"0 48px"}}>
           <Reveal>
             {/* Ligne trust */}
-            <div style={{padding:"16px 0 12px",display:"flex",alignItems:"center",justifyContent:"center",gap:14,flexWrap:"wrap",borderBottom:"1px solid #f0f0f0"}}>
+            <div style={{padding:"16px 0 12px",display:"flex",alignItems:"center",justifyContent:"center",gap:14,flexWrap:"wrap",marginBottom:0}}>
               <div style={{display:"flex",alignItems:"center",gap:8}}>
                 <div style={{display:"flex"}}>
                   {[{bg:AG,c:A,t:"SM"},{bg:"#f0fdf4",c:"#16a34a",t:"JD"},{bg:"#fff7ed",c:"#ea580c",t:"AL"}].map((a,i)=>(
@@ -481,7 +481,7 @@ export default function Login() {
               </div>
             </div>
             {/* Stats en ligne bien visibles */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",borderBottom:"1px solid #f0f0f0"}}>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)"}}>
               {[{v:"2-4h",l:"Mise en place",c:A,bg:AG},{v:"30s",l:"Par badgeage",c:"#16a34a",bg:"#f0fdf4"},{v:"8+",l:"Secteurs",c:"#ea580c",bg:"#fff7ed"},{v:"100%",l:"Mobile",c:"#7c3aed",bg:"#faf5ff"}].map((s,i)=>(
                 <div key={i} style={{padding:"14px 0",textAlign:"center",borderRight:i<3?"1px solid #f0f0f0":"none",background:i===0?AG:"white"}}>
                   <div style={{fontSize:22,fontWeight:900,color:s.c,letterSpacing:"-.04em",lineHeight:1}}>{s.v}</div>
@@ -556,7 +556,7 @@ export default function Login() {
       </section>
 
       {/* 5. FONCTIONNALITÉS */}
-      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
+      <section style={{background:SURF,padding:SEC}}>
         <div style={W}>
           <Reveal>
             <div style={{textAlign:'center',marginBottom:56}}>
@@ -614,7 +614,7 @@ export default function Login() {
       </section>
 
       {/* 6. PHOTO ÉQUIPE + SECTEURS */}
-      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
+      <section style={{background:BG,padding:SEC}}>
         <div style={WM}>
           <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1.4fr 1fr',gap:56,alignItems:'center'}}>
             <div>
@@ -660,7 +660,7 @@ export default function Login() {
                 <img
                   src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&q=80"
                   alt="Équipe logistique"
-                  style={{width:'100%',height:180,objectFit:'cover',display:'block',borderTop:`1px solid ${BORDER}`}}
+                  style={{width:'100%',height:180,objectFit:'cover',display:'block'}}
                   onError={e=>{e.target.style.display='none'}}
                 />
               </div>
@@ -670,7 +670,7 @@ export default function Login() {
       </section>
 
       {/* 7. CALCULATEUR ROI */}
-      <section style={{background:SURF,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
+      <section style={{background:SURF,padding:SEC}}>
         <div style={W}>
           <Reveal>
             <div style={{textAlign:'center',marginBottom:52}}>
@@ -684,7 +684,7 @@ export default function Login() {
       </section>
 
       {/* 8. FAQ + CTA */}
-      <section style={{background:BG,borderTop:`1px solid ${BORDER}`,padding:SEC}}>
+      <section style={{background:BG,padding:SEC}}>
         <div style={W}>
           <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:72,alignItems:'start'}}>
             <div>
