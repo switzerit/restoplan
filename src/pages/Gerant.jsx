@@ -177,18 +177,18 @@ export default function Gerant() {
       role:editEmpForm.role
     }).eq('id',editEmpModal.id)
     if(error){showToast('Erreur: '+error.message);return}
-    // Si mot de passe fourni et pas encore de compte, créer le compte
+    // Si mot de passe fourni, vérifier si compte existe déjà
     if(editEmpForm.password && editEmpForm.password.length>=6){
-      const aDejaUnCompte = !!profilsMap[editEmpModal.id]
-      if(aDejaUnCompte){
-        // Modifier le mot de passe existant
+      const {data:profilExist} = await supabase.from('profils').select('employe_id').eq('employe_id',editEmpModal.id).single()
+      if(profilExist){
+        // Compte existant — reset password
         const {data,error:fnErr} = await supabase.functions.invoke('reset-password',{
           body:{email:editEmpForm.email, new_password:editEmpForm.password}
         })
         if(fnErr||data?.error) showToast('Erreur: '+(data?.error||fnErr?.message))
         else showToast('Mot de passe modifié pour '+editEmpForm.prenom+' !')
       } else {
-        // Créer un nouveau compte
+        // Pas de compte — en créer un
         const {data,error:fnErr} = await supabase.functions.invoke('create-employe',{
           body:{email:editEmpForm.email, password:editEmpForm.password, skip_employe:true, employe_id:editEmpModal.id}
         })
