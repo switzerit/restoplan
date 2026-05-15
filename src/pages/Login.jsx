@@ -211,12 +211,84 @@ function ContactForm({goPage,setShowLogin}) {
   )
 }
 
+
+function LoginModal({onClose, goPage}) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+
+  useEffect(()=>{
+    const y = window.scrollY
+    document.body.style.overflow='hidden'
+    document.body.style.position='fixed'
+    document.body.style.top='-'+y+'px'
+    document.body.style.width='100%'
+    return()=>{
+      const top = document.body.style.top
+      document.body.style.overflow=''
+      document.body.style.position=''
+      document.body.style.top=''
+      document.body.style.width=''
+      if(top) window.scrollTo(0,-parseInt(top||'0'))
+    }
+  },[])
+
+  async function handleLogin(e){
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    const {data,error} = await supabase.auth.signInWithPassword({email,password})
+    if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
+    const {data:p} = await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
+    if(p?.role==='super_admin') navigate('/admin')
+    else if(p?.role==='gerant') navigate('/gerant')
+    else navigate('/moi')
+    setLoading(false)
+  }
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
+      <div style={{background:'white',borderRadius:20,padding:34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:'1px solid #e8e8e8',position:'relative'}}>
+        <button onClick={onClose} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:'1px solid #e8e8e8',background:'#f8fafc',color:'#555',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+        <div style={{textAlign:'center',marginBottom:22}}>
+          <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
+            <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0066cc"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
+          </div>
+          <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Connexion</div>
+          <div style={{fontSize:12,color:'#999',marginTop:4}}>Accédez à votre espace Kronvo</div>
+        </div>
+        <form onSubmit={handleLogin}>
+          <div style={{marginBottom:13}}>
+            <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Email</label>
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required
+              style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid #e8e8e8',background:'#fafafa',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}}
+              onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
+          </div>
+          <div style={{marginBottom:22}}>
+            <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Mot de passe</label>
+            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required
+              style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid #e8e8e8',background:'white',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}}
+              onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
+          </div>
+          {error&&<div style={{padding:'9px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:9,fontSize:13,color:'#dc2626',marginBottom:14,fontWeight:600}}>{error}</div>}
+          <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:11,border:'none',background:'#0066cc',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
+            {loading?'Connexion...':'Se connecter'}
+          </button>
+        </form>
+        <div style={{textAlign:'center',marginTop:14}}>
+          <span style={{fontSize:12,color:'#999'}}>Pas encore client ? </span>
+          <span style={{fontSize:12,color:'#0066cc',fontWeight:600,cursor:'pointer'}} onClick={()=>{onClose();goPage('contact')}}>Demander une démo</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ══════════════════════════════════════════════════════════════════════
 export default function Login() {
-  const [email,setEmail]=useState('')
-  const [password,setPassword]=useState('')
   const [loading,setLoading]=useState(true)
-  const [error,setError]=useState('')
   const [showLogin,setShowLogin]=useState(false)
   const [menuOpen,setMenuOpen]=useState(false)
   const [legalSection,setLegalSection]=useState('cgu')
@@ -260,16 +332,7 @@ export default function Login() {
     }
   },[showLogin])
 
-  async function handleLogin(e){
-    e.preventDefault();setLoading(true);setError('')
-    const {data,error}=await supabase.auth.signInWithPassword({email,password})
-    if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
-    const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
-    if(p?.role==='super_admin')navigate('/admin')
-    else if(p?.role==='gerant')navigate('/gerant')
-    else navigate('/moi')
-    setLoading(false)
-  }
+
 
   if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'white',color:'#aaa',fontFamily:'var(--font)'}}>Chargement...</div>
 
@@ -1110,38 +1173,7 @@ export default function Login() {
       <Footer/>
 
       {/* MODALE CONNEXION */}
-      {showLogin&&(
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16,overscrollBehavior:'none',touchAction:'none'}}>
-          <div style={{background:SURF,borderRadius:20,padding:isMobile?'24px 20px':34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
-            <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
-            <div style={{textAlign:'center',marginBottom:22}}>
-              <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>{LOGO_SM}</div>
-              <div style={{fontSize:20,fontWeight:800,color:TEXT,letterSpacing:'-.03em'}}>Connexion</div>
-              <div style={{fontSize:12,color:TEXT3,marginTop:4}}>Accédez à votre espace Kronvo</div>
-            </div>
-            <form onSubmit={handleLogin}>
-              <div style={{marginBottom:13}}>
-                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Email</label>
-                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required
-                style={{width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:'#fafafa',fontSize:14,color:TEXT,outline:'none',boxSizing:'border-box'}}
-                onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
-              </div>
-              <div style={{marginBottom:22}}>
-                <label style={{display:'block',fontSize:12,fontWeight:600,color:TEXT2,marginBottom:6}}>Mot de passe</label>
-                <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required
-                style={{width:'100%',padding:'12px 14px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:'white',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}}
-                onFocus={e=>e.target.style.borderColor=A} onBlur={e=>e.target.style.borderColor=BORDER}/>
-              </div>
-              {error&&<div style={{padding:'9px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:9,fontSize:13,color:'#dc2626',marginBottom:14,fontWeight:600}}>{error}</div>}
-              <button type="submit" style={{width:'100%',height:48,borderRadius:11,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer'}}>Se connecter</button>
-            </form>
-            <div style={{textAlign:'center',marginTop:14}}>
-              <span style={{fontSize:12,color:TEXT3}}>Pas encore client ? </span>
-              <span style={{fontSize:12,color:A,fontWeight:600,cursor:'pointer'}} onClick={()=>{setShowLogin(false);goPage('contact')}}>Demander une démo</span>
-            </div>
-          </div>
-        </div>
-      )}
+      {showLogin&&<LoginModal onClose={()=>setShowLogin(false)} goPage={goPage}/>}
     </div>
   )
 }
