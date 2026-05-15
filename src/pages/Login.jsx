@@ -236,6 +236,24 @@ export default function Login() {
     })
   },[])
 
+  // Bloquer le scroll du body quand la modale est ouverte
+  useEffect(()=>{
+    if(showLogin){
+      document.body.style.overflow='hidden'
+      document.body.style.position='fixed'
+      document.body.style.width='100%'
+    } else {
+      document.body.style.overflow=''
+      document.body.style.position=''
+      document.body.style.width=''
+    }
+    return()=>{
+      document.body.style.overflow=''
+      document.body.style.position=''
+      document.body.style.width=''
+    }
+  },[showLogin])
+
   async function handleLogin(e){
     e.preventDefault();setLoading(true);setError('')
     const {data,error}=await supabase.auth.signInWithPassword({email,password})
