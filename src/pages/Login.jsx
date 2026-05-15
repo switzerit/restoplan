@@ -1105,7 +1105,7 @@ export default function Login() {
 
       {/* MODALE CONNEXION */}
       {showLogin&&(
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16,overscrollBehavior:'none',touchAction:'none'}}>
           <div style={{background:SURF,borderRadius:20,padding:isMobile?'24px 20px':34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:`1px solid ${BORDER}`,position:'relative'}}>
             <button onClick={()=>setShowLogin(false)} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:`1px solid ${BORDER}`,background:BG,color:TEXT2,fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
             <div style={{textAlign:'center',marginBottom:22}}>
