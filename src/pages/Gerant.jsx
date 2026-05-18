@@ -162,10 +162,20 @@ export default function Gerant() {
 
   async function addEmploye(){
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
-    const {error} = await supabase.from("employes").insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id})
-    if(error){showToast("Erreur: "+error.message);return}
+    const {data:empData,error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id}).select().single()
+    if(error){showToast('Erreur: '+error.message);return}
+    if(empForm.password && empForm.password.length>=6){
+      showToast('Création du compte...')
+      const {data:fnData,error:fnErr} = await supabase.functions.invoke('create-employe',{
+        body:{email:empForm.email,password:empForm.password,skip_employe:true,employe_id:empData.id}
+      })
+      if(fnErr||fnData?.error) showToast('Employé créé mais erreur compte: '+(fnData?.error||fnErr?.message))
+      else{ await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id); showToast(empForm.prenom+' créé avec compte app !') }
+    } else {
+      showToast(empForm.prenom+' ajouté !')
+    }
     setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
-    loadAll();showToast(empForm.prenom+' ajouté !')
+    loadAll()
   }
 
   async function addRestaurant(){
