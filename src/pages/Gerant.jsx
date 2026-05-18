@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { generatePDF } from '../lib/exportPDF'
 import { supabase } from '../lib/supabase'
+import CongesGerant from '../components/CongesGerant'
 
 const COLORS = [
   {bg:'#e8f2fd',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},
@@ -348,7 +349,7 @@ export default function Gerant() {
 
   if(!currentResto) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>Chargement...</div>
 
-  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':'Paramètres'
+  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':'Paramètres'
 
   return (
     <div style={{display:'flex',height:'100dvh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row'}}>
@@ -653,6 +654,11 @@ export default function Gerant() {
         )}
 
         {/* VUE PARAMETRES */}
+        {view==='conges'&&(
+          <div style={{padding:16}}>
+            <CongesGerant restaurant={currentResto} employes={employes} showToast={showToast}/>
+          </div>
+        )}
         {view==='parametres'&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{maxWidth:500}}>

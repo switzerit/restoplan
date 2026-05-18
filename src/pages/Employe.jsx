@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import QRScanner from '../components/QRScanner'
+import CongesEmploye from '../components/CongesEmploye'
 
 const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
 const POSTE_COLORS = {
@@ -155,7 +156,7 @@ export default function Employe() {
         </div>
         {/* Tabs */}
         <div style={{display:'flex',gap:0}}>
-          {[{id:'accueil',l:'Accueil',icon:'🏠'},{id:'planning',l:'Planning',icon:'📅'},{id:'historique',l:'Historique',icon:'📋'},{id:'profil',l:'Profil',icon:'👤'}].map(t=>(
+          {[{id:'accueil',l:'Accueil',icon:'🏠'},{id:'planning',l:'Planning',icon:'📅'},{id:'historique',l:'Historique',icon:'📋'},{id:'profil',l:'Profil',icon:'👤'},{id:'conges',l:'Congés',icon:'🏖️'}].map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:'10px 4px',border:'none',background:'transparent',cursor:'pointer',fontSize:12,fontWeight:600,color:tab===t.id?'var(--accent)':'var(--text2)',borderBottom:`2px solid ${tab===t.id?'var(--accent)':'transparent'}`,transition:'all .15s',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
               <span style={{fontSize:16}}>{t.icon}</span>
               {t.l}
@@ -395,6 +396,9 @@ export default function Employe() {
           </button>
         </div>
       )}
+
+      {/* ── CONGÉS ── */}
+      {tab==='conges'&&<CongesEmploye employe={employe}/>}
 
       {/* ── SCANNER ── */}
       {showScanner&&(
