@@ -19,35 +19,67 @@ function fmtLabel(s){const d=new Date(s+'T00:00:00');return d.toLocaleDateString
 function fmtShort(s){const d=new Date(s+'T00:00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}
 function nbJours(d1,d2){return Math.max(1,Math.round((new Date(d2)-new Date(d1))/(1000*60*60*24))+1)}
 
-function exportPDF(conges, restaurant, employes){
+function doExportPDF(conges, restaurant, employes, filtreEmp, dateDebut, dateFin){
+  let filtered = conges
+  if(filtreEmp) filtered = filtered.filter(c=>c.employe_id===filtreEmp)
+  if(dateDebut) filtered = filtered.filter(c=>c.date_debut>=dateDebut)
+  if(dateFin) filtered = filtered.filter(c=>c.date_fin<=dateFin)
+
   const byEmp={}
-  conges.forEach(c=>{if(!byEmp[c.employe_id])byEmp[c.employe_id]=[];byEmp[c.employe_id].push(c)})
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Congés — ${restaurant.nom}</title>
-<style>body{font-family:Arial,sans-serif;padding:30px;color:#111}h1{font-size:20px;margin-bottom:4px}.sub{color:#666;font-size:13px;margin-bottom:24px}
-.cards{display:flex;gap:14px;margin-bottom:24px}.card{background:#f5f5f5;padding:12px 18px;border-radius:8px;text-align:center}.card-n{font-size:26px;font-weight:800}.card-l{font-size:11px;color:#666}
-h2{font-size:14px;background:#f0f7ff;padding:8px 12px;border-radius:6px;margin:16px 0 8px;color:#0051a8}
-table{width:100%;border-collapse:collapse;margin-bottom:14px}th{background:#f5f5f5;padding:7px 10px;text-align:left;font-size:12px;border:1px solid #ddd}td{padding:7px 10px;font-size:12px;border:1px solid #ddd}
-.badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block}
-.accepte{background:#f0fdf4;color:#16a34a}.refuse{background:#fef2f2;color:#dc2626}.annule{background:#f3f4f6;color:#6b7280}.en_attente{background:#fff7ed;color:#ea580c}
+  filtered.forEach(c=>{if(!byEmp[c.employe_id])byEmp[c.employe_id]=[];byEmp[c.employe_id].push(c)})
+
+  const periodLabel = dateDebut&&dateFin ? `${fmtShort(dateDebut)} → ${fmtShort(dateFin)}` : dateDebut ? `À partir du ${fmtShort(dateDebut)}` : dateFin ? `Jusqu'au ${fmtShort(dateFin)}` : 'Toute la période'
+  const empLabel = filtreEmp ? (employes.find(e=>e.id===filtreEmp)||{prenom:'',nom:''}) : null
+
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Congés — ${restaurant.nom}</title>
+<style>
+body{font-family:Arial,sans-serif;padding:30px;color:#111;font-size:13px}
+h1{font-size:20px;margin:0 0 4px}
+.meta{color:#666;font-size:12px;margin-bottom:6px}
+.period{display:inline-block;background:#f0f7ff;color:#0066cc;border:1px solid #d0e8ff;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:20px}
+.cards{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.card{background:#f5f5f5;padding:10px 16px;border-radius:8px;text-align:center;min-width:90px}
+.card-n{font-size:24px;font-weight:800}.card-l{font-size:10px;color:#666;margin-top:2px}
+h2{font-size:13px;background:#f0f7ff;padding:7px 12px;border-radius:6px;margin:16px 0 7px;color:#0051a8;display:flex;align-items:center;gap:8px}
+table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12px}
+th{background:#f5f5f5;padding:6px 10px;text-align:left;border:1px solid #ddd;font-size:11px}
+td{padding:6px 10px;border:1px solid #ddd}
+.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;display:inline-block}
+.accepte{background:#f0fdf4;color:#16a34a}.refuse{background:#fef2f2;color:#dc2626}
+.annule{background:#f3f4f6;color:#6b7280}.en_attente{background:#fff7ed;color:#ea580c}
+.t-cp{background:#f0f7ff;color:#0066cc}.t-rtt{background:#faf5ff;color:#7c3aed}
+.t-maladie{background:#fef2f2;color:#dc2626}.t-sans_solde{background:#fff7ed;color:#ea580c}
+.t-autre{background:#f5f5f5;color:#555}
+@media print{body{padding:15px}button{display:none}}
 </style></head><body>
-<h1>📋 Rapport congés — ${restaurant.nom}</h1>
-<div class="sub">Généré le ${new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+<h1>📋 Rapport des congés — ${restaurant.nom}</h1>
+<div class="meta">Généré le ${new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+${empLabel?`<div class="meta">Employé : <strong>${empLabel.prenom} ${empLabel.nom}</strong></div>`:''}
+<div class="period">📅 ${periodLabel}</div>
 <div class="cards">
-  <div class="card"><div class="card-n">${conges.length}</div><div class="card-l">Total</div></div>
-  <div class="card"><div class="card-n">${conges.filter(c=>c.statut==='accepte').length}</div><div class="card-l">Acceptés</div></div>
-  <div class="card"><div class="card-n">${conges.filter(c=>c.statut==='en_attente').length}</div><div class="card-l">En attente</div></div>
-  <div class="card"><div class="card-n">${conges.filter(c=>c.statut==='refuse'||c.statut==='annule').length}</div><div class="card-l">Refusés / Annulés</div></div>
-  <div class="card"><div class="card-n">${conges.filter(c=>c.statut==='accepte').reduce((a,c)=>a+nbJours(c.date_debut,c.date_fin),0)}</div><div class="card-l">Jours accordés</div></div>
+  <div class="card"><div class="card-n">${filtered.length}</div><div class="card-l">Demandes</div></div>
+  <div class="card"><div class="card-n">${filtered.filter(c=>c.statut==='accepte').length}</div><div class="card-l">Acceptées</div></div>
+  <div class="card"><div class="card-n">${filtered.filter(c=>c.statut==='en_attente').length}</div><div class="card-l">En attente</div></div>
+  <div class="card"><div class="card-n">${filtered.filter(c=>c.statut==='refuse'||c.statut==='annule').length}</div><div class="card-l">Refusés/Annulés</div></div>
+  <div class="card"><div class="card-n">${filtered.filter(c=>c.statut==='accepte').reduce((a,c)=>a+nbJours(c.date_debut,c.date_fin),0)}</div><div class="card-l">Jours accordés</div></div>
 </div>
-${Object.entries(byEmp).map(([,cs])=>{
+${Object.keys(byEmp).length===0?'<p style="color:#666;text-align:center;padding:20px">Aucun congé pour cette période</p>':
+Object.entries(byEmp).map(([,cs])=>{
   const emp=cs[0]?.employes||{}
   const total=cs.filter(c=>c.statut==='accepte').reduce((a,c)=>a+nbJours(c.date_debut,c.date_fin),0)
-  return `<h2>👤 ${emp.prenom||''} ${emp.nom||''} <span style="font-weight:400;color:#666">${emp.role||''}</span> — ${total}j acceptés</h2>
-<table><tr><th>Type</th><th>Du</th><th>Au</th><th>Jours</th><th>Statut</th><th>Commentaire gérant</th></tr>
-${cs.map(c=>`<tr><td>${TYPES[c.type]?.emoji||'📝'} ${TYPES[c.type]?.l||c.type}</td><td>${fmtShort(c.date_debut)}</td><td>${fmtShort(c.date_fin)}</td><td style="font-weight:700">${nbJours(c.date_debut,c.date_fin)}j</td><td><span class="badge ${c.statut}">${STATUTS[c.statut]?.e||''} ${STATUTS[c.statut]?.l||c.statut}</span></td><td style="color:#666;font-style:italic">${c.commentaire_gerant||'—'}</td></tr>`).join('')}
-</table>`}).join('')}
+  return `<h2>👤 ${emp.prenom||''} ${emp.nom||''} <span style="font-weight:400;color:#666;font-size:11px">${emp.role||''}</span> <span style="margin-left:auto;font-weight:700;color:#16a34a">${total}j acceptés</span></h2>
+<table><tr><th>Type</th><th>Du</th><th>Au</th><th>Jours</th><th>Statut</th><th>Message employé</th><th>Commentaire gérant</th></tr>
+${cs.map(c=>`<tr>
+  <td><span class="badge t-${c.type}">${TYPES[c.type]?.emoji} ${TYPES[c.type]?.l||c.type}</span></td>
+  <td>${fmtShort(c.date_debut)}</td><td>${fmtShort(c.date_fin)}</td>
+  <td style="font-weight:700;text-align:center">${nbJours(c.date_debut,c.date_fin)}</td>
+  <td><span class="badge ${c.statut}">${STATUTS[c.statut]?.e} ${STATUTS[c.statut]?.l||c.statut}</span></td>
+  <td style="color:#666;font-style:italic">${c.message||'—'}</td>
+  <td style="color:#666;font-style:italic">${c.commentaire_gerant||'—'}</td>
+</tr>`).join('')}</table>`}).join('')}
 </body></html>`
-  const w=window.open('','_blank');w.document.write(html);w.document.close();w.print()
+  const w=window.open('','_blank');w.document.write(html);w.document.close();setTimeout(()=>w.print(),300)
 }
 
 export default function CongesGerant({restaurant, employes, showToast}) {
@@ -58,6 +90,8 @@ export default function CongesGerant({restaurant, employes, showToast}) {
   const [editSolde,setEditSolde]=useState(null)
   const [soldeTmp,setSoldeTmp]=useState('')
   const [annulerConfirm,setAnnulerConfirm]=useState(null)
+  const [exportModal,setExportModal]=useState(false)
+  const [exportForm,setExportForm]=useState({emp:'',debut:'',fin:''})
 
   useEffect(()=>{
     if(!restaurant) return
@@ -103,13 +137,23 @@ export default function CongesGerant({restaurant, employes, showToast}) {
   const enAttente=conges.filter(c=>c.statut==='en_attente')
   const traites=conges.filter(c=>c.statut!=='en_attente')
 
+  // Pour la vue soldes : données enrichies par employe
+  const soldesData = employes.filter(e=>e.actif!==false).map(emp=>{
+    const empD=conges.find(c=>c.employe_id===emp.id)?.employes||emp
+    return {
+      ...emp,
+      cpPris:empD.conges_pris||0, cpTotal:empD.conges_total||25,
+      rttPris:empD.rtt_pris||0, rttTotal:empD.rtt_total||0,
+    }
+  })
+
   return (
     <div style={{display:'flex',flexDirection:'column',gap:12}}>
 
       {/* Header */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div style={{fontSize:15,fontWeight:800}}>🏖️ Gestion des congés</div>
-        <button onClick={()=>exportPDF(conges,restaurant,employes)} style={{padding:'7px 14px',borderRadius:9,border:'none',background:'#16a34a',color:'white',fontSize:12,fontWeight:700,cursor:'pointer'}}>📄 Export PDF</button>
+        <button onClick={()=>setExportModal(true)} style={{padding:'7px 14px',borderRadius:9,border:'none',background:'#16a34a',color:'white',fontSize:12,fontWeight:700,cursor:'pointer'}}>📄 Export PDF</button>
       </div>
 
       {/* Tabs */}
@@ -149,7 +193,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
                   <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:5}}>
                     <span style={{fontSize:16}}>{type.emoji}</span>
                     <span style={{fontSize:13,fontWeight:700,color:type.c}}>{type.l}</span>
-                    <span style={{fontSize:12,fontWeight:700,marginLeft:'auto'}}>📅 {jours} jour{jours>1?'s':''}</span>
+                    <span style={{fontSize:12,fontWeight:700,marginLeft:'auto'}}>📅 {jours}j</span>
                   </div>
                   <div style={{fontSize:13,fontWeight:500}}>{fmtLabel(c.date_debut)} → {fmtLabel(c.date_fin)}</div>
                   {c.message&&<div style={{fontSize:12,color:'var(--text2)',fontStyle:'italic',marginTop:6,padding:'5px 8px',background:'rgba(255,255,255,.6)',borderRadius:6}}>"{c.message}"</div>}
@@ -203,14 +247,12 @@ export default function CongesGerant({restaurant, employes, showToast}) {
                 {c.statut==='accepte'&&(
                   annulerConfirm===c.id?(
                     <div style={{display:'flex',gap:6,marginTop:8,alignItems:'center',padding:'10px',background:'#fef2f2',borderRadius:9,border:'1px solid #fecaca'}}>
-                      <span style={{fontSize:12,color:'#dc2626',flex:1,fontWeight:600}}>Annuler ce congé ?</span>
+                      <span style={{fontSize:12,color:'#dc2626',flex:1,fontWeight:600}}>Annuler ce congé accepté ?</span>
                       <button onClick={()=>traiter(c.id,'annule')} style={{padding:'6px 14px',borderRadius:8,border:'none',background:'#dc2626',color:'white',fontSize:12,fontWeight:700,cursor:'pointer'}}>Confirmer</button>
                       <button onClick={()=>setAnnulerConfirm(null)} style={{padding:'6px 12px',borderRadius:8,border:'1px solid #fecaca',background:'white',color:'#dc2626',fontSize:12,cursor:'pointer'}}>Non</button>
                     </div>
                   ):(
-                    <button onClick={()=>setAnnulerConfirm(c.id)} style={{width:'100%',padding:'8px',borderRadius:9,border:'1px solid #fecaca',background:'#fef2f2',color:'#dc2626',fontSize:12,fontWeight:700,cursor:'pointer',marginTop:6}}>
-                      🚫 Annuler ce congé
-                    </button>
+                    <button onClick={()=>setAnnulerConfirm(c.id)} style={{width:'100%',padding:'8px',borderRadius:9,border:'1px solid #fecaca',background:'#fef2f2',color:'#dc2626',fontSize:12,fontWeight:700,cursor:'pointer',marginTop:4}}>🚫 Annuler ce congé</button>
                   )
                 )}
               </div>
@@ -218,54 +260,125 @@ export default function CongesGerant({restaurant, employes, showToast}) {
           })
       )}
 
-      {/* SOLDES */}
+      {/* SOLDES — vue tableau compacte */}
       {tab==='soldes'&&(
-        <div style={{display:'flex',flexDirection:'column',gap:10}}>
-          <div style={{fontSize:12,color:'var(--text2)',padding:'10px 14px',background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)'}}>
-            💡 Les compteurs se mettent à jour automatiquement à chaque acceptation ou annulation.
+        <div>
+          <div style={{fontSize:12,color:'var(--text2)',padding:'10px 14px',background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)',marginBottom:10}}>
+            💡 Cliquez sur le total pour le modifier. Les compteurs se mettent à jour automatiquement.
           </div>
-          {employes.filter(e=>e.actif!==false).map(emp=>{
-            const empD=conges.find(c=>c.employe_id===emp.id)?.employes||emp
-            const cpP=empD.conges_pris||0, cpT=empD.conges_total||25, cpS=cpT-cpP
-            const rttP=empD.rtt_pris||0, rttT=empD.rtt_total||0, rttS=rttT-rttP
-            return (
-              <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,overflow:'hidden'}}>
-                <div style={{display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:'1px solid var(--border)'}}>
-                  <div style={{width:34,height:34,borderRadius:'50%',background:'#f0f7ff',color:'#0066cc',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,flexShrink:0}}>{(emp.prenom?.[0]||'')+(emp.nom?.[0]||'')}</div>
-                  <div><div style={{fontSize:13,fontWeight:700}}>{emp.prenom} {emp.nom}</div><div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div></div>
-                </div>
-                <div style={{padding:'12px 14px',display:'flex',flexDirection:'column',gap:12}}>
-                  {/* CP */}
-                  {[{key:'cp',emoji:'🏖️',label:'Congés payés',color:'#0066cc',bg:'#f0f7ff',bc:'#d0e8ff',pris:cpP,total:cpT,solde:cpS},{key:'rtt',emoji:'⏰',label:'RTT',color:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff',pris:rttP,total:rttT,solde:rttS}].map(({key,emoji,label,color,bg,bc,pris,total,solde})=>(
-                    <div key={key}>
-                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
-                        <div style={{display:'flex',alignItems:'center',gap:5}}>
-                          <span style={{fontSize:13}}>{emoji}</span>
-                          <span style={{fontSize:12,fontWeight:700,color}}>{label}</span>
-                        </div>
-                        {editSolde?.empId===emp.id&&editSolde?.type===key?(
-                          <div style={{display:'flex',gap:4,alignItems:'center'}}>
-                            <input type="number" value={soldeTmp} onChange={e=>setSoldeTmp(e.target.value)} min="0" max="365" style={{width:52,padding:'4px 6px',borderRadius:7,border:`1.5px solid ${color}`,background:'var(--bg)',fontSize:12,color:'var(--text)',outline:'none',textAlign:'center'}}/>
-                            <button onClick={()=>saveSolde(emp.id,key)} style={{padding:'4px 10px',borderRadius:7,border:'none',background:color,color:'white',fontSize:11,fontWeight:700,cursor:'pointer'}}>OK</button>
-                            <button onClick={()=>setEditSolde(null)} style={{padding:'4px 8px',borderRadius:7,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:11,cursor:'pointer'}}>✕</button>
-                          </div>
-                        ):(
-                          <button onClick={()=>{setEditSolde({empId:emp.id,type:key});setSoldeTmp(String(total))}} style={{padding:'3px 10px',borderRadius:7,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{total}j total ✏️</button>
-                        )}
-                      </div>
-                      <div style={{display:'flex',gap:5,marginBottom:5}}>
-                        <span style={{fontSize:10,padding:'2px 8px',borderRadius:20,background:bg,color,border:`1px solid ${bc}`}}>{pris}j pris</span>
-                        <span style={{fontSize:10,padding:'2px 8px',borderRadius:20,background:solde>0?'#f0fdf4':'#f5f5f5',color:solde>0?'#16a34a':'#6b7280',border:`1px solid ${solde>0?'#bbf7d0':'#e0e0e0'}`}}>{solde}j restants</span>
-                      </div>
-                      {total>0&&<div style={{height:5,background:'var(--bg)',borderRadius:3,overflow:'hidden',border:'1px solid var(--border)'}}>
-                        <div style={{height:'100%',background:pris/total>0.8?'#dc2626':color,borderRadius:3,width:`${Math.min(100,Math.round(pris/total*100))}%`,transition:'width .3s'}}/>
-                      </div>}
+          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,overflow:'hidden'}}>
+            {/* Header tableau */}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 130px 130px',background:'var(--bg)',borderBottom:'2px solid var(--border)',padding:'10px 16px',gap:8}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--text2)'}}>EMPLOYÉ</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#0066cc',textAlign:'center'}}>🏖️ CONGÉS PAYÉS</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#7c3aed',textAlign:'center'}}>⏰ RTT</div>
+            </div>
+            {soldesData.map((emp,i)=>{
+              const cpS=emp.cpTotal-emp.cpPris
+              const rttS=emp.rttTotal-emp.rttPris
+              const cpPct=emp.cpTotal>0?Math.min(100,Math.round(emp.cpPris/emp.cpTotal*100)):0
+              const rttPct=emp.rttTotal>0?Math.min(100,Math.round(emp.rttPris/emp.rttTotal*100)):0
+              return (
+                <div key={emp.id} style={{display:'grid',gridTemplateColumns:'1fr 130px 130px',padding:'12px 16px',gap:8,borderBottom:i<soldesData.length-1?'1px solid var(--border)':'none',alignItems:'center'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
+                  onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                  {/* Nom */}
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{width:30,height:30,borderRadius:'50%',background:'#f0f7ff',color:'#0066cc',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>{(emp.prenom?.[0]||'')+(emp.nom?.[0]||'')}</div>
+                    <div>
+                      <div style={{fontSize:13,fontWeight:700}}>{emp.prenom} {emp.nom}</div>
+                      <div style={{fontSize:10,color:'var(--text2)'}}>{emp.role}</div>
                     </div>
-                  ))}
+                  </div>
+                  {/* CP */}
+                  <div style={{textAlign:'center'}}>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:5,marginBottom:3}}>
+                      <span style={{fontSize:11,color:cpS>5?'#16a34a':cpS>0?'#ea580c':'#dc2626',fontWeight:700}}>{cpS}j restants</span>
+                    </div>
+                    <div style={{height:4,background:'var(--bg)',borderRadius:2,overflow:'hidden',border:'1px solid var(--border)',marginBottom:3}}>
+                      <div style={{height:'100%',background:cpPct>80?'#dc2626':cpPct>50?'#ea580c':'#0066cc',width:`${cpPct}%`,borderRadius:2,transition:'width .3s'}}/>
+                    </div>
+                    <div style={{fontSize:10,color:'var(--text2)'}}>{emp.cpPris}j pris /&nbsp;
+                      {editSolde?.empId===emp.id&&editSolde?.type==='cp'?(
+                        <span style={{display:'inline-flex',gap:3,alignItems:'center'}}>
+                          <input type="number" value={soldeTmp} onChange={e=>setSoldeTmp(e.target.value)} min="0" max="365"
+                            style={{width:40,padding:'1px 4px',borderRadius:5,border:'1.5px solid #0066cc',fontSize:10,textAlign:'center',outline:'none'}}/>
+                          <button onClick={()=>saveSolde(emp.id,'cp')} style={{padding:'1px 6px',borderRadius:5,border:'none',background:'#0066cc',color:'white',fontSize:10,fontWeight:700,cursor:'pointer'}}>✓</button>
+                          <button onClick={()=>setEditSolde(null)} style={{padding:'1px 5px',borderRadius:5,border:'1px solid var(--border)',background:'var(--bg)',fontSize:10,cursor:'pointer'}}>✕</button>
+                        </span>
+                      ):(
+                        <button onClick={()=>{setEditSolde({empId:emp.id,type:'cp'});setSoldeTmp(String(emp.cpTotal))}} style={{border:'none',background:'transparent',color:'#0066cc',fontWeight:700,fontSize:10,cursor:'pointer',textDecoration:'underline'}}>{emp.cpTotal}j ✏️</button>
+                      )}
+                    </div>
+                  </div>
+                  {/* RTT */}
+                  <div style={{textAlign:'center'}}>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:5,marginBottom:3}}>
+                      <span style={{fontSize:11,color:rttS>0?'#7c3aed':'#6b7280',fontWeight:700}}>{rttS}j restants</span>
+                    </div>
+                    <div style={{height:4,background:'var(--bg)',borderRadius:2,overflow:'hidden',border:'1px solid var(--border)',marginBottom:3}}>
+                      <div style={{height:'100%',background:rttPct>80?'#dc2626':'#7c3aed',width:`${rttPct}%`,borderRadius:2,transition:'width .3s'}}/>
+                    </div>
+                    <div style={{fontSize:10,color:'var(--text2)'}}>{emp.rttPris}j pris /&nbsp;
+                      {editSolde?.empId===emp.id&&editSolde?.type==='rtt'?(
+                        <span style={{display:'inline-flex',gap:3,alignItems:'center'}}>
+                          <input type="number" value={soldeTmp} onChange={e=>setSoldeTmp(e.target.value)} min="0" max="365"
+                            style={{width:40,padding:'1px 4px',borderRadius:5,border:'1.5px solid #7c3aed',fontSize:10,textAlign:'center',outline:'none'}}/>
+                          <button onClick={()=>saveSolde(emp.id,'rtt')} style={{padding:'1px 6px',borderRadius:5,border:'none',background:'#7c3aed',color:'white',fontSize:10,fontWeight:700,cursor:'pointer'}}>✓</button>
+                          <button onClick={()=>setEditSolde(null)} style={{padding:'1px 5px',borderRadius:5,border:'1px solid var(--border)',background:'var(--bg)',fontSize:10,cursor:'pointer'}}>✕</button>
+                        </span>
+                      ):(
+                        <button onClick={()=>{setEditSolde({empId:emp.id,type:'rtt'});setSoldeTmp(String(emp.rttTotal))}} style={{border:'none',background:'transparent',color:'#7c3aed',fontWeight:700,fontSize:10,cursor:'pointer',textDecoration:'underline'}}>{emp.rttTotal}j ✏️</button>
+                      )}
+                    </div>
+                  </div>
                 </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EXPORT PDF */}
+      {exportModal&&(
+        <div onClick={()=>setExportModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:24,width:360,boxShadow:'0 8px 40px rgba(0,0,0,.15)'}}>
+            <div style={{fontSize:16,fontWeight:800,marginBottom:4}}>📄 Exporter en PDF</div>
+            <div style={{fontSize:12,color:'var(--text2)',marginBottom:16}}>Choisissez les filtres pour votre rapport</div>
+            <div style={{marginBottom:12}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Employé</label>
+              <select value={exportForm.emp} onChange={e=>setExportForm(f=>({...f,emp:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                <option value="">Tous les employés</option>
+                {employes.filter(e=>e.actif!==false).map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
+              </select>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Du</label>
+                <input type='date' value={exportForm.debut} onChange={e=>setExportForm(f=>({...f,debut:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               </div>
-            )
-          })}
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Au</label>
+                <input type='date' value={exportForm.fin} onChange={e=>setExportForm(f=>({...f,fin:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              </div>
+            </div>
+            <div style={{display:'flex',gap:6,marginBottom:14}}>
+              {[
+                {l:'Ce mois',d:new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString().split('T')[0],f:new Date(new Date().getFullYear(),new Date().getMonth()+1,0).toISOString().split('T')[0]},
+                {l:'Mois dernier',d:new Date(new Date().getFullYear(),new Date().getMonth()-1,1).toISOString().split('T')[0],f:new Date(new Date().getFullYear(),new Date().getMonth(),0).toISOString().split('T')[0]},
+                {l:'Année',d:`${new Date().getFullYear()}-01-01`,f:`${new Date().getFullYear()}-12-31`},
+              ].map(p=>(
+                <button key={p.l} onClick={()=>setExportForm(f=>({...f,debut:p.d,fin:p.f}))} style={{flex:1,padding:'6px 4px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:11,fontWeight:600,cursor:'pointer',color:'var(--text2)'}}>{p.l}</button>
+              ))}
+            </div>
+            <div style={{padding:'10px',background:'var(--accent-bg)',borderRadius:10,marginBottom:14,fontSize:12,color:'var(--accent)'}}>
+              📋 Rapport PDF avec tableau par employé, statuts colorés et totaux
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setExportModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={()=>{doExportPDF(conges,restaurant,employes,exportForm.emp||null,exportForm.debut||null,exportForm.fin||null);setExportModal(false)}} style={{flex:1,height:42,borderRadius:10,border:'none',background:'#16a34a',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>📄 Générer</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
