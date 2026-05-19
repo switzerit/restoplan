@@ -644,83 +644,83 @@ export default function Gerant() {
         {/* VUE EQUIPE */}
         {view==='employes'&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
-            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(260px,1fr))',gap:12}}>
+            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,overflow:'hidden'}}>
+              {!isMobile&&(
+                <div style={{display:'grid',gridTemplateColumns:'1fr 80px 100px 140px 130px',padding:'9px 16px',background:'var(--bg)',borderBottom:'2px solid var(--border)',gap:8}}>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)'}}>EMPLOYÉ</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>SHIFTS</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>PRÉSENCE</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>CONNEXION APP</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>ACTIONS</div>
+                </div>
+              )}
               {employes.map((emp,i)=>{
                 const c=COLORS[i%COLORS.length]
                 const sc=shifts.filter(s=>s.employe_id===emp.id).length
                 const hasAccount=profilsMap[emp.id]
                 const present=isPresent(emp.id)
-                // Calcul dernière connexion
                 const lastSeen=emp.derniere_connexion?new Date(emp.derniere_connexion):null
-                const now=new Date()
-                const diffDays=lastSeen?Math.floor((now-lastSeen)/(1000*60*60*24)):null
-                const connLabel=!hasAccount?null:lastSeen===null?'Jamais connecté':diffDays===0?"Connecté aujourd'hui":diffDays===1?'Connecté hier':`Connecté il y a ${diffDays}j`
+                const diffDays=lastSeen?Math.floor((new Date()-lastSeen)/(1000*60*60*24)):null
+                const connLabel=!hasAccount?'Sans compte':lastSeen===null?'Jamais':diffDays===0?"Auj.":diffDays===1?'Hier':`${diffDays}j`
                 const connColor=!hasAccount?'#6b7280':lastSeen===null?'#ea580c':diffDays<=1?'#16a34a':diffDays<=7?'#0066cc':'#6b7280'
                 const connBg=!hasAccount?'#f3f4f6':lastSeen===null?'#fff7ed':diffDays<=1?'#f0fdf4':diffDays<=7?'#f0f7ff':'#f3f4f6'
                 const connBc=!hasAccount?'#e5e7eb':lastSeen===null?'#fed7aa':diffDays<=1?'#bbf7d0':diffDays<=7?'#d0e8ff':'#e5e7eb'
-                return (
-                  <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',transition:'all .18s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--border2)';e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,.08)'}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.boxShadow='none'}}>
-                    {/* Header carte */}
-                    <div style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12,borderBottom:'1px solid var(--border)'}}>
-                      <div style={{position:'relative',flexShrink:0}}>
-                        <div style={{width:44,height:44,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
-                        {present&&<div style={{position:'absolute',bottom:0,right:0,width:12,height:12,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--surface)',boxShadow:'0 0 0 2px rgba(34,197,94,.2)'}}/>}
-                      </div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:14,fontWeight:800,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {emp.nom}</div>
-                        <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{emp.role}</div>
-                      </div>
-                      {present&&<span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0',flexShrink:0}}>● Présent</span>}
+                if(isMobile) return (
+                  <div key={emp.id} style={{padding:'11px 14px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:10}}>
+                    <div style={{position:'relative',flexShrink:0}}>
+                      <div style={{width:34,height:34,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
+                      {present&&<div style={{position:'absolute',bottom:0,right:0,width:8,height:8,borderRadius:'50%',background:'#22c55e',border:'1.5px solid var(--surface)'}}/>}
                     </div>
-                    {/* Body carte */}
-                    <div style={{padding:'12px 16px'}}>
-                      {/* Compte app + dernière connexion */}
-                      <div style={{marginBottom:10}}>
-                        {hasAccount?(
-                          <div style={{display:'flex',flex:1,alignItems:'center',gap:6}}>
-                            <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0'}}>✓ Compte actif</span>
-                            {connLabel&&<span style={{fontSize:10,fontWeight:600,padding:'3px 8px',borderRadius:20,background:connBg,color:connColor,border:`1px solid ${connBc}`}}>{connLabel}</span>}
-                          </div>
-                        ):(
-                          <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,background:'#fff7ed',color:'#ea580c',border:'1px solid #fed7aa'}}>⚠️ Sans compte</span>
-                        )}
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
+                      <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
+                    </div>
+                    <span style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:20,background:connBg,color:connColor,border:`1px solid ${connBc}`,flexShrink:0}}>{connLabel}</span>
+                    <button onClick={()=>openEditEmp(emp)} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,cursor:'pointer',flexShrink:0}}>✏️</button>
+                  </div>
+                )
+                return (
+                  <div key={emp.id} style={{display:'grid',gridTemplateColumns:'1fr 80px 100px 140px 130px',padding:'9px 16px',borderBottom:'1px solid var(--border)',gap:8,alignItems:'center',transition:'background .1s'}}
+                  onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
+                  onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                    <div style={{display:'flex',alignItems:'center',gap:10,minWidth:0}}>
+                      <div style={{position:'relative',flexShrink:0}}>
+                        <div style={{width:32,height:32,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
+                        {present&&<div style={{position:'absolute',bottom:0,right:0,width:8,height:8,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--surface)'}}/>}
                       </div>
-                      {/* Stats */}
-                      <div style={{display:'flex',gap:8,marginBottom:12}}>
-                        <div style={{flex:1,background:'var(--bg)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
-                          <div style={{fontSize:16,fontWeight:800,color:'var(--accent)'}}>{sc}</div>
-                          <div style={{fontSize:9,color:'var(--text3)',marginTop:1}}>shift{sc>1?'s':''}/sem</div>
-                        </div>
-                        <div style={{flex:1,background:'var(--bg)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
-                          <div style={{fontSize:16,fontWeight:800,color:present?'#16a34a':'var(--text3)'}}>{present?'✓':'—'}</div>
-                          <div style={{fontSize:9,color:'var(--text3)',marginTop:1}}>présence</div>
-                        </div>
-                        <div style={{flex:1,background:'var(--bg)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
-                          <div style={{fontSize:14,fontWeight:800,color:hasAccount?'#16a34a':'#ea580c'}}>{hasAccount?'📱':'📵'}</div>
-                          <div style={{fontSize:9,color:'var(--text3)',marginTop:1}}>app</div>
-                        </div>
+                      <div style={{minWidth:0}}>
+                        <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
+                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
                       </div>
-                      {/* Actions */}
-                      <div style={{display:'flex',gap:6}}>
-                        <button onClick={()=>openEditEmp(emp)} style={{flex:1,padding:'8px 0',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>✏️ Modifier</button>
-                        <button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'8px 12px',borderRadius:9,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:12,fontWeight:600,cursor:'pointer'}}>🗑️</button>
-                      </div>
+                    </div>
+                    <div style={{textAlign:'center'}}>
+                      <span style={{fontSize:13,fontWeight:800,color:'var(--accent)'}}>{sc}</span>
+                      <span style={{fontSize:10,color:'var(--text3)'}}>/sem</span>
+                    </div>
+                    <div style={{textAlign:'center'}}>
+                      {present
+                        ?<span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0'}}>● Présent</span>
+                        :<span style={{fontSize:11,color:'var(--text3)'}}>—</span>}
+                    </div>
+                    <div style={{textAlign:'center'}}>
+                      <span style={{fontSize:11,fontWeight:600,padding:'3px 10px',borderRadius:20,background:connBg,color:connColor,border:`1px solid ${connBc}`}}>{connLabel}</span>
+                    </div>
+                    <div style={{display:'flex',gap:5,justifyContent:'center'}}>
+                      <button onClick={()=>openEditEmp(emp)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️ Modifier</button>
+                      <button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'5px 8px',borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:11,cursor:'pointer'}}>🗑️</button>
                     </div>
                   </div>
                 )
               })}
-              <div onClick={()=>setEmpModal(true)} style={{background:'transparent',border:'2px dashed var(--border2)',borderRadius:16,padding:18,cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,minHeight:180,transition:'all .18s'}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--accent)';e.currentTarget.style.background='var(--accent-bg)'}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border2)';e.currentTarget.style.background='transparent'}}>
-                <div style={{width:44,height:44,borderRadius:'50%',background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,color:'var(--text3)'}}>+</div>
-                <div style={{fontSize:13,fontWeight:600,color:'var(--text2)'}}>Ajouter un employé</div>
+              <div onClick={()=>setEmpModal(true)} style={{padding:'11px 16px',display:'flex',alignItems:'center',gap:10,cursor:'pointer',color:'var(--accent)',transition:'background .1s'}}
+              onMouseEnter={e=>e.currentTarget.style.background='var(--accent-bg)'}
+              onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                <div style={{width:32,height:32,borderRadius:'50%',border:'2px dashed var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,color:'var(--accent)',flexShrink:0}}>+</div>
+                <span style={{fontSize:13,fontWeight:600}}>Ajouter un employé</span>
               </div>
             </div>
           </div>
         )}
-
         {/* VUE PARAMETRES */}
         {view==='conges'&&(
           <div style={{padding:16}}>
