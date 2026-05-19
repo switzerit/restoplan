@@ -41,6 +41,7 @@ export default function Employe() {
   const [showScanner,setShowScanner]=useState(false)
   const [badgeFlash,setBadgeFlash]=useState(null)
   const [selectedDay,setSelectedDay]=useState(fmtDate(new Date()))
+  const [refreshing,setRefreshing]=useState(false)
   const navigate=useNavigate()
   const today=fmtDate(new Date())
   const weekStart=getMonday(new Date())
@@ -55,20 +56,19 @@ export default function Employe() {
   useEffect(()=>{
     loadEmployeFromSession()
     updateClock()
-    const t=setInterval(updateClock,10000)
-      const refresh=()=>{
-      if(document.visibilityState==='visible'||document.visibilityState===undefined){
-        loadShifts?.();loadPointages?.();loadHistorique?.()
-      }
-    }
-    document.addEventListener('visibilitychange',refresh)
-    window.addEventListener('focus',refresh)
-    window.addEventListener('pageshow',refresh)
+    const tClock=setInterval(updateClock,10000)
+    const tPoll=setInterval(()=>{
+      if(document.visibilityState==='visible'&&employe){loadShifts();loadPointages();loadHistorique()}
+    },30000)
+    const onVisible=()=>{ if(document.visibilityState==='visible') refreshAll() }
+    document.addEventListener('visibilitychange',onVisible)
+    window.addEventListener('focus',onVisible)
+    window.addEventListener('pageshow',onVisible)
     return()=>{
-      clearInterval(t)
-      document.removeEventListener('visibilitychange',refresh)
-      window.removeEventListener('focus',refresh)
-      window.removeEventListener('pageshow',refresh)
+      clearInterval(tClock);clearInterval(tPoll)
+      document.removeEventListener('visibilitychange',onVisible)
+      window.removeEventListener('focus',onVisible)
+      window.removeEventListener('pageshow',onVisible)
     }
   },[])
 
@@ -166,6 +166,12 @@ export default function Employe() {
             </div>
             <div style={{fontSize:12,color:'var(--text2)',marginTop:1}}>{dateStr}</div>
           </div>
+          <button onClick={refreshAll} style={{width:36,height:36,borderRadius:'50%',border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,transition:'transform .3s',transform:refreshing?'rotate(180deg)':'none'}}>
+            🔄
+          </button>
+          <button onClick={refreshAll} style={{width:36,height:36,borderRadius:'50%',border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,transition:'transform .3s',transform:refreshing?'rotate(180deg)':'none'}}>
+            🔄
+          </button>
           <Notifications employe={employe}/>
           <button onClick={deconnexion} style={{fontSize:11,color:'#888',background:'#f5f5f5',border:'none',borderRadius:8,padding:'6px 10px',cursor:'pointer',fontWeight:600,flexShrink:0}}>
             Déconnexion
