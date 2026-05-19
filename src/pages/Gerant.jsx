@@ -166,6 +166,19 @@ export default function Gerant() {
       await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null,restaurant_id:currentResto.id})
     }
     setShiftModal(null);loadShifts();showToast('Shift enregistré')
+    // Notification à l'employé
+    try {
+      const emp = employes.find(e=>e.id===shiftModal.empId)
+      const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
+      const dateLabel = new Date(d+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
+      await supabase.from('notifications').insert({
+        employe_id: shiftModal.empId,
+        restaurant_id: currentResto.id,
+        type: 'planning',
+        titre: shiftModal.existing ? '📅 Shift modifié' : '📅 Nouveau shift',
+        message: `${shiftModal.existing?'Votre shift a été modifié':'Un shift a été ajouté'} le ${dateLabel} : ${form.heure_debut}–${form.heure_fin}`
+      })
+    } catch(e){ console.error('Notif error:',e) }
   }
 
   async function deleteShift(){

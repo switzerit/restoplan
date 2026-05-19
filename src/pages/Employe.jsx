@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import QRScanner from '../components/QRScanner'
+import Notifications from '../components/Notifications'
 import CongesEmploye from '../components/CongesEmploye'
 
 const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
@@ -165,6 +166,7 @@ export default function Employe() {
             </div>
             <div style={{fontSize:12,color:'var(--text2)',marginTop:1}}>{dateStr}</div>
           </div>
+          <Notifications employe={employe}/>
           <button onClick={deconnexion} style={{fontSize:11,color:'#888',background:'#f5f5f5',border:'none',borderRadius:8,padding:'6px 10px',cursor:'pointer',fontWeight:600,flexShrink:0}}>
             Déconnexion
           </button>
