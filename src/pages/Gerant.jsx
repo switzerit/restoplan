@@ -165,18 +165,23 @@ export default function Gerant() {
     } else {
       await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null,restaurant_id:currentResto.id})
     }
+    // Sauvegarder avant setShiftModal(null)
+    const notifEmpId = shiftModal.empId
+    const notifDayIdx = shiftModal.dayIdx
+    const notifExisting = shiftModal.existing
+    const notifDebut = form.heure_debut
+    const notifFin = form.heure_fin
     setShiftModal(null);loadShifts();showToast('Shift enregistré')
     // Notification à l'employé
     try {
-      const emp = employes.find(e=>e.id===shiftModal.empId)
-      const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
+      const d = fmtDate(addDays(weekStart,notifDayIdx))
       const dateLabel = new Date(d+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
       await supabase.from('notifications').insert({
-        employe_id: shiftModal.empId,
+        employe_id: notifEmpId,
         restaurant_id: currentResto.id,
         type: 'planning',
-        titre: shiftModal.existing ? '📅 Shift modifié' : '📅 Nouveau shift',
-        message: `${shiftModal.existing?'Votre shift a été modifié':'Un shift a été ajouté'} le ${dateLabel} : ${form.heure_debut}–${form.heure_fin}`
+        titre: notifExisting ? '📅 Shift modifié' : '📅 Nouveau shift',
+        message: `${notifExisting?'Votre shift a été modifié':'Un shift a été ajouté'} le ${dateLabel} : ${notifDebut}–${notifFin}`
       })
     } catch(e){ console.error('Notif error:',e) }
   }
