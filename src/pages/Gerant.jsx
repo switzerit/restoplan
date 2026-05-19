@@ -122,7 +122,7 @@ export default function Gerant() {
     if(!currentResto) return
     loadNotifsNonLues()
     const ch=supabase.channel('notifs-watch')
-      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'notifications',filter:`restaurant_id=eq.${currentResto.id}`},()=>loadNotifsNonLues())
+      .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:`restaurant_id=eq.${currentResto.id}`},()=>loadNotifsNonLues())
       .subscribe()
     return()=>supabase.removeChannel(ch)
   },[currentResto?.id])
