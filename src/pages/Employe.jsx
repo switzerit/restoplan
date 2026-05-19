@@ -78,6 +78,7 @@ export default function Employe() {
     // Realtime shifts
     const chShifts = supabase.channel('employe-shifts')
       .on('postgres_changes',{event:'*',schema:'public',table:'shifts',filter:`employe_id=eq.${employe.id}`},()=>loadShifts())
+      .on('postgres_changes',{event:'*',schema:'public',table:'conges',filter:`employe_id=eq.${employe.id}`},()=>loadShifts())
       .subscribe()
     // Realtime pointages
     const chPointages = supabase.channel('employe-pointages')
