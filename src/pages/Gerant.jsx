@@ -75,6 +75,17 @@ export default function Gerant() {
   const today = fmtDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [notifsNonLues, setNotifsNonLues] = useState({})
+
+  async function loadNotifsNonLues(){
+    if(!currentResto) return
+    const {data} = await supabase.from('notifications')
+      .select('employe_id').eq('restaurant_id',currentResto.id)
+      .eq('lu',false).eq('masque',false)
+    const map={}
+    data?.forEach(n=>{map[n.employe_id]=(map[n.employe_id]||0)+1})
+    setNotifsNonLues(map)
+  }
   useEffect(()=>{
     const handler = ()=>setIsMobile(window.innerWidth<768)
     window.addEventListener('resize',handler)
@@ -126,6 +137,7 @@ export default function Gerant() {
       setProfilsMap(map)
     }
     loadShifts()
+    loadNotifsNonLues()
   }
 
   async function loadShifts(){
@@ -728,6 +740,7 @@ export default function Gerant() {
                       <div style={{minWidth:0}}>
                         <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
                         <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
+                    {notifsNonLues[emp.id]>0&&<span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',marginLeft:4}}>🔔 {notifsNonLues[emp.id]}</span>}
                       </div>
                     </div>
                     <div style={{textAlign:'center'}}>
