@@ -9,17 +9,15 @@ export default function Notifications({ employe }) {
     if (!employe) return
     loadNotifs()
     const ch = supabase.channel('notifs-employe')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `employe_id=eq.${employe.id}` }, () => loadNotifs())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `employe_id=eq.${employe.id}` }, loadNotifs)
       .subscribe()
     return () => supabase.removeChannel(ch)
   }, [employe?.id])
 
   async function loadNotifs() {
     const { data } = await supabase.from('notifications')
-      .select('*')
-      .eq('employe_id', employe.id)
-      .order('created_at', { ascending: false })
-      .limit(20)
+      .select('*').eq('employe_id', employe.id)
+      .order('created_at', { ascending: false }).limit(30)
     setNotifs(data || [])
   }
 
@@ -28,87 +26,115 @@ export default function Notifications({ employe }) {
     loadNotifs()
   }
 
-  async function toutMarquerLu() {
-    const ids = notifs.filter(n => !n.lu).map(n => n.id)
-    if (!ids.length) return
-    await supabase.from('notifications').update({ lu: true, lu_at: new Date().toISOString() }).in('id', ids)
+  async function supprimerNotif(id) {
+    await supabase.from('notifications').delete().eq('id', id)
     loadNotifs()
+  }
+
+  async function toutSupprimer() {
+    await supabase.from('notifications').delete().eq('employe_id', employe.id)
+    loadNotifs()
+  }
+
+  async function ouvrirPanel() {
+    setOpen(true)
+    // Marquer toutes comme lues à l'ouverture
+    const nonLues = notifs.filter(n => !n.lu).map(n => n.id)
+    if (nonLues.length > 0) {
+      await supabase.from('notifications').update({ lu: true, lu_at: new Date().toISOString() }).in('id', nonLues)
+      loadNotifs()
+    }
+  }
+
+  function fmtTime(d) {
+    const dt = new Date(d), now = new Date()
+    const diff = Math.floor((now - dt) / 60000)
+    if (diff < 1) return "À l'instant"
+    if (diff < 60) return `Il y a ${diff} min`
+    if (diff < 1440) return `Il y a ${Math.floor(diff/60)}h`
+    if (diff < 2880) return 'Hier'
+    return dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+  }
+
+  function getIcon(titre) {
+    if (titre?.includes('supprimé')) return { icon: '🗑️', bg: '#fef2f2' }
+    if (titre?.includes('modifié') || titre?.includes('jour')) return { icon: '✏️', bg: '#fff7ed' }
+    if (titre?.includes('Nouveau') || titre?.includes('planifié')) return { icon: '✅', bg: '#f0fdf4' }
+    if (titre?.includes('Congé') || titre?.includes('congé')) return { icon: '🏖️', bg: '#faf5ff' }
+    return { icon: '🔔', bg: '#f0f7ff' }
   }
 
   const nonLues = notifs.filter(n => !n.lu).length
 
-  function fmtTime(d) {
-    const dt = new Date(d)
-    const now = new Date()
-    const diff = Math.floor((now - dt) / 60000)
-    if (diff < 1) return "À l'instant"
-    if (diff < 60) return `Il y a ${diff} min`
-    if (diff < 1440) return `Il y a ${Math.floor(diff / 60)}h`
-    return dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-  }
-
   return (
     <div style={{ position: 'relative' }}>
-      <button onClick={() => { setOpen(!open); if (!open && nonLues > 0) toutMarquerLu() }}
-        style={{ position: 'relative', width: 36, height: 36, borderRadius: '50%', border: '1px solid var(--border)', background: nonLues > 0 ? 'var(--accent-bg)' : 'var(--bg)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+      <button onClick={ouvrirPanel}
+        style={{ position: 'relative', width: 36, height: 36, borderRadius: '50%', border: '1px solid var(--border)', background: nonLues > 0 ? '#fff7ed' : 'var(--bg)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17 }}>
         🔔
         {nonLues > 0 && (
-          <div style={{ position: 'absolute', top: -2, right: -2, width: 18, height: 18, borderRadius: '50%', background: '#dc2626', color: 'white', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}>
+          <div style={{ position: 'absolute', top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 9, background: '#dc2626', color: 'white', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white', padding: '0 3px' }}>
             {nonLues > 9 ? '9+' : nonLues}
           </div>
         )}
       </button>
 
-      {open && (
-        <div onClick={e => e.stopPropagation()} style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: '100%', maxWidth: 380, background: 'var(--surface)', boxShadow: '-4px 0 24px rgba(0,0,0,.12)', zIndex: 200, display: 'flex', flexDirection: 'column' }}>
+      {open && <>
+        <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 199, background: 'rgba(0,0,0,.3)', backdropFilter: 'blur(4px)' }} />
+        <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: '100%', maxWidth: 400, background: 'var(--surface)', boxShadow: '-4px 0 32px rgba(0,0,0,.15)', zIndex: 200, display: 'flex', flexDirection: 'column' }}>
+          
           {/* Header */}
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface)' }}>
+          <div style={{ padding: '18px 20px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 800 }}>🔔 Notifications</div>
-              <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>{nonLues > 0 ? `${nonLues} non lue${nonLues > 1 ? 's' : ''}` : 'Tout est à jour'}</div>
+              <div style={{ fontSize: 17, fontWeight: 800 }}>Notifications</div>
+              <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>
+                {notifs.length === 0 ? 'Aucune notification' : `${notifs.length} notification${notifs.length > 1 ? 's' : ''}`}
+              </div>
             </div>
-            <button onClick={() => setOpen(false)} style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--bg)', cursor: 'pointer', fontSize: 14 }}>✕</button>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {notifs.length > 0 && (
+                <button onClick={toutSupprimer} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text2)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  Tout effacer
+                </button>
+              )}
+              <button onClick={() => setOpen(false)} style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--bg)', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            </div>
           </div>
 
           {/* Liste */}
           <div style={{ flex: 1, overflowY: 'auto' }}>
             {notifs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text3)' }}>
-                <div style={{ fontSize: 40, marginBottom: 12 }}>🔔</div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Aucune notification</div>
-                <div style={{ fontSize: 12 }}>Vous serez notifié des changements de planning</div>
+                <div style={{ fontSize: 48, marginBottom: 14 }}>🔔</div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Tout est à jour</div>
+                <div style={{ fontSize: 13 }}>Vous serez notifié des changements de planning</div>
               </div>
-            ) : notifs.map(n => (
-              <div key={n.id} onClick={() => !n.lu && marquerLu(n.id)}
-                style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', background: n.lu ? 'transparent' : 'var(--accent-bg)', cursor: n.lu ? 'default' : 'pointer', transition: 'background .15s' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: n.lu ? 'var(--bg)' : n.titre.includes('supprimé')?'#fef2f2':n.titre.includes('modifié')?'#fff7ed':'#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
-                    {n.titre.includes('supprimé')?'🗑️':n.titre.includes('modifié')?'✏️':n.type==='conge'?'🏖️':'✅'}
+            ) : notifs.map(n => {
+              const { icon, bg } = getIcon(n.titre)
+              return (
+                <div key={n.id} style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', background: n.lu ? 'transparent' : 'rgba(0,102,204,.03)', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
+                    {icon}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                      <span style={{ fontSize: 13, fontWeight: n.lu ? 600 : 800, color: 'var(--text)' }}>{n.titre}</span>
-                      {!n.lu && <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#0066cc', flexShrink: 0, display: 'inline-block' }} />}
+                      <span style={{ fontSize: 13, fontWeight: n.lu ? 600 : 800, color: 'var(--text)', flex: 1 }}>{n.titre}</span>
+                      {!n.lu && <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#0066cc', flexShrink: 0, display: 'inline-block' }} />}
                     </div>
-                    {n.message && <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.5, marginBottom: 4 }}>{n.message}</div>}
-                    <div style={{ fontSize: 11, color: 'var(--text3)' }}>{fmtTime(n.created_at)}</div>
+                    {n.message && <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.5, marginBottom: 5 }}>{n.message}</div>}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 11, color: 'var(--text3)' }}>{fmtTime(n.created_at)}</span>
+                      <button onClick={() => supprimerNotif(n.id)}
+                        style={{ padding: '3px 10px', borderRadius: 6, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text3)', fontSize: 11, cursor: 'pointer' }}>
+                        Supprimer
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
-
-          {notifs.length > 0 && (
-            <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)' }}>
-              <button onClick={toutMarquerLu} style={{ width: '100%', padding: '10px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                ✓ Tout marquer comme lu
-              </button>
-            </div>
-          )}
         </div>
-      )}
-
-      {open && <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 199 }} />}
+      </>}
     </div>
   )
 }

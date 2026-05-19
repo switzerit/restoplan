@@ -3,6 +3,7 @@ import { generatePDF } from '../lib/exportPDF'
 import { supabase } from '../lib/supabase'
 import CongesGerant from '../components/CongesGerant'
 import NotifsGerant from '../components/NotifsGerant'
+import NotifsGerant from '../components/NotifsGerant'
 
 const COLORS = [
   {bg:'#e8f2fd',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},
@@ -418,7 +419,7 @@ export default function Gerant() {
 
   if(!currentResto) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>Chargement...</div>
 
-  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='notifs'?'Notifications':'Paramètres'
+  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':'Paramètres'
 
   return (
     <div style={{display:'flex',height:'100dvh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row'}}>
@@ -455,7 +456,6 @@ export default function Gerant() {
           {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
           {id:'employes',icon:'👤',label:'Équipe'},
           {id:'conges',icon:'🏖️',label:'Congés'},
-          {id:'notifs',icon:'🔔',label:'Notifications'},
           {id:'parametres',icon:'⚙️',label:'Paramètres'},
         ].map(item=>(
           <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',alignItems:'center',gap:9,padding:'9px 10px',borderRadius:9,cursor:'pointer',fontSize:13,fontWeight:600,border:'none',width:'100%',textAlign:'left',background:view===item.id?'var(--accent-bg)':'transparent',color:view===item.id?'var(--accent)':'var(--text2)',marginBottom:2}}>
@@ -760,6 +760,11 @@ export default function Gerant() {
           </div>
         )}
         {/* VUE PARAMETRES */}
+        {view==='notifs'&&(
+          <div style={{flex:1,overflowY:'auto',padding:20}}>
+            <NotifsGerant restaurant={currentResto} employes={employes}/>
+          </div>
+        )}
         {view==='notifs'&&(
           <div style={{flex:1,overflowY:'auto',padding:20}}>
             <NotifsGerant restaurant={currentResto} employes={employes}/>
