@@ -3,7 +3,6 @@ import { generatePDF } from '../lib/exportPDF'
 import { supabase } from '../lib/supabase'
 import CongesGerant from '../components/CongesGerant'
 import NotifsGerant from '../components/NotifsGerant'
-import NotifsGerant from '../components/NotifsGerant'
 
 const COLORS = [
   {bg:'#e8f2fd',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},
@@ -762,12 +761,10 @@ export default function Gerant() {
         {/* VUE PARAMETRES */}
         {view==='notifs'&&(
           <div style={{flex:1,overflowY:'auto',padding:20}}>
-            <NotifsGerant restaurant={currentResto} employes={employes}/>
           </div>
         )}
         {view==='notifs'&&(
           <div style={{flex:1,overflowY:'auto',padding:20}}>
-            <NotifsGerant restaurant={currentResto} employes={employes}/>
           </div>
         )}
         {view==='conges'&&(
