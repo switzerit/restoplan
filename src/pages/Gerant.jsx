@@ -227,6 +227,19 @@ export default function Gerant() {
     showToast(editEmpForm.prenom+' mis à jour !')
   }
 
+  async function sendInvitation(emp){
+    showToast("Envoi de l'invitation...")
+    const {data,error} = await supabase.functions.invoke('create-employe',{
+      body:{email:emp.email,password:'',skip_employe:true,employe_id:emp.id}
+    })
+    if(error||data?.error) showToast('Erreur: '+(data?.error||error?.message))
+    else{
+      await supabase.from('employes').update({a_un_compte:true}).eq('id',emp.id)
+      showToast('Invitation envoyée à '+emp.email+' !')
+      loadAll(selectedDate)
+    }
+  }
+
   async function creerCompteEmploye(emp){
     const pwd = window.prompt('Mot de passe temporaire pour '+emp.prenom+' (min 6 caractères):')
     if(!pwd) return
@@ -982,20 +995,23 @@ export default function Gerant() {
                 {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(r=><option key={r}>{r[0].toUpperCase()+r.slice(1)}</option>)}
               </select>
             </div>
-            {!profilsMap[editEmpModal.id] && (
+            {!profilsMap[editEmpModal.id] ? (
               <div style={{marginBottom:16}}>
-                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Créer un compte app (optionnel)</label>
-                <input type='password' placeholder='Mot de passe temporaire (min 6 car.)' value={editEmpForm.password} onChange={e=>setEditEmpForm(f=>({...f,password:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-                <div style={{fontSize:11,color:'var(--text3)',marginTop:4}}>L'employé pourra se connecter sur son espace perso</div>
+                <div style={{padding:'10px 14px',background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)',marginBottom:8,fontSize:12,color:'var(--text2)'}}>
+                  📧 L'employé recevra un email pour définir son mot de passe
+                </div>
+                <button onClick={()=>sendInvitation(editEmpModal)} style={{width:'100%',padding:'10px',borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>
+                  📨 Envoyer l'invitation par email
+                </button>
               </div>
-            )}
-            {profilsMap[editEmpModal.id] && (
+            ) : (
               <div style={{marginBottom:16}}>
                 <div style={{padding:'10px 12px',background:'var(--green-bg)',borderRadius:10,marginBottom:8,fontSize:12,color:'#1a6b35',fontWeight:600}}>
-                  ✓ Cet employé a déjà un compte app
+                  ✓ Cet employé a un compte app
                 </div>
-                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Changer le mot de passe (optionnel)</label>
-                <input type='password' placeholder='Nouveau mot de passe (min 6 car.)' value={editEmpForm.password} onChange={e=>setEditEmpForm(f=>({...f,password:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+                <button onClick={()=>sendInvitation(editEmpModal)} style={{width:'100%',padding:'10px',borderRadius:10,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                  🔄 Renvoyer un lien de connexion
+                </button>
               </div>
             )}
             <div style={{display:'flex',gap:8}}>
