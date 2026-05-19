@@ -166,6 +166,9 @@ export default function Employe() {
             </div>
             <div style={{fontSize:12,color:'var(--text2)',marginTop:1}}>{dateStr}</div>
           </div>
+          <button onClick={()=>{loadShifts();loadPointages();loadHistorique()}} style={{width:36,height:36,borderRadius:'50%',border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>
+            🔄
+          </button>
           <Notifications employe={employe}/>
           <button onClick={deconnexion} style={{fontSize:11,color:'#888',background:'#f5f5f5',border:'none',borderRadius:8,padding:'6px 10px',cursor:'pointer',fontWeight:600,flexShrink:0}}>
             Déconnexion
