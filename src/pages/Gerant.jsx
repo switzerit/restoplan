@@ -228,15 +228,26 @@ export default function Gerant() {
   }
 
   async function sendInvitation(emp){
-    showToast("Envoi de l'invitation...")
-    const {data,error} = await supabase.functions.invoke('create-employe',{
-      body:{email:emp.email,password:'',skip_employe:true,employe_id:emp.id}
-    })
-    if(error||data?.error) showToast('Erreur: '+(data?.error||error?.message))
-    else{
-      await supabase.from('employes').update({a_un_compte:true}).eq('id',emp.id)
-      showToast('Invitation envoyée à '+emp.email+' !')
-      loadAll(selectedDate)
+    showToast("Envoi du lien...")
+    const dejaUnCompte = !!profilsMap[emp.id]
+    if(dejaUnCompte){
+      // Employé existant → lien de réinitialisation de mot de passe
+      const {error} = await supabase.auth.resetPasswordForEmail(emp.email,{
+        redirectTo: window.location.origin+'/login'
+      })
+      if(error) showToast('Erreur: '+error.message)
+      else showToast('Lien de connexion envoyé à '+emp.email+' !')
+    } else {
+      // Nouvel employé → invitation
+      const {data,error} = await supabase.functions.invoke('create-employe',{
+        body:{email:emp.email,password:'',skip_employe:true,employe_id:emp.id}
+      })
+      if(error||data?.error) showToast('Erreur: '+(data?.error||error?.message))
+      else{
+        await supabase.from('employes').update({a_un_compte:true}).eq('id',emp.id)
+        showToast('Invitation envoyée à '+emp.email+' !')
+        loadAll(selectedDate)
+      }
     }
   }
 
