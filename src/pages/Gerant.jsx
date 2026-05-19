@@ -53,6 +53,7 @@ export default function Gerant() {
   const [currentResto, setCurrentResto] = useState(null)
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
+  const [congesSemaine, setCongesSemaine] = useState([])
   const [pointages, setPointages] = useState({})
   const [weekStart, setWeekStart] = useState(getMonday(new Date()))
   const [shiftModal, setShiftModal] = useState(null)
@@ -162,6 +163,17 @@ export default function Gerant() {
     const to = fmtDate(addDays(weekStart,6))
     const {data} = await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
     setShifts(data||[])
+    // Charger les congés acceptés de la semaine
+    const {data:cData} = await supabase.from('conges')
+      .select('*').eq('restaurant_id',currentResto.id)
+      .eq('statut','accepte')
+      .lte('date_debut',to).gte('date_fin',from)
+    setCongesSemaine(cData||[])
+  }
+
+  function getConge(empId,dayIdx){
+    const d = fmtDate(addDays(weekStart,dayIdx))
+    return congesSemaine.find(c=>c.employe_id===empId && c.date_debut<=d && c.date_fin>=d)
   }
 
   function getShift(empId,dayIdx){
@@ -624,8 +636,12 @@ export default function Gerant() {
                         <div key={di} onClick={()=>openShift(emp.id,di)} style={{padding:4,borderRight:'1px solid var(--border)',display:'flex',alignItems:'center',minHeight:56,cursor:'pointer',background:isToday?'rgba(0,113,227,.02)':'transparent'}}
                         onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
                         onMouseLeave={e=>e.currentTarget.style.background=isToday?'rgba(0,113,227,.02)':'transparent'}>
-                          {sh?<div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sc.bg,color:sc.color,border:`1.5px solid ${sc.border}`}}><div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&sh.heure_fin_2&&<div style={{fontWeight:400,opacity:.65,fontSize:9,borderTop:`1px solid ${sc.border}`,marginTop:2,paddingTop:2}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
-                          :<div style={{width:'100%',height:30,border:'1.5px dashed var(--border2)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:18}}>+</div>}
+                          {(()=>{
+                            const conge=getConge(emp.id,di)
+                            if(sh) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sc.bg,color:sc.color,border:`1.5px solid ${sc.border}`}}><div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&sh.heure_fin_2&&<div style={{fontWeight:400,opacity:.65,fontSize:9,borderTop:`1px solid ${sc.border}`,marginTop:2,paddingTop:2}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
+                            if(conge) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:'#fef2f2',color:'#dc2626',border:'1.5px solid #fecaca',cursor:'default'}} onClick={e=>e.stopPropagation()}><div>Congé</div><div style={{fontWeight:400,opacity:.8,fontSize:9}}>{({conge_paye:'Payé',rtt:'RTT',maladie:'Maladie',sans_solde:'Sans solde',autre:'Autre'})[conge.type]||conge.type}</div></div>
+                            return <div style={{width:'100%',height:30,border:'1.5px dashed var(--border2)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:18}}>+</div>
+                          })()}
                         </div>
                       )
                     })}
