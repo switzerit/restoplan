@@ -175,7 +175,7 @@ export default function Gerant() {
     // Notification à l'employé
     try {
       const d = fmtDate(addDays(weekStart,notifDayIdx))
-      const dateLabel = new Date(d+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
+      const dateLabel = new Date(notifDate+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
       await supabase.from('notifications').insert({
         employe_id: notifEmpId,
         restaurant_id: currentResto.id,
@@ -185,11 +185,22 @@ export default function Gerant() {
       })
     } catch(e){ console.error('Notif error:',e) }
   }
-
   async function deleteShift(){
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
-    if(existing) await supabase.from('shifts').delete().eq('id',existing.id)
+    const delEmpId = shiftModal.empId
+    const delDayIdx = shiftModal.dayIdx
     setShiftModal(null);loadShifts();showToast('Shift supprimé')
+    try {
+      const notifDate2 = fmtDate(addDays(weekStart,delDayIdx))
+      const dateLabel2 = new Date(notifDate2+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
+      await supabase.from('notifications').insert({
+        employe_id: delEmpId,
+        restaurant_id: currentResto.id,
+        type: 'planning',
+        titre: '📅 Shift supprimé',
+        message: `Votre shift du ${dateLabel2} a été supprimé`
+      })
+    } catch(e){ console.error('Notif delete error:',e) }
   }
 
   async function addEmploye(){
