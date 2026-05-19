@@ -165,44 +165,36 @@ export default function Gerant() {
     } else {
       await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null,restaurant_id:currentResto.id})
     }
-    // Sauvegarder avant setShiftModal(null)
-    const notifEmpId = shiftModal.empId
-    const notifDayIdx = shiftModal.dayIdx
-    const notifExisting = shiftModal.existing
-    const notifDebut = form.heure_debut
-    const notifFin = form.heure_fin
+    // Sauvegarder AVANT setShiftModal(null)
+    const _empId = shiftModal.empId
+    const _dayIdx = shiftModal.dayIdx
+    const _existing = shiftModal.existing
+    const _debut = form.heure_debut
+    const _fin = form.heure_fin
     setShiftModal(null);loadShifts();showToast('Shift enregistré')
-    setShiftModal(null);loadShifts();showToast('Shift enregistré')
-    // Notification à l'employé
-    console.log('NOTIF DEBUG:', notifEmpId, notifDayIdx, currentResto?.id)
-    try {
-      const notifDate = fmtDate(addDays(weekStart,notifDayIdx))
-      const dateLabel = new Date(notifDate+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
-      const {error:ne} = await supabase.from('notifications').insert({
-        employe_id: notifEmpId, restaurant_id: currentResto.id, type: 'planning',
-        titre: notifExisting ? '📅 Shift modifié' : '📅 Nouveau shift',
-        message: `${notifExisting?'Modifié':'Ajouté'} le ${dateLabel} : ${notifDebut}–${notifFin}`
-      })
-      console.log('NOTIF RESULT:', ne)
-    } catch(e){ console.error('Notif error:',e) }
-  async function deleteShift(){
-    const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
-    const delEmpId = shiftModal.empId
-    const delDayIdx = shiftModal.dayIdx
-    setShiftModal(null);loadShifts();showToast('Shift supprimé')
-    try {
-      const notifDate2 = fmtDate(addDays(weekStart,delDayIdx))
-      const dateLabel2 = new Date(notifDate2+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
-      await supabase.from('notifications').insert({
-        employe_id: delEmpId,
-        restaurant_id: currentResto.id,
-        type: 'planning',
-        titre: '📅 Shift supprimé',
-        message: `Votre shift du ${dateLabel2} a été supprimé`
-      })
-    } catch(e){ console.error('Notif delete error:',e) }
+    // Notification
+    const _date = fmtDate(addDays(weekStart,_dayIdx))
+    const _label = new Date(_date+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
+    supabase.from('notifications').insert({
+      employe_id:_empId, restaurant_id:currentResto.id, type:'planning',
+      titre:_existing?'📅 Shift modifié':'📅 Nouveau shift',
+      message:(_existing?'Shift modifié':'Nouveau shift')+' le '+_label+' : '+_debut+'–'+_fin
+    }).then(r=>r.error&&console.error('Notif err:',r.error))
   }
-
+  async function deleteShift(){
+    const _dEmpId = shiftModal.empId
+    const _dDayIdx = shiftModal.dayIdx
+    const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
+    if(existing) await supabase.from('shifts').delete().eq('id',existing.id)
+    setShiftModal(null);loadShifts();showToast('Shift supprimé')
+    const _dDate = fmtDate(addDays(weekStart,_dDayIdx))
+    const _dLabel = new Date(_dDate+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
+    supabase.from('notifications').insert({
+      employe_id:_dEmpId, restaurant_id:currentResto.id, type:'planning',
+      titre:'📅 Shift supprimé',
+      message:'Shift supprimé le '+_dLabel
+    }).then(r=>r.error&&console.error('Notif del err:',r.error))
+  }
   async function addEmploye(){
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
     const {data:empData,error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id}).select().single()
