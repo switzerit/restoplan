@@ -164,15 +164,14 @@ export default function Gerant() {
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
     const {data:empData,error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id}).select().single()
     if(error){showToast('Erreur: '+error.message);return}
-    if(empForm.password && empForm.password.length>=6){
-      showToast('Création du compte...')
-      const {data:fnData,error:fnErr} = await supabase.functions.invoke('create-employe',{
-        body:{email:empForm.email,password:empForm.password,skip_employe:true,employe_id:empData.id}
-      })
-      if(fnErr||fnData?.error) showToast('Employé créé mais erreur compte: '+(fnData?.error||fnErr?.message))
-      else{ await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id); showToast(empForm.prenom+' créé avec compte app !') }
-    } else {
-      showToast(empForm.prenom+' ajouté !')
+    showToast("Envoi de l'invitation...")
+    const {data:fnData,error:fnErr} = await supabase.functions.invoke('create-employe',{
+      body:{email:empForm.email,password:'',skip_employe:true,employe_id:empData.id}
+    })
+    if(fnErr||fnData?.error) showToast('Employé ajouté — erreur invitation: '+(fnData?.error||fnErr?.message))
+    else{
+      await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id)
+      showToast(empForm.prenom+' ajouté — invitation envoyée !')
     }
     setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
     loadAll()
@@ -859,7 +858,7 @@ export default function Gerant() {
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
             <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Nouvel employé</div>
             <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour {currentResto.nom}</div>
-            {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'},{f:'password',l:'Mot de passe (optionnel)',t:'password',ph:'Laisser vide = sans compte app'}].map(({f,l,t,ph})=>(
+            {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'}].map(({f,l,t,ph})=>(
               <div key={f} style={{marginBottom:12}}>
                 <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
                 <input type={t} placeholder={ph} value={empForm[f]} onChange={e=>setEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
