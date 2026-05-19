@@ -174,7 +174,7 @@ export default function Gerant() {
     setShiftModal(null);loadShifts();showToast('Shift enregistré')
     // Notification à l'employé
     try {
-      const d = fmtDate(addDays(weekStart,notifDayIdx))
+      const notifDate = fmtDate(addDays(weekStart,notifDayIdx))
       const dateLabel = new Date(notifDate+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
       await supabase.from('notifications').insert({
         employe_id: notifEmpId,
