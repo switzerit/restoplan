@@ -82,8 +82,8 @@ export default function Notifications({ employe }) {
               <div key={n.id} onClick={() => !n.lu && marquerLu(n.id)}
                 style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)', background: n.lu ? 'transparent' : 'var(--accent-bg)', cursor: n.lu ? 'default' : 'pointer', transition: 'background .15s' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: n.lu ? 'var(--bg)' : '#e8f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
-                    {n.type === 'planning' ? '📅' : n.type === 'conge' ? '🏖️' : '💬'}
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: n.lu ? 'var(--bg)' : n.titre.includes('supprimé')?'#fef2f2':n.titre.includes('modifié')?'#fff7ed':'#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
+                    {n.titre.includes('supprimé')?'🗑️':n.titre.includes('modifié')?'✏️':n.type==='conge'?'🏖️':'✅'}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
