@@ -54,6 +54,7 @@ export default function Gerant() {
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
   const [congesSemaine, setCongesSemaine] = useState([])
+  const [congesVersion, setCongesVersion] = useState(0)
   const [pointages, setPointages] = useState({})
   const [weekStart, setWeekStart] = useState(getMonday(new Date()))
   const [shiftModal, setShiftModal] = useState(null)
@@ -118,7 +119,14 @@ export default function Gerant() {
 
   useEffect(()=>{loadRestaurants()},[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
-  useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto])
+  useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto,congesVersion])
+  useEffect(()=>{
+    if(!currentResto) return
+    const ch=supabase.channel('conges-planning')
+      .on('postgres_changes',{event:'*',schema:'public',table:'conges',filter:`restaurant_id=eq.${currentResto.id}`},()=>setCongesVersion(v=>v+1))
+      .subscribe()
+    return()=>supabase.removeChannel(ch)
+  },[currentResto?.id])
   useEffect(()=>{
     if(!currentResto) return
     loadNotifsNonLues()
