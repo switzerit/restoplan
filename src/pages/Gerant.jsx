@@ -663,7 +663,7 @@ export default function Gerant() {
                   onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--border2)';e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,.08)'}}
                   onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.boxShadow='none'}}>
                     {/* Header carte */}
-                    <div style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12',borderBottom:'1px solid var(--border)'}}>
+                    <div style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12,borderBottom:'1px solid var(--border)'}}>
                       <div style={{position:'relative',flexShrink:0}}>
                         <div style={{width:44,height:44,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
                         {present&&<div style={{position:'absolute',bottom:0,right:0,width:12,height:12,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--surface)',boxShadow:'0 0 0 2px rgba(34,197,94,.2)'}}/>}
