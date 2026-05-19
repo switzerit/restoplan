@@ -76,6 +76,15 @@ export default function Gerant() {
   const [selectedDate, setSelectedDate] = useState(today)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [notifsNonLues, setNotifsNonLues] = useState({})
+  const [notifsDetail, setNotifsDetail] = useState(null) // {empId, notifs, nom}
+
+  async function loadNotifsDetail(empId, empNom){
+    const {data} = await supabase.from('notifications')
+      .select('*').eq('employe_id',empId)
+      .eq('lu',false).eq('masque',false)
+      .order('created_at',{ascending:false})
+    setNotifsDetail({empId, nom:empNom, notifs:data||[]})
+  }
 
   async function loadNotifsNonLues(){
     if(!currentResto) return
@@ -109,6 +118,14 @@ export default function Gerant() {
   useEffect(()=>{loadRestaurants()},[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
   useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto])
+  useEffect(()=>{
+    if(!currentResto) return
+    loadNotifsNonLues()
+    const ch=supabase.channel('notifs-watch')
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'notifications',filter:`restaurant_id=eq.${currentResto.id}`},()=>loadNotifsNonLues())
+      .subscribe()
+    return()=>supabase.removeChannel(ch)
+  },[currentResto?.id])
   useEffect(()=>{if(currentResto){loadAll(selectedDate)}},[selectedDate])
 
   async function loadRestaurants(){
@@ -740,7 +757,7 @@ export default function Gerant() {
                       <div style={{minWidth:0}}>
                         <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
                         <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
-                    {notifsNonLues[emp.id]>0&&<span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',marginLeft:4}}>🔔 {notifsNonLues[emp.id]}</span>}
+                    {notifsNonLues[emp.id]>0&&<span onClick={e=>{e.stopPropagation();loadNotifsDetail(emp.id,emp.prenom+' '+emp.nom)}} style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',marginLeft:4,cursor:'pointer'}}>🔔 {notifsNonLues[emp.id]} non lu{notifsNonLues[emp.id]>1?'es':''}</span>}
                       </div>
                     </div>
                     <div style={{textAlign:'center'}}>
@@ -1125,6 +1142,29 @@ export default function Gerant() {
         </div>
       )}
 
+      {/* MODAL NOTIFS NON LUES */}
+      {notifsDetail&&(
+        <div onClick={()=>setNotifsDetail(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:24,width:380,maxHeight:'80vh',overflowY:'auto',boxShadow:'0 8px 40px rgba(0,0,0,.15)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+              <div>
+                <div style={{fontSize:15,fontWeight:800}}>🔔 Notifications non lues</div>
+                <div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>{notifsDetail.nom}</div>
+              </div>
+              <button onClick={()=>setNotifsDetail(null)} style={{width:30,height:30,borderRadius:'50%',border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:13}}>✕</button>
+            </div>
+            {notifsDetail.notifs.length===0?(
+              <div style={{textAlign:'center',padding:'20px',color:'var(--text3)',fontSize:13}}>✅ Toutes les notifs ont été lues</div>
+            ):notifsDetail.notifs.map((n,i)=>(
+              <div key={n.id} style={{padding:'12px 14px',background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:12,marginBottom:8}}>
+                <div style={{fontSize:13,fontWeight:700,marginBottom:4}}>{n.titre}</div>
+                {n.message&&<div style={{fontSize:12,color:'var(--text2)',lineHeight:1.5,marginBottom:4}}>{n.message}</div>}
+                <div style={{fontSize:10,color:'var(--text3)'}}>{new Date(n.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
     </div>
   )
