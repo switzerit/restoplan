@@ -172,19 +172,19 @@ export default function Gerant() {
     const notifDebut = form.heure_debut
     const notifFin = form.heure_fin
     setShiftModal(null);loadShifts();showToast('Shift enregistré')
+    setShiftModal(null);loadShifts();showToast('Shift enregistré')
     // Notification à l'employé
+    console.log('NOTIF DEBUG:', notifEmpId, notifDayIdx, currentResto?.id)
     try {
       const notifDate = fmtDate(addDays(weekStart,notifDayIdx))
       const dateLabel = new Date(notifDate+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
-      await supabase.from('notifications').insert({
-        employe_id: notifEmpId,
-        restaurant_id: currentResto.id,
-        type: 'planning',
+      const {error:ne} = await supabase.from('notifications').insert({
+        employe_id: notifEmpId, restaurant_id: currentResto.id, type: 'planning',
         titre: notifExisting ? '📅 Shift modifié' : '📅 Nouveau shift',
-        message: `${notifExisting?'Votre shift a été modifié':'Un shift a été ajouté'} le ${dateLabel} : ${notifDebut}–${notifFin}`
+        message: `${notifExisting?'Modifié':'Ajouté'} le ${dateLabel} : ${notifDebut}–${notifFin}`
       })
+      console.log('NOTIF RESULT:', ne)
     } catch(e){ console.error('Notif error:',e) }
-  }
   async function deleteShift(){
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
     const delEmpId = shiftModal.empId
