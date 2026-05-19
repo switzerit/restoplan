@@ -290,6 +290,7 @@ function LoginModal({onClose, goPage}) {
 export default function Login() {
   const [loading,setLoading]=useState(true)
   const [showLogin,setShowLogin]=useState(false)
+  const [setPasswordMode,setSetPasswordMode]=useState(false)
   const [menuOpen,setMenuOpen]=useState(false)
   const [legalSection,setLegalSection]=useState('cgu')
   const [isMobile,setIsMobile]=useState(window.innerWidth<900)
@@ -298,6 +299,18 @@ export default function Login() {
 
   useEffect(()=>{const h=()=>setIsMobile(window.innerWidth<900);window.addEventListener('resize',h);return()=>window.removeEventListener('resize',h)},[])
   useEffect(()=>{
+    // Détecter le hash d'invitation Supabase
+    const hash = window.location.hash
+    if(hash.includes('type=invite')||hash.includes('type=recovery')){
+      setLoading(false)
+      setSetPasswordMode(true)
+      return
+    }
+    if(hash.includes('error=')){
+      setLoading(false)
+      setShowLogin(true)
+      return
+    }
     supabase.auth.getSession().then(async({data})=>{
       if(data.session){
         const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
@@ -1161,6 +1174,62 @@ export default function Login() {
     )
   }
 
+  // ══ SET PASSWORD MODAL ═══════════════════════════════════════════════
+  function SetPasswordModal(){
+    const [pwd,setPwd]=useState('')
+    const [pwd2,setPwd2]=useState('')
+    const [loading,setLoading]=useState(false)
+    const [error,setError]=useState('')
+    const inpStyle={width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid #e8e8e8',background:'#fafafa',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}
+
+    async function handleSetPassword(e){
+      e.preventDefault()
+      if(pwd.length<6){setError('Minimum 6 caractères');return}
+      if(pwd!==pwd2){setError('Les mots de passe ne correspondent pas');return}
+      setLoading(true)
+      const {error:err} = await supabase.auth.updateUser({password:pwd})
+      if(err){setError(err.message);setLoading(false);return}
+      setSetPasswordMode(false)
+      // Rediriger selon le rôle
+      const {data:{session}} = await supabase.auth.getSession()
+      if(session){
+        const {data:p} = await supabase.from('profils').select('role').eq('user_id',session.user.id).single()
+        if(p?.role==='gerant') navigate('/gerant')
+        else navigate('/moi')
+      }
+    }
+
+    return (
+      <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:16}}>
+        <div style={{background:'white',borderRadius:20,padding:34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:'1px solid #e8e8e8'}}>
+          <div style={{textAlign:'center',marginBottom:22}}>
+            <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
+              <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0066cc"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
+            </div>
+            <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Bienvenue sur Kronvo !</div>
+            <div style={{fontSize:12,color:'#999',marginTop:4}}>Choisissez votre mot de passe pour accéder à votre espace</div>
+          </div>
+          <form onSubmit={handleSetPassword}>
+            <div style={{marginBottom:13}}>
+              <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Nouveau mot de passe</label>
+              <input type="password" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="Minimum 6 caractères" required style={inpStyle}
+                onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
+            </div>
+            <div style={{marginBottom:20}}>
+              <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Confirmer le mot de passe</label>
+              <input type="password" value={pwd2} onChange={e=>setPwd2(e.target.value)} placeholder="Répétez le mot de passe" required style={inpStyle}
+                onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
+            </div>
+            {error&&<div style={{padding:'9px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:9,fontSize:13,color:'#dc2626',marginBottom:14,fontWeight:600}}>{error}</div>}
+            <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:11,border:'none',background:'#0066cc',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
+              {loading?'Enregistrement...':'Créer mon mot de passe →'}
+            </button>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
   // ══ RENDER ═════════════════════════════════════════════════════════
   return (
     <div style={{minHeight:'100vh',background:BG,fontFamily:'var(--font)',color:TEXT}}>
@@ -1174,6 +1243,8 @@ export default function Login() {
 
       {/* MODALE CONNEXION */}
       {showLogin&&<LoginModal onClose={()=>setShowLogin(false)} goPage={goPage}/>}
+      {/* MODALE SET PASSWORD (invitation) */}
+      {setPasswordMode&&<SetPasswordModal/>}
     </div>
   )
 }
