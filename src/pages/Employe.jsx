@@ -55,10 +55,20 @@ export default function Employe() {
     loadEmployeFromSession()
     updateClock()
     const t=setInterval(updateClock,10000)
-      document.addEventListener('visibilitychange',()=>{
-      if(document.visibilityState==='visible') loadEmployeFromSession()
-    })
-    return()=>clearInterval(t)
+      const refresh=()=>{
+      if(document.visibilityState==='visible'||document.visibilityState===undefined){
+        loadShifts?.();loadPointages?.();loadHistorique?.()
+      }
+    }
+    document.addEventListener('visibilitychange',refresh)
+    window.addEventListener('focus',refresh)
+    window.addEventListener('pageshow',refresh)
+    return()=>{
+      clearInterval(t)
+      document.removeEventListener('visibilitychange',refresh)
+      window.removeEventListener('focus',refresh)
+      window.removeEventListener('pageshow',refresh)
+    }
   },[])
 
   useEffect(()=>{
