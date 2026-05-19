@@ -644,43 +644,77 @@ export default function Gerant() {
         {/* VUE EQUIPE */}
         {view==='employes'&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
-            <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(auto-fill,minmax(200px,1fr))',gap:10}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(260px,1fr))',gap:12}}>
               {employes.map((emp,i)=>{
                 const c=COLORS[i%COLORS.length]
                 const sc=shifts.filter(s=>s.employe_id===emp.id).length
                 const hasAccount=profilsMap[emp.id]
+                const present=isPresent(emp.id)
+                // Calcul dernière connexion
+                const lastSeen=emp.derniere_connexion?new Date(emp.derniere_connexion):null
+                const now=new Date()
+                const diffDays=lastSeen?Math.floor((now-lastSeen)/(1000*60*60*24)):null
+                const connLabel=!hasAccount?null:lastSeen===null?'Jamais connecté':diffDays===0?'Connecté aujourd'hui':diffDays===1?'Connecté hier':`Connecté il y a ${diffDays}j`
+                const connColor=!hasAccount?'#6b7280':lastSeen===null?'#ea580c':diffDays<=1?'#16a34a':diffDays<=7?'#0066cc':'#6b7280'
+                const connBg=!hasAccount?'#f3f4f6':lastSeen===null?'#fff7ed':diffDays<=1?'#f0fdf4':diffDays<=7?'#f0f7ff':'#f3f4f6'
+                const connBc=!hasAccount?'#e5e7eb':lastSeen===null?'#fed7aa':diffDays<=1?'#bbf7d0':diffDays<=7?'#d0e8ff':'#e5e7eb'
                 return (
-                  <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:16,transition:'all .18s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--border2)';e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,.07)'}}
+                  <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',transition:'all .18s'}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--border2)';e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,.08)'}}
                   onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.boxShadow='none'}}>
-                    <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:10}}>
-                      <div style={{width:40,height:40,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
+                    {/* Header carte */}
+                    <div style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12',borderBottom:'1px solid var(--border)'}}>
+                      <div style={{position:'relative',flexShrink:0}}>
+                        <div style={{width:44,height:44,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
+                        {present&&<div style={{position:'absolute',bottom:0,right:0,width:12,height:12,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--surface)',boxShadow:'0 0 0 2px rgba(34,197,94,.2)'}}/>}
+                      </div>
                       <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:13,fontWeight:800,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {emp.nom}</div>
+                        <div style={{fontSize:14,fontWeight:800,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {emp.nom}</div>
                         <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{emp.role}</div>
-                        <div style={{marginTop:4}}>
-                          {hasAccount
-                            ? <span style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,background:'var(--green-bg)',color:'#1a6b35'}}>✓ Compte app</span>
-                            : <span style={{fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:20,background:'var(--bg)',color:'var(--text3)'}}>Sans compte</span>
-                          }
+                      </div>
+                      {present&&<span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0',flexShrink:0}}>● Présent</span>}
+                    </div>
+                    {/* Body carte */}
+                    <div style={{padding:'12px 16px'}}>
+                      {/* Compte app + dernière connexion */}
+                      <div style={{marginBottom:10}}>
+                        {hasAccount?(
+                          <div style={{display:'flex',flex:1,alignItems:'center',gap:6}}>
+                            <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0'}}>✓ Compte actif</span>
+                            {connLabel&&<span style={{fontSize:10,fontWeight:600,padding:'3px 8px',borderRadius:20,background:connBg,color:connColor,border:`1px solid ${connBc}`}}>{connLabel}</span>}
+                          </div>
+                        ):(
+                          <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,background:'#fff7ed',color:'#ea580c',border:'1px solid #fed7aa'}}>⚠️ Sans compte</span>
+                        )}
+                      </div>
+                      {/* Stats */}
+                      <div style={{display:'flex',gap:8,marginBottom:12}}>
+                        <div style={{flex:1,background:'var(--bg)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
+                          <div style={{fontSize:16,fontWeight:800,color:'var(--accent)'}}>{sc}</div>
+                          <div style={{fontSize:9,color:'var(--text3)',marginTop:1}}>shift{sc>1?'s':''}/sem</div>
+                        </div>
+                        <div style={{flex:1,background:'var(--bg)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
+                          <div style={{fontSize:16,fontWeight:800,color:present?'#16a34a':'var(--text3)'}}>{present?'✓':'—'}</div>
+                          <div style={{fontSize:9,color:'var(--text3)',marginTop:1}}>présence</div>
+                        </div>
+                        <div style={{flex:1,background:'var(--bg)',borderRadius:8,padding:'8px 10px',textAlign:'center'}}>
+                          <div style={{fontSize:14,fontWeight:800,color:hasAccount?'#16a34a':'#ea580c'}}>{hasAccount?'📱':'📵'}</div>
+                          <div style={{fontSize:9,color:'var(--text3)',marginTop:1}}>app</div>
                         </div>
                       </div>
-                    </div>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',paddingTop:8,borderTop:'1px solid var(--border)',marginBottom:8}}>
-                      <span style={{fontSize:11,color:'var(--text2)'}}>{sc} shift{sc>1?'s':''}/sem</span>
-                      <span style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:isPresent(emp.id)?'var(--green-bg)':'var(--bg)',color:isPresent(emp.id)?'#1a6b35':'var(--text3)'}}>{(()=>{const pts=pointages[emp.id]||[];return pts.some(p=>p.heure_arrivee&&!p.heure_depart)?'Présent':'—'})()}</span>
-                    </div>
-                    <div style={{display:'flex',gap:6}}>
-                      <button onClick={()=>openEditEmp(emp)} style={{flex:1,padding:'6px 0',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️ Modifier</button>
-                      <button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'6px 10px',borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:11,fontWeight:600,cursor:'pointer'}}>🗑️</button>
+                      {/* Actions */}
+                      <div style={{display:'flex',gap:6}}>
+                        <button onClick={()=>openEditEmp(emp)} style={{flex:1,padding:'8px 0',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>✏️ Modifier</button>
+                        <button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'8px 12px',borderRadius:9,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:12,fontWeight:600,cursor:'pointer'}}>🗑️</button>
+                      </div>
                     </div>
                   </div>
                 )
               })}
-              <div onClick={()=>setEmpModal(true)} style={{background:'transparent',border:'2px dashed var(--border2)',borderRadius:14,padding:18,cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,minHeight:150,transition:'all .18s'}}
+              <div onClick={()=>setEmpModal(true)} style={{background:'transparent',border:'2px dashed var(--border2)',borderRadius:16,padding:18,cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,minHeight:180,transition:'all .18s'}}
               onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--accent)';e.currentTarget.style.background='var(--accent-bg)'}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border2)';e.currentTarget.style.background='transparent'}}>
-                <div style={{width:40,height:40,borderRadius:'50%',background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,color:'var(--text3)'}}>+</div>
+                <div style={{width:44,height:44,borderRadius:'50%',background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,color:'var(--text3)'}}>+</div>
                 <div style={{fontSize:13,fontWeight:600,color:'var(--text2)'}}>Ajouter un employé</div>
               </div>
             </div>

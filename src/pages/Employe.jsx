@@ -83,6 +83,8 @@ export default function Employe() {
     const {data:emp}=await supabase.from('employes').select('*').eq('id',profil.employe_id).single()
     if(!emp){navigate('/login');return}
     setEmploye(emp)
+    // Enregistrer la dernière connexion
+    await supabase.from('employes').update({derniere_connexion: new Date().toISOString()}).eq('id', emp.id)
     setLoading(false)
   }
 
