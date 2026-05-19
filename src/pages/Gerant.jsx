@@ -80,6 +80,13 @@ export default function Gerant() {
     return()=>window.removeEventListener('resize',handler)
   },[])
 
+  // Recharger quand l'app revient au premier plan
+  useEffect(()=>{
+    const onVisible=()=>{ if(document.visibilityState==='visible'&&currentResto) loadAll() }
+    document.addEventListener('visibilitychange',onVisible)
+    return()=>document.removeEventListener('visibilitychange',onVisible)
+  },[currentResto])
+
   useEffect(()=>{loadRestaurants()},[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
   useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto])
