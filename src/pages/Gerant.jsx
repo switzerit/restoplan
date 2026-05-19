@@ -661,7 +661,8 @@ export default function Gerant() {
                 const present=isPresent(emp.id)
                 const lastSeen=emp.derniere_connexion?new Date(emp.derniere_connexion):null
                 const diffDays=lastSeen?Math.floor((new Date()-lastSeen)/(1000*60*60*24)):null
-                const connLabel=!hasAccount?'Sans compte':lastSeen===null?'Jamais':diffDays===0?"Auj.":diffDays===1?'Hier':`${diffDays}j`
+                const connLabel=!hasAccount?'Sans compte':lastSeen===null?'Jamais':
+                  lastSeen.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' '+lastSeen.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
                 const connColor=!hasAccount?'#6b7280':lastSeen===null?'#ea580c':diffDays<=1?'#16a34a':diffDays<=7?'#0066cc':'#6b7280'
                 const connBg=!hasAccount?'#f3f4f6':lastSeen===null?'#fff7ed':diffDays<=1?'#f0fdf4':diffDays<=7?'#f0f7ff':'#f3f4f6'
                 const connBc=!hasAccount?'#e5e7eb':lastSeen===null?'#fed7aa':diffDays<=1?'#bbf7d0':diffDays<=7?'#d0e8ff':'#e5e7eb'
