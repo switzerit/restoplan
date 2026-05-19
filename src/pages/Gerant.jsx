@@ -82,10 +82,11 @@ export default function Gerant() {
 
   // Recharger quand l'app revient au premier plan
   useEffect(()=>{
-    const onVisible=()=>{ if(document.visibilityState==='visible'&&currentResto) loadAll() }
+    if(!currentResto) return
+    const onVisible=()=>{ if(document.visibilityState==='visible') loadAll() }
     document.addEventListener('visibilitychange',onVisible)
     return()=>document.removeEventListener('visibilitychange',onVisible)
-  },[currentResto])
+  },[currentResto?.id])
 
   useEffect(()=>{loadRestaurants()},[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])

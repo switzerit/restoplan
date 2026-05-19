@@ -55,14 +55,10 @@ export default function Employe() {
     loadEmployeFromSession()
     updateClock()
     const t=setInterval(updateClock,10000)
-    // Recharger quand l'app revient au premier plan
-    const onVisible=()=>{
-      if(document.visibilityState==='visible'&&employe){
-        loadShifts();loadPointages();loadHistorique()
-      }
-    }
-    document.addEventListener('visibilitychange',onVisible)
-    return()=>{clearInterval(t);document.removeEventListener('visibilitychange',onVisible)}
+      document.addEventListener('visibilitychange',()=>{
+      if(document.visibilityState==='visible') loadEmployeFromSession()
+    })
+    return()=>clearInterval(t)
   },[])
 
   useEffect(()=>{
