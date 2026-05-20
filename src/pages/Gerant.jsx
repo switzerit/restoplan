@@ -59,6 +59,7 @@ export default function Gerant() {
   const [weekStart, setWeekStart] = useState(getMonday(new Date()))
   const [planningMode, setPlanningMode] = useState('semaine')
   const [moisDate, setMoisDate] = useState(new Date())
+  const [filtreEmploye, setFiltreEmploye] = useState('')
   const [shiftModal, setShiftModal] = useState(null)
   const [empModal, setEmpModal] = useState(false)
   const [correctModal, setCorrectModal] = useState(null)
@@ -191,6 +192,13 @@ export default function Gerant() {
   async function saveShift(){
     const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
+    // Vérifier conflit avec congé accepté
+    const congeConflict = congesSemaine.find(c=>c.employe_id===shiftModal.empId&&c.date_debut<=d&&c.date_fin>=d)
+    if(congeConflict&&!existing){
+      const emp=employes.find(e=>e.id===shiftModal.empId)
+      const ok=window.confirm(`⚠️ ${emp?.prenom} est en congé ce jour-là. Voulez-vous quand même ajouter ce shift ?`)
+      if(!ok) return
+    }
     // Validation horaires
     const toMins = t => { const [h,m]=t.split(':').map(Number); return h*60+m }
     if(toMins(form.heure_fin) <= toMins(form.heure_debut)){
@@ -226,6 +234,25 @@ export default function Gerant() {
       message:(_existing?'Vos horaires ont été mis à jour pour le ':'Vous avez été planifié le ')+_label+' de '+_debut+' à '+_fin
     }).then(r=>r.error&&console.error('Notif err:',r.error))
   }
+  async function copierSemaine(){
+    const prevWeek = addDays(weekStart,-7)
+    const from = fmtDate(prevWeek)
+    const to = fmtDate(addDays(prevWeek,6))
+    const {data:prevShifts} = await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    if(!prevShifts?.length){showToast('Aucun shift la semaine précédente');return}
+    let count=0
+    for(const s of prevShifts){
+      const newDate = fmtDate(addDays(new Date(s.date+'T00:00:00'),7))
+      const exists = shifts.find(x=>x.employe_id===s.employe_id&&x.date===newDate)
+      if(!exists){
+        await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2,heure_fin_2:s.heure_fin_2,restaurant_id:currentResto.id})
+        count++
+      }
+    }
+    loadShifts()
+    showToast(count>0?`${count} shift${count>1?'s':''} copiés !`:'Shifts déjà existants')
+  }
+
   async function deleteShift(){
     const _dEmpId = shiftModal.empId
     const _dDayIdx = shiftModal.dayIdx
@@ -566,6 +593,13 @@ export default function Gerant() {
               <span style={{fontSize:13,fontWeight:600,padding:'0 8px',textTransform:'capitalize'}}>{moisDate.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</span>
               <button onClick={()=>setMoisDate(new Date(moisDate.getFullYear(),moisDate.getMonth()+1,1))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>›</button>
             </div>}
+            {/* Filtre employé */}
+            <select value={filtreEmploye} onChange={e=>setFiltreEmploye(e.target.value)} style={{height:34,padding:'0 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:12,color:'var(--text)',cursor:'pointer'}}>
+              <option value=''>Tous les employés</option>
+              {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
+            </select>
+            {/* Copier semaine */}
+            {planningMode==='semaine'&&<button onClick={copierSemaine} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>📋 Copier sem. préc.</button>}
             <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
           </>}
           {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
@@ -578,7 +612,7 @@ export default function Gerant() {
         {/* VUE PLANNING */}
         {view==='planning'&&(
           <div style={{flex:1,overflowY:'auto',overflowX:'hidden',padding:isMobile?10:20,WebkitOverflowScrolling:'touch'}}>
-          {planningMode==='mois'&&<PlanningMois employes={employes} shifts={shifts} congesSemaine={congesSemaine} shiftColors={shiftColors} today={today} moisDate={moisDate} setMoisDate={setMoisDate} onCellClick={(day)=>{setPlanningMode('semaine');setWeekStart(getMonday(day))}}/>}
+          {planningMode==='mois'&&<PlanningMois employes={employes} shifts={shifts} congesSemaine={congesSemaine} shiftColors={shiftColors} today={today} moisDate={moisDate} setMoisDate={setMoisDate} onCellClick={(day)=>{setPlanningMode('semaine');setWeekStart(getMonday(day))}} filtreEmploye={filtreEmploye}/>}
           {planningMode==='semaine'&&isMobile&&(
             /* VUE MOBILE PLANNING - jour par jour */
             <div>
@@ -637,7 +671,7 @@ export default function Gerant() {
                 })}
               </div>
               {employes.length===0&&<div style={{padding:40,textAlign:'center',color:'var(--text3)',fontSize:14}}>Aucun employé — <button onClick={()=>setEmpModal(true)} style={{color:'var(--accent)',background:'none',border:'none',cursor:'pointer',fontWeight:600,fontSize:14}}>en ajouter un</button></div>}
-              {employes.map((emp,ei)=>{
+              {employes.filter(e=>!filtreEmploye||e.id===filtreEmploye).map((emp,ei)=>{
                 const c=COLORS[ei%COLORS.length]
                 return (
                   <div key={emp.id} style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)'}}>
