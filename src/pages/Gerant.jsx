@@ -628,7 +628,7 @@ export default function Gerant() {
               </div>
             )
           })()}
-          {planningMode==='semaine'&&
+          {planningMode==='semaine'&&(
           {isMobile ? (
             /* VUE MOBILE PLANNING - jour par jour */
             <div>
