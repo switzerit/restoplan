@@ -1243,54 +1243,83 @@ export default function Gerant() {
           </div>
         </div>
       )}
-      {/* MODAL DUPLIQUER PLANNING */}
+      {/* MODAL DUPLIQUER - STEPPER */}
       {copierModal&&(()=>{
-        const srcStart = getMonday(new Date(copierForm.sourceWeek+'T00:00:00'))
-        const srcLabel = `${fmtLabel(srcStart)} – ${fmtLabel(addDays(srcStart,6))}`
-        const dstLabel = `${fmtLabel(weekStart)} – ${fmtLabel(addDays(weekStart,6))}`
+        const step=copierForm.step||1
+        const srcStart=getMonday(new Date((copierForm.sourceWeek||fmtDate(addDays(weekStart,-7)))+'T00:00:00'))
+        const dstStart=getMonday(new Date((copierForm.destWeek||fmtDate(weekStart))+'T00:00:00'))
+        const srcLabel=fmtLabel(srcStart)+' – '+fmtLabel(addDays(srcStart,6))
+        const dstLabel=fmtLabel(dstStart)+' – '+fmtLabel(addDays(dstStart,6))
+        const empNom=copierForm.employe?(employes.find(e=>e.id===copierForm.employe)?.prenom||''):'Toute l\'équipe'
         return (
-        <div onClick={()=>setCopierModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:420,boxShadow:'0 8px 40px rgba(0,0,0,.15)'}}>
-            <div style={{fontSize:16,fontWeight:800,marginBottom:4}}>Dupliquer une semaine</div>
-            <div style={{fontSize:13,color:'var(--text2)',marginBottom:22}}>Reproduire les shifts d'une semaine vers une autre</div>
+        <div onClick={()=>setCopierModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.35)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:400,boxShadow:'0 8px 40px rgba(0,0,0,.15)',maxHeight:'90vh',overflowY:'auto'}}>
 
-            {/* Semaine source avec navigation */}
-            <div style={{marginBottom:16}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:8}}>SEMAINE À COPIER</label>
-              <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--bg)',border:'1.5px solid var(--border2)',borderRadius:10,padding:'8px 12px'}}>
-                <button onClick={()=>setCopierForm(f=>({...f,sourceWeek:fmtDate(addDays(new Date(f.sourceWeek+'T00:00:00'),-7))}))} style={{width:28,height:28,borderRadius:7,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:14,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>‹</button>
-                <div style={{flex:1,textAlign:'center'}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'var(--text)'}}>{srcLabel}</div>
+            {/* Indicateur étapes */}
+            <div style={{display:'flex',alignItems:'center',marginBottom:24}}>
+              {[{n:1,l:'Pour qui'},{n:2,l:'Semaine source'},{n:3,l:'Destination'}].map((s,i)=>(
+                <div key={s.n} style={{display:'flex',alignItems:'center',flex:i<2?1:'auto'}}>
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
+                    <div style={{width:28,height:28,borderRadius:'50%',background:step>s.n?'#16a34a':step===s.n?'var(--accent)':'var(--border)',color:step>=s.n?'white':'var(--text3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>{step>s.n?'✓':s.n}</div>
+                    <div style={{fontSize:10,fontWeight:600,color:step>=s.n?'var(--accent)':'var(--text3)',whiteSpace:'nowrap'}}>{s.l}</div>
+                  </div>
+                  {i<2&&<div style={{flex:1,height:2,background:step>s.n+0?'var(--accent)':'var(--border)',margin:'0 8px',marginBottom:16}}/>}
                 </div>
-                <button onClick={()=>setCopierForm(f=>({...f,sourceWeek:fmtDate(addDays(new Date(f.sourceWeek+'T00:00:00'),7))}))} style={{width:28,height:28,borderRadius:7,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:14,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>›</button>
+              ))}
+            </div>
+
+            {step===1&&<>
+              <div style={{fontSize:15,fontWeight:800,marginBottom:16}}>Pour qui dupliquer ?</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:24,maxHeight:280,overflowY:'auto'}}>
+                {[{id:'',label:"Toute l'équipe",sub:'Tous les employés',icon:'👥'},...employes.map((e,i)=>({id:e.id,label:e.prenom+' '+e.nom,sub:e.role,icon:null,c:COLORS[i%COLORS.length]}))].map(item=>(
+                  <div key={item.id} onClick={()=>setCopierForm(f=>({...f,employe:item.id}))} style={{padding:'12px 14px',borderRadius:12,border:'2px solid '+(copierForm.employe===item.id?'var(--accent)':'var(--border)'),background:copierForm.employe===item.id?'var(--accent-bg)':'var(--bg)',cursor:'pointer',display:'flex',alignItems:'center',gap:10}}>
+                    {item.icon?<div style={{width:32,height:32,borderRadius:'50%',background:'var(--accent-bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>{item.icon}</div>
+                    :<div style={{width:32,height:32,borderRadius:'50%',background:item.c?.bg,color:item.c?.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{item.label.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()}</div>}
+                    <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:copierForm.employe===item.id?'var(--accent)':'var(--text)'}}>{item.label}</div><div style={{fontSize:11,color:'var(--text3)'}}>{item.sub}</div></div>
+                    {copierForm.employe===item.id&&<span style={{color:'var(--accent)',fontSize:16}}>✓</span>}
+                  </div>
+                ))}
               </div>
-            </div>
+              <button onClick={()=>setCopierForm(f=>({...f,step:2}))} style={{width:'100%',height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Suivant →</button>
+            </>}
 
-            {/* Flèche */}
-            <div style={{textAlign:'center',fontSize:18,color:'var(--accent)',marginBottom:16}}>↓</div>
-
-            {/* Semaine destination */}
-            <div style={{marginBottom:16}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:8}}>SEMAINE DE DESTINATION</label>
-              <div style={{background:'var(--accent-bg)',border:'1.5px solid var(--accent)',borderRadius:10,padding:'10px 14px',textAlign:'center'}}>
-                <div style={{fontSize:13,fontWeight:700,color:'var(--accent)'}}>{dstLabel}</div>
-                <div style={{fontSize:11,color:'var(--accent)',opacity:.7,marginTop:2}}>Semaine actuellement affichée</div>
+            {step===2&&<>
+              <div style={{fontSize:15,fontWeight:800,marginBottom:6}}>Semaine à copier</div>
+              <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour : <strong>{empNom}</strong></div>
+              <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--bg)',border:'1.5px solid var(--border2)',borderRadius:12,padding:'14px 16px',marginBottom:24}}>
+                <button onClick={()=>setCopierForm(f=>({...f,sourceWeek:fmtDate(addDays(new Date((f.sourceWeek||fmtDate(addDays(weekStart,-7)))+'T00:00:00'),-7))}))} style={{width:36,height:36,borderRadius:9,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:18,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>
+                <div style={{flex:1,textAlign:'center'}}>
+                  <div style={{fontSize:14,fontWeight:700}}>{srcLabel}</div>
+                  <div style={{fontSize:11,color:'var(--text3)',marginTop:2}}>Naviguez pour choisir</div>
+                </div>
+                <button onClick={()=>setCopierForm(f=>({...f,sourceWeek:fmtDate(addDays(new Date((f.sourceWeek||fmtDate(addDays(weekStart,-7)))+'T00:00:00'),7))}))} style={{width:36,height:36,borderRadius:9,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:18,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>
               </div>
-            </div>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>setCopierForm(f=>({...f,step:1}))} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>← Retour</button>
+                <button onClick={()=>setCopierForm(f=>({...f,step:3}))} style={{flex:2,height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Suivant →</button>
+              </div>
+            </>}
 
-            {/* Employé */}
-            <div style={{marginBottom:20}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:8}}>POUR QUI</label>
-              <select value={copierForm.employe} onChange={e=>setCopierForm(f=>({...f,employe:e.target.value}))} style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
-                <option value=''>Toute l'équipe</option>
-                {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
-              </select>
-            </div>
+            {step===3&&<>
+              <div style={{fontSize:15,fontWeight:800,marginBottom:6}}>Semaine de destination</div>
+              <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Copie de <strong>{srcLabel}</strong></div>
+              <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--bg)',border:'1.5px solid var(--accent)',borderRadius:12,padding:'14px 16px',marginBottom:12}}>
+                <button onClick={()=>setCopierForm(f=>({...f,destWeek:fmtDate(addDays(new Date((f.destWeek||fmtDate(weekStart))+'T00:00:00'),-7))}))} style={{width:36,height:36,borderRadius:9,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:18,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>
+                <div style={{flex:1,textAlign:'center'}}>
+                  <div style={{fontSize:14,fontWeight:700,color:'var(--accent)'}}>{dstLabel}</div>
+                  <div style={{fontSize:11,color:'var(--text3)',marginTop:2}}>Naviguez pour choisir</div>
+                </div>
+                <button onClick={()=>setCopierForm(f=>({...f,destWeek:fmtDate(addDays(new Date((f.destWeek||fmtDate(weekStart))+'T00:00:00'),7))}))} style={{width:36,height:36,borderRadius:9,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:18,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>
+              </div>
+              <div style={{padding:'10px 14px',background:'var(--bg)',borderRadius:10,fontSize:12,color:'var(--text2)',marginBottom:20}}>
+                {empNom} &nbsp;·&nbsp; {srcLabel} → {dstLabel}
+              </div>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>setCopierForm(f=>({...f,step:2}))} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>← Retour</button>
+                <button onClick={executerCopie} style={{flex:2,height:44,borderRadius:11,border:'none',background:'#16a34a',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>✓ Dupliquer</button>
+              </div>
+            </>}
 
-            <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>setCopierModal(false)} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Annuler</button>
-              <button onClick={executerCopie} style={{flex:2,height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Dupliquer cette semaine →</button>
-            </div>
           </div>
         </div>
         )
