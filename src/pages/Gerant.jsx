@@ -613,7 +613,7 @@ export default function Gerant() {
               {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
             </select>
             {/* Copier semaine */}
-            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDate(addDays(weekStart,-7)),employe:filtreEmploye||''});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
+            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDateLocal(weekStart),destWeek:fmtDateLocal(addDays(weekStart,7)),employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
             <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
           </>}
           {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
