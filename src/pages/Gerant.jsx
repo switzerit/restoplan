@@ -60,6 +60,8 @@ export default function Gerant() {
   const [planningMode, setPlanningMode] = useState('semaine')
   const [moisDate, setMoisDate] = useState(new Date())
   const [filtreEmploye, setFiltreEmploye] = useState('')
+  const [copierModal, setCopierModal] = useState(false)
+  const [copierForm, setCopierForm] = useState({sourceWeek:'', employe:''})
   const [shiftModal, setShiftModal] = useState(null)
   const [empModal, setEmpModal] = useState(false)
   const [correctModal, setCorrectModal] = useState(null)
@@ -192,12 +194,7 @@ export default function Gerant() {
   async function saveShift(){
     const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
-    // Vérifier conflit avec congé accepté — avertissement sans bloquer
-    const congeConflict = congesSemaine.find(c=>c.employe_id===shiftModal.empId&&c.date_debut<=d&&c.date_fin>=d)
-    if(congeConflict){
-      const emp=employes.find(e=>e.id===shiftModal.empId)
-      showToast(`⚠️ Attention : ${emp?.prenom} est en congé ce jour-là`)
-    }
+
     // Validation horaires
     const toMins = t => { const [h,m]=t.split(':').map(Number); return h*60+m }
     if(toMins(form.heure_fin) <= toMins(form.heure_debut)){
@@ -233,26 +230,31 @@ export default function Gerant() {
       message:(_existing?'Vos horaires ont été mis à jour pour le ':'Vous avez été planifié le ')+_label+' de '+_debut+' à '+_fin
     }).then(r=>r.error&&console.error('Notif err:',r.error))
   }
-  async function copierSemaine(){
-    const prevWeek = addDays(weekStart,-7)
-    const from = fmtDate(prevWeek)
-    const to = fmtDate(addDays(prevWeek,6))
+  async function executerCopie(){
+    if(!copierForm.sourceWeek){showToast('Choisir une semaine source');return}
+    const srcStart = getMonday(new Date(copierForm.sourceWeek+'T00:00:00'))
+    const from = fmtDate(srcStart)
+    const to = fmtDate(addDays(srcStart,6))
     let q = supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
-    if(filtreEmploye) q = q.eq('employe_id',filtreEmploye)
-    const {data:prevShifts} = await q
-    if(!prevShifts?.length){showToast(filtreEmploye?'Aucun shift pour cet employé la semaine précédente':'Aucun shift la semaine précédente');return}
+    if(copierForm.employe) q = q.eq('employe_id',copierForm.employe)
+    const {data:srcShifts} = await q
+    if(!srcShifts?.length){showToast('Aucun shift sur cette semaine source');return}
+    // Calculer le décalage vers la semaine cible (weekStart)
+    const diffDays = Math.round((weekStart-srcStart)/(1000*60*60*24))
     let count=0
-    for(const s of prevShifts){
-      const newDate = fmtDate(addDays(new Date(s.date+'T00:00:00'),7))
+    for(const s of srcShifts){
+      const srcDate = new Date(s.date+'T00:00:00')
+      const newDate = fmtDate(addDays(srcDate,diffDays))
       const exists = shifts.find(x=>x.employe_id===s.employe_id&&x.date===newDate)
       if(!exists){
-        await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2,heure_fin_2:s.heure_fin_2,restaurant_id:currentResto.id})
+        await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id})
         count++
       }
     }
+    setCopierModal(false)
     loadShifts()
-    const who = filtreEmploye ? employes.find(e=>e.id===filtreEmploye)?.prenom : 'tous'
-    showToast(count>0?`${count} shift${count>1?'s':''} copiés pour ${who} !`:'Shifts déjà existants')
+    const who = copierForm.employe ? employes.find(e=>e.id===copierForm.employe)?.prenom : 'tous les employés'
+    showToast(count>0?`✅ ${count} shift${count>1?'s':''} copiés pour ${who} !`:'Shifts déjà existants sur cette semaine')
   }
 
   async function deleteShift(){
@@ -601,7 +603,7 @@ export default function Gerant() {
               {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
             </select>
             {/* Copier semaine */}
-            {planningMode==='semaine'&&<button onClick={copierSemaine} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>📋 Copier sem. préc.</button>}
+            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDate(addDays(weekStart,-7)),employe:filtreEmploye||''});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>📋 Copier planning</button>}
             <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
           </>}
           {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
@@ -1239,6 +1241,34 @@ export default function Gerant() {
                 <div style={{fontSize:10,color:'var(--text3)'}}>{new Date(n.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+      {/* MODAL COPIER PLANNING */}
+      {copierModal&&(
+        <div onClick={()=>setCopierModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:400,boxShadow:'0 8px 40px rgba(0,0,0,.15)'}}>
+            <div style={{fontSize:16,fontWeight:800,marginBottom:4}}>📋 Copier un planning</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Vers la semaine du {fmtLabel(weekStart)} au {fmtLabel(addDays(weekStart,6))}</div>
+            <div style={{marginBottom:14}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Semaine source (copier depuis)</label>
+              <input type='date' value={copierForm.sourceWeek} onChange={e=>setCopierForm(f=>({...f,sourceWeek:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+              <div style={{fontSize:11,color:'var(--text3)',marginTop:4}}>Choisissez n'importe quel jour de la semaine à copier</div>
+            </div>
+            <div style={{marginBottom:20}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Pour quel employé</label>
+              <select value={copierForm.employe} onChange={e=>setCopierForm(f=>({...f,employe:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                <option value=''>Tous les employés</option>
+                {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
+              </select>
+            </div>
+            <div style={{padding:'10px 14px',background:'var(--accent-bg)',borderRadius:10,marginBottom:16,fontSize:12,color:'var(--accent)'}}>
+              💡 Les shifts existants sur la semaine cible ne seront pas écrasés
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setCopierModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Annuler</button>
+              <button onClick={executerCopie} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Copier →</button>
+            </div>
           </div>
         </div>
       )}

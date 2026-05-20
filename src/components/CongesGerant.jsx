@@ -117,6 +117,11 @@ export default function CongesGerant({restaurant, employes, showToast}) {
     if(statut==='accepte'){
       if(c.type==='conge_paye') await supabase.from('employes').update({conges_pris:(c.employes?.conges_pris||0)+jours}).eq('id',c.employe_id)
       if(c.type==='rtt') await supabase.from('employes').update({rtt_pris:(c.employes?.rtt_pris||0)+jours}).eq('id',c.employe_id)
+      // Supprimer les shifts en conflit automatiquement
+      await supabase.from('shifts').delete()
+        .eq('employe_id',c.employe_id)
+        .gte('date',c.date_debut)
+        .lte('date',c.date_fin)
     }
     if((statut==='refuse'||statut==='annule')&&c?.statut==='accepte'){
       if(c.type==='conge_paye') await supabase.from('employes').update({conges_pris:Math.max(0,(c.employes?.conges_pris||0)-jours)}).eq('id',c.employe_id)
