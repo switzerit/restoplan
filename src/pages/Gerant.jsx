@@ -58,6 +58,7 @@ export default function Gerant() {
   const [pointages, setPointages] = useState({})
   const [weekStart, setWeekStart] = useState(getMonday(new Date()))
   const [planningMode, setPlanningMode] = useState('semaine')
+  const [moisDate, setMoisDate] = useState(new Date())
   const [shiftModal, setShiftModal] = useState(null)
   const [empModal, setEmpModal] = useState(false)
   const [correctModal, setCorrectModal] = useState(null)
@@ -555,11 +556,16 @@ export default function Gerant() {
                 </button>
               ))}
             </div>
-            <div style={{display:'flex',alignItems:'center',gap:6,background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,padding:3}}>
+            {planningMode==='semaine'&&<div style={{display:'flex',alignItems:'center',gap:6,background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,padding:3}}>
               <button onClick={()=>setWeekStart(addDays(weekStart,-7))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>‹</button>
               <span style={{fontSize:13,fontWeight:600,padding:'0 8px'}}>{weekLabel}</span>
               <button onClick={()=>setWeekStart(addDays(weekStart,7))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>›</button>
-            </div>
+            </div>}
+            {planningMode==='mois'&&<div style={{display:'flex',alignItems:'center',gap:6,background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,padding:3}}>
+              <button onClick={()=>setMoisDate(new Date(moisDate.getFullYear(),moisDate.getMonth()-1,1))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>‹</button>
+              <span style={{fontSize:13,fontWeight:600,padding:'0 8px',textTransform:'capitalize'}}>{moisDate.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</span>
+              <button onClick={()=>setMoisDate(new Date(moisDate.getFullYear(),moisDate.getMonth()+1,1))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>›</button>
+            </div>}
             <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
           </>}
           {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
@@ -572,7 +578,7 @@ export default function Gerant() {
         {/* VUE PLANNING */}
         {view==='planning'&&(
           <div style={{flex:1,overflowY:'auto',overflowX:'hidden',padding:isMobile?10:20,WebkitOverflowScrolling:'touch'}}>
-          {planningMode==='mois'&&<PlanningMois employes={employes} shifts={shifts} congesSemaine={congesSemaine} shiftColors={shiftColors} today={today} onCellClick={(day)=>{setPlanningMode('semaine');setWeekStart(getMonday(day))}}/>}
+          {planningMode==='mois'&&<PlanningMois employes={employes} shifts={shifts} congesSemaine={congesSemaine} shiftColors={shiftColors} today={today} moisDate={moisDate} setMoisDate={setMoisDate} onCellClick={(day)=>{setPlanningMode('semaine');setWeekStart(getMonday(day))}}/>}
           {planningMode==='semaine'&&isMobile&&(
             /* VUE MOBILE PLANNING - jour par jour */
             <div>
