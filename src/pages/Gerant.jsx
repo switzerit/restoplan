@@ -192,12 +192,11 @@ export default function Gerant() {
   async function saveShift(){
     const d = fmtDate(addDays(weekStart,shiftModal.dayIdx))
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
-    // Vérifier conflit avec congé accepté
+    // Vérifier conflit avec congé accepté — avertissement sans bloquer
     const congeConflict = congesSemaine.find(c=>c.employe_id===shiftModal.empId&&c.date_debut<=d&&c.date_fin>=d)
-    if(congeConflict&&!existing){
+    if(congeConflict){
       const emp=employes.find(e=>e.id===shiftModal.empId)
-      const ok=window.confirm(`⚠️ ${emp?.prenom} est en congé ce jour-là. Voulez-vous quand même ajouter ce shift ?`)
-      if(!ok) return
+      showToast(`⚠️ Attention : ${emp?.prenom} est en congé ce jour-là`)
     }
     // Validation horaires
     const toMins = t => { const [h,m]=t.split(':').map(Number); return h*60+m }
@@ -238,8 +237,10 @@ export default function Gerant() {
     const prevWeek = addDays(weekStart,-7)
     const from = fmtDate(prevWeek)
     const to = fmtDate(addDays(prevWeek,6))
-    const {data:prevShifts} = await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
-    if(!prevShifts?.length){showToast('Aucun shift la semaine précédente');return}
+    let q = supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    if(filtreEmploye) q = q.eq('employe_id',filtreEmploye)
+    const {data:prevShifts} = await q
+    if(!prevShifts?.length){showToast(filtreEmploye?'Aucun shift pour cet employé la semaine précédente':'Aucun shift la semaine précédente');return}
     let count=0
     for(const s of prevShifts){
       const newDate = fmtDate(addDays(new Date(s.date+'T00:00:00'),7))
@@ -250,7 +251,8 @@ export default function Gerant() {
       }
     }
     loadShifts()
-    showToast(count>0?`${count} shift${count>1?'s':''} copiés !`:'Shifts déjà existants')
+    const who = filtreEmploye ? employes.find(e=>e.id===filtreEmploye)?.prenom : 'tous'
+    showToast(count>0?`${count} shift${count>1?'s':''} copiés pour ${who} !`:'Shifts déjà existants')
   }
 
   async function deleteShift(){
@@ -690,7 +692,15 @@ export default function Gerant() {
                           {(()=>{
                             const conge=getConge(emp.id,di)
                             if(sh) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sc.bg,color:sc.color,border:`1.5px solid ${sc.border}`}}><div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&sh.heure_fin_2&&<div style={{fontWeight:400,opacity:.65,fontSize:9,borderTop:`1px solid ${sc.border}`,marginTop:2,paddingTop:2}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
-                            if(conge) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:'#fef2f2',color:'#dc2626',border:'1.5px solid #fecaca',cursor:'default'}} onClick={e=>e.stopPropagation()}><div>Congé</div><div style={{fontWeight:400,opacity:.8,fontSize:9}}>{({conge_paye:'Payé',rtt:'RTT',maladie:'Maladie',sans_solde:'Sans solde',autre:'Autre'})[conge.type]||conge.type}</div></div>
+                            if(conge){
+                              const hasShiftToo = !!sh
+                              return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:'#fef2f2',color:'#dc2626',border:`1.5px solid ${hasShiftToo?'#dc2626':'#fecaca'}`,cursor:'default',position:'relative'}} onClick={e=>e.stopPropagation()}>
+                                {hasShiftToo&&<div style={{position:'absolute',top:-4,right:-4,width:14,height:14,borderRadius:'50%',background:'#dc2626',color:'white',fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',border:'1.5px solid white'}}>!</div>}
+                                <div>Congé</div>
+                                <div style={{fontWeight:400,opacity:.8,fontSize:9}}>{({conge_paye:'Payé',rtt:'RTT',maladie:'Maladie',sans_solde:'Sans solde',autre:'Autre'})[conge.type]||conge.type}</div>
+                                {hasShiftToo&&<div style={{fontSize:8,color:'#dc2626',fontWeight:700,marginTop:2}}>⚠️ Shift actif</div>}
+                              </div>
+                            }
                             return <div style={{width:'100%',height:30,border:'1.5px dashed var(--border2)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:18}}>+</div>
                           })()}
                         </div>
