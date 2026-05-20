@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { generatePDF } from '../lib/exportPDF'
 import { supabase } from '../lib/supabase'
 import CongesGerant from '../components/CongesGerant'
+import PlanningMois from '../components/PlanningMois'
 import NotifsGerant from '../components/NotifsGerant'
 
 const COLORS = [
@@ -54,10 +55,9 @@ export default function Gerant() {
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
   const [congesSemaine, setCongesSemaine] = useState([])
-  const [congesVersion, setCongesVersion] = useState(0)
   const [pointages, setPointages] = useState({})
   const [weekStart, setWeekStart] = useState(getMonday(new Date()))
-  const [planningMode, setPlanningMode] = useState('semaine') // semaine | mois
+  const [planningMode, setPlanningMode] = useState('semaine')
   const [shiftModal, setShiftModal] = useState(null)
   const [empModal, setEmpModal] = useState(false)
   const [correctModal, setCorrectModal] = useState(null)
@@ -120,14 +120,7 @@ export default function Gerant() {
 
   useEffect(()=>{loadRestaurants()},[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
-  useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto,congesVersion])
-  useEffect(()=>{
-    if(!currentResto) return
-    const ch=supabase.channel('conges-planning')
-      .on('postgres_changes',{event:'*',schema:'public',table:'conges',filter:`restaurant_id=eq.${currentResto.id}`},()=>setCongesVersion(v=>v+1))
-      .subscribe()
-    return()=>supabase.removeChannel(ch)
-  },[currentResto?.id])
+  useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto])
   useEffect(()=>{
     if(!currentResto) return
     loadNotifsNonLues()
@@ -555,18 +548,17 @@ export default function Gerant() {
             <span style={{fontSize:12,fontWeight:400,color:'var(--text3)',marginLeft:8}}>{currentResto.nom}</span>
           </span>
           {view==='planning'&&<>
-            {/* Toggle Semaine/Mois */}
             <div style={{display:'flex',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,padding:2,gap:2}}>
               {['semaine','mois'].map(m=>(
-                <button key={m} onClick={()=>setPlanningMode(m)} style={{padding:'5px 12px',borderRadius:6,border:'none',background:planningMode===m?'var(--surface)':'transparent',color:planningMode===m?'var(--text)':'var(--text2)',fontSize:12,fontWeight:planningMode===m?700:500,cursor:'pointer',boxShadow:planningMode===m?'0 1px 3px rgba(0,0,0,.06)':'none'}}>
+                <button key={m} onClick={()=>setPlanningMode(m)} style={{padding:'5px 12px',borderRadius:6,border:'none',background:planningMode===m?'var(--surface)':'transparent',color:planningMode===m?'var(--text)':'var(--text2)',fontSize:12,fontWeight:planningMode===m?700:500,cursor:'pointer'}}>
                   {m==='semaine'?'Semaine':'Mois'}
                 </button>
               ))}
             </div>
             <div style={{display:'flex',alignItems:'center',gap:6,background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,padding:3}}>
-              <button onClick={()=>planningMode==='semaine'?setWeekStart(addDays(weekStart,-7)):setWeekStart(addDays(weekStart,-28))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>‹</button>
-              <span style={{fontSize:13,fontWeight:600,padding:'0 8px'}}>{planningMode==='semaine'?weekLabel:new Date(weekStart).toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</span>
-              <button onClick={()=>planningMode==='semaine'?setWeekStart(addDays(weekStart,7)):setWeekStart(addDays(weekStart,28))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>›</button>
+              <button onClick={()=>setWeekStart(addDays(weekStart,-7))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>‹</button>
+              <span style={{fontSize:13,fontWeight:600,padding:'0 8px'}}>{weekLabel}</span>
+              <button onClick={()=>setWeekStart(addDays(weekStart,7))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>›</button>
             </div>
             <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
           </>}
@@ -580,56 +572,8 @@ export default function Gerant() {
         {/* VUE PLANNING */}
         {view==='planning'&&(
           <div style={{flex:1,overflowY:'auto',overflowX:'hidden',padding:isMobile?10:20,WebkitOverflowScrolling:'touch'}}>
-          {planningMode==='mois'&&(()=>{
-            // Vue mois
-            const monthStart = new Date(weekStart.getFullYear(), weekStart.getMonth(), 1)
-            const monthEnd = new Date(weekStart.getFullYear(), weekStart.getMonth()+1, 0)
-            const firstDay = monthStart.getDay()===0?6:monthStart.getDay()-1
-            const totalDays = monthEnd.getDate()
-            const cells = []
-            for(let i=0;i<firstDay;i++) cells.push(null)
-            for(let i=1;i<=totalDays;i++) cells.push(new Date(weekStart.getFullYear(),weekStart.getMonth(),i))
-            while(cells.length%7!==0) cells.push(null)
-            return (
-              <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden'}}>
-                {/* Header jours */}
-                <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',background:'var(--bg)',borderBottom:'2px solid var(--border)'}}>
-                  {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=>(
-                    <div key={d} style={{padding:'10px 8px',fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>{d}</div>
-                  ))}
-                </div>
-                {/* Grille */}
-                {Array.from({length:cells.length/7},(_,week)=>(
-                  <div key={week} style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',borderBottom:'1px solid var(--border)'}}>
-                    {cells.slice(week*7,(week+1)*7).map((day,di)=>{
-                      const isToday = day && fmtDate(day)===today
-                      const isPast = day && day < new Date(today)
-                      const dayShifts = day ? shifts.filter(s=>s.date===fmtDate(day)) : []
-                      const dayConges = day ? congesSemaine.filter(c=>c.date_debut<=fmtDate(day)&&c.date_fin>=fmtDate(day)) : []
-                      const empSet = new Set([...dayShifts.map(s=>s.employe_id)])
-                      return (
-                        <div key={di} style={{minHeight:90,padding:6,borderRight:'1px solid var(--border)',background:isToday?'rgba(0,113,227,.04)':!day?'var(--bg)':isPast?'rgba(0,0,0,.01)':'transparent',position:'relative'}}>
-                          {day&&<div style={{fontSize:12,fontWeight:isToday?800:500,color:isToday?'var(--accent)':'var(--text)',marginBottom:4,width:22,height:22,borderRadius:'50%',background:isToday?'var(--accent)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',color:isToday?'white':'var(--text)'}}>{day.getDate()}</div>}
-                          {dayConges.map((c,ci)=>{
-                            const emp=employes.find(e=>e.id===c.employe_id)
-                            return emp?<div key={ci} style={{fontSize:9,fontWeight:600,padding:'2px 5px',borderRadius:4,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} — Congé</div>:null
-                          })}
-                          {dayShifts.slice(0,3).map((s,si)=>{
-                            const emp=employes.find(e=>e.id===s.employe_id)
-                            const sc2=shiftColors[s.poste]
-                            return emp?<div key={si} style={{fontSize:9,fontWeight:600,padding:'2px 5px',borderRadius:4,background:sc2.bg,color:sc2.color,border:`1px solid ${sc2.border}`,marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {s.heure_debut.slice(0,5)}</div>:null
-                          })}
-                          {dayShifts.length>3&&<div style={{fontSize:9,color:'var(--text3)',fontWeight:600}}>+{dayShifts.length-3}</div>}
-                        </div>
-                      )
-                    })}
-                  </div>
-                ))}
-              </div>
-            )
-          })()}
-          {planningMode==='semaine'&&(<>
-          {isMobile ? (
+          {planningMode==='mois'&&<PlanningMois employes={employes} shifts={shifts} congesSemaine={congesSemaine} shiftColors={shiftColors} today={today} onCellClick={(day)=>{setPlanningMode('semaine');setWeekStart(getMonday(day))}}/>}
+          {planningMode==='semaine'&&isMobile&&(
             /* VUE MOBILE PLANNING - jour par jour */
             <div>
               <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12,background:'var(--surface)',borderRadius:12,padding:'10px 14px',border:'1px solid var(--border)'}}>
@@ -675,7 +619,8 @@ export default function Gerant() {
                 })}
               </div>
             </div>
-          ) : (
+          )}
+          {planningMode==='semaine'&&!isMobile&&(
             /* VUE DESKTOP PLANNING - grille semaine */
             <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden'}}>
               <div style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
@@ -716,12 +661,10 @@ export default function Gerant() {
               })}
             </div>
           )}
-          }
+          )}
           </div>
         )}
 
-          </>
-          )}
         {/* VUE PRESENCES */}
         {view==='presences'&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
