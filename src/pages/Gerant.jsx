@@ -628,7 +628,7 @@ export default function Gerant() {
               </div>
             )
           })()}
-          {planningMode==='semaine'&&(
+          {planningMode==='semaine'&&(<>
           {isMobile ? (
             /* VUE MOBILE PLANNING - jour par jour */
             <div>
@@ -720,6 +720,8 @@ export default function Gerant() {
           </div>
         )}
 
+          </>
+          )}
         {/* VUE PRESENCES */}
         {view==='presences'&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
