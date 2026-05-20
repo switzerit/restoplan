@@ -661,7 +661,6 @@ export default function Gerant() {
               })}
             </div>
           )}
-          )}
           </div>
         )}
 
