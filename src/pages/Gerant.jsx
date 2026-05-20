@@ -231,29 +231,45 @@ export default function Gerant() {
     }).then(r=>r.error&&console.error('Notif err:',r.error))
   }
   async function executerCopie(){
-    const srcStart=getMonday(new Date((copierForm.sourceWeek||fmtDate(weekStart))+'T00:00:00'))
-    const dstStart=getMonday(new Date((copierForm.destWeek||fmtDate(weekStart))+'T00:00:00'))
-    const from=fmtDate(srcStart), to=fmtDate(addDays(srcStart,6))
-    let q=supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
-    if(copierForm.employe) q=q.eq('employe_id',copierForm.employe)
-    const {data:srcShifts}=await q
-    if(!srcShifts?.length){showToast('Aucun shift sur cette semaine source');return}
-    const diffDays=Math.round((dstStart-srcStart)/(1000*60*60*24))
-    let count=0
+    // Calculer les lundis source et destination
+    const srcMonday = getMonday(new Date((copierForm.sourceWeek||fmtDate(addDays(weekStart,-7)))+'T12:00:00'))
+    const dstMonday = getMonday(new Date((copierForm.destWeek||fmtDate(weekStart))+'T12:00:00'))
+    const from = fmtDate(srcMonday)
+    const to = fmtDate(addDays(srcMonday,6))
+    if(from===fmtDate(dstMonday)){showToast('Source et destination identiques');return}
+    // Récupérer les shifts source
+    let q = supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    if(copierForm.employe) q = q.eq('employe_id',copierForm.employe)
+    const {data:srcShifts} = await q
+    if(!srcShifts?.length){showToast('Aucun shift sur cette semaine');return}
+    // Calcul du décalage en jours (sans timezone)
+    const srcMs = srcMonday.getTime()
+    const dstMs = dstMonday.getTime()
+    const diffDays = Math.round((dstMs - srcMs) / 86400000)
+    // Insérer les shifts
+    let count=0, skip=0
     for(const s of srcShifts){
-      const newDate=fmtDate(addDays(new Date(s.date+'T00:00:00'),diffDays))
-      const {data:existing}=await supabase.from('shifts').select('id').eq('employe_id',s.employe_id).eq('date',newDate).maybeSingle()
-      if(!existing){
-        await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id})
-        count++
-      }
+      // Calculer la nouvelle date sans timezone
+      const [y,m,d] = s.date.split('-').map(Number)
+      const srcDate = new Date(y, m-1, d)
+      srcDate.setDate(srcDate.getDate() + diffDays)
+      const newDate = fmtDate(srcDate)
+      const {data:existing} = await supabase.from('shifts').select('id').eq('employe_id',s.employe_id).eq('date',newDate).maybeSingle()
+      if(existing){ skip++; continue }
+      await supabase.from('shifts').insert({
+        employe_id:s.employe_id, date:newDate, poste:s.poste,
+        heure_debut:s.heure_debut, heure_fin:s.heure_fin,
+        heure_debut_2:s.heure_debut_2||null, heure_fin_2:s.heure_fin_2||null,
+        restaurant_id:currentResto.id
+      })
+      count++
     }
     setCopierModal(false)
-    if(diffDays===0){showToast('Source et destination identiques');return}
-    setWeekStart(dstStart)
+    setWeekStart(dstMonday)
     loadShifts()
-    const who=copierForm.employe?employes.find(e=>e.id===copierForm.employe)?.prenom:'tous'
-    showToast(count>0?`✅ ${count} shift${count>1?'s':''} dupliqués pour ${who}`:'Shifts déjà présents')
+    const who = copierForm.employe ? employes.find(e=>e.id===copierForm.employe)?.prenom : 'tous les employés'
+    if(count>0) showToast('✅ '+count+' shift'+(count>1?'s':'')+' dupliqués pour '+who)
+    else showToast(skip>0?'Shifts déjà présents cette semaine':'Aucun shift copié')
   }
 
   async function deleteShift(){
