@@ -240,33 +240,36 @@ export default function Gerant() {
   }
   async function executerCopie(){
     // Calculer les lundis en évitant le bug timezone
-    const parseLocalDate = str => { const [y,m,d]=str.split('-').map(Number); return new Date(y,m-1,d) }
-    const srcMonday = getMonday(parseLocalDate(copierForm.sourceWeek||fmtDateLocal(addDays(weekStart,-7))))
-    const dstMonday = getMonday(parseLocalDate(copierForm.destWeek||fmtDateLocal(weekStart)))
+    const parseL2 = str=>{ const [y,m,d]=str.split('-').map(Number); return new Date(y,m-1,d) }
+    const srcMonday = getMonday(parseL2(copierForm.sourceWeek||fmtDateLocal(weekStart)))
+    const destList = copierForm.destWeeks||[]
+    if(!destList.length){showToast('Choisissez au moins une semaine de destination');return}
     const from = fmtDateLocal(srcMonday)
     const to = fmtDateLocal(addDays(srcMonday,6))
-    if(from===fmtDateLocal(dstMonday)){showToast('Source et destination identiques');return}
     let q = supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
     if(copierForm.employe) q = q.eq('employe_id',copierForm.employe)
     const {data:srcShifts} = await q
     if(!srcShifts?.length){showToast('Aucun shift sur cette semaine source');return}
-    const diffDays = Math.round((dstMonday.getTime()-srcMonday.getTime())/86400000)
     let count=0, skip=0
-    for(const s of srcShifts){
-      const [sy,sm,sd]=s.date.split('-').map(Number)
-      const newD = new Date(sy,sm-1,sd)
-      newD.setDate(newD.getDate()+diffDays)
-      const newDate = fmtDateLocal(newD)
-      const {data:existing}=await supabase.from('shifts').select('id').eq('employe_id',s.employe_id).eq('date',newDate).maybeSingle()
-      if(existing){skip++;continue}
-      await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id})
-      count++
+    for(const destWeekStr of destList){
+      const dstMonday = getMonday(parseL2(destWeekStr))
+      if(fmtDateLocal(dstMonday)===from){skip++;continue}
+      const diffDays = Math.round((dstMonday.getTime()-srcMonday.getTime())/86400000)
+      for(const s of srcShifts){
+        const [sy,sm,sd]=s.date.split('-').map(Number)
+        const newD=new Date(sy,sm-1,sd); newD.setDate(newD.getDate()+diffDays)
+        const newDate=fmtDateLocal(newD)
+        const {data:existing}=await supabase.from('shifts').select('id').eq('employe_id',s.employe_id).eq('date',newDate).maybeSingle()
+        if(existing){skip++;continue}
+        await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id})
+        count++
+      }
     }
     setCopierModal(false)
-    setWeekStart(dstMonday)
+    if(destList.length===1){ const dm=getMonday(parseL2(destList[0])); setWeekStart(dm) }
     loadShifts()
     const who=copierForm.employe?employes.find(e=>e.id===copierForm.employe)?.prenom:'tous'
-    showToast(count>0?'✅ '+count+' shift'+(count>1?'s':'')+' dupliqués pour '+who:skip>0?'Shifts déjà présents':'Aucun shift source')
+    showToast(count>0?'✅ '+count+' shifts dupliqués sur '+destList.length+' sem. pour '+who:skip>0?'Shifts déjà présents':'Aucun shift source')
   }
 
   async function deleteShift(){
@@ -615,7 +618,7 @@ export default function Gerant() {
               {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
             </select>
             {/* Copier semaine */}
-            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDateLocal(weekStart),destWeek:fmtDateLocal(addDays(weekStart,7)),employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
+            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDateLocal(weekStart),destWeeks:[],employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
             <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
           </>}
           {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
@@ -1298,7 +1301,7 @@ export default function Gerant() {
 
             {(step===2||step===3)&&(()=>{
               const isSource = step===2
-              const currentWeekStr = isSource ? (copierForm.sourceWeek||fmtDateLocal(weekStart)) : (copierForm.destWeek||fmtDateLocal(addDays(weekStart,7)))
+              const currentWeekStr = isSource ? (copierForm.sourceWeek||fmtDateLocal(weekStart)) : fmtDateLocal(weekStart)
               const parseL = s=>{ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d) }
               const selMonday = getMonday(parseL(currentWeekStr))
               const selLabel = fmtLabel(selMonday)+' – '+fmtLabel(addDays(selMonday,6))
@@ -1329,13 +1332,20 @@ export default function Gerant() {
                       {weeks.map((wMon,wi)=>{
                         const wLabel=fmtLabel(wMon)+' – '+fmtLabel(addDays(wMon,6))
                         const isSelected=fmtDateLocal(wMon)===fmtDateLocal(selMonday)
+                        const isSelDest = !isSource && (copierForm.destWeeks||[]).includes(fmtDateLocal(wMon))
                         return <button key={wi} onClick={()=>{
-                          if(isSource) setCopierForm(f=>({...f,sourceWeek:fmtDateLocal(wMon)}))
-                          else setCopierForm(f=>({...f,destWeek:fmtDateLocal(wMon)}))
-                          setCalPicker(null)
-                        }} style={{padding:'8px 12px',borderRadius:8,border:'none',background:isSelected?'var(--accent)':'var(--bg)',color:isSelected?'white':'var(--text)',fontSize:12,fontWeight:isSelected?700:500,cursor:'pointer',textAlign:'left',transition:'background .1s'}}
-                        onMouseEnter={e=>{if(!isSelected)e.currentTarget.style.background='var(--border)'}}
-                        onMouseLeave={e=>{if(!isSelected)e.currentTarget.style.background='var(--bg)'}}>
+                          if(isSource){setCopierForm(f=>({...f,sourceWeek:fmtDateLocal(wMon)}));setCalPicker(null)}
+                          else {
+                            setCopierForm(f=>{
+                              const dws=f.destWeeks||[]
+                              const k=fmtDateLocal(wMon)
+                              return {...f,destWeeks:dws.includes(k)?dws.filter(x=>x!==k):[...dws,k]}
+                            })
+                          }
+                        }} style={{padding:'8px 12px',borderRadius:8,border:'none',background:(isSelected&&isSource)||isSelDest?'var(--accent)':'var(--bg)',color:(isSelected&&isSource)||isSelDest?'white':'var(--text)',fontSize:12,fontWeight:(isSelected&&isSource)||isSelDest?700:500,cursor:'pointer',textAlign:'left',transition:'background .1s',display:'flex',alignItems:'center',gap:8}}
+                        onMouseEnter={e=>{if(!(isSelected&&isSource)&&!isSelDest)e.currentTarget.style.background='var(--border)'}}
+                        onMouseLeave={e=>{if(!(isSelected&&isSource)&&!isSelDest)e.currentTarget.style.background='var(--bg)'}}>
+                          {!isSource&&<div style={{width:16,height:16,borderRadius:4,border:'2px solid '+(isSelDest?'white':'var(--border2)'),background:isSelDest?'white':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{isSelDest&&<span style={{color:'var(--accent)',fontSize:10,fontWeight:900}}>✓</span>}</div>}
                           {wLabel}
                         </button>
                       })}
@@ -1355,8 +1365,10 @@ export default function Gerant() {
                   onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
                   <span style={{fontSize:20}}>📅</span>
                   <div style={{flex:1}}>
-                    <div style={{fontSize:14,fontWeight:700,color:isSource?'var(--text)':'var(--accent)'}}>{selLabel}</div>
-                    <div style={{fontSize:11,color:'var(--text3)',marginTop:1}}>Cliquez pour choisir dans le calendrier</div>
+                    <div style={{fontSize:14,fontWeight:700,color:isSource?'var(--text)':'var(--accent)'}}>
+                      {isSource?selLabel:(copierForm.destWeeks?.length>0?copierForm.destWeeks.length+' semaine'+(copierForm.destWeeks.length>1?'s':'')+" sélectionnée"+(copierForm.destWeeks.length>1?'s':''):'Aucune semaine choisie')}
+                    </div>
+                    <div style={{fontSize:11,color:'var(--text3)',marginTop:1}}>{isSource?'Cliquez pour choisir':'Cochez les semaines à remplir'}</div>
                   </div>
                   <span style={{fontSize:12,color:'var(--text3)'}}>▼</span>
                 </div>
