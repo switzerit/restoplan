@@ -603,7 +603,7 @@ export default function Gerant() {
               {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
             </select>
             {/* Copier semaine */}
-            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDate(addDays(weekStart,-7)),employe:filtreEmploye||''});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>📋 Copier planning</button>}
+            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDate(addDays(weekStart,-7)),employe:filtreEmploye||''});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
             <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
           </>}
           {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
@@ -1244,34 +1244,58 @@ export default function Gerant() {
           </div>
         </div>
       )}
-      {/* MODAL COPIER PLANNING */}
-      {copierModal&&(
+      {/* MODAL DUPLIQUER PLANNING */}
+      {copierModal&&(()=>{
+        const srcStart = getMonday(new Date(copierForm.sourceWeek+'T00:00:00'))
+        const srcLabel = `${fmtLabel(srcStart)} – ${fmtLabel(addDays(srcStart,6))}`
+        const dstLabel = `${fmtLabel(weekStart)} – ${fmtLabel(addDays(weekStart,6))}`
+        return (
         <div onClick={()=>setCopierModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.3)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:400,boxShadow:'0 8px 40px rgba(0,0,0,.15)'}}>
-            <div style={{fontSize:16,fontWeight:800,marginBottom:4}}>📋 Copier un planning</div>
-            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Vers la semaine du {fmtLabel(weekStart)} au {fmtLabel(addDays(weekStart,6))}</div>
-            <div style={{marginBottom:14}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Semaine source (copier depuis)</label>
-              <input type='date' value={copierForm.sourceWeek} onChange={e=>setCopierForm(f=>({...f,sourceWeek:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
-              <div style={{fontSize:11,color:'var(--text3)',marginTop:4}}>Choisissez n'importe quel jour de la semaine à copier</div>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:420,boxShadow:'0 8px 40px rgba(0,0,0,.15)'}}>
+            <div style={{fontSize:16,fontWeight:800,marginBottom:4}}>Dupliquer une semaine</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:22}}>Reproduire les shifts d'une semaine vers une autre</div>
+
+            {/* Semaine source avec navigation */}
+            <div style={{marginBottom:16}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:8}}>SEMAINE À COPIER</label>
+              <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--bg)',border:'1.5px solid var(--border2)',borderRadius:10,padding:'8px 12px'}}>
+                <button onClick={()=>setCopierForm(f=>({...f,sourceWeek:fmtDate(addDays(new Date(f.sourceWeek+'T00:00:00'),-7))}))} style={{width:28,height:28,borderRadius:7,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:14,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>‹</button>
+                <div style={{flex:1,textAlign:'center'}}>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--text)'}}>{srcLabel}</div>
+                </div>
+                <button onClick={()=>setCopierForm(f=>({...f,sourceWeek:fmtDate(addDays(new Date(f.sourceWeek+'T00:00:00'),7))}))} style={{width:28,height:28,borderRadius:7,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:14,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>›</button>
+              </div>
             </div>
+
+            {/* Flèche */}
+            <div style={{textAlign:'center',fontSize:18,color:'var(--accent)',marginBottom:16}}>↓</div>
+
+            {/* Semaine destination */}
+            <div style={{marginBottom:16}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:8}}>SEMAINE DE DESTINATION</label>
+              <div style={{background:'var(--accent-bg)',border:'1.5px solid var(--accent)',borderRadius:10,padding:'10px 14px',textAlign:'center'}}>
+                <div style={{fontSize:13,fontWeight:700,color:'var(--accent)'}}>{dstLabel}</div>
+                <div style={{fontSize:11,color:'var(--accent)',opacity:.7,marginTop:2}}>Semaine actuellement affichée</div>
+              </div>
+            </div>
+
+            {/* Employé */}
             <div style={{marginBottom:20}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Pour quel employé</label>
-              <select value={copierForm.employe} onChange={e=>setCopierForm(f=>({...f,employe:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
-                <option value=''>Tous les employés</option>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:8}}>POUR QUI</label>
+              <select value={copierForm.employe} onChange={e=>setCopierForm(f=>({...f,employe:e.target.value}))} style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                <option value=''>Toute l'équipe</option>
                 {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
               </select>
             </div>
-            <div style={{padding:'10px 14px',background:'var(--accent-bg)',borderRadius:10,marginBottom:16,fontSize:12,color:'var(--accent)'}}>
-              💡 Les shifts existants sur la semaine cible ne seront pas écrasés
-            </div>
+
             <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>setCopierModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Annuler</button>
-              <button onClick={executerCopie} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Copier →</button>
+              <button onClick={()=>setCopierModal(false)} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Annuler</button>
+              <button onClick={executerCopie} style={{flex:2,height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Dupliquer cette semaine →</button>
             </div>
           </div>
         </div>
-      )}
+        )
+      })()}
       {toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
     </div>
   )
