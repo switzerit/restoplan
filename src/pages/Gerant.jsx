@@ -68,6 +68,8 @@ export default function Gerant() {
   const [filtreEmploye, setFiltreEmploye] = useState('')
   const [copierModal, setCopierModal] = useState(false)
   const [copierForm, setCopierForm] = useState({sourceWeek:'', employe:''})
+  const [calPicker, setCalPicker] = useState(null) // 'source' | 'dest' | null
+  const [calMonth, setCalMonth] = useState(new Date())
   const [shiftModal, setShiftModal] = useState(null)
   const [empModal, setEmpModal] = useState(false)
   const [correctModal, setCorrectModal] = useState(null)
@@ -1294,42 +1296,83 @@ export default function Gerant() {
               <button onClick={()=>setCopierForm(f=>({...f,step:2}))} style={{width:'100%',height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Suivant →</button>
             </>}
 
-            {step===2&&<>
-              <div style={{fontSize:15,fontWeight:800,marginBottom:6}}>Semaine à copier</div>
-              <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour : <strong>{empNom}</strong></div>
-              <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--bg)',border:'1.5px solid var(--border2)',borderRadius:12,padding:'14px 16px',marginBottom:24}}>
-                <button onClick={()=>setCopierForm(f=>({...f,sourceWeek:fmtDate(addDays(new Date((f.sourceWeek||fmtDate(addDays(weekStart,-7)))+'T00:00:00'),-7))}))} style={{width:36,height:36,borderRadius:9,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:18,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>
-                <div style={{flex:1,textAlign:'center'}}>
-                  <div style={{fontSize:14,fontWeight:700}}>{srcLabel}</div>
-                  <div style={{fontSize:11,color:'var(--text3)',marginTop:2}}>Naviguez pour choisir</div>
-                </div>
-                <button onClick={()=>setCopierForm(f=>({...f,sourceWeek:fmtDate(addDays(new Date((f.sourceWeek||fmtDate(addDays(weekStart,-7)))+'T00:00:00'),7))}))} style={{width:36,height:36,borderRadius:9,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:18,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>
-              </div>
-              <div style={{display:'flex',gap:8}}>
-                <button onClick={()=>setCopierForm(f=>({...f,step:1}))} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>← Retour</button>
-                <button onClick={()=>setCopierForm(f=>({...f,step:3}))} style={{flex:2,height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Suivant →</button>
-              </div>
-            </>}
+            {(step===2||step===3)&&(()=>{
+              const isSource = step===2
+              const currentWeekStr = isSource ? (copierForm.sourceWeek||fmtDateLocal(weekStart)) : (copierForm.destWeek||fmtDateLocal(addDays(weekStart,7)))
+              const parseL = s=>{ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d) }
+              const selMonday = getMonday(parseL(currentWeekStr))
+              const selLabel = fmtLabel(selMonday)+' – '+fmtLabel(addDays(selMonday,6))
 
-            {step===3&&<>
-              <div style={{fontSize:15,fontWeight:800,marginBottom:6}}>Semaine de destination</div>
-              <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Copie de <strong>{srcLabel}</strong></div>
-              <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--bg)',border:'1.5px solid var(--accent)',borderRadius:12,padding:'14px 16px',marginBottom:12}}>
-                <button onClick={()=>setCopierForm(f=>({...f,destWeek:fmtDate(addDays(new Date((f.destWeek||fmtDate(weekStart))+'T00:00:00'),-7))}))} style={{width:36,height:36,borderRadius:9,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:18,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>
-                <div style={{flex:1,textAlign:'center'}}>
-                  <div style={{fontSize:14,fontWeight:700,color:'var(--accent)'}}>{dstLabel}</div>
-                  <div style={{fontSize:11,color:'var(--text3)',marginTop:2}}>Naviguez pour choisir</div>
+              // Calendrier mensuel picker
+              const CalPicker = ()=>{
+                const cy=calMonth.getFullYear(), cm=calMonth.getMonth()
+                const mStart=new Date(cy,cm,1), mEnd=new Date(cy,cm+1,0)
+                const firstDow=mStart.getDay()===0?6:mStart.getDay()-1
+                const cells=[]
+                for(let i=0;i<firstDow;i++)cells.push(null)
+                for(let i=1;i<=mEnd.getDate();i++)cells.push(new Date(cy,cm,i))
+                while(cells.length%7!==0)cells.push(null)
+                // Grouper par semaine
+                const weeks=[]
+                for(let i=0;i<cells.length;i+=7){
+                  const wDays=cells.slice(i,i+7).filter(Boolean)
+                  if(wDays.length>0) weeks.push(getMonday(wDays[0]))
+                }
+                return (
+                  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:12,padding:14,marginBottom:12}}>
+                    <div style={{display:'flex',alignItems:'center',marginBottom:10}}>
+                      <button onClick={()=>setCalMonth(new Date(cy,cm-1,1))} style={{width:28,height:28,borderRadius:7,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:14}}>‹</button>
+                      <div style={{flex:1,textAlign:'center',fontSize:13,fontWeight:700,textTransform:'capitalize'}}>{calMonth.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</div>
+                      <button onClick={()=>setCalMonth(new Date(cy,cm+1,1))} style={{width:28,height:28,borderRadius:7,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:14}}>›</button>
+                    </div>
+                    <div style={{display:'flex',flexDirection:'column',gap:3}}>
+                      {weeks.map((wMon,wi)=>{
+                        const wLabel=fmtLabel(wMon)+' – '+fmtLabel(addDays(wMon,6))
+                        const isSelected=fmtDateLocal(wMon)===fmtDateLocal(selMonday)
+                        return <button key={wi} onClick={()=>{
+                          if(isSource) setCopierForm(f=>({...f,sourceWeek:fmtDateLocal(wMon)}))
+                          else setCopierForm(f=>({...f,destWeek:fmtDateLocal(wMon)}))
+                          setCalPicker(null)
+                        }} style={{padding:'8px 12px',borderRadius:8,border:'none',background:isSelected?'var(--accent)':'var(--bg)',color:isSelected?'white':'var(--text)',fontSize:12,fontWeight:isSelected?700:500,cursor:'pointer',textAlign:'left',transition:'background .1s'}}
+                        onMouseEnter={e=>{if(!isSelected)e.currentTarget.style.background='var(--border)'}}
+                        onMouseLeave={e=>{if(!isSelected)e.currentTarget.style.background='var(--bg)'}}>
+                          {wLabel}
+                        </button>
+                      })}
+                    </div>
+                  </div>
+                )
+              }
+
+              return <>
+                <div style={{fontSize:15,fontWeight:800,marginBottom:6}}>{isSource?'Semaine à copier':'Semaine de destination'}</div>
+                <div style={{fontSize:13,color:'var(--text2)',marginBottom:16}}>{isSource?`Pour : `:'Copie de '}<strong>{isSource?empNom:srcLabel}</strong></div>
+
+                {/* Sélecteur semaine — cliquable pour ouvrir calendrier */}
+                <div onClick={()=>{setCalPicker(isSource?'source':'dest');setCalMonth(selMonday)}}
+                  style={{display:'flex',alignItems:'center',gap:8,background:isSource?'var(--bg)':'var(--accent-bg)',border:`1.5px solid ${isSource?'var(--border2)':'var(--accent)'}`,borderRadius:12,padding:'14px 16px',marginBottom:8,cursor:'pointer',transition:'all .15s'}}
+                  onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
+                  onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+                  <span style={{fontSize:20}}>📅</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:14,fontWeight:700,color:isSource?'var(--text)':'var(--accent)'}}>{selLabel}</div>
+                    <div style={{fontSize:11,color:'var(--text3)',marginTop:1}}>Cliquez pour choisir dans le calendrier</div>
+                  </div>
+                  <span style={{fontSize:12,color:'var(--text3)'}}>▼</span>
                 </div>
-                <button onClick={()=>setCopierForm(f=>({...f,destWeek:fmtDate(addDays(new Date((f.destWeek||fmtDate(weekStart))+'T00:00:00'),7))}))} style={{width:36,height:36,borderRadius:9,border:'1px solid var(--border)',background:'var(--surface)',cursor:'pointer',fontSize:18,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>
-              </div>
-              <div style={{padding:'10px 14px',background:'var(--bg)',borderRadius:10,fontSize:12,color:'var(--text2)',marginBottom:20}}>
-                {empNom} &nbsp;·&nbsp; {srcLabel} → {dstLabel}
-              </div>
-              <div style={{display:'flex',gap:8}}>
-                <button onClick={()=>setCopierForm(f=>({...f,step:2}))} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>← Retour</button>
-                <button onClick={executerCopie} style={{flex:2,height:44,borderRadius:11,border:'none',background:'#16a34a',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>✓ Dupliquer</button>
-              </div>
-            </>}
+
+                {/* Calendrier picker */}
+                {calPicker===(isSource?'source':'dest')&&<CalPicker/>}
+
+                <div style={{display:'flex',gap:8,marginTop:8}}>
+                  <button onClick={()=>{setCopierForm(f=>({...f,step:isSource?1:2}));setCalPicker(null)}} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>← Retour</button>
+                  {isSource
+                    ?<button onClick={()=>{setCopierForm(f=>({...f,step:3}));setCalPicker(null)}} style={{flex:2,height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Suivant →</button>
+                    :<button onClick={executerCopie} style={{flex:2,height:44,borderRadius:11,border:'none',background:'#16a34a',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>✓ Dupliquer</button>
+                  }
+                </div>
+              </>
+            })()}
 
           </div>
         </div>
