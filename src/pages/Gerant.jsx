@@ -260,6 +260,7 @@ export default function Gerant() {
     setPendingEmp(s=>new Set([...s,_empId]))
   }
     const parseL2 = str=>{ const [y,m,d]=str.split('-').map(Number); return new Date(y,m-1,d) }
+  async function executerCopie(){
     const srcMonday = getMonday(parseL2(copierForm.sourceWeek||fmtDateLocal(weekStart)))
     const destList = copierForm.destWeeks||[]
     if(!destList.length){showToast('Choisissez au moins une semaine de destination');return}
