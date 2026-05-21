@@ -277,7 +277,7 @@ export default function Gerant() {
       const dstTo = fmtDateLocal(new Date(dstMonday.getFullYear(),dstMonday.getMonth(),dstMonday.getDate()+6))
       if(dstFrom===from){showToast('Source et destination identiques');continue}
       // Charger tous les shifts existants de la semaine destination
-      const {data:existingShifts}=await supabase.from('shifts').select('employe_id,date').eq('restaurant_id',currentResto.id).gte('date',dstFrom).lte('date',dstTo)
+      const {data:existingShifts}=await supabase.from('shifts').select('employe_id,date').eq('restaurant_id',currentResto.id).eq('supprime_en_attente',false).eq('publie',true).gte('date',dstFrom).lte('date',dstTo)
       const existingSet=new Set((existingShifts||[]).map(e=>e.employe_id+'_'+e.date))
       // Calculer le décalage
       const srcDay=srcMonday.getDate(), dstDay=dstMonday.getDate()
