@@ -62,6 +62,10 @@ export default function Gerant() {
   const [shifts, setShifts] = useState([])
   const [congesSemaine, setCongesSemaine] = useState([])
   const [pointages, setPointages] = useState({})
+  const [congesVersion, setCongesVersion] = useState(0)
+  const [shiftsMonth, setShiftsMonth] = useState([])
+  const [congesMonth, setCongesMonth] = useState([])
+  const [pendingEmp, setPendingEmp] = useState(new Set())
   const [weekStart, setWeekStart] = useState(getMonday(new Date()))
   const [planningMode, setPlanningMode] = useState('semaine')
   const [moisDate, setMoisDate] = useState(new Date())
@@ -101,6 +105,28 @@ export default function Gerant() {
     setNotifsDetail({empId, nom:empNom, notifs:data||[]})
   }
 
+  async function loadMonthData(date){
+    if(!currentResto) return
+    const y=date.getFullYear(), m=date.getMonth()
+    const from=y+'-'+String(m+1).padStart(2,'0')+'-01'
+    const to=y+'-'+String(m+1).padStart(2,'0')+'-'+String(new Date(y,m+1,0).getDate()).padStart(2,'0')
+    const {data:sData}=await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    setShiftsMonth(sData||[])
+    const {data:cData}=await supabase.from('conges').select('*').eq('restaurant_id',currentResto.id).eq('statut','accepte').lte('date_debut',to).gte('date_fin',from)
+    setCongesMonth(cData||[])
+  }
+
+  async function loadMonthData(date){
+    if(!currentResto) return
+    const y=date.getFullYear(), m=date.getMonth()
+    const from=y+'-'+String(m+1).padStart(2,'0')+'-01'
+    const to=y+'-'+String(m+1).padStart(2,'0')+'-'+String(new Date(y,m+1,0).getDate()).padStart(2,'0')
+    const {data:sData}=await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    setShiftsMonth(sData||[])
+    const {data:cData}=await supabase.from('conges').select('*').eq('restaurant_id',currentResto.id).eq('statut','accepte').lte('date_debut',to).gte('date_fin',from)
+    setCongesMonth(cData||[])
+  }
+
   async function loadNotifsNonLues(){
     if(!currentResto) return
     const {data} = await supabase.from('notifications')
@@ -132,7 +158,8 @@ export default function Gerant() {
 
   useEffect(()=>{loadRestaurants()},[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
-  useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto])
+  useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto,congesVersion])
+  useEffect(()=>{if(currentResto&&planningMode==='mois'){loadMonthData(moisDate)}},[moisDate,currentResto,planningMode,congesVersion])
   useEffect(()=>{
     if(!currentResto) return
     loadNotifsNonLues()
@@ -230,16 +257,8 @@ export default function Gerant() {
     const _fin = form.heure_fin
     setShiftModal(null);loadShifts();showToast('Shift enregistré')
     // Notification
-    const _date = fmtDate(addDays(weekStart,_dayIdx))
-    const _label = new Date(_date+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
-    supabase.from('notifications').insert({
-      employe_id:_empId, restaurant_id:currentResto.id, type:'planning',
-      titre:_existing?'📅 Shift modifié':'📅 Nouveau shift',
-      message:(_existing?'Vos horaires ont été mis à jour pour le ':'Vous avez été planifié le ')+_label+' de '+_debut+' à '+_fin
-    }).then(r=>r.error&&console.error('Notif err:',r.error))
+    setPendingEmp(s=>new Set([...s,_empId]))
   }
-  async function executerCopie(){
-    // Calculer les lundis en évitant le bug timezone
     const parseL2 = str=>{ const [y,m,d]=str.split('-').map(Number); return new Date(y,m-1,d) }
     const srcMonday = getMonday(parseL2(copierForm.sourceWeek||fmtDateLocal(weekStart)))
     const destList = copierForm.destWeeks||[]
@@ -278,13 +297,7 @@ export default function Gerant() {
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
     if(existing) await supabase.from('shifts').delete().eq('id',existing.id)
     setShiftModal(null);loadShifts();showToast('Shift supprimé')
-    const _dDate = fmtDate(addDays(weekStart,_dDayIdx))
-    const _dLabel = new Date(_dDate+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
-    supabase.from('notifications').insert({
-      employe_id:_dEmpId, restaurant_id:currentResto.id, type:'planning',
-      titre:'📅 Shift supprimé',
-      message:'Votre planning du '+_dLabel+' a été retiré par votre responsable'
-    }).then(r=>r.error&&console.error('Notif del err:',r.error))
+    setPendingEmp(s=>new Set([...s,_dEmpId]))
   }
   async function addEmploye(){
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
@@ -619,7 +632,16 @@ export default function Gerant() {
             </select>
             {/* Copier semaine */}
             {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDateLocal(weekStart),destWeeks:[],employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
-            <button onClick={()=>showToast('Planning publié — équipe notifiée')} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>Publier</button>
+            <button onClick={async()=>{
+              if(pendingEmp.size===0){showToast('Aucun changement à publier');return}
+              for(const empId of pendingEmp){
+                await supabase.from('notifications').insert({employe_id:empId,restaurant_id:currentResto.id,type:'planning',titre:'📅 Planning mis à jour',message:'Votre responsable a mis à jour votre planning. Consultez vos horaires.'})
+              }
+              setPendingEmp(new Set())
+              showToast('✅ Planning publié — '+pendingEmp.size+' employé'+(pendingEmp.size>1?'s':'')+' notifié'+(pendingEmp.size>1?'s':''))
+            }} style={{height:34,padding:'0 14px',background:pendingEmp.size>0?'var(--accent)':'var(--border)',color:pendingEmp.size>0?'white':'var(--text2)',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',position:'relative'}}>
+              Publier{pendingEmp.size>0&&<span style={{position:'absolute',top:-6,right:-6,minWidth:18,height:18,borderRadius:9,background:'#dc2626',color:'white',fontSize:10,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',border:'2px solid white',padding:'0 3px'}}>{pendingEmp.size}</span>}
+            </button>
           </>}
           {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
           {view==='employes'&&<button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>}
@@ -631,7 +653,7 @@ export default function Gerant() {
         {/* VUE PLANNING */}
         {view==='planning'&&(
           <div style={{flex:1,overflowY:'auto',overflowX:'hidden',padding:isMobile?10:20,WebkitOverflowScrolling:'touch'}}>
-          {planningMode==='mois'&&<PlanningMois employes={employes} shifts={shifts} congesSemaine={congesSemaine} shiftColors={shiftColors} today={today} moisDate={moisDate} setMoisDate={setMoisDate} onCellClick={(day)=>{setPlanningMode('semaine');setWeekStart(getMonday(day))}} filtreEmploye={filtreEmploye}/>}
+          {planningMode==='mois'&&<PlanningMois employes={employes} shifts={shiftsMonth} congesSemaine={congesMonth} shiftColors={shiftColors} today={today} moisDate={moisDate} setMoisDate={setMoisDate} onCellClick={(day)=>{setPlanningMode('semaine');setWeekStart(getMonday(day))}} filtreEmploye={filtreEmploye}/>}
           {planningMode==='semaine'&&isMobile&&(
             /* VUE MOBILE PLANNING - jour par jour */
             <div>
