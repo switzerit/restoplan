@@ -273,14 +273,24 @@ export default function Gerant() {
     let count=0, skip=0
     for(const destWeekStr of destList){
       const dstMonday = getMonday(parseL2(destWeekStr))
-      if(fmtDateLocal(dstMonday)===from){skip++;continue}
-      const diffDays = Math.round((dstMonday.getTime()-srcMonday.getTime())/86400000)
+      const dstFrom = fmtDateLocal(dstMonday)
+      const dstTo = fmtDateLocal(new Date(dstMonday.getFullYear(),dstMonday.getMonth(),dstMonday.getDate()+6))
+      if(dstFrom===from){showToast('Source et destination identiques');continue}
+      // Charger tous les shifts existants de la semaine destination
+      const {data:existingShifts}=await supabase.from('shifts').select('employe_id,date').eq('restaurant_id',currentResto.id).gte('date',dstFrom).lte('date',dstTo)
+      const existingSet=new Set((existingShifts||[]).map(e=>e.employe_id+'_'+e.date))
+      // Calculer le décalage
+      const srcDay=srcMonday.getDate(), dstDay=dstMonday.getDate()
+      const srcMonth=srcMonday.getMonth(), dstMonth=dstMonday.getMonth()
+      const srcYear=srcMonday.getFullYear(), dstYear=dstMonday.getFullYear()
+      const srcMs=new Date(srcYear,srcMonth,srcDay).getTime()
+      const dstMs=new Date(dstYear,dstMonth,dstDay).getTime()
+      const diffDays=Math.round((dstMs-srcMs)/86400000)
       for(const s of srcShifts){
         const [sy,sm,sd]=s.date.split('-').map(Number)
-        const newD=new Date(sy,sm-1,sd); newD.setDate(newD.getDate()+diffDays)
+        const newD=new Date(sy,sm-1,sd+diffDays)
         const newDate=fmtDateLocal(newD)
-        const {data:existing}=await supabase.from('shifts').select('id').eq('employe_id',s.employe_id).eq('date',newDate).maybeSingle()
-        if(existing){skip++;continue}
+        if(existingSet.has(s.employe_id+'_'+newDate)){skip++;continue}
         await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id})
         count++
       }
