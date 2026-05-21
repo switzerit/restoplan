@@ -247,7 +247,7 @@ export default function Gerant() {
     if(existing){
       await supabase.from('shifts').update({poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null}).eq('id',existing.id)
     } else {
-      await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null,restaurant_id:currentResto.id})
+      await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null,restaurant_id:currentResto.id,publie:false})
     }
     // Sauvegarder AVANT setShiftModal(null)
     const _empId = shiftModal.empId
@@ -634,12 +634,18 @@ export default function Gerant() {
             {/* Copier semaine */}
             {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDateLocal(weekStart),destWeeks:[],employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
             <button onClick={async()=>{
-              if(pendingEmp.size===0){showToast('Aucun changement à publier');return}
-              for(const empId of pendingEmp){
-                await supabase.from('notifications').insert({employe_id:empId,restaurant_id:currentResto.id,type:'planning',titre:'📅 Planning mis à jour',message:'Votre responsable a mis à jour votre planning. Consultez vos horaires.'})
+              // Publier tous les shifts en brouillon
+              const {data:brouillons}=await supabase.from('shifts').select('id,employe_id').eq('restaurant_id',currentResto.id).eq('publie',false)
+              if(!brouillons?.length&&pendingEmp.size===0){showToast('Aucun changement à publier');return}
+              if(brouillons?.length) await supabase.from('shifts').update({publie:true}).eq('restaurant_id',currentResto.id).eq('publie',false)
+              // Notifier les employés concernés
+              const empANotifier=new Set([...pendingEmp,...(brouillons||[]).map(s=>s.employe_id)])
+              for(const empId of empANotifier){
+                await supabase.from('notifications').insert({employe_id:empId,restaurant_id:currentResto.id,type:'planning',titre:'📅 Planning mis à jour',message:'Votre responsable a publié votre planning. Consultez vos nouveaux horaires.'})
               }
               setPendingEmp(new Set())
-              showToast('✅ Planning publié — '+pendingEmp.size+' employé'+(pendingEmp.size>1?'s':'')+' notifié'+(pendingEmp.size>1?'s':''))
+              loadShifts()
+              showToast('✅ Planning publié — '+empANotifier.size+' employé'+(empANotifier.size>1?'s':'')+' notifié'+(empANotifier.size>1?'s':''))
             }} style={{height:34,padding:'0 14px',background:pendingEmp.size>0?'var(--accent)':'var(--border)',color:pendingEmp.size>0?'white':'var(--text2)',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',position:'relative'}}>
               Publier{pendingEmp.size>0&&<span style={{position:'absolute',top:-6,right:-6,minWidth:18,height:18,borderRadius:9,background:'#dc2626',color:'white',fontSize:10,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',border:'2px solid white',padding:'0 3px'}}>{pendingEmp.size}</span>}
             </button>
@@ -731,7 +737,7 @@ export default function Gerant() {
                         onMouseLeave={e=>e.currentTarget.style.background=isToday?'rgba(0,113,227,.02)':'transparent'}>
                           {(()=>{
                             const conge=getConge(emp.id,di)
-                            if(sh) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sc.bg,color:sc.color,border:`1.5px solid ${sc.border}`}}><div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&sh.heure_fin_2&&<div style={{fontWeight:400,opacity:.65,fontSize:9,borderTop:`1px solid ${sc.border}`,marginTop:2,paddingTop:2}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
+                            if(sh) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sc.bg,color:sc.color,border:`1.5px solid ${sh.publie===false?'#f59e0b':sc.border}`,opacity:sh.publie===false?.75:1,position:'relative'}}>{sh.publie===false&&<div style={{position:'absolute',top:-4,right:-4,fontSize:8,fontWeight:800,background:'#f59e0b',color:'white',borderRadius:4,padding:'1px 4px',border:'1px solid white'}}>Brouillon</div>}<div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&sh.heure_fin_2&&<div style={{fontWeight:400,opacity:.65,fontSize:9,borderTop:`1px solid ${sc.border}`,marginTop:2,paddingTop:2}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
                             if(conge){
                               const hasShiftToo = !!sh
                               return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:'#fef2f2',color:'#dc2626',border:`1.5px solid ${hasShiftToo?'#dc2626':'#fecaca'}`,cursor:'default',position:'relative'}} onClick={e=>e.stopPropagation()}>
