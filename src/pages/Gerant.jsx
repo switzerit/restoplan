@@ -294,10 +294,9 @@ export default function Gerant() {
 
   async function deleteShift(){
     const _dEmpId = shiftModal.empId
-    const _dDayIdx = shiftModal.dayIdx
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
-    if(existing) await supabase.from('shifts').delete().eq('id',existing.id)
-    setShiftModal(null);loadShifts();showToast('Shift supprimé')
+    if(existing) await supabase.from('shifts').update({supprime_en_attente:true}).eq('id',existing.id)
+    setShiftModal(null);loadShifts();showToast('Shift retiré — publier pour appliquer')
     setPendingEmp(s=>new Set([...s,_dEmpId]))
   }
   async function addEmploye(){
@@ -638,6 +637,8 @@ export default function Gerant() {
               const {data:brouillons}=await supabase.from('shifts').select('id,employe_id').eq('restaurant_id',currentResto.id).eq('publie',false)
               if(!brouillons?.length&&pendingEmp.size===0){showToast('Aucun changement à publier');return}
               if(brouillons?.length) await supabase.from('shifts').update({publie:true}).eq('restaurant_id',currentResto.id).eq('publie',false)
+              // Vraiment supprimer les shifts en attente de suppression
+              await supabase.from('shifts').delete().eq('restaurant_id',currentResto.id).eq('supprime_en_attente',true)
               // Notifier les employés concernés
               const empANotifier=new Set([...pendingEmp,...(brouillons||[]).map(s=>s.employe_id)])
               for(const empId of empANotifier){
@@ -737,7 +738,7 @@ export default function Gerant() {
                         onMouseLeave={e=>e.currentTarget.style.background=isToday?'rgba(0,113,227,.02)':'transparent'}>
                           {(()=>{
                             const conge=getConge(emp.id,di)
-                            if(sh) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sc.bg,color:sc.color,border:`1.5px solid ${sh.publie===false?'#f59e0b':sc.border}`,opacity:sh.publie===false?.75:1,position:'relative'}}>{sh.publie===false&&<div style={{position:'absolute',top:-4,right:-4,fontSize:8,fontWeight:800,background:'#f59e0b',color:'white',borderRadius:4,padding:'1px 4px',border:'1px solid white'}}>Brouillon</div>}<div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&sh.heure_fin_2&&<div style={{fontWeight:400,opacity:.65,fontSize:9,borderTop:`1px solid ${sc.border}`,marginTop:2,paddingTop:2}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
+                            if(sh) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sh.supprime_en_attente?'#fef2f2':sc.bg,color:sh.supprime_en_attente?'#dc2626':sc.color,border:`1.5px solid ${sh.supprime_en_attente?'#fecaca':sh.publie===false?'#f59e0b':sc.border}`,opacity:sh.supprime_en_attente?.6:sh.publie===false?.8:1,position:'relative',textDecoration:sh.supprime_en_attente?'line-through':'none'}}>{sh.publie===false&&!sh.supprime_en_attente&&<div style={{position:'absolute',top:-4,right:-4,fontSize:8,fontWeight:800,background:'#f59e0b',color:'white',borderRadius:4,padding:'1px 4px',border:'1px solid white'}}>Brouillon</div>}{sh.supprime_en_attente&&<div style={{position:'absolute',top:-4,right:-4,fontSize:8,fontWeight:800,background:'#dc2626',color:'white',borderRadius:4,padding:'1px 4px',border:'1px solid white'}}>À retirer</div>}<div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&sh.heure_fin_2&&<div style={{fontWeight:400,opacity:.65,fontSize:9,borderTop:`1px solid ${sc.border}`,marginTop:2,paddingTop:2}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
                             if(conge){
                               const hasShiftToo = !!sh
                               return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:'#fef2f2',color:'#dc2626',border:`1.5px solid ${hasShiftToo?'#dc2626':'#fecaca'}`,cursor:'default',position:'relative'}} onClick={e=>e.stopPropagation()}>
