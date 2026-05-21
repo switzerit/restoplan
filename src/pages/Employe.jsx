@@ -105,7 +105,7 @@ export default function Employe() {
 
   async function loadShifts(){
     const from=fmtDate(weekStart);const to=fmtDate(addDays(weekStart,6))
-    const {data}=await supabase.from('shifts').select('*').eq('employe_id',employe.id).gte('date',from).lte('date',to)
+    const {data}=await supabase.from('shifts').select('*').eq('employe_id',employe.id).eq('publie',true).eq('supprime_en_attente',false).gte('date',from).lte('date',to)
     setShifts(data||[])
   }
 
