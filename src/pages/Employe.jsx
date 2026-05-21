@@ -76,9 +76,9 @@ export default function Employe() {
     if(!employe) return
     loadShifts();loadPointages();loadHistorique()
     // Realtime shifts
-    const chShifts = supabase.channel('employe-shifts')
-      .on('postgres_changes',{event:'*',schema:'public',table:'shifts',filter:`employe_id=eq.${employe.id}`},()=>loadShifts())
-      .on('postgres_changes',{event:'*',schema:'public',table:'conges',filter:`employe_id=eq.${employe.id}`},()=>loadShifts())
+    // Shifts: recharger seulement quand une notification arrive (= gérant a publié)
+    const chShifts = supabase.channel('employe-notifs-trigger')
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`employe_id=eq.${employe.id}`},()=>{loadShifts();loadPointages()})
       .subscribe()
     // Realtime pointages
     const chPointages = supabase.channel('employe-pointages')
