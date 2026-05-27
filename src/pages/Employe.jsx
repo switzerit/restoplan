@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import QRScanner from '../components/QRScanner'
+import PlanningMensuelEmploye from '../components/PlanningMensuelEmploye'
 import Notifications from '../components/Notifications'
 import CongesEmploye from '../components/CongesEmploye'
 
@@ -296,122 +297,7 @@ export default function Employe() {
       )}
 
       {/* ── PLANNING MENSUEL ── */}
-      {tab==='planning'&&(()=>{
-        const [planMois,setPlanMois]=React.useState(new Date())
-        const [shiftsMonth,setShiftsMonth]=React.useState([])
-        const [selectedDay,setSelectedDay]=React.useState(null)
-        React.useEffect(()=>{
-          if(!employe) return
-          const y=planMois.getFullYear(), m=planMois.getMonth()
-          const from=y+'-'+String(m+1).padStart(2,'0')+'-01'
-          const to=y+'-'+String(m+1).padStart(2,'0')+'-'+String(new Date(y,m+1,0).getDate()).padStart(2,'0')
-          supabase.from('shifts').select('*').eq('employe_id',employe.id).gte('date',from).lte('date',to)
-            .then(({data})=>setShiftsMonth(data||[]))
-        },[planMois,employe?.id])
-        const y=planMois.getFullYear(), m=planMois.getMonth()
-        const firstDow=new Date(y,m,1).getDay()===0?6:new Date(y,m,1).getDay()-1
-        const daysInMonth=new Date(y,m+1,0).getDate()
-        const cells=[]
-        for(let i=0;i<firstDow;i++) cells.push(null)
-        for(let i=1;i<=daysInMonth;i++) cells.push(new Date(y,m,i))
-        while(cells.length%7!==0) cells.push(null)
-        const mLabel=planMois.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})
-        const totalShifts=shiftsMonth.length
-        const totalH=shiftsMonth.reduce((a,s)=>{
-          const d1=new Date('1970-01-01T'+s.heure_fin)-new Date('1970-01-01T'+s.heure_debut)
-          const d2=s.heure_debut_2?(new Date('1970-01-01T'+s.heure_fin_2)-new Date('1970-01-01T'+s.heure_debut_2)):0
-          return a+(d1+d2)/3600000
-        },0)
-        const selectedSh = selectedDay ? shiftsMonth.find(s=>s.date===selectedDay) : null
-        const selectedSc = selectedSh ? getPosteColor(selectedSh.poste) : null
-        return (
-          <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:12}}>
-            {/* Stats mois */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-              <div style={{background:'var(--surface)',borderRadius:12,padding:'12px 14px',border:'1px solid var(--border)',textAlign:'center'}}>
-                <div style={{fontSize:22,fontWeight:800,color:'#0066cc'}}>{totalShifts}</div>
-                <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>Shifts ce mois</div>
-              </div>
-              <div style={{background:'var(--surface)',borderRadius:12,padding:'12px 14px',border:'1px solid var(--border)',textAlign:'center'}}>
-                <div style={{fontSize:22,fontWeight:800,color:'#16a34a'}}>{Math.round(totalH)}h</div>
-                <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>Heures planifiées</div>
-              </div>
-            </div>
-
-            {/* Nav mois */}
-            <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--surface)',borderRadius:12,padding:'10px 14px',border:'1px solid var(--border)'}}>
-              <button onClick={()=>setPlanMois(new Date(y,m-1,1))} style={{width:32,height:32,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>
-              <div style={{flex:1,textAlign:'center',fontSize:14,fontWeight:700,textTransform:'capitalize'}}>{mLabel}</div>
-              <button onClick={()=>setPlanMois(new Date(y,m+1,1))} style={{width:32,height:32,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>
-              <button onClick={()=>setPlanMois(new Date())} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',fontSize:11,fontWeight:600,color:'#0066cc',cursor:'pointer'}}>Auj.</button>
-            </div>
-
-            {/* Calendrier */}
-            <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden'}}>
-              {/* Header */}
-              <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',background:'var(--bg)',borderBottom:'1px solid var(--border)'}}>
-                {['L','M','M','J','V','S','D'].map((d,i)=>(
-                  <div key={i} style={{padding:'8px 4px',fontSize:10,fontWeight:700,color:i>=5?'#ea580c':'var(--text2)',textAlign:'center'}}>{d}</div>
-                ))}
-              </div>
-              {/* Jours */}
-              {Array.from({length:cells.length/7},(_,wi)=>(
-                <div key={wi} style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',borderBottom:wi<cells.length/7-1?'1px solid var(--border)':'none'}}>
-                  {cells.slice(wi*7,(wi+1)*7).map((day,di)=>{
-                    if(!day) return <div key={di} style={{minHeight:52,background:'rgba(0,0,0,.02)'}}/>
-                    const ds=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0')
-                    const sh=shiftsMonth.find(s=>s.date===ds)
-                    const isToday=ds===today
-                    const isSelected=ds===selectedDay
-                    const isWE=di>=5
-                    return (
-                      <div key={di} onClick={()=>setSelectedDay(isSelected?null:ds)}
-                        style={{minHeight:52,padding:'5px 4px',borderRight:di<6?'1px solid var(--border)':'none',
-                          background:isSelected?'#e8f2fd':isToday?'rgba(0,102,204,.05)':isWE?'rgba(234,88,12,.03)':'transparent',
-                          cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3}}>
-                        <span style={{fontSize:11,fontWeight:isToday?800:400,width:22,height:22,borderRadius:'50%',
-                          background:isToday?'#0066cc':'transparent',
-                          color:isToday?'white':isWE?'#ea580c':'var(--text)',
-                          display:'flex',alignItems:'center',justifyContent:'center'}}>
-                          {day.getDate()}
-                        </span>
-                        {sh&&<div style={{width:'80%',height:4,borderRadius:2,background:getPosteColor(sh.poste).c,opacity:.8}}/>}
-                        {sh&&<div style={{fontSize:8,fontWeight:700,color:getPosteColor(sh.poste).c}}>{sh.heure_debut.slice(0,5)}</div>}
-                      </div>
-                    )
-                  })}
-                </div>
-              ))}
-            </div>
-
-            {/* Détail jour sélectionné */}
-            {selectedDay&&(
-              <div style={{background:'var(--surface)',borderRadius:14,border:`1.5px solid ${selectedSh?selectedSc.border:'var(--border)'}`,overflow:'hidden'}}>
-                <div style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <div style={{fontSize:13,fontWeight:700,textTransform:'capitalize'}}>{new Date(selectedDay+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div>
-                  <button onClick={()=>setSelectedDay(null)} style={{width:24,height:24,borderRadius:'50%',border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:12}}>✕</button>
-                </div>
-                {selectedSh?(
-                  <div style={{padding:'14px 16px',borderTop:`1px solid ${selectedSc.border}`,background:selectedSc.bg}}>
-                    <div style={{fontSize:20,fontWeight:800,color:selectedSc.c}}>{selectedSh.heure_debut.slice(0,5)} — {selectedSh.heure_fin.slice(0,5)}</div>
-                    {selectedSh.heure_debut_2&&<div style={{fontSize:14,color:selectedSc.c,opacity:.8,marginTop:4}}>puis {selectedSh.heure_debut_2.slice(0,5)} — {selectedSh.heure_fin_2.slice(0,5)}</div>}
-                    <div style={{fontSize:12,color:selectedSc.c,opacity:.7,marginTop:8}}>
-                      {(()=>{
-                        const t1=(new Date('1970-01-01T'+selectedSh.heure_fin)-new Date('1970-01-01T'+selectedSh.heure_debut))/3600000
-                        const t2=selectedSh.heure_debut_2?(new Date('1970-01-01T'+selectedSh.heure_fin_2)-new Date('1970-01-01T'+selectedSh.heure_debut_2))/3600000:0
-                        return Math.round(t1+t2)+'h de travail · '+selectedSh.poste.charAt(0).toUpperCase()+selectedSh.poste.slice(1)
-                      })()}
-                    </div>
-                  </div>
-                ):(
-                  <div style={{padding:'14px 16px',borderTop:'1px solid var(--border)',background:'var(--bg)',fontSize:13,color:'var(--text3)'}}>Repos — pas de shift ce jour</div>
-                )}
-              </div>
-            )}
-          </div>
-        )
-      })()}
-
+      {tab==='planning'&&<PlanningMensuelEmploye employe={employe} today={today} getPosteColor={getPosteColor} supabase={supabase}/>}
       {/* ── HISTORIQUE ── */}
       {tab==='historique'&&(
         <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:0}}>
