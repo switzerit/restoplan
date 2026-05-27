@@ -8,8 +8,6 @@ const TYPES = {
   autre: { l: "Autre", icon: '❓' }
 }
 
-const inp = { width:'100%', padding:'9px 12px', borderRadius:10, border:'1.5px solid var(--border2)', background:'var(--bg)', fontSize:14, color:'var(--text)', outline:'none' }
-
 export default function SignalementsEmploye({ employe }) {
   const [signalements, setSignalements] = useState([])
   const [modal, setModal] = useState(false)
@@ -49,11 +47,13 @@ export default function SignalementsEmploye({ employe }) {
     rejete: { bg: '#fef2f2', c: '#dc2626', bc: '#fecaca', l: '❌ Rejeté' }
   })[statut]
 
+  const field = { width:'100%', padding:'10px 12px', borderRadius:10, border:'1.5px solid var(--border2)', background:'var(--bg)', fontSize:14, color:'var(--text)', outline:'none', boxSizing:'border-box' }
+
   return (
     <div>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
         <div style={{ fontSize:15, fontWeight:800 }}>🔔 Signalements</div>
-        <button onClick={() => setModal(true)} style={{ padding:'8px 14px', borderRadius:10, border:'none', background:'#0066cc', color:'white', fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Signaler</button>
+        <button onClick={() => setModal(true)} style={{ padding:'8px 16px', borderRadius:10, border:'none', background:'#0066cc', color:'white', fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Signaler</button>
       </div>
 
       {signalements.length === 0 ? (
@@ -67,24 +67,21 @@ export default function SignalementsEmploye({ employe }) {
         return (
           <div key={s.id} style={{ background:'var(--surface)', borderRadius:14, border:`1px solid ${s.statut==='en_attente'?'#fed7aa':'var(--border)'}`, overflow:'hidden', marginBottom:10 }}>
             <div style={{ padding:'12px 14px', display:'flex', alignItems:'center', gap:10 }}>
-              <span style={{ fontSize:20 }}>{t.icon}</span>
+              <span style={{ fontSize:18, flexShrink:0 }}>{t.icon}</span>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:13, fontWeight:700 }}>{t.l}</div>
-                <div style={{ fontSize:11, color:'var(--text2)', marginTop:1 }}>
+                <div style={{ fontSize:11, color:'var(--text2)', marginTop:2 }}>
                   {new Date(s.date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}
                   {s.heure_souhaitee && <strong> · {s.heure_souhaitee}</strong>}
                 </div>
               </div>
-              <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:20, background:s2.bg, color:s2.c, border:`1px solid ${s2.bc}`, flexShrink:0 }}>{s2.l}</span>
+              <span style={{ fontSize:10, fontWeight:700, padding:'3px 8px', borderRadius:20, background:s2.bg, color:s2.c, border:`1px solid ${s2.bc}`, flexShrink:0, whiteSpace:'nowrap' }}>{s2.l}</span>
             </div>
             {s.message && <div style={{ padding:'8px 14px', borderTop:'1px solid var(--border)', fontSize:12, color:'var(--text2)', fontStyle:'italic' }}>"{s.message}"</div>}
             {s.commentaire_gerant && (
-              <div style={{ padding:'10px 14px', borderTop:'1px solid #d0e8ff', background:'#f0f7ff', display:'flex', gap:8 }}>
-                <span>💬</span>
-                <div>
-                  <div style={{ fontSize:10, fontWeight:800, color:'#0066cc', marginBottom:2 }}>RÉPONSE DU RESPONSABLE</div>
-                  <div style={{ fontSize:12, color:'#0066cc' }}>{s.commentaire_gerant}</div>
-                </div>
+              <div style={{ padding:'10px 14px', borderTop:'1px solid #d0e8ff', background:'#f0f7ff' }}>
+                <div style={{ fontSize:10, fontWeight:800, color:'#0066cc', marginBottom:3 }}>💬 RÉPONSE DU RESPONSABLE</div>
+                <div style={{ fontSize:13, color:'#0066cc' }}>{s.commentaire_gerant}</div>
               </div>
             )}
           </div>
@@ -93,50 +90,52 @@ export default function SignalementsEmploye({ employe }) {
 
       {modal && (
         <>
-          <div onClick={() => setModal(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.4)', backdropFilter:'blur(4px)', zIndex:199 }} />
-          <div style={{ position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)', background:'var(--surface)', borderRadius:18, padding:'20px 18px', zIndex:200, width:'min(90vw,400px)', maxHeight:'85vh', overflowY:'auto' }}>
-            <div style={{ fontSize:15, fontWeight:800, marginBottom:16 }}>🔔 Signaler une erreur</div>
+          <div onClick={() => setModal(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.5)', zIndex:199 }} />
+          <div style={{ position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)', background:'var(--surface)', borderRadius:20, zIndex:200, width:'calc(100vw - 32px)', maxWidth:400, maxHeight:'85vh', overflowY:'auto', boxShadow:'0 20px 60px rgba(0,0,0,.3)' }}>
+            <div style={{ padding:'20px 18px' }}>
+              <div style={{ fontSize:16, fontWeight:800, marginBottom:18 }}>🔔 Signaler une erreur</div>
 
-            {/* Date + heure sur une ligne */}
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
-              <div>
-                <label style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--text2)', marginBottom:5 }}>DATE</label>
-                <input type="date" value={form.date} onChange={e => setForm(f=>({...f,date:e.target.value}))} style={inp} />
+              {/* Type en premier — le plus important */}
+              <div style={{ marginBottom:14 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:8 }}>TYPE DE PROBLÈME</div>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                  {Object.entries(TYPES).map(([k,v]) => (
+                    <button key={k} onClick={() => setForm(f=>({...f,type:k}))}
+                      style={{ padding:'10px 8px', borderRadius:10, border:`2px solid ${form.type===k?'#0066cc':'var(--border)'}`, background:form.type===k?'#f0f7ff':'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', gap:8, textAlign:'left' }}>
+                      <span style={{ fontSize:15 }}>{v.icon}</span>
+                      <span style={{ fontSize:12, fontWeight:form.type===k?700:500, color:form.type===k?'#0066cc':'var(--text)' }}>{v.l}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Date */}
+              <div style={{ marginBottom:14 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>DATE</div>
+                <input type="date" value={form.date} onChange={e => setForm(f=>({...f,date:e.target.value}))} style={field} />
+              </div>
+
+              {/* Heure — seulement si pertinent */}
               {form.type !== 'autre' && (
-                <div>
-                  <label style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--text2)', marginBottom:5 }}>HEURE CORRECTE</label>
-                  <input type="time" value={form.heure_souhaitee} onChange={e => setForm(f=>({...f,heure_souhaitee:e.target.value}))} style={inp} />
+                <div style={{ marginBottom:14 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>HEURE CORRECTE</div>
+                  <input type="time" value={form.heure_souhaitee} onChange={e => setForm(f=>({...f,heure_souhaitee:e.target.value}))} style={field} />
                 </div>
               )}
-            </div>
 
-            {/* Type — grille 2x2 compacte */}
-            <div style={{ marginBottom:14 }}>
-              <label style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--text2)', marginBottom:8 }}>TYPE</label>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                {Object.entries(TYPES).map(([k,v]) => (
-                  <div key={k} onClick={() => setForm(f=>({...f,type:k}))}
-                    style={{ padding:'10px 12px', borderRadius:10, border:`2px solid ${form.type===k?'#0066cc':'var(--border)'}`, background:form.type===k?'#f0f7ff':'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', gap:8 }}>
-                    <span style={{ fontSize:16 }}>{v.icon}</span>
-                    <span style={{ fontSize:12, fontWeight:form.type===k?700:500, color:form.type===k?'#0066cc':'var(--text)', lineHeight:1.2 }}>{v.l}</span>
-                  </div>
-                ))}
+              {/* Message */}
+              <div style={{ marginBottom:18 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>MESSAGE (optionnel)</div>
+                <textarea value={form.message} onChange={e => setForm(f=>({...f,message:e.target.value}))} placeholder="Expliquez le problème..."
+                  style={{ ...field, resize:'none', height:70 }} />
               </div>
-            </div>
 
-            {/* Message */}
-            <div style={{ marginBottom:18 }}>
-              <label style={{ display:'block', fontSize:10, fontWeight:700, color:'var(--text2)', marginBottom:5 }}>MESSAGE (optionnel)</label>
-              <textarea value={form.message} onChange={e => setForm(f=>({...f,message:e.target.value}))} placeholder="Détails..."
-                style={{ ...inp, resize:'none', height:65 }} />
-            </div>
-
-            <div style={{ display:'flex', gap:8 }}>
-              <button onClick={() => setModal(false)} style={{ flex:1, height:42, borderRadius:12, border:'1px solid var(--border)', background:'var(--bg)', color:'var(--text2)', fontSize:13, fontWeight:600, cursor:'pointer' }}>Annuler</button>
-              <button onClick={soumettre} disabled={loading} style={{ flex:2, height:42, borderRadius:12, border:'none', background:loading?'#ccc':'#0066cc', color:'white', fontSize:14, fontWeight:700, cursor:'pointer' }}>
-                {loading?'Envoi...':'Envoyer'}
-              </button>
+              <div style={{ display:'flex', gap:8 }}>
+                <button onClick={() => setModal(false)} style={{ flex:1, height:44, borderRadius:12, border:'1.5px solid var(--border)', background:'transparent', color:'var(--text2)', fontSize:14, fontWeight:600, cursor:'pointer' }}>Annuler</button>
+                <button onClick={soumettre} disabled={loading} style={{ flex:2, height:44, borderRadius:12, border:'none', background:loading?'#99b8e0':'#0066cc', color:'white', fontSize:14, fontWeight:700, cursor:'pointer' }}>
+                  {loading ? 'Envoi...' : 'Envoyer'}
+                </button>
+              </div>
             </div>
           </div>
         </>
