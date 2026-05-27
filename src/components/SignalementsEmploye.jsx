@@ -53,7 +53,7 @@ export default function SignalementsEmploye({ employe }) {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <div>
           <div style={{ fontSize: 16, fontWeight: 800 }}>🔔 Signalements</div>
           <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>Signalez une erreur de pointage</div>
@@ -107,26 +107,26 @@ export default function SignalementsEmploye({ employe }) {
       {modal && (
         <>
           <div onClick={() => setModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', backdropFilter: 'blur(4px)', zIndex: 199 }} />
-          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'var(--surface)', borderRadius: 20, padding: '24px 20px', zIndex: 200, width: 'min(92vw, 440px)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,.2)' }}>
-            <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 20 }}>🔔 Signaler une erreur</div>
+          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'var(--surface)', borderRadius: 20, padding: '20px 16px', zIndex: 200, width: 'min(92vw, 440px)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,.2)' }}>
+            <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 14 }}>🔔 Signaler une erreur</div>
 
             {/* Date */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 12 }}>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text2)', marginBottom: 8, letterSpacing: '.05em' }}>DATE CONCERNÉE</label>
               <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                style={{ width: '100%', padding: '13px 14px', borderRadius: 12, border: '1.5px solid var(--border2)', background: 'var(--bg)', fontSize: 15, color: 'var(--text)', outline: 'none' }} />
+                style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1.5px solid var(--border2)', background: 'var(--bg)', fontSize: 13, color: 'var(--text)', outline: 'none' }} />
             </div>
 
             {/* Type */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 12 }}>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text2)', marginBottom: 8, letterSpacing: '.05em' }}>TYPE DE PROBLÈME</label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {Object.entries(TYPES).map(([k, v]) => (
                   <div key={k} onClick={() => setForm(f => ({ ...f, type: k }))}
-                    style={{ padding: '13px 16px', borderRadius: 12, border: `2px solid ${form.type === k ? '#0066cc' : 'var(--border)'}`, background: form.type === k ? '#f0f7ff' : 'var(--bg)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'all .15s' }}>
-                    <span style={{ fontSize: 20 }}>{v.icon}</span>
-                    <span style={{ fontSize: 14, fontWeight: form.type === k ? 700 : 500, color: form.type === k ? '#0066cc' : 'var(--text)', flex: 1 }}>{v.l}</span>
-                    {form.type === k && <span style={{ color: '#0066cc', fontSize: 18 }}>✓</span>}
+                    style={{ padding: '9px 12px', borderRadius: 10, border: `1.5px solid ${form.type === k ? '#0066cc' : 'var(--border)'}`, background: form.type === k ? '#f0f7ff' : 'var(--bg)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, transition: 'all .15s' }}>
+                    <span style={{ fontSize: 16 }}>{v.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: form.type === k ? 700 : 500, color: form.type === k ? '#0066cc' : 'var(--text)', flex: 1 }}>{v.l}</span>
+                    {form.type === k && <span style={{ color: '#0066cc', fontSize: 15 }}>✓</span>}
                   </div>
                 ))}
               </div>
@@ -134,10 +134,10 @@ export default function SignalementsEmploye({ employe }) {
 
             {/* Heure */}
             {form.type !== 'autre' && (
-              <div style={{ marginBottom: 16 }}>
+              <div style={{ marginBottom: 12 }}>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text2)', marginBottom: 8, letterSpacing: '.05em' }}>HEURE CORRECTE</label>
                 <input type="time" value={form.heure_souhaitee} onChange={e => setForm(f => ({ ...f, heure_souhaitee: e.target.value }))}
-                  style={{ width: '100%', padding: '13px 14px', borderRadius: 12, border: '1.5px solid var(--border2)', background: 'var(--bg)', fontSize: 15, color: 'var(--text)', outline: 'none' }} />
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1.5px solid var(--border2)', background: 'var(--bg)', fontSize: 13, color: 'var(--text)', outline: 'none' }} />
               </div>
             )}
 
@@ -150,9 +150,9 @@ export default function SignalementsEmploye({ employe }) {
 
             {/* Boutons */}
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setModal(false)} style={{ flex: 1, height: 50, borderRadius: 14, border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text2)', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setModal(false)} style={{ flex: 1, height: 44, borderRadius: 12, border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text2)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Annuler</button>
               <button onClick={soumettre} disabled={loading}
-                style={{ flex: 2, height: 50, borderRadius: 14, border: 'none', background: loading ? '#ccc' : '#0066cc', color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ flex: 2, height: 44, borderRadius: 12, border: 'none', background: loading ? '#ccc' : '#0066cc', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                 {loading ? 'Envoi...' : 'Envoyer'}
               </button>
             </div>
