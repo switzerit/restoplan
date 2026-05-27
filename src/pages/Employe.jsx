@@ -301,6 +301,57 @@ export default function Employe() {
       {/* ── HISTORIQUE ── */}
       {tab==='historique'&&(
         <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:0}}>
+          {/* Stats du mois */}
+          {(()=>{
+            const now=new Date()
+            const moisLabel=now.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})
+            // Heures pointées ce mois
+            const debutMois=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01'
+            const ptsMois=historique.filter(p=>p.date>=debutMois&&p.heure_arrivee&&p.heure_depart)
+            const hPointees=ptsMois.reduce((a,p)=>{
+              const [ah,am]=p.heure_arrivee.slice(0,5).split(':').map(Number)
+              const [bh,bm]=p.heure_depart.slice(0,5).split(':').map(Number)
+              return a+(bh*60+bm-(ah*60+am))/60
+            },0)
+            // Heures planifiées ce mois (depuis shifts)
+            const hPlanifiees=shifts.filter(s=>s.date>=debutMois).reduce((a,s)=>{
+              const [ah,am]=s.heure_debut.slice(0,5).split(':').map(Number)
+              const [bh,bm]=s.heure_fin.slice(0,5).split(':').map(Number)
+              let t=(bh*60+bm-(ah*60+am))/60
+              if(s.heure_debut_2&&s.heure_fin_2){
+                const [ch,cm]=s.heure_debut_2.slice(0,5).split(':').map(Number)
+                const [dh,dm]=s.heure_fin_2.slice(0,5).split(':').map(Number)
+                t+=(dh*60+dm-(ch*60+cm))/60
+              }
+              return a+t
+            },0)
+            const pct=hPlanifiees>0?Math.min(100,Math.round(hPointees/hPlanifiees*100)):0
+            const couleur=pct>=90?'#16a34a':pct>=50?'#0066cc':'#ea580c'
+            return (
+              <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',padding:16,marginBottom:16}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+                  <div style={{fontSize:14,fontWeight:800,textTransform:'capitalize'}}>📊 {moisLabel}</div>
+                  <div style={{fontSize:11,color:'var(--text3)'}}>{Math.round(hPointees*10)/10}h pointées</div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:12}}>
+                  {[
+                    {n:Math.round(hPointees*10)/10+'h',l:'Pointées',c:'#16a34a',bg:'#f0fdf4',bc:'#bbf7d0'},
+                    {n:Math.round(hPlanifiees*10)/10+'h',l:'Planifiées',c:'#0066cc',bg:'#f0f7ff',bc:'#d0e8ff'},
+                    {n:pct+'%',l:'Réalisé',c:couleur,bg:'var(--bg)',bc:'var(--border)'},
+                  ].map((s,i)=>(
+                    <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:10,padding:'10px 8px',textAlign:'center'}}>
+                      <div style={{fontSize:18,fontWeight:800,color:s.c}}>{s.n}</div>
+                      <div style={{fontSize:10,color:s.c,opacity:.8,marginTop:2}}>{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{background:'var(--bg)',borderRadius:8,overflow:'hidden',height:8}}>
+                  <div style={{height:'100%',width:pct+'%',background:couleur,borderRadius:8,transition:'width .4s'}}/>
+                </div>
+                <div style={{fontSize:10,color:'var(--text3)',marginTop:6,textAlign:'right'}}>{pct}% des heures planifiées effectuées</div>
+              </div>
+            )
+          })()}
           <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>Mes 30 derniers jours</div>
           <div style={{fontSize:12,color:'var(--text2)',marginBottom:16}}>Historique de vos pointages</div>
           {Object.keys(historiqueGroupé).length===0?(
