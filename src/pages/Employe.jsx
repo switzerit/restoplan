@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import QRScanner from '../components/QRScanner'
 import PlanningMensuelEmploye from '../components/PlanningMensuelEmploye'
+import SignalementsEmploye from '../components/SignalementsEmploye'
 import Notifications from '../components/Notifications'
 import CongesEmploye from '../components/CongesEmploye'
 
@@ -411,6 +412,7 @@ export default function Employe() {
         </div>
       )}
 
+      {tab==='historique'&&employe&&<div style={{padding:'0 16px 16px'}}><SignalementsEmploye employe={employe}/></div>}
       {/* ── PROFIL ── */}
       {tab==='profil'&&(
         <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:12}}>
