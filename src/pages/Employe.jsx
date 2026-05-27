@@ -75,7 +75,7 @@ export default function Employe() {
 
   useEffect(()=>{
     if(!employe) return
-    loadShifts();loadPointages();loadHistorique()
+    loadShifts();loadPointages();loadHistorique();loadShiftsMois()
     // Realtime shifts
     // Shifts: recharger seulement quand une notification arrive (= gérant a publié)
     const chShifts = supabase.channel('employe-notifs-trigger')
@@ -113,6 +113,17 @@ export default function Employe() {
   async function loadPointages(){
     const {data}=await supabase.from('pointages').select('*').eq('employe_id',employe.id).eq('date',today).order('heure_arrivee',{ascending:true})
     setPointages(data||[])
+  }
+
+  const [shiftsMois, setShiftsMois] = useState([])
+
+  async function loadShiftsMois(){
+    if(!employe) return
+    const now=new Date()
+    const from=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01'
+    const to=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(new Date(now.getFullYear(),now.getMonth()+1,0).getDate()).padStart(2,'0')
+    const {data}=await supabase.from('shifts').select('*').eq('employe_id',employe.id).gte('date',from).lte('date',to)
+    setShiftsMois(data||[])
   }
 
   async function loadHistorique(){
@@ -314,7 +325,7 @@ export default function Employe() {
               return a+(bh*60+bm-(ah*60+am))/60
             },0)
             // Heures planifiées ce mois (depuis shifts)
-            const hPlanifiees=shifts.filter(s=>s.date>=debutMois).reduce((a,s)=>{
+            const hPlanifiees=shiftsMois.filter(s=>s.date>=debutMois).reduce((a,s)=>{
               const [ah,am]=s.heure_debut.slice(0,5).split(':').map(Number)
               const [bh,bm]=s.heure_fin.slice(0,5).split(':').map(Number)
               let t=(bh*60+bm-(ah*60+am))/60
