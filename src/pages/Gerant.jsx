@@ -291,13 +291,16 @@ export default function Gerant() {
         const newD=new Date(sy,sm-1,sd+diffDays)
         const newDate=fmtDateLocal(newD)
         if(existingSet.has(s.employe_id+'_'+newDate)){skip++;continue}
-        await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id})
+        await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id,publie:true,supprime_en_attente:false})
         count++
       }
     }
     setCopierModal(false)
+    // Ajouter les employés à pendingEmp pour notification groupée
+    const empsDupliques=new Set(srcShifts.map(s=>s.employe_id))
+    setPendingEmp(prev=>new Set([...prev,...empsDupliques]))
     if(destList.length===1){ const dm=getMonday(parseL2(destList[0])); setWeekStart(dm) }
-    loadShifts()
+    else loadShifts()
     const who=copierForm.employe?employes.find(e=>e.id===copierForm.employe)?.prenom:'tous'
     showToast(count>0?'✅ '+count+' shifts dupliqués sur '+destList.length+' sem. pour '+who:skip>0?'Shifts déjà présents':'Aucun shift source')
   }
