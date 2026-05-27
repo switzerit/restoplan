@@ -109,19 +109,21 @@ export default function SignalementsEmploye({ employe }) {
                 </div>
               </div>
 
-              {/* Date */}
-              <div style={{ marginBottom:14 }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>DATE</div>
-                <input type="date" value={form.date} onChange={e => setForm(f=>({...f,date:e.target.value}))} style={field} />
-              </div>
-
-              {/* Heure — seulement si pertinent */}
-              {form.type !== 'autre' && (
-                <div style={{ marginBottom:14 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>HEURE CORRECTE</div>
-                  <input type="time" value={form.heure_souhaitee} onChange={e => setForm(f=>({...f,heure_souhaitee:e.target.value}))} style={field} />
+              {/* Date + Heure sur une ligne */}
+              <div style={{ display:'flex', gap:10, marginBottom:14 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>DATE</div>
+                  <input type="date" value={form.date} onChange={e => setForm(f=>({...f,date:e.target.value}))}
+                    style={{ width:'100%', padding:'9px 10px', borderRadius:10, border:'1.5px solid var(--border2)', background:'var(--bg)', fontSize:13, color:'var(--text)', outline:'none' }} />
                 </div>
-              )}
+                {form.type !== 'autre' && (
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>HEURE</div>
+                    <input type="time" value={form.heure_souhaitee} onChange={e => setForm(f=>({...f,heure_souhaitee:e.target.value}))}
+                      style={{ width:'100%', padding:'9px 10px', borderRadius:10, border:'1.5px solid var(--border2)', background:'var(--bg)', fontSize:13, color:'var(--text)', outline:'none' }} />
+                  </div>
+                )}
+              </div>
 
               {/* Message */}
               <div style={{ marginBottom:18 }}>
