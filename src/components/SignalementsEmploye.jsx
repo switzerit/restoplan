@@ -103,13 +103,11 @@ export default function SignalementsEmploye({ employe }) {
         )
       })}
 
-      {/* Modal bottom sheet */}
+      {/* Modal */}
       {modal && (
         <>
           <div onClick={() => setModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', backdropFilter: 'blur(4px)', zIndex: 199 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--surface)', borderRadius: '24px 24px 0 0', padding: '8px 20px 32px', zIndex: 200, maxHeight: '92vh', overflowY: 'auto' }}>
-            {/* Handle */}
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: 'var(--border)', margin: '12px auto 20px' }} />
+          <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'var(--surface)', borderRadius: 20, padding: '24px 20px', zIndex: 200, width: 'min(92vw, 440px)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 8px 40px rgba(0,0,0,.2)' }}>
             <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 20 }}>🔔 Signaler une erreur</div>
 
             {/* Date */}
