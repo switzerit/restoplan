@@ -190,7 +190,7 @@ export default function Employe() {
         </div>
         {/* Tabs */}
         <div style={{display:'flex',gap:0}}>
-          {[{id:'accueil',l:'Accueil',icon:'🏠'},{id:'planning',l:'Planning',icon:'📅'},{id:'historique',l:'Historique',icon:'📋'},{id:'profil',l:'Profil',icon:'👤'},{id:'conges',l:'Congés',icon:'🏖️'}].map(t=>(
+          {[{id:'accueil',l:'Accueil',icon:'🏠'},{id:'planning',l:'Planning',icon:'📅'},{id:'historique',l:'Historique',icon:'📋'},{id:'profil',l:'Profil',icon:'👤'},{id:'conges',l:'Congés',icon:'🏖️'},{id:'signalements',l:'Signaler',icon:'🔔'}].map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:'10px 4px',border:'none',background:'transparent',cursor:'pointer',fontSize:12,fontWeight:600,color:tab===t.id?'var(--accent)':'var(--text2)',borderBottom:`2px solid ${tab===t.id?'var(--accent)':'transparent'}`,transition:'all .15s',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
               <span style={{fontSize:16}}>{t.icon}</span>
               {t.l}
@@ -412,7 +412,12 @@ export default function Employe() {
         </div>
       )}
 
-      {tab==='historique'&&employe&&<div style={{padding:'0 16px 16px'}}><SignalementsEmploye employe={employe}/></div>}
+      {/* ── SIGNALEMENTS ── */}
+      {tab==='signalements'&&employe&&(
+        <div style={{flex:1,overflowY:'auto',padding:16}}>
+          <SignalementsEmploye employe={employe}/>
+        </div>
+      )}
       {/* ── PROFIL ── */}
       {tab==='profil'&&(
         <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:12}}>
