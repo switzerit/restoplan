@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import CongesGerant from '../components/CongesGerant'
 import PlanningMois from '../components/PlanningMois'
 import NotifsGerant from '../components/NotifsGerant'
+import SignalementsGerant from '../components/SignalementsGerant'
 
 const COLORS = [
   {bg:'#e8f2fd',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},
@@ -534,7 +535,7 @@ export default function Gerant() {
 
   if(!currentResto) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>Chargement...</div>
 
-  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':'Paramètres'
+  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Signalements':'Paramètres'
 
   return (
     <div style={{display:'flex',height:'100dvh',fontFamily:'var(--font)',overflow:'hidden',flexDirection:isMobile?'column':'row'}}>
@@ -571,6 +572,7 @@ export default function Gerant() {
           {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
           {id:'employes',icon:'👤',label:'Équipe'},
           {id:'conges',icon:'🏖️',label:'Congés'},
+          {id:'signalements',icon:'🔔',label:'Signalements'},
           {id:'parametres',icon:'⚙️',label:'Paramètres'},
         ].map(item=>(
           <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',alignItems:'center',gap:9,padding:'9px 10px',borderRadius:9,cursor:'pointer',fontSize:13,fontWeight:600,border:'none',width:'100%',textAlign:'left',background:view===item.id?'var(--accent-bg)':'transparent',color:view===item.id?'var(--accent)':'var(--text2)',marginBottom:2}}>
@@ -934,6 +936,11 @@ export default function Gerant() {
           <div style={{flex:1,overflowY:'auto',padding:20}}>
           </div>
         )}
+        {view==='signalements'&&(
+          <div style={{flex:1,overflowY:'auto',padding:20}}>
+            <SignalementsGerant restaurant={currentResto} employes={employes}/>
+          </div>
+        )}
         {view==='conges'&&(
           <div style={{padding:16}}>
             <CongesGerant restaurant={currentResto} employes={employes} showToast={showToast}/>
@@ -1023,6 +1030,7 @@ export default function Gerant() {
             {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
             {id:'employes',icon:'👤',label:'Équipe'},
             {id:'conges',icon:'🏖️',label:'Congés'},
+          {id:'signalements',icon:'🔔',label:'Signalements'},
             {id:'parametres',icon:'⚙️',label:'Réglages'},
           ].map(item=>(
             <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'2px 12px',border:'none',background:'transparent',cursor:'pointer',position:'relative'}}>
