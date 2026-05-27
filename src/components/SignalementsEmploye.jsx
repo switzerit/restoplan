@@ -47,7 +47,7 @@ export default function SignalementsEmploye({ employe }) {
     rejete: { bg: '#fef2f2', c: '#dc2626', bc: '#fecaca', l: '❌ Rejeté' }
   })[statut]
 
-  const field = { width:'100%', padding:'10px 12px', borderRadius:10, border:'1.5px solid var(--border2)', background:'var(--bg)', fontSize:14, color:'var(--text)', outline:'none', boxSizing:'border-box' }
+  const field = { width:'100%', padding:'9px 11px', borderRadius:10, border:'1.5px solid var(--border2)', background:'var(--bg)', fontSize:13, color:'var(--text)', outline:'none', boxSizing:'border-box', display:'block' }
 
   return (
     <div>
@@ -91,8 +91,8 @@ export default function SignalementsEmploye({ employe }) {
       {modal && (
         <>
           <div onClick={() => setModal(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.5)', zIndex:199 }} />
-          <div style={{ position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)', background:'var(--surface)', borderRadius:20, zIndex:200, width:'calc(100vw - 32px)', maxWidth:400, maxHeight:'85vh', overflowY:'auto', boxShadow:'0 20px 60px rgba(0,0,0,.3)' }}>
-            <div style={{ padding:'20px 18px' }}>
+          <div style={{ position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)', background:'var(--surface)', borderRadius:20, zIndex:200, width:'calc(100vw - 32px)', maxWidth:400, maxHeight:'85vh', overflowY:'auto', overflowX:'hidden', boxShadow:'0 20px 60px rgba(0,0,0,.3)' }}>
+            <div style={{ padding:'18px 16px' }}>
               <div style={{ fontSize:16, fontWeight:800, marginBottom:18 }}>🔔 Signaler une erreur</div>
 
               {/* Type en premier — le plus important */}
