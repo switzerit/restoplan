@@ -82,7 +82,12 @@ export default function SignalementsEmploye({ employe }) {
             {(s.message || s.commentaire_gerant) && (
               <div style={{ borderTop: '1px solid var(--border)', padding: '10px 16px', background: 'var(--bg)' }}>
                 {s.message && <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: s.commentaire_gerant ? 6 : 0 }}>"{s.message}"</div>}
-                {s.commentaire_gerant && <div style={{ fontSize: 12, color: '#0066cc', fontWeight: 600 }}>Réponse : {s.commentaire_gerant}</div>}
+                {s.commentaire_gerant && (
+                  <div style={{ background: '#f0f7ff', border: '1px solid #d0e8ff', borderRadius: 8, padding: '8px 10px', marginTop: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#0066cc', marginBottom: 2 }}>RÉPONSE DU RESPONSABLE</div>
+                    <div style={{ fontSize: 12, color: '#0066cc' }}>{s.commentaire_gerant}</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -90,8 +95,8 @@ export default function SignalementsEmploye({ employe }) {
       })}
 
       {modal && (
-        <div onClick={() => setModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.3)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 200 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--surface)', borderRadius: '20px 20px 0 0', padding: 24, width: '100%', maxWidth: 480 }}>
+        <div onClick={() => setModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.3)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--surface)', borderRadius: 20, padding: 24, width: '92%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 20 }}>🔔 Signaler une erreur</div>
             <div style={{ marginBottom: 14 }}>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text2)', marginBottom: 6 }}>DATE CONCERNÉE</label>
