@@ -419,7 +419,12 @@ export default function Login() {
       <div style={W}>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2.5fr 1fr 1fr 1fr',gap:isMobile?28:48,marginBottom:40}}>
           <div>
-            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>{LOGO_SM}</div>
+            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="28">
+    <text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="white">varman</text>
+    <circle cx="152" cy="32" r="7" fill="#F59E0B"/>
+  </svg>
+</div>
             <div style={{fontSize:13,color:'rgba(255,255,255,.4)',lineHeight:1.85,maxWidth:230,marginBottom:16}}>La solution de gestion d'équipes pour les professionnels terrain. Propulsé par SwitzerIT.</div>
             <div style={{display:'flex',gap:8}}>
               {[{l:'🇨🇭',t:'Suisse'},{l:'🔒',t:'RGPD'},{l:'⚡',t:'2-4h setup'}].map(b=>(
