@@ -376,7 +376,6 @@ export default function Login() {
       <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:62,background:'rgba(255,255,255,.97)',backdropFilter:'blur(20px)',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',padding:'0 40px'}}>
         <div onClick={()=>goPage('home')} style={{display:'flex',alignItems:'center',gap:9,flex:1,cursor:'pointer',userSelect:'none'}}>
           {LOGO_SM}
-          {LOGO_SM}
           <span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:20,background:AG,color:A,letterSpacing:'.04em',marginLeft:2,border:`1px solid ${AB}`}}>BETA</span>
         </div>
         {isMobile?(
