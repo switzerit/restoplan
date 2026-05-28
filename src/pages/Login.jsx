@@ -5,10 +5,9 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 // ── LOGO ──────────────────────────────────────────────────────────────
 const LOGO_SM = (
-  <svg width="28" height="28" viewBox="0 0 34 34" fill="none">
-    <rect width="34" height="34" rx="9" fill="#0066cc"/>
-    <path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="24" cy="17" r="2.5" fill="white"/>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32">
+    <text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text>
+    <circle cx="152" cy="32" r="7" fill="#F59E0B"/>
   </svg>
 )
 
