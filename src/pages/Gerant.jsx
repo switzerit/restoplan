@@ -1,3 +1,4 @@
+import Logo from '../components/Logo'
 import { useEffect, useState } from 'react'
 import { generatePDF } from '../lib/exportPDF'
 import { supabase } from '../lib/supabase'
@@ -546,7 +547,7 @@ export default function Gerant() {
         <div style={{marginBottom:20}}>
           <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 8px',marginBottom:8}}>
             <div style={{width:32,height:32,background:'var(--accent)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>{{'restaurant':'🍽️','hotel':'🏨','garage':'🔧','commerce':'🏪','clinique':'🏥','spa':'💆','btp':'🏗️','logistique':'📦','education':'🎓','securite':'🛡️'}[currentResto?.secteur]||'🏢'}</div>
-            <div><div style={{fontSize:15,fontWeight:800}}>Kronvo</div><div style={{fontSize:11,color:'var(--text3)'}}>Dashboard gérant</div></div>
+            <div><div style={{fontSize:15,fontWeight:800}}><Logo height={28}/></div><div style={{fontSize:11,color:'var(--text3)'}}>Dashboard gérant</div></div>
           </div>
           <button onClick={()=>setShowRestoSwitch(!showRestoSwitch)} style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'10px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',cursor:'pointer',textAlign:'left'}}>
             <div style={{width:28,height:28,borderRadius:7,background:'var(--accent-bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>🏪</div>
@@ -595,7 +596,7 @@ export default function Gerant() {
         <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'10px 16px',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
           <div style={{width:28,height:28,background:'var(--accent)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>{{'restaurant':'🍽️','hotel':'🏨','garage':'🔧','commerce':'🏪','clinique':'🏥','spa':'💆','btp':'🏗️','logistique':'📦','education':'🎓','securite':'🛡️'}[currentResto?.secteur]||'🏢'}</div>
           <div style={{flex:1}}>
-            <div style={{fontSize:13,fontWeight:800}}>Kronvo</div>
+            <div style={{fontSize:13,fontWeight:800}}><Logo height={28}/></div>
             <div style={{fontSize:10,color:'var(--text3)'}}>{currentResto.nom}</div>
           </div>
           <button onClick={()=>setShowRestoSwitch(!showRestoSwitch)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:11,fontWeight:600,cursor:'pointer',color:'var(--text2)'}}>🏪 Changer</button>

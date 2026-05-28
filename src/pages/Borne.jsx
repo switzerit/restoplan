@@ -1,3 +1,4 @@
+import Logo from '../components/Logo'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { generateToken, secondsLeft } from '../lib/qrToken'
@@ -346,7 +347,7 @@ export default function Borne() {
     <div style={{height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'white',fontFamily:'var(--font)',userSelect:'none'}}>
       <div style={{textAlign:'center',marginBottom:32}}>
         {LOGO}
-        <div style={{fontSize:24,fontWeight:800,color:'#111',letterSpacing:'-.03em',marginTop:10}}>Kronvo</div>
+        <div style={{fontSize:24,fontWeight:800,color:'#111',letterSpacing:'-.03em',marginTop:10}}>Varman</div>
         {restaurant && <div style={{fontSize:14,color:'#888',marginTop:4}}>{restaurant.nom}</div>}
         <div style={{fontSize:13,color:'#bbb',marginTop:10}}>Entrez le code PIN</div>
       </div>
@@ -363,7 +364,7 @@ export default function Borne() {
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           {LOGO}
           <div>
-            <div style={{fontSize:14,fontWeight:700,color:'white'}}>Kronvo · {restaurant?.nom}</div>
+            <div style={{fontSize:14,fontWeight:700,color:'white'}}>Varman · {restaurant?.nom}</div>
             <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginTop:1,textTransform:'capitalize'}}>{fmtDate(heure)}</div>
           </div>
         </div>
@@ -401,7 +402,7 @@ export default function Borne() {
             </div>
             {restaurant && <RealQR restoId={restaurant.id} secret={restaurant.qr_secret}/>}
             <div style={{fontSize:13,color:'#bbb',marginTop:16,lineHeight:1.7}}>
-              Ouvrez l'app Kronvo sur votre téléphone<br/>et scannez ce QR code
+              Ouvrez l'app Varman sur votre téléphone<br/>et scannez ce QR code
             </div>
           </div>
         )}
@@ -410,7 +411,7 @@ export default function Borne() {
 
       {/* Footer */}
       <div style={{background:'#fafafa',borderTop:'1px solid #f0f0f0',padding:'10px 28px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
-        <div style={{fontSize:11,color:'#ccc'}}>Kronvo by SwitzerIT · 🇨🇭</div>
+        <div style={{fontSize:11,color:'#ccc'}}>Varman by SwitzerIT · 🇨🇭</div>
         <div style={{display:'flex',alignItems:'center',gap:5}}>
           <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
           <span style={{fontSize:11,color:'#bbb'}}>QR sécurisé · renouvelé toutes les 30s</span>

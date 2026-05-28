@@ -1,3 +1,4 @@
+import Logo from '../components/Logo'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -257,7 +258,7 @@ function LoginModal({onClose, goPage}) {
             <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0066cc"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
           </div>
           <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Connexion</div>
-          <div style={{fontSize:12,color:'#999',marginTop:4}}>Accédez à votre espace Kronvo</div>
+          <div style={{fontSize:12,color:'#999',marginTop:4}}>Accédez à votre espace Varman</div>
         </div>
         <form onSubmit={handleLogin}>
           <div style={{marginBottom:13}}>
@@ -376,7 +377,7 @@ export default function Login() {
       <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:62,background:'rgba(255,255,255,.97)',backdropFilter:'blur(20px)',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',padding:'0 40px'}}>
         <div onClick={()=>goPage('home')} style={{display:'flex',alignItems:'center',gap:9,flex:1,cursor:'pointer',userSelect:'none'}}>
           {LOGO_SM}
-          <span style={{fontSize:17,fontWeight:800,color:TEXT,letterSpacing:'-.04em'}}>Kronvo</span>
+          <span style={{fontSize:17,fontWeight:800,color:TEXT,letterSpacing:'-.04em'}}><Logo height={40}/></span>
           <span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:20,background:AG,color:A,letterSpacing:'.04em',marginLeft:2,border:`1px solid ${AB}`}}>BETA</span>
         </div>
         {isMobile?(
@@ -420,7 +421,7 @@ export default function Login() {
       <div style={W}>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2.5fr 1fr 1fr 1fr',gap:isMobile?28:48,marginBottom:40}}>
           <div>
-            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>{LOGO_SM}<span style={{fontSize:15,fontWeight:800,color:'white',letterSpacing:'-.03em'}}>Kronvo</span></div>
+            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>{LOGO_SM}<span style={{fontSize:15,fontWeight:800,color:'white',letterSpacing:'-.03em'}}><Logo height={40}/></span></div>
             <div style={{fontSize:13,color:'rgba(255,255,255,.4)',lineHeight:1.85,maxWidth:230,marginBottom:16}}>La solution de gestion d'équipes pour les professionnels terrain. Propulsé par SwitzerIT.</div>
             <div style={{display:'flex',gap:8}}>
               {[{l:'🇨🇭',t:'Suisse'},{l:'🔒',t:'RGPD'},{l:'⚡',t:'2-4h setup'}].map(b=>(
@@ -444,7 +445,7 @@ export default function Login() {
           ))}
         </div>
         <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
-          <div style={{fontSize:11,color:'rgba(255,255,255,.25)'}}>© 2026 Kronvo by SwitzerIT · Suisse</div>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.25)'}}>© 2026 Varman by SwitzerIT · Suisse</div>
           <div style={{display:'flex',gap:18,fontSize:11}}>
             {[['Confidentialité','legal'],['CGU','legal'],['RGPD','legal']].map(([l,p])=>(
               <span key={l} onClick={()=>goPage(p)} style={{color:'rgba(255,255,255,.25)',cursor:'pointer'}}>{l}</span>
@@ -507,7 +508,7 @@ export default function Login() {
                 {/* Barre titre */}
                 <div style={{background:TEXT,borderRadius:12,padding:'11px 16px',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div>
-                    <div style={{fontSize:11,fontWeight:700,color:'white'}}>Kronvo · Le Bistrot</div>
+                    <div style={{fontSize:11,fontWeight:700,color:'white'}}>Varman · Le Bistrot</div>
                     <div style={{display:'flex',alignItems:'center',gap:5,marginTop:2}}>
                       <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
                       <span style={{fontSize:9,color:'rgba(255,255,255,.4)'}}>En direct</span>
@@ -571,7 +572,7 @@ export default function Login() {
                     <div key={i} style={{width:28,height:28,borderRadius:"50%",background:a.bg,border:"2px solid white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-7:0,zIndex:3-i,boxShadow:"0 1px 3px rgba(0,0,0,.1)"}}>{a.t}</div>
                   ))}
                 </div>
-                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111"}}>Kronvo</strong></span>
+                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111"}}><Logo height={40}/></strong></span>
               </div>
               <div style={{width:1,height:16,background:"#e8e8e8"}}></div>
               <div style={{display:"flex",alignItems:"center",gap:4,background:"#fffbeb",border:"1px solid #fde68a",borderRadius:20,padding:"4px 12px"}}>
@@ -611,9 +612,9 @@ export default function Login() {
           <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:56,alignItems:'center'}}>
             <Reveal>
               <div style={{marginBottom:isMobile?32:0}}>
-                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Pourquoi Kronvo</div>
+                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Pourquoi Varman</div>
                 <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:20,lineHeight:1.06}}>Arrêtez de perdre du temps sur des tâches qui n'apportent rien.</h2>
-                <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Feuilles papier, appels incessants, erreurs de paie — tout ça a un coût réel chaque mois. Kronvo les remplace automatiquement en 2 à 4 heures.</p>
+                <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Feuilles papier, appels incessants, erreurs de paie — tout ça a un coût réel chaque mois. Varman les remplace automatiquement en 2 à 4 heures.</p>
                 {[
                   {c:'#dc2626',bg:'#fef2f2',bc:'#fecaca',t:'Feuilles de présence perdues',s:'→ Badgeage QR en 2 secondes'},
                   {c:'#ea580c',bg:'#fff7ed',bc:'#fed7aa',t:'Appels pour savoir qui est là',s:'→ Dashboard en temps réel'},
@@ -703,7 +704,7 @@ export default function Login() {
                 style={{width:'100%',height:isMobile?200:300,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
               <div style={{position:'absolute',inset:0,background:'linear-gradient(to right, rgba(0,0,0,.65) 0%, rgba(0,0,0,.1) 65%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
                 <div>
-                  <div style={{fontSize:isMobile?18:28,fontWeight:800,color:'white',letterSpacing:'-.03em',marginBottom:8,lineHeight:1.2}}>Kronvo s'adapte à tous<br/>vos établissements</div>
+                  <div style={{fontSize:isMobile?18:28,fontWeight:800,color:'white',letterSpacing:'-.03em',marginBottom:8,lineHeight:1.2}}>Varman s'adapte à tous<br/>vos établissements</div>
                   <div style={{fontSize:isMobile?12:14,color:'rgba(255,255,255,.7)',marginBottom:16}}>Restaurants, hôtels, cliniques, garages et plus</div>
                   <button onClick={()=>goPage('contact')} style={{padding:'10px 20px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Voir les secteurs →</button>
                 </div>
@@ -721,7 +722,7 @@ export default function Login() {
               <Reveal>
                 <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Secteurs</div>
                 <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:16,lineHeight:1.06}}>Votre secteur,<br/>vos postes.</h2>
-                <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Kronvo s'adapte à votre activité avec les termes exacts que vous utilisez. Chaque établissement configure ses propres postes — restaurant, clinique, garage ou autre.</p>
+                <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Varman s'adapte à votre activité avec les termes exacts que vous utilisez. Chaque établissement configure ses propres postes — restaurant, clinique, garage ou autre.</p>
               </Reveal>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
                 {[
@@ -827,7 +828,7 @@ export default function Login() {
                     style={{width:'100%',height:130,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
                   <div style={{padding:'20px'}}>
                     <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:14}}>Mise en place en 4 étapes</div>
-                    {[{e:'📹',t:'Démo 30 min',d:'Présentation Kronvo adaptée à votre secteur.'},{e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},{e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés, documentation fournie.'},{e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'}].map((s,i)=>(
+                    {[{e:'📹',t:'Démo 30 min',d:'Présentation Varman adaptée à votre secteur.'},{e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},{e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés, documentation fournie.'},{e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'}].map((s,i)=>(
                       <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:i<3?12:0}}>
                         <div style={{width:32,height:32,borderRadius:9,background:BG,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>{s.e}</div>
                         <div style={{paddingTop:2}}>
@@ -852,12 +853,12 @@ export default function Login() {
       <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
         <Reveal>
           <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${BORDER}`,marginBottom:52,position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,.07)'}}>
-            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80" alt="Équipe Kronvo"
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80" alt="Équipe Varman"
               style={{width:'100%',height:isMobile?180:260,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
             <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(0,0,0,.7) 0%,rgba(0,0,0,.15) 60%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
               <div>
                 <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.6)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:10}}>Fonctionnalités</div>
-                <div style={{fontSize:isMobile?22:36,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1.1,marginBottom:8}}>Tout ce que Kronvo<br/>peut faire pour vous.</div>
+                <div style={{fontSize:isMobile?22:36,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1.1,marginBottom:8}}>Tout ce que Varman<br/>peut faire pour vous.</div>
                 <div style={{fontSize:13,color:'rgba(255,255,255,.65)'}}>Planning · Badgeage QR · Présences · Export PDF</div>
               </div>
             </div>
@@ -960,7 +961,7 @@ export default function Login() {
       <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
         <Reveal>
           <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${BORDER}`,marginBottom:52,position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,.07)'}}>
-            <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=80" alt="Tarifs Kronvo"
+            <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=80" alt="Tarifs Varman"
               style={{width:'100%',height:isMobile?160:240,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
             <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,.12) 65%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
               <div>
@@ -978,7 +979,7 @@ export default function Login() {
              items:['Création et configuration','Paramétrage établissements','Import des employés','Installation borne tablette','Formation gérant','Documentation complète'],
              tag:'Sur devis',featured:false},
             {name:'Abonnement mensuel',icon:'✨',bg:'white',border:A,c:A,
-             desc:'Accès complet à Kronvo pour votre établissement.',
+             desc:'Accès complet à Varman pour votre établissement.',
              items:['Planning et badgeage illimités','Tous vos employés inclus','Rapports PDF illimités','Support email sous 24h','Mises à jour automatiques','Hébergement sécurisé Suisse'],
              tag:'Sur devis · en CHF',featured:true},
             {name:'Support & maintenance',icon:'🛡️',bg:'white',border:BORDER,c:'#7c3aed',
@@ -1011,7 +1012,7 @@ export default function Login() {
           <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:18,padding:'28px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:32,alignItems:'center',marginBottom:14}}>
             <div>
               <h3 style={{fontSize:isMobile?18:24,fontWeight:800,color:TEXT,marginBottom:12,letterSpacing:'-.03em'}}>Un investissement qui se rentabilise en moins d'un mois.</h3>
-              <p style={{fontSize:13,color:TEXT2,lineHeight:1.75}}>En moyenne, nos clients économisent 2 à 4 heures de travail administratif par semaine. Pour un gérant à 60 CHF/h, Kronvo se rentabilise dès le premier mois.</p>
+              <p style={{fontSize:13,color:TEXT2,lineHeight:1.75}}>En moyenne, nos clients économisent 2 à 4 heures de travail administratif par semaine. Pour un gérant à 60 CHF/h, Varman se rentabilise dès le premier mois.</p>
             </div>
             <div style={{marginTop:isMobile?20:0}}>
               {[{label:'Temps économisé / semaine',val:'2-4h',c:A},{label:'Erreurs de paie évitées',val:'100%',c:'#16a34a'},{label:'Mise en place',val:'2-4h',c:'#ea580c'},{label:'Retour sur investissement',val:'< 1 mois',c:'#7c3aed'}].map((s,i)=>(
@@ -1028,7 +1029,7 @@ export default function Login() {
             <div style={{fontSize:32,flexShrink:0}}>📹</div>
             <div style={{flex:1}}>
               <div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:5}}>Démo gratuite via Teams — 30 minutes</div>
-              <div style={{fontSize:13,color:TEXT2,lineHeight:1.65}}>On vous présente Kronvo adapté à votre secteur. Repartez avec un devis personnalisé. Sans engagement.</div>
+              <div style={{fontSize:13,color:TEXT2,lineHeight:1.65}}>On vous présente Varman adapté à votre secteur. Repartez avec un devis personnalisé. Sans engagement.</div>
             </div>
             <button onClick={()=>goPage('contact')} style={{padding:'13px 22px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto'}}>Réserver ma démo →</button>
           </div>
@@ -1103,12 +1104,12 @@ export default function Login() {
   const PageLegal=()=>{
     const sections={
       cgu:{title:"Conditions Générales d'Utilisation",last:"11 mai 2026",content:[
-        {h:"1. Objet",t:"Les présentes CGU régissent l'accès et l'utilisation de la plateforme Kronvo, éditée par SwitzerIT, basée en Suisse."},
-        {h:"2. Description",t:"Kronvo est une solution SaaS de gestion d'équipes permettant la création de plannings, le badgeage par QR code, le suivi des présences et l'export de rapports."},
+        {h:"1. Objet",t:"Les présentes CGU régissent l'accès et l'utilisation de la plateforme Varman, éditée par SwitzerIT, basée en Suisse."},
+        {h:"2. Description",t:"Varman est une solution SaaS de gestion d'équipes permettant la création de plannings, le badgeage par QR code, le suivi des présences et l'export de rapports."},
         {h:"3. Accès",t:"L'accès est réservé aux professionnels. Chaque compte est associé à un établissement géré par un gérant désigné."},
         {h:"4. Obligations",t:"L'utilisateur s'engage à fournir des informations exactes et à maintenir la confidentialité de ses identifiants."},
         {h:"5. Responsabilité",t:"La responsabilité est limitée au montant des sommes versées au cours des 12 derniers mois."},
-        {h:"6. Propriété intellectuelle",t:"L'ensemble des éléments de Kronvo est la propriété exclusive de SwitzerIT. Toute reproduction non autorisée est interdite."},
+        {h:"6. Propriété intellectuelle",t:"L'ensemble des éléments de Varman est la propriété exclusive de SwitzerIT. Toute reproduction non autorisée est interdite."},
         {h:"7. Résiliation",t:"Chaque partie peut résilier avec un préavis de 30 jours."},
         {h:"8. Droit applicable",t:"Les CGU sont soumises au droit suisse. Les tribunaux du canton de Vaud sont seuls compétents."},
       ]},
@@ -1122,7 +1123,7 @@ export default function Login() {
         {h:"Sécurité",t:"Données chiffrées en transit et au repos. Authentification sécurisée."},
       ]},
       rgpd:{title:"Conformité RGPD",last:"11 mai 2026",content:[
-        {h:"Engagement",t:"Kronvo respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse."},
+        {h:"Engagement",t:"Varman respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse."},
         {h:"Données traitées",t:"Noms et prénoms des employés, emails professionnels, données de badgeage."},
         {h:"Conservation",t:"Employés actifs : durée du contrat. Facturation : 10 ans. Logs sécurité : 12 mois."},
         {h:"Sous-traitants",t:"Supabase Inc. et Vercel Inc. (clauses contractuelles types)."},
@@ -1206,7 +1207,7 @@ export default function Login() {
             <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
               <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0066cc"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
             </div>
-            <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Bienvenue sur Kronvo !</div>
+            <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Bienvenue sur Varman !</div>
             <div style={{fontSize:12,color:'#999',marginTop:4}}>Choisissez votre mot de passe pour accéder à votre espace</div>
           </div>
           <form onSubmit={handleSetPassword}>
