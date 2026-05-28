@@ -376,7 +376,7 @@ export default function Login() {
       <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,height:62,background:'rgba(255,255,255,.97)',backdropFilter:'blur(20px)',borderBottom:`1px solid ${BORDER}`,display:'flex',alignItems:'center',padding:'0 40px'}}>
         <div onClick={()=>goPage('home')} style={{display:'flex',alignItems:'center',gap:9,flex:1,cursor:'pointer',userSelect:'none'}}>
           {LOGO_SM}
-          <span style={{fontSize:17,fontWeight:800,color:TEXT,letterSpacing:'-.04em'}}><Logo height={40}/></span>
+          {LOGO_SM}
           <span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:20,background:AG,color:A,letterSpacing:'.04em',marginLeft:2,border:`1px solid ${AB}`}}>BETA</span>
         </div>
         {isMobile?(
@@ -420,7 +420,7 @@ export default function Login() {
       <div style={W}>
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2.5fr 1fr 1fr 1fr',gap:isMobile?28:48,marginBottom:40}}>
           <div>
-            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>{LOGO_SM}<span style={{fontSize:15,fontWeight:800,color:'white',letterSpacing:'-.03em'}}><Logo height={40}/></span></div>
+            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>{LOGO_SM}</div>
             <div style={{fontSize:13,color:'rgba(255,255,255,.4)',lineHeight:1.85,maxWidth:230,marginBottom:16}}>La solution de gestion d'équipes pour les professionnels terrain. Propulsé par SwitzerIT.</div>
             <div style={{display:'flex',gap:8}}>
               {[{l:'🇨🇭',t:'Suisse'},{l:'🔒',t:'RGPD'},{l:'⚡',t:'2-4h setup'}].map(b=>(
@@ -571,7 +571,7 @@ export default function Login() {
                     <div key={i} style={{width:28,height:28,borderRadius:"50%",background:a.bg,border:"2px solid white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-7:0,zIndex:3-i,boxShadow:"0 1px 3px rgba(0,0,0,.1)"}}>{a.t}</div>
                   ))}
                 </div>
-                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111"}}><Logo height={40}/></strong></span>
+                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111"}}>{LOGO_SM}</strong></span>
               </div>
               <div style={{width:1,height:16,background:"#e8e8e8"}}></div>
               <div style={{display:"flex",alignItems:"center",gap:4,background:"#fffbeb",border:"1px solid #fde68a",borderRadius:20,padding:"4px 12px"}}>
