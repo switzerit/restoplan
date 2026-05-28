@@ -254,7 +254,7 @@ function LoginModal({onClose, goPage}) {
         <button onClick={onClose} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:'1px solid #e8e8e8',background:'#f8fafc',color:'#555',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
         <div style={{textAlign:'center',marginBottom:22}}>
           <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
-            <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0066cc"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32"><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#F59E0B"/></svg>
           </div>
           <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Connexion</div>
           <div style={{fontSize:12,color:'#999',marginTop:4}}>Accédez à votre espace Varman</div>
@@ -1208,7 +1208,7 @@ export default function Login() {
         <div style={{background:'white',borderRadius:20,padding:34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:'1px solid #e8e8e8'}}>
           <div style={{textAlign:'center',marginBottom:22}}>
             <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
-              <svg width="28" height="28" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0066cc"/><path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="24" cy="17" r="2.5" fill="white"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32"><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#F59E0B"/></svg>
             </div>
             <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Bienvenue sur Varman !</div>
             <div style={{fontSize:12,color:'#999',marginTop:4}}>Choisissez votre mot de passe pour accéder à votre espace</div>
