@@ -149,7 +149,9 @@ function FaqSection() {
 
 // ── CONTACT FORM isolé ────────────────────────────────────────────────
 function ContactForm({goPage,setShowLogin}) {
-  const [form,setForm]=useState({nom:'',email:'',entreprise:'',secteur:'',message:''})
+  const params = new URLSearchParams(window.location.search)
+  const defaultMsg = params.get('raison')==='essai-expire' ? 'Mon essai de 14 jours est terminé. Je souhaite continuer à utiliser Varman.' : ''
+  const [form,setForm]=useState({nom:'',email:'',entreprise:'',secteur:'',message:defaultMsg})
   const [sent,setSent]=useState(false)
   const [errs,setErrs]=useState({})
   const inp={width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid #e5e5e5',background:'#fafafa',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box',transition:'border-color .2s'}
