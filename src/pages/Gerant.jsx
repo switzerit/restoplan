@@ -181,26 +181,26 @@ export default function Gerant() {
     if(data?.length>0){
       const savedId = localStorage.getItem('restoplan_current_resto')
       const saved = savedId ? data.find(r=>r.id===savedId) : null
-      const resto = saved || data[0]
-      setCurrentResto(resto)
-      // Vérifier trial — si UN restaurant est expiré, tout est bloqué
+      setCurrentResto(saved || data[0])
+    }
+    // Vérifier trial depuis la table gerants
+    const {data:gerantData} = await supabase.from('gerants').select('statut,trial_end_at').eq('user_id',session?.user?.id).single()
+    if(gerantData){
       const now = new Date()
-      const anyExpired = data.some(r =>
-        r.statut === 'expired' || (r.trial_end_at && new Date(r.trial_end_at) < now)
-      )
-      const anyTrialNoDate = data.some(r => r.statut === 'trial' && !r.trial_end_at)
-      const trialResto = data.find(r => r.statut === 'trial' && r.trial_end_at && new Date(r.trial_end_at) >= now)
-      if(anyExpired) {
+      const {statut, trial_end_at} = gerantData
+      if(statut === 'expired' || (trial_end_at && new Date(trial_end_at) < now)) {
         setTrialStatut('expired')
-      } else if(anyTrialNoDate && !trialResto) {
-        setTrialStatut('expired')
-      } else if(trialResto) {
-        const daysLeft = Math.ceil((new Date(trialResto.trial_end_at) - now) / (1000*60*60*24))
+      } else if(statut === 'trial' && trial_end_at) {
+        const daysLeft = Math.ceil((new Date(trial_end_at) - now) / (1000*60*60*24))
         setTrialStatut('trial')
         setTrialDaysLeft(Math.max(0, daysLeft))
+      } else if(statut === 'trial' && !trial_end_at) {
+        setTrialStatut('expired')
       } else {
         setTrialStatut('active')
       }
+    } else {
+      setTrialStatut('active')
     }
   }
 
