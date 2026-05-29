@@ -61,7 +61,7 @@ export default function Notifications({ employe }) {
     if (titre?.includes('modifié') || titre?.includes('jour')) return { icon: '✏️', bg: '#fff7ed' }
     if (titre?.includes('Nouveau') || titre?.includes('planifié')) return { icon: '✅', bg: '#f0fdf4' }
     if (titre?.includes('Congé') || titre?.includes('congé')) return { icon: '🏖️', bg: '#faf5ff' }
-    return { icon: '🔔', bg: '#f0f7ff' }
+    return { icon: '🔔', bg: '#fff1f3' }
   }
 
   const nonLues = notifs.filter(n => !n.lu).length
@@ -118,7 +118,7 @@ export default function Notifications({ employe }) {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
                       <span style={{ fontSize: 13, fontWeight: n.lu ? 600 : 800, color: 'var(--text)', flex: 1 }}>{n.titre}</span>
-                      {!n.lu && <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#0066cc', flexShrink: 0, display: 'inline-block' }} />}
+                      {!n.lu && <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#E11D48', flexShrink: 0, display: 'inline-block' }} />}
                     </div>
                     {n.message && <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.5, marginBottom: 5 }}>{n.message}</div>}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

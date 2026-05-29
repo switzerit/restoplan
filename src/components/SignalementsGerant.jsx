@@ -96,7 +96,7 @@ export default function SignalementsGerant({ restaurant, employes }) {
           <div key={s.id} onClick={() => { setSelected(s); setCommentaire(s.commentaire_gerant || ''); setEditMode(false); setEditForm({ date: s.date, type: s.type, heure_souhaitee: s.heure_souhaitee || '', message: s.message || '', commentaire_gerant: s.commentaire_gerant || '' }) }}
             style={{ background: 'var(--surface)', borderRadius: 14, border: `1px solid ${s.statut === 'en_attente' ? '#fed7aa' : 'var(--border)'}`, overflow: 'hidden', marginBottom: 10, cursor: 'pointer' }}>
             <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f0f7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>🔔</div>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#fff1f3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>🔔</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 700 }}>{emp?.prenom} {emp?.nom}</div>
                 <div style={{ fontSize: 11, color: 'var(--text2)', marginTop: 2 }}>
@@ -123,7 +123,7 @@ export default function SignalementsGerant({ restaurant, employes }) {
               </div>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                 <button onClick={() => { setEditMode(!editMode); setCommentaire(selected.commentaire_gerant||'') }}
-                  style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid var(--border)', background: editMode ? '#0066cc' : 'var(--bg)', color: editMode ? 'white' : 'var(--text)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                  style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid var(--border)', background: editMode ? '#E11D48' : 'var(--bg)', color: editMode ? 'white' : 'var(--text)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   ✏️ {editMode ? 'Annuler' : 'Modifier'}
                 </button>
                 <button onClick={() => supprimer(selected.id)}

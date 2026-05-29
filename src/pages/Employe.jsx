@@ -10,7 +10,7 @@ import CongesEmploye from '../components/CongesEmploye'
 const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']
 const POSTE_COLORS = {
   cuisine:{bg:'#f0faf3',c:'#1a6b35',border:'#b8e8c8'},
-  salle:{bg:'#e8f2fd',c:'#004aad',border:'#b3d4f7'},
+  salle:{bg:'#fff1f3',c:'#C41040',border:'#fda4af'},
   bar:{bg:'#fff8ee',c:'#8a4a00',border:'#ffd99a'},
   reception:{bg:'#faf5ff',c:'#6b21a8',border:'#e9d5ff'},
   default:{bg:'#f5f5f5',c:'#555',border:'#e0e0e0'}
@@ -171,7 +171,7 @@ export default function Employe() {
       {/* ── HEADER ── */}
       <div style={{background:'var(--surface)',padding:'20px 20px 0',borderBottom:'1px solid var(--border)',position:'sticky',top:0,zIndex:10}}>
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-          <div style={{width:44,height:44,borderRadius:'50%',background:'#e8f2fd',color:'#0066cc',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,flexShrink:0}}>
+          <div style={{width:44,height:44,borderRadius:'50%',background:'#fff1f3',color:'#E11D48',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,flexShrink:0}}>
             {ini(employe.prenom,employe.nom)}
           </div>
           <div style={{flex:1,minWidth:0}}>
@@ -238,7 +238,7 @@ export default function Employe() {
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
                 <div style={{fontSize:12,fontWeight:700,color:'var(--text2)'}}>MES POINTAGES AUJOURD'HUI</div>
                 {totalAujourdhui>0&&(
-                  <div style={{fontSize:12,fontWeight:700,color:'#0066cc',background:'#f0f7ff',border:'1px solid #d0e8ff',borderRadius:20,padding:'2px 10px'}}>
+                  <div style={{fontSize:12,fontWeight:700,color:'#E11D48',background:'#fff1f3',border:'1px solid #fecdd3',borderRadius:20,padding:'2px 10px'}}>
                     {Math.floor(totalAujourdhui/60)}h{totalAujourdhui%60>0?(totalAujourdhui%60)+'min':''}
                   </div>
                 )}
@@ -293,9 +293,9 @@ export default function Employe() {
                 const sh=shifts.find(s=>s.date===fmtDate(d))
                 const sc2=sh?getPosteColor(sh.poste):null
                 return (
-                  <div key={i} onClick={()=>setSelectedDay(fmtDate(d))} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'6px 2px',borderRadius:10,background:isToday?'#f0f7ff':'transparent',cursor:'pointer'}}>
-                    <span style={{fontSize:9,fontWeight:700,color:isToday?'#0066cc':'var(--text3)',textTransform:'uppercase'}}>{DAYS[i]}</span>
-                    <div style={{width:30,height:30,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,background:isToday?'#0066cc':fmtDate(d)===selectedDay?'rgba(0,102,204,.12)':'transparent',color:isToday?'white':fmtDate(d)===selectedDay?'#0066cc':'var(--text)'}}>
+                  <div key={i} onClick={()=>setSelectedDay(fmtDate(d))} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,padding:'6px 2px',borderRadius:10,background:isToday?'#fff1f3':'transparent',cursor:'pointer'}}>
+                    <span style={{fontSize:9,fontWeight:700,color:isToday?'#E11D48':'var(--text3)',textTransform:'uppercase'}}>{DAYS[i]}</span>
+                    <div style={{width:30,height:30,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,background:isToday?'#E11D48':fmtDate(d)===selectedDay?'rgba(0,102,204,.12)':'transparent',color:isToday?'white':fmtDate(d)===selectedDay?'#E11D48':'var(--text)'}}>
                       {d.getDate()}
                     </div>
                     <div style={{width:6,height:6,borderRadius:'50%',background:sh?(sc2?.c||'#888'):'transparent'}}></div>
@@ -338,7 +338,7 @@ export default function Employe() {
               return a+t
             },0)
             const pct=hPlanifiees>0?Math.min(100,Math.round(hPointees/hPlanifiees*100)):0
-            const couleur=pct>=90?'#16a34a':pct>=50?'#0066cc':'#ea580c'
+            const couleur=pct>=90?'#16a34a':pct>=50?'#E11D48':'#ea580c'
             return (
               <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',padding:16,marginBottom:16}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
@@ -348,7 +348,7 @@ export default function Employe() {
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:12}}>
                   {[
                     {n:Math.round(hPointees*10)/10+'h',l:'Pointées',c:'#16a34a',bg:'#f0fdf4',bc:'#bbf7d0'},
-                    {n:Math.round(hPlanifiees*10)/10+'h',l:'Planifiées',c:'#0066cc',bg:'#f0f7ff',bc:'#d0e8ff'},
+                    {n:Math.round(hPlanifiees*10)/10+'h',l:'Planifiées',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
                     {n:pct+'%',l:'Réalisé',c:couleur,bg:'var(--bg)',bc:'var(--border)'},
                   ].map((s,i)=>(
                     <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:10,padding:'10px 8px',textAlign:'center'}}>
@@ -383,7 +383,7 @@ export default function Employe() {
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
                   <div style={{fontSize:13,fontWeight:700,color:'var(--text)',textTransform:'capitalize'}}>{fmtJour(date)}</div>
                   {totalMins>0&&(
-                    <div style={{fontSize:12,fontWeight:600,color:'#0066cc',background:'#f0f7ff',border:'1px solid #d0e8ff',borderRadius:20,padding:'2px 10px'}}>
+                    <div style={{fontSize:12,fontWeight:600,color:'#E11D48',background:'#fff1f3',border:'1px solid #fecdd3',borderRadius:20,padding:'2px 10px'}}>
                       {Math.floor(totalMins/60)}h{totalMins%60>0?(totalMins%60)+'min':''}
                     </div>
                   )}
@@ -422,13 +422,13 @@ export default function Employe() {
       {tab==='profil'&&(
         <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:12}}>
           <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:18,padding:24,textAlign:'center'}}>
-            <div style={{width:80,height:80,borderRadius:'50%',background:'#e8f2fd',color:'#0066cc',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,fontWeight:800,margin:'0 auto 14px'}}>
+            <div style={{width:80,height:80,borderRadius:'50%',background:'#fff1f3',color:'#E11D48',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,fontWeight:800,margin:'0 auto 14px'}}>
               {ini(employe.prenom,employe.nom)}
             </div>
             <div style={{fontSize:20,fontWeight:800,color:'var(--text)'}}>{employe.prenom} {employe.nom}</div>
             <div style={{fontSize:14,color:'var(--text2)',marginTop:4}}>{employe.role}</div>
             <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:12}}>
-              <span style={{fontSize:11,fontWeight:600,padding:'4px 12px',borderRadius:20,background:'#f0f7ff',color:'#0066cc',border:'1px solid #d0e8ff'}}>
+              <span style={{fontSize:11,fontWeight:600,padding:'4px 12px',borderRadius:20,background:'#fff1f3',color:'#E11D48',border:'1px solid #fecdd3'}}>
                 {shifts.length} shift{shifts.length>1?'s':''} cette semaine
               </span>
               {totalAujourdhui>0&&(

@@ -2,7 +2,7 @@ import Logo from '../components/Logo'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
-const COLORS=[{bg:'#e8f2fd',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},{bg:'#fff8ee',color:'#8a4a00'},{bg:'#f0f0fc',color:'#3a3880'},{bg:'#fff2f1',color:'#b02020'},{bg:'#fdf0f8',color:'#8a2060'}]
+const COLORS=[{bg:'#fff1f3',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},{bg:'#fff8ee',color:'#8a4a00'},{bg:'#f0f0fc',color:'#3a3880'},{bg:'#fff2f1',color:'#b02020'},{bg:'#fdf0f8',color:'#8a2060'}]
 function ini(p,n){return((p?.[0]||"")+(n?.[0]||"")).toUpperCase()}
 
 const SECTEURS=[
@@ -193,7 +193,7 @@ export default function Admin() {
     return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
       <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
         <button onClick={()=>setSelectedGerant(null)} style={btnSecondary}>← Retour</button>
-        <div style={{width:36,height:36,background:"linear-gradient(135deg,#0071e3,#5856d6)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:"white"}}>{ini(g.prenom,g.nom)}</div>
+        <div style={{width:36,height:36,background:"linear-gradient(135deg,#E11D48,#5856d6)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:"white"}}>{ini(g.prenom,g.nom)}</div>
         <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div><div style={{fontSize:11,color:"var(--text3)"}}>{g.entreprise||"—"} • {g.email}</div></div>
         <button onClick={()=>{setEditGerantForm({prenom:g.prenom,nom:g.nom,email:g.email,telephone:g.telephone||"",entreprise:g.entreprise||""});setEditGerantModal(g)}} style={btnSecondary}>✏️ Modifier</button>
         <button onClick={()=>{setResetPwdModal(g);setResetPwd("")}} style={btnSecondary}>🔑 MDP</button>
@@ -294,7 +294,7 @@ export default function Admin() {
   // VUE LISTE GERANTS
   return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
     <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12}}>
-      <svg width="28" height="20" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#0071e3"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#0071e3"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#0071e3" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#0071e3" fillOpacity="0.18"/></svg>
+      <svg width="28" height="20" viewBox="0 0 32 22" fill="none"><rect x="0" y="4" width="6" height="18" rx="3" fill="#E11D48"/><rect x="8.5" y="0" width="6" height="22" rx="3" fill="#E11D48"/><rect x="17" y="6" width="6" height="14" rx="3" fill="#E11D48" fillOpacity="0.4"/><rect x="25.5" y="3" width="6" height="10" rx="3" fill="#E11D48" fillOpacity="0.18"/></svg>
       <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800,color:"var(--text)"}}>Varman Admin</div><div style={{fontSize:11,color:"var(--text3)"}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
       <button onClick={()=>setCreateModal(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
       <button onClick={deconnexion} style={{padding:"8px 14px",borderRadius:10,border:"1px solid var(--border2)",background:"transparent",color:"var(--text2)",fontSize:13,cursor:"pointer",fontWeight:600}}>Deconnexion</button>

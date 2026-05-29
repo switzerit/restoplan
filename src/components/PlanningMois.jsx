@@ -31,7 +31,7 @@ export default function PlanningMois({employes,shifts,congesSemaine,shiftColors,
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
         {[
-          {icon:'📅',n:mShifts.length,l:'Shifts',c:'#0066cc',bg:'#f0f7ff',bc:'#d0e8ff'},
+          {icon:'📅',n:mShifts.length,l:'Shifts',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
           {icon:'⏱️',n:`${mHeures}h`,l:'Planifiées',c:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff'},
           {icon:'👥',n:mEmp,l:'Employés',c:'#16a34a',bg:'#f0fdf4',bc:'#bbf7d0'},
           {icon:'🏖️',n:mConges.length,l:'Congés',c:'#dc2626',bg:'#fef2f2',bc:'#fecaca'},
@@ -79,7 +79,7 @@ export default function PlanningMois({employes,shifts,congesSemaine,shiftColors,
                   {day&&<>
                     <div style={{marginBottom:5}}>
                       <span style={{fontSize:12,fontWeight:isToday?800:500,width:26,height:26,borderRadius:'50%',
-                        background:isToday?'#0066cc':'transparent',
+                        background:isToday?'#E11D48':'transparent',
                         color:isToday?'white':isWE?'#ea580c':'var(--text)',
                         display:'inline-flex',alignItems:'center',justifyContent:'center',
                         boxShadow:isToday?'0 2px 8px rgba(0,102,204,.3)':'none'

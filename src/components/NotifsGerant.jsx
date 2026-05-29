@@ -51,7 +51,7 @@ export default function NotifsGerant({ restaurant, employes }) {
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
         {[
-          { n: notifs.length, l: 'Envoyées', c: '#0066cc', bg: '#f0f7ff', bc: '#d0e8ff' },
+          { n: notifs.length, l: 'Envoyées', c: '#E11D48', bg: '#fff1f3', bc: '#fecdd3' },
           { n: nonLuCount, l: 'Non lues', c: '#ea580c', bg: '#fff7ed', bc: '#fed7aa' },
           { n: notifs.length - nonLuCount, l: 'Lues ✓', c: '#16a34a', bg: '#f0fdf4', bc: '#bbf7d0' },
         ].map((s, i) => (

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
 const TYPES = {
-  conge_paye:{l:'Congé payé',emoji:'🏖️',c:'#0066cc',bg:'#f0f7ff',bc:'#d0e8ff'},
+  conge_paye:{l:'Congé payé',emoji:'🏖️',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
   maladie:{l:'Arrêt maladie',emoji:'🏥',c:'#dc2626',bg:'#fef2f2',bc:'#fecaca'},
   rtt:{l:'RTT',emoji:'⏰',c:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff'},
   sans_solde:{l:'Sans solde',emoji:'📋',c:'#ea580c',bg:'#fff7ed',bc:'#fed7aa'},
@@ -37,18 +37,18 @@ function doExportPDF(conges, restaurant, employes, filtreEmp, dateDebut, dateFin
 body{font-family:Arial,sans-serif;padding:30px;color:#111;font-size:13px}
 h1{font-size:20px;margin:0 0 4px}
 .meta{color:#666;font-size:12px;margin-bottom:6px}
-.period{display:inline-block;background:#f0f7ff;color:#0066cc;border:1px solid #d0e8ff;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:20px}
+.period{display:inline-block;background:#fff1f3;color:#E11D48;border:1px solid #fecdd3;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:20px}
 .cards{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
 .card{background:#f5f5f5;padding:10px 16px;border-radius:8px;text-align:center;min-width:90px}
 .card-n{font-size:24px;font-weight:800}.card-l{font-size:10px;color:#666;margin-top:2px}
-h2{font-size:13px;background:#f0f7ff;padding:7px 12px;border-radius:6px;margin:16px 0 7px;color:#0051a8;display:flex;align-items:center;gap:8px}
+h2{font-size:13px;background:#fff1f3;padding:7px 12px;border-radius:6px;margin:16px 0 7px;color:#0051a8;display:flex;align-items:center;gap:8px}
 table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12px}
 th{background:#f5f5f5;padding:6px 10px;text-align:left;border:1px solid #ddd;font-size:11px}
 td{padding:6px 10px;border:1px solid #ddd}
 .badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;display:inline-block}
 .accepte{background:#f0fdf4;color:#16a34a}.refuse{background:#fef2f2;color:#dc2626}
 .annule{background:#f3f4f6;color:#6b7280}.en_attente{background:#fff7ed;color:#ea580c}
-.t-cp{background:#f0f7ff;color:#0066cc}.t-rtt{background:#faf5ff;color:#7c3aed}
+.t-cp{background:#fff1f3;color:#E11D48}.t-rtt{background:#faf5ff;color:#7c3aed}
 .t-maladie{background:#fef2f2;color:#dc2626}.t-sans_solde{background:#fff7ed;color:#ea580c}
 .t-autre{background:#f5f5f5;color:#555}
 @media print{body{padding:15px}button{display:none}}
@@ -275,7 +275,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
             {/* Header tableau */}
             <div style={{display:'grid',gridTemplateColumns:'1fr 130px 130px',background:'var(--bg)',borderBottom:'2px solid var(--border)',padding:'10px 16px',gap:8}}>
               <div style={{fontSize:11,fontWeight:700,color:'var(--text2)'}}>EMPLOYÉ</div>
-              <div style={{fontSize:11,fontWeight:700,color:'#0066cc',textAlign:'center'}}>🏖️ CONGÉS PAYÉS</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#E11D48',textAlign:'center'}}>🏖️ CONGÉS PAYÉS</div>
               <div style={{fontSize:11,fontWeight:700,color:'#7c3aed',textAlign:'center'}}>⏰ RTT</div>
             </div>
             {soldesData.map((emp,i)=>{
@@ -289,7 +289,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
                   onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                   {/* Nom */}
                   <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <div style={{width:30,height:30,borderRadius:'50%',background:'#f0f7ff',color:'#0066cc',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>{(emp.prenom?.[0]||'')+(emp.nom?.[0]||'')}</div>
+                    <div style={{width:30,height:30,borderRadius:'50%',background:'#fff1f3',color:'#E11D48',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>{(emp.prenom?.[0]||'')+(emp.nom?.[0]||'')}</div>
                     <div>
                       <div style={{fontSize:13,fontWeight:700}}>{emp.prenom} {emp.nom}</div>
                       <div style={{fontSize:10,color:'var(--text2)'}}>{emp.role}</div>
@@ -301,18 +301,18 @@ export default function CongesGerant({restaurant, employes, showToast}) {
                       <span style={{fontSize:11,color:cpS>5?'#16a34a':cpS>0?'#ea580c':'#dc2626',fontWeight:700}}>{cpS}j restants</span>
                     </div>
                     <div style={{height:4,background:'var(--bg)',borderRadius:2,overflow:'hidden',border:'1px solid var(--border)',marginBottom:3}}>
-                      <div style={{height:'100%',background:cpPct>80?'#dc2626':cpPct>50?'#ea580c':'#0066cc',width:`${cpPct}%`,borderRadius:2,transition:'width .3s'}}/>
+                      <div style={{height:'100%',background:cpPct>80?'#dc2626':cpPct>50?'#ea580c':'#E11D48',width:`${cpPct}%`,borderRadius:2,transition:'width .3s'}}/>
                     </div>
                     <div style={{fontSize:10,color:'var(--text2)'}}>{emp.cpPris}j pris /&nbsp;
                       {editSolde?.empId===emp.id&&editSolde?.type==='cp'?(
                         <span style={{display:'inline-flex',gap:3,alignItems:'center'}}>
                           <input type="number" value={soldeTmp} onChange={e=>setSoldeTmp(e.target.value)} min="0" max="365"
-                            style={{width:40,padding:'1px 4px',borderRadius:5,border:'1.5px solid #0066cc',fontSize:10,textAlign:'center',outline:'none'}}/>
-                          <button onClick={()=>saveSolde(emp.id,'cp')} style={{padding:'1px 6px',borderRadius:5,border:'none',background:'#0066cc',color:'white',fontSize:10,fontWeight:700,cursor:'pointer'}}>✓</button>
+                            style={{width:40,padding:'1px 4px',borderRadius:5,border:'1.5px solid #E11D48',fontSize:10,textAlign:'center',outline:'none'}}/>
+                          <button onClick={()=>saveSolde(emp.id,'cp')} style={{padding:'1px 6px',borderRadius:5,border:'none',background:'#E11D48',color:'white',fontSize:10,fontWeight:700,cursor:'pointer'}}>✓</button>
                           <button onClick={()=>setEditSolde(null)} style={{padding:'1px 5px',borderRadius:5,border:'1px solid var(--border)',background:'var(--bg)',fontSize:10,cursor:'pointer'}}>✕</button>
                         </span>
                       ):(
-                        <button onClick={()=>{setEditSolde({empId:emp.id,type:'cp'});setSoldeTmp(String(emp.cpTotal))}} style={{border:'none',background:'transparent',color:'#0066cc',fontWeight:700,fontSize:10,cursor:'pointer',textDecoration:'underline'}}>{emp.cpTotal}j ✏️</button>
+                        <button onClick={()=>{setEditSolde({empId:emp.id,type:'cp'});setSoldeTmp(String(emp.cpTotal))}} style={{border:'none',background:'transparent',color:'#E11D48',fontWeight:700,fontSize:10,cursor:'pointer',textDecoration:'underline'}}>{emp.cpTotal}j ✏️</button>
                       )}
                     </div>
                   </div>

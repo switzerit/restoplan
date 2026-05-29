@@ -60,7 +60,7 @@ function RealQR({ restoId, secret }) {
       )}
       <div style={{ width:220 }}>
         <div style={{ height:3, background:'#e8e8e8', borderRadius:2 }}>
-          <div style={{ height:'100%', background:'#0066cc', borderRadius:2, width:`${prog}%`, transition:'width .5s linear' }}/>
+          <div style={{ height:'100%', background:'#E11D48', borderRadius:2, width:`${prog}%`, transition:'width .5s linear' }}/>
         </div>
         <div style={{ fontSize:11, color:'#999', textAlign:'center', marginTop:4, fontWeight:500 }}>
           Renouvellement dans {secs}s
@@ -98,7 +98,7 @@ function PINKeypad({ onSubmit, error, tentatives, bloqueJusqua }) {
       {/* Dots */}
       <div style={{ display:'flex', gap:16 }}>
         {Array.from({length:MAX}).map((_,i) => (
-          <div key={i} style={{ width:14, height:14, borderRadius:'50%', background: i<pin.length ? '#0066cc' : 'transparent', border:`2px solid ${i<pin.length ? '#0066cc' : '#d0d0d0'}`, transition:'all .15s' }}/>
+          <div key={i} style={{ width:14, height:14, borderRadius:'50%', background: i<pin.length ? '#E11D48' : 'transparent', border:`2px solid ${i<pin.length ? '#E11D48' : '#d0d0d0'}`, transition:'all .15s' }}/>
         ))}
       </div>
 
@@ -311,7 +311,7 @@ export default function Borne() {
 
   const LOGO = (
     <svg width="36" height="36" viewBox="0 0 34 34" fill="none">
-      <rect width="34" height="34" rx="9" fill="#0066cc"/>
+      <rect width="34" height="34" rx="9" fill="#E11D48"/>
       <path d="M10 9v16M10 17l7-8M10 17l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
       <circle cx="24" cy="17" r="2.5" fill="white"/>
     </svg>

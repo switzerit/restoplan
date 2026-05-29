@@ -53,7 +53,7 @@ export default function SignalementsEmploye({ employe }) {
     <div>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
         <div style={{ fontSize:15, fontWeight:800 }}>🔔 Signalements</div>
-        <button onClick={() => setModal(true)} style={{ padding:'8px 16px', borderRadius:10, border:'none', background:'#0066cc', color:'white', fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Signaler</button>
+        <button onClick={() => setModal(true)} style={{ padding:'8px 16px', borderRadius:10, border:'none', background:'#E11D48', color:'white', fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Signaler</button>
       </div>
 
       {signalements.length === 0 ? (
@@ -79,9 +79,9 @@ export default function SignalementsEmploye({ employe }) {
             </div>
             {s.message && <div style={{ padding:'8px 14px', borderTop:'1px solid var(--border)', fontSize:12, color:'var(--text2)', fontStyle:'italic' }}>"{s.message}"</div>}
             {s.commentaire_gerant && (
-              <div style={{ padding:'10px 14px', borderTop:'1px solid #d0e8ff', background:'#f0f7ff' }}>
-                <div style={{ fontSize:10, fontWeight:800, color:'#0066cc', marginBottom:3 }}>💬 RÉPONSE DU RESPONSABLE</div>
-                <div style={{ fontSize:13, color:'#0066cc' }}>{s.commentaire_gerant}</div>
+              <div style={{ padding:'10px 14px', borderTop:'1px solid #fecdd3', background:'#fff1f3' }}>
+                <div style={{ fontSize:10, fontWeight:800, color:'#E11D48', marginBottom:3 }}>💬 RÉPONSE DU RESPONSABLE</div>
+                <div style={{ fontSize:13, color:'#E11D48' }}>{s.commentaire_gerant}</div>
               </div>
             )}
           </div>
@@ -101,9 +101,9 @@ export default function SignalementsEmploye({ employe }) {
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                   {Object.entries(TYPES).map(([k,v]) => (
                     <button key={k} onClick={() => setForm(f=>({...f,type:k}))}
-                      style={{ padding:'10px 8px', borderRadius:10, border:`2px solid ${form.type===k?'#0066cc':'var(--border)'}`, background:form.type===k?'#f0f7ff':'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', gap:8, textAlign:'left' }}>
+                      style={{ padding:'10px 8px', borderRadius:10, border:`2px solid ${form.type===k?'#E11D48':'var(--border)'}`, background:form.type===k?'#fff1f3':'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', gap:8, textAlign:'left' }}>
                       <span style={{ fontSize:15 }}>{v.icon}</span>
-                      <span style={{ fontSize:12, fontWeight:form.type===k?700:500, color:form.type===k?'#0066cc':'var(--text)' }}>{v.l}</span>
+                      <span style={{ fontSize:12, fontWeight:form.type===k?700:500, color:form.type===k?'#E11D48':'var(--text)' }}>{v.l}</span>
                     </button>
                   ))}
                 </div>
@@ -134,7 +134,7 @@ export default function SignalementsEmploye({ employe }) {
 
               <div style={{ display:'flex', gap:8 }}>
                 <button onClick={() => setModal(false)} style={{ flex:1, height:44, borderRadius:12, border:'1.5px solid var(--border)', background:'transparent', color:'var(--text2)', fontSize:14, fontWeight:600, cursor:'pointer' }}>Annuler</button>
-                <button onClick={soumettre} disabled={loading} style={{ flex:2, height:44, borderRadius:12, border:'none', background:loading?'#99b8e0':'#0066cc', color:'white', fontSize:14, fontWeight:700, cursor:'pointer' }}>
+                <button onClick={soumettre} disabled={loading} style={{ flex:2, height:44, borderRadius:12, border:'none', background:loading?'#99b8e0':'#E11D48', color:'white', fontSize:14, fontWeight:700, cursor:'pointer' }}>
                   {loading ? 'Envoi...' : 'Envoyer'}
                 </button>
               </div>

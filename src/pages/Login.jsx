@@ -7,22 +7,22 @@ import { useNavigate, useLocation } from 'react-router-dom'
 const LOGO_SM = (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32">
     <text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text>
-    <circle cx="152" cy="32" r="7" fill="#F59E0B"/>
+    <circle cx="152" cy="32" r="7" fill="#E11D48"/>
   </svg>
 )
 
 // ── ICONS SVG ─────────────────────────────────────────────────────────
-const IcoCalendar = ({c='#0066cc'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+const IcoCalendar = ({c='#E11D48'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
 const IcoQR = ({c='#7c3aed'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill={c}/><rect x="16" y="5" width="3" height="3" fill={c}/><rect x="5" y="16" width="3" height="3" fill={c}/><path d="M14 14h3v3h-3zM17 17h4M17 14v4"/></svg>
 const IcoUsers = ({c='#16a34a'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 const IcoPhone = ({c='#ea580c'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
 const IcoFile = ({c='#0891b2'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
 const IcoBuilding = ({c='#be185d'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M3 9h6M3 15h6M15 9h3M15 15h3"/></svg>
-const IcoChk = ({size=14,c='#0066cc'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+const IcoChk = ({size=14,c='#E11D48'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
 const IcoArr = ({size=16,c='white'}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-const IcoShield = ({c='#0066cc'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-const IcoZap = ({c='#0066cc'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-const IcoClock = ({c='#0066cc'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+const IcoShield = ({c='#E11D48'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+const IcoZap = ({c='#E11D48'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+const IcoClock = ({c='#E11D48'}) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 
 // ── ANIMATIONS ────────────────────────────────────────────────────────
 function HeroReveal({children,delay=0}) {
@@ -73,7 +73,7 @@ function QRDisplay() {
       </div>
       <div style={{width:72}}>
         <div style={{height:2,background:'#e5e5e5',borderRadius:1}}>
-          <div style={{height:'100%',background:'#0066cc',borderRadius:1,width:`${prog}%`,transition:'width .1s linear'}}/>
+          <div style={{height:'100%',background:'#E11D48',borderRadius:1,width:`${prog}%`,transition:'width .1s linear'}}/>
         </div>
         <div style={{fontSize:9,color:'#aaa',textAlign:'center',marginTop:3,fontWeight:500}}>Renouvellement {Math.ceil(30-(prog*30/100))}s</div>
       </div>
@@ -91,12 +91,12 @@ function RoiCalc({isMobile}) {
       <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:24,marginBottom:28}}>
         <div>
           <label style={{display:'block',fontSize:13,fontWeight:600,color:'#444',marginBottom:10}}>Nombre d'employés — <strong style={{color:'#111'}}>{emp}</strong></label>
-          <input type="range" min="2" max="80" value={emp} onChange={ev=>setEmp(Number(ev.target.value))} style={{width:'100%',accentColor:'#0066cc',cursor:'pointer'}}/>
+          <input type="range" min="2" max="80" value={emp} onChange={ev=>setEmp(Number(ev.target.value))} style={{width:'100%',accentColor:'#E11D48',cursor:'pointer'}}/>
           <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#bbb',marginTop:4}}><span>2</span><span>80</span></div>
         </div>
         <div>
           <label style={{display:'block',fontSize:13,fontWeight:600,color:'#444',marginBottom:10}}>Heures perdues / semaine — <strong style={{color:'#111'}}>{hrs}h</strong></label>
-          <input type="range" min="1" max="15" value={hrs} onChange={ev=>setHrs(Number(ev.target.value))} style={{width:'100%',accentColor:'#0066cc',cursor:'pointer'}}/>
+          <input type="range" min="1" max="15" value={hrs} onChange={ev=>setHrs(Number(ev.target.value))} style={{width:'100%',accentColor:'#E11D48',cursor:'pointer'}}/>
           <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#bbb',marginTop:4}}><span>1h</span><span>15h</span></div>
         </div>
       </div>
@@ -108,9 +108,9 @@ function RoiCalc({isMobile}) {
           </div>
         ))}
       </div>
-      <div style={{background:'#f0f7ff',border:'1px solid #d0e8ff',borderRadius:12,padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
+      <div style={{background:'#fff1f3',border:'1px solid #fecdd3',borderRadius:12,padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10}}>
         <span style={{fontSize:13,color:'#0052a3',fontWeight:500}}>Économie estimée : <strong>{e.toLocaleString('fr-CH')} CHF/an</strong> pour {emp} employés</span>
-        <a href="/contact" style={{padding:'9px 18px',borderRadius:9,background:'#0066cc',color:'white',fontSize:13,fontWeight:700,textDecoration:'none',display:'inline-flex',alignItems:'center',gap:6}}>Obtenir mon devis <IcoArr size={13}/></a>
+        <a href="/contact" style={{padding:'9px 18px',borderRadius:9,background:'#E11D48',color:'white',fontSize:13,fontWeight:700,textDecoration:'none',display:'inline-flex',alignItems:'center',gap:6}}>Obtenir mon devis <IcoArr size={13}/></a>
       </div>
     </div>
   )
@@ -134,14 +134,14 @@ function FaqSection() {
         <div key={i} style={{borderBottom:'1px solid #f0f0f0'}}>
           <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 0',background:'none',border:'none',cursor:'pointer',textAlign:'left',gap:16}}>
             <span style={{fontSize:15,fontWeight:600,color:'#111',lineHeight:1.4}}>{faq.q}</span>
-            <span style={{fontSize:20,color:'#0066cc',flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block',lineHeight:1}}>{open===i?'−':'+'}</span>
+            <span style={{fontSize:20,color:'#E11D48',flexShrink:0,fontWeight:300,transform:open===i?'rotate(45deg)':'none',transition:'transform .2s',display:'inline-block',lineHeight:1}}>{open===i?'−':'+'}</span>
           </button>
           {open===i&&<div style={{paddingBottom:18}}><p style={{fontSize:14,color:'#555',lineHeight:1.8,margin:0}}>{faq.a}</p></div>}
         </div>
       ))}
       <div style={{textAlign:'center',marginTop:28,paddingTop:20}}>
         <span style={{fontSize:14,color:'#888'}}>Une autre question ? </span>
-        <a href="/contact" style={{fontSize:14,color:'#0066cc',fontWeight:600,textDecoration:'none'}}>On vous répond →</a>
+        <a href="/contact" style={{fontSize:14,color:'#E11D48',fontWeight:600,textDecoration:'none'}}>On vous répond →</a>
       </div>
     </div>
   )
@@ -182,7 +182,7 @@ function ContactForm({goPage,setShowLogin}) {
           <input type={t} placeholder={ph} value={form[f]}
             onChange={ev=>{setForm(ff=>({...ff,[f]:ev.target.value}));setErrs(er=>({...er,[f]:false}))}}
             style={{...inp,borderColor:errs[f]?'#ef4444':'#e5e5e5'}}
-            onFocus={e=>e.target.style.borderColor='#0066cc'}
+            onFocus={e=>e.target.style.borderColor='#E11D48'}
             onBlur={e=>e.target.style.borderColor=errs[f]?'#ef4444':'#e5e5e5'}/>
           {errs[f]&&<div style={{fontSize:11,color:'#ef4444',marginTop:3}}>Champ requis</div>}
         </div>
@@ -199,9 +199,9 @@ function ContactForm({goPage,setShowLogin}) {
         <textarea placeholder="Nombre d'employés, besoin spécifique..." value={form.message}
           onChange={e=>setForm(f=>({...f,message:e.target.value}))} rows={3}
           style={{...inp,resize:'vertical',fontFamily:'var(--font)'}}
-          onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e5e5e5'}/>
+          onFocus={e=>e.target.style.borderColor='#E11D48'} onBlur={e=>e.target.style.borderColor='#e5e5e5'}/>
       </div>
-      <button onClick={submit} style={{width:'100%',height:52,borderRadius:12,border:'none',background:'#0066cc',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',transition:'opacity .15s'}}
+      <button onClick={submit} style={{width:'100%',height:52,borderRadius:12,border:'none',background:'#E11D48',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',transition:'opacity .15s'}}
       onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
       onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
         Envoyer ma demande →
@@ -254,7 +254,7 @@ function LoginModal({onClose, goPage}) {
         <button onClick={onClose} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:'1px solid #e8e8e8',background:'#f8fafc',color:'#555',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
         <div style={{textAlign:'center',marginBottom:22}}>
           <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32"><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#F59E0B"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32"><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#E11D48"/></svg>
           </div>
           <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Connexion</div>
           <div style={{fontSize:12,color:'#999',marginTop:4}}>Accédez à votre espace Varman</div>
@@ -264,22 +264,22 @@ function LoginModal({onClose, goPage}) {
             <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Email</label>
             <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.fr" required
               style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid #e8e8e8',background:'#fafafa',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}}
-              onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
+              onFocus={e=>e.target.style.borderColor='#E11D48'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
           </div>
           <div style={{marginBottom:22}}>
             <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Mot de passe</label>
             <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required
               style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid #e8e8e8',background:'white',fontSize:14,color:'#111',outline:'none',boxSizing:'border-box'}}
-              onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
+              onFocus={e=>e.target.style.borderColor='#E11D48'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
           </div>
           {error&&<div style={{padding:'9px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:9,fontSize:13,color:'#dc2626',marginBottom:14,fontWeight:600}}>{error}</div>}
-          <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:11,border:'none',background:'#0066cc',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
+          <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:11,border:'none',background:'#E11D48',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
             {loading?'Connexion...':'Se connecter'}
           </button>
         </form>
         <div style={{textAlign:'center',marginTop:14}}>
           <span style={{fontSize:12,color:'#999'}}>Pas encore client ? </span>
-          <span style={{fontSize:12,color:'#0066cc',fontWeight:600,cursor:'pointer'}} onClick={()=>{onClose();goPage('contact')}}>Demander une démo</span>
+          <span style={{fontSize:12,color:'#E11D48',fontWeight:600,cursor:'pointer'}} onClick={()=>{onClose();goPage('contact')}}>Demander une démo</span>
         </div>
       </div>
     </div>
@@ -350,9 +350,9 @@ export default function Login() {
   if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'white',color:'#aaa',fontFamily:'var(--font)'}}>Chargement...</div>
 
   // ── DESIGN TOKENS ──────────────────────────────────────────────────
-  const A='#0066cc'       // bleu accent
-  const AG='#f0f7ff'      // bleu très clair
-  const AB='#d0e8ff'      // bleu border
+  const A='#E11D48'       // bleu accent
+  const AG='#fff1f3'      // bleu très clair
+  const AB='#fecdd3'      // bleu border
   const TEXT='#111111'
   const TEXT2='#555555'
   const TEXT3='#999999'
@@ -422,7 +422,7 @@ export default function Login() {
             <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="28">
     <text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="white">varman</text>
-    <circle cx="152" cy="32" r="7" fill="#F59E0B"/>
+    <circle cx="152" cy="32" r="7" fill="#E11D48"/>
   </svg>
 </div>
             <div style={{fontSize:13,color:'rgba(255,255,255,.4)',lineHeight:1.85,maxWidth:230,marginBottom:16}}>La solution de gestion d'équipes pour les professionnels terrain. Propulsé par SwitzerIT.</div>
@@ -575,11 +575,11 @@ export default function Login() {
                     <div key={i} style={{width:28,height:28,borderRadius:"50%",background:a.bg,border:"2px solid white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-7:0,zIndex:3-i,boxShadow:"0 1px 3px rgba(0,0,0,.1)"}}>{a.t}</div>
                   ))}
                 </div>
-                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111",fontSize:16,fontWeight:900,letterSpacing:"-1px",fontFamily:"-apple-system,'Inter',sans-serif"}}>varman<span style={{color:"#F59E0B"}}>.</span></strong></span>
+                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111",fontSize:16,fontWeight:900,letterSpacing:"-1px",fontFamily:"-apple-system,'Inter',sans-serif"}}>varman<span style={{color:"#E11D48"}}>.</span></strong></span>
               </div>
               <div style={{width:1,height:16,background:"#e8e8e8"}}></div>
               <div style={{display:"flex",alignItems:"center",gap:4,background:"#fffbeb",border:"1px solid #fde68a",borderRadius:20,padding:"4px 12px"}}>
-                <span style={{color:"#f59e0b",fontSize:12}}>★★★★★</span>
+                <span style={{color:"#E11D48",fontSize:12}}>★★★★★</span>
                 <span style={{fontSize:13,fontWeight:700,color:"#111"}}>4.8/5</span>
                 <span style={{fontSize:11,color:"#999"}}>· SwitzerIT</span>
               </div>
@@ -671,7 +671,7 @@ export default function Login() {
           </Reveal>
           <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12}}>
             {[
-              {Icon:IcoCalendar,bg:'#f0f7ff',bc:'#d0e8ff',c:A,title:'Planning intelligent',desc:'Créez et publiez les plannings en quelques clics. Shifts simples ou coupés. Postes adaptés à votre secteur.'},
+              {Icon:IcoCalendar,bg:'#fff1f3',bc:'#fecdd3',c:A,title:'Planning intelligent',desc:'Créez et publiez les plannings en quelques clics. Shifts simples ou coupés. Postes adaptés à votre secteur.'},
               {Icon:IcoQR,bg:'#faf5ff',bc:'#e9d5ff',c:'#7c3aed',title:'Badgeage QR Code',desc:'QR dynamique renouvelé toutes les 30s. Scan depuis le téléphone. Borne tablette disponible.'},
               {Icon:IcoUsers,bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a',title:'Présences en direct',desc:'Qui est là maintenant. Heures prévues vs pointées. Écarts calculés automatiquement.'},
               {Icon:IcoPhone,bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c',title:'App mobile employé',desc:'Planning, badgeage, historique. Installable sur iPhone et Android.'},
@@ -1208,7 +1208,7 @@ export default function Login() {
         <div style={{background:'white',borderRadius:20,padding:34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:'1px solid #e8e8e8'}}>
           <div style={{textAlign:'center',marginBottom:22}}>
             <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32"><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#F59E0B"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32"><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#E11D48"/></svg>
             </div>
             <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Bienvenue sur Varman !</div>
             <div style={{fontSize:12,color:'#999',marginTop:4}}>Choisissez votre mot de passe pour accéder à votre espace</div>
@@ -1217,15 +1217,15 @@ export default function Login() {
             <div style={{marginBottom:13}}>
               <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Nouveau mot de passe</label>
               <input type="password" value={pwd} onChange={e=>setPwd(e.target.value)} placeholder="Minimum 6 caractères" required style={inpStyle}
-                onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
+                onFocus={e=>e.target.style.borderColor='#E11D48'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
             </div>
             <div style={{marginBottom:20}}>
               <label style={{display:'block',fontSize:12,fontWeight:600,color:'#555',marginBottom:6}}>Confirmer le mot de passe</label>
               <input type="password" value={pwd2} onChange={e=>setPwd2(e.target.value)} placeholder="Répétez le mot de passe" required style={inpStyle}
-                onFocus={e=>e.target.style.borderColor='#0066cc'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
+                onFocus={e=>e.target.style.borderColor='#E11D48'} onBlur={e=>e.target.style.borderColor='#e8e8e8'}/>
             </div>
             {error&&<div style={{padding:'9px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:9,fontSize:13,color:'#dc2626',marginBottom:14,fontWeight:600}}>{error}</div>}
-            <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:11,border:'none',background:'#0066cc',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
+            <button type="submit" disabled={loading} style={{width:'100%',height:48,borderRadius:11,border:'none',background:'#E11D48',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
               {loading?'Enregistrement...':'Créer mon mot de passe →'}
             </button>
           </form>

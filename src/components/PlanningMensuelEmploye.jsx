@@ -34,7 +34,7 @@ export default function PlanningMensuelEmploye({ employe, today, getPosteColor, 
   return (
     <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:12}}>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-        {[{n:shiftsMonth.length,l:'Shifts ce mois',c:'#0066cc'},{n:totalH+'h',l:'Heures planifiées',c:'#16a34a'}].map((s,i)=>(
+        {[{n:shiftsMonth.length,l:'Shifts ce mois',c:'#E11D48'},{n:totalH+'h',l:'Heures planifiées',c:'#16a34a'}].map((s,i)=>(
           <div key={i} style={{background:'var(--surface)',borderRadius:12,padding:'12px 14px',border:'1px solid var(--border)',textAlign:'center'}}>
             <div style={{fontSize:22,fontWeight:800,color:s.c}}>{s.n}</div>
             <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{s.l}</div>
@@ -46,7 +46,7 @@ export default function PlanningMensuelEmploye({ employe, today, getPosteColor, 
         <button onClick={()=>setPlanMois(new Date(y,m-1,1))} style={{width:32,height:32,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>
         <div style={{flex:1,textAlign:'center',fontSize:14,fontWeight:700,textTransform:'capitalize'}}>{planMois.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</div>
         <button onClick={()=>setPlanMois(new Date(y,m+1,1))} style={{width:32,height:32,borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>
-        <button onClick={()=>setPlanMois(new Date())} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',fontSize:11,fontWeight:600,color:'#0066cc',cursor:'pointer'}}>Auj.</button>
+        <button onClick={()=>setPlanMois(new Date())} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border)',background:'var(--bg)',fontSize:11,fontWeight:600,color:'#E11D48',cursor:'pointer'}}>Auj.</button>
       </div>
 
       <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden'}}>
@@ -68,10 +68,10 @@ export default function PlanningMensuelEmploye({ employe, today, getPosteColor, 
               return (
                 <div key={di} onClick={()=>setSelectedDay(isSelected?null:ds)}
                   style={{minHeight:52,padding:'5px 4px',borderRight:di<6?'1px solid var(--border)':'none',
-                    background:isSelected?'#e8f2fd':isToday?'rgba(0,102,204,.05)':isWE?'rgba(234,88,12,.03)':'transparent',
+                    background:isSelected?'#fff1f3':isToday?'rgba(0,102,204,.05)':isWE?'rgba(234,88,12,.03)':'transparent',
                     cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3}}>
                   <span style={{fontSize:11,fontWeight:isToday?800:400,width:22,height:22,borderRadius:'50%',
-                    background:isToday?'#0066cc':'transparent',
+                    background:isToday?'#E11D48':'transparent',
                     color:isToday?'white':isWE?'#ea580c':'var(--text)',
                     display:'flex',alignItems:'center',justifyContent:'center'}}>
                     {day.getDate()}

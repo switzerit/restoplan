@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
 const TYPES = [
-  {id:'conge_paye',l:'Congé payé',emoji:'🏖️',c:'#0066cc',bg:'#f0f7ff',bc:'#d0e8ff'},
+  {id:'conge_paye',l:'Congé payé',emoji:'🏖️',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
   {id:'maladie',l:'Arrêt maladie',emoji:'🏥',c:'#dc2626',bg:'#fef2f2',bc:'#fecaca'},
   {id:'rtt',l:'RTT',emoji:'⏰',c:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff'},
   {id:'sans_solde',l:'Sans solde',emoji:'📋',c:'#ea580c',bg:'#fff7ed',bc:'#fed7aa'},
@@ -90,12 +90,12 @@ export default function CongesEmploye({employe}) {
         <div style={{marginBottom:12}}>
           <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:8}}>
             <span style={{fontSize:14}}>🏖️</span>
-            <span style={{fontSize:12,fontWeight:700,color:'#0066cc'}}>Congés payés</span>
+            <span style={{fontSize:12,fontWeight:700,color:'#E11D48'}}>Congés payés</span>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
-            <div style={{background:'#f0f7ff',border:'1px solid #d0e8ff',borderRadius:12,padding:'12px 8px',textAlign:'center'}}>
-              <div style={{fontSize:26,fontWeight:900,color:'#0066cc'}}>{cpTotal}</div>
-              <div style={{fontSize:10,color:'#0066cc',marginTop:2,fontWeight:500}}>droit / an</div>
+            <div style={{background:'#fff1f3',border:'1px solid #fecdd3',borderRadius:12,padding:'12px 8px',textAlign:'center'}}>
+              <div style={{fontSize:26,fontWeight:900,color:'#E11D48'}}>{cpTotal}</div>
+              <div style={{fontSize:10,color:'#E11D48',marginTop:2,fontWeight:500}}>droit / an</div>
             </div>
             <div style={{background:'#fef2f2',border:'1px solid #fecaca',borderRadius:12,padding:'12px 8px',textAlign:'center'}}>
               <div style={{fontSize:26,fontWeight:900,color:'#dc2626'}}>{cpPris}</div>
@@ -107,7 +107,7 @@ export default function CongesEmploye({employe}) {
             </div>
           </div>
           {cpTotal>0&&<div style={{height:4,background:'var(--bg)',borderRadius:2,overflow:'hidden',marginTop:8,border:'1px solid var(--border)'}}>
-            <div style={{height:'100%',background:cpPris/cpTotal>0.8?'#dc2626':'#0066cc',width:`${Math.min(100,Math.round(cpPris/cpTotal*100))}%`,borderRadius:2,transition:'width .3s'}}/>
+            <div style={{height:'100%',background:cpPris/cpTotal>0.8?'#dc2626':'#E11D48',width:`${Math.min(100,Math.round(cpPris/cpTotal*100))}%`,borderRadius:2,transition:'width .3s'}}/>
           </div>}
         </div>
 
@@ -154,14 +154,14 @@ export default function CongesEmploye({employe}) {
 
       {/* Bouton nouvelle demande */}
       {!showForm&&(
-        <button onClick={()=>setShowForm(true)} style={{width:'100%',height:50,borderRadius:14,border:'none',background:'#0066cc',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+        <button onClick={()=>setShowForm(true)} style={{width:'100%',height:50,borderRadius:14,border:'none',background:'#E11D48',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
           <span style={{fontSize:18}}>➕</span> Nouvelle demande de congé
         </button>
       )}
 
       {/* Formulaire */}
       {showForm&&(
-        <div style={{background:'var(--surface)',border:'2px solid #0066cc',borderRadius:18,padding:20}}>
+        <div style={{background:'var(--surface)',border:'2px solid #E11D48',borderRadius:18,padding:20}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
             <div style={{fontSize:15,fontWeight:800}}>Nouvelle demande</div>
             <button onClick={()=>setShowForm(false)} style={{width:28,height:28,borderRadius:'50%',border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
@@ -174,7 +174,7 @@ export default function CongesEmploye({employe}) {
                   <input type="radio" name="type" value={t.id} checked={form.type===t.id} onChange={()=>setForm(f=>({...f,type:t.id}))} style={{accentColor:t.c}}/>
                   <span style={{fontSize:16}}>{t.emoji}</span>
                   <span style={{fontSize:13,fontWeight:600,color:form.type===t.id?t.c:'var(--text)'}}>{t.l}</span>
-                  {t.id==='conge_paye'&&<span style={{marginLeft:'auto',fontSize:10,fontWeight:700,color:'#0066cc',background:'white',padding:'1px 7px',borderRadius:20,border:'1px solid #d0e8ff'}}>{cpSolde}j restants</span>}
+                  {t.id==='conge_paye'&&<span style={{marginLeft:'auto',fontSize:10,fontWeight:700,color:'#E11D48',background:'white',padding:'1px 7px',borderRadius:20,border:'1px solid #fecdd3'}}>{cpSolde}j restants</span>}
                   {t.id==='rtt'&&rttTotal>0&&<span style={{marginLeft:'auto',fontSize:10,fontWeight:700,color:'#7c3aed',background:'white',padding:'1px 7px',borderRadius:20,border:'1px solid #e9d5ff'}}>{rttSolde}j restants</span>}
                 </label>
               ))}
@@ -202,7 +202,7 @@ export default function CongesEmploye({employe}) {
             <textarea value={form.message} onChange={e=>setForm(f=>({...f,message:e.target.value}))} rows={3} placeholder="Motif, précisions..."
               style={{width:'100%',padding:'10px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',resize:'none',fontFamily:'var(--font)',boxSizing:'border-box'}}/>
           </div>
-          <button onClick={submit} disabled={loading} style={{width:'100%',height:48,borderRadius:12,border:'none',background:'#0066cc',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
+          <button onClick={submit} disabled={loading} style={{width:'100%',height:48,borderRadius:12,border:'none',background:'#E11D48',color:'white',fontSize:15,fontWeight:700,cursor:'pointer',opacity:loading?.7:1}}>
             {loading?'Envoi...':'Envoyer la demande'}
           </button>
         </div>
