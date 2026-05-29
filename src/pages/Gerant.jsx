@@ -902,14 +902,14 @@ export default function Gerant() {
                 const connBg=!hasAccount?'#f3f4f6':lastSeen===null?'#fff7ed':diffDays<=1?'#f0fdf4':diffDays<=7?'#fff1f3':'#f3f4f6'
                 const connBc=!hasAccount?'#e5e7eb':lastSeen===null?'#fed7aa':diffDays<=1?'#bbf7d0':diffDays<=7?'#fecdd3':'#e5e7eb'
   // ── TRIAL CHECKS ──
-  if(trialStatut === 'loading') return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'#aaa'}}>Chargement...</div>
+  if(trialStatut === 'loading') return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'#aaa'}}>Chargement...</div>
   if(trialStatut === 'expired') return (
-    <div style={{minHeight:'100vh',background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
-      <div style={{background:'white',borderRadius:20,padding:'48px 40px',maxWidth:460,width:'100%',textAlign:'center',boxShadow:'0 8px 40px rgba(0,0,0,.08)',border:'1px solid #e8eaf0'}}>
+    <div style={{position:'fixed',inset:0,background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',padding:20,zIndex:9999}}>
+      <div style={{background:'white',borderRadius:20,padding:'48px 40px',maxWidth:460,width:'100%',textAlign:'center',boxShadow:'0 8px 40px rgba(0,0,0,.08)'}}>
         <div style={{fontSize:48,marginBottom:16}}>⏰</div>
         <h1 style={{fontSize:24,fontWeight:900,color:'#0C1A35',marginBottom:8}}>Votre essai est terminé</h1>
         <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:32}}>Vos 14 jours d'essai gratuit sont écoulés. Contactez-nous pour continuer à utiliser Varman.</p>
-        <a href='/?contact=1' style={{display:'block',width:'100%',padding:'14px',borderRadius:12,background:'#E11D48',color:'white',fontSize:15,fontWeight:700,textDecoration:'none',marginBottom:10,textAlign:'center'}}>Continuer avec Varman →</a>
+        <a href='/?contact=1' style={{display:'block',padding:'14px',borderRadius:12,background:'#E11D48',color:'white',fontSize:15,fontWeight:700,textDecoration:'none',marginBottom:10,textAlign:'center'}}>Continuer avec Varman →</a>
         <button onClick={()=>{supabase.auth.signOut();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'1px solid #e8eaf0',background:'white',color:'#64748b',fontSize:14,fontWeight:600,cursor:'pointer'}}>Se déconnecter</button>
       </div>
     </div>
