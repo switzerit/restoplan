@@ -583,7 +583,7 @@ export default function Login() {
       <p style={{fontSize:16,color:TEXT2,textAlign:'center',marginBottom:56}}>Sans surprise. Sans engagement.</p>
       <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,1fr)',gap:24,maxWidth:720,margin:'0 auto'}}>
         {[
-          {name:'Starter',price:'49',period:'/mois',desc:'Jusqu'à 10 employés',features:['Planning & shifts','Badgeage QR','Présences en direct','App mobile employé','Export PDF'],cta:'Commencer',accent:false},
+          {name:'Starter',price:'49',period:'/mois',desc:'Jusqu\'à 10 employés',features:['Planning & shifts','Badgeage QR','Présences en direct','App mobile employé','Export PDF'],cta:'Commencer',accent:false},
           {name:'Pro',price:'99',period:'/mois',desc:'Employés illimités',features:['Tout Starter inclus','Multi-établissements','Statistiques avancées','Support prioritaire','Onboarding dédié'],cta:'Demander une démo',accent:true},
         ].map((p,i)=>(
           <div key={i} style={{background:p.accent?'#0C1A35':'white',borderRadius:16,padding:32,border:p.accent?'none':`1px solid ${BORDER}`}}>
@@ -641,42 +641,6 @@ export default function Login() {
     </section>
   )
 
-  const Footer=()=>(
-    <footer style={{background:'#0C1A35',color:'white',padding:isMobile?'40px 20px 24px':'56px 0 32px',marginTop:0}}>
-      <div style={{maxWidth:1020,margin:'0 auto',padding:isMobile?'0':'0 48px'}}>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2fr 1fr 1fr',gap:32,marginBottom:40}}>
-          <div>
-            <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:12}}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="28">
-                <text x="0" y="36" fontFamily="-apple-system,'Inter',sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="white">varman</text>
-                <circle cx="152" cy="32" r="7" fill="#E11D48"/>
-              </svg>
-            </div>
-            <p style={{fontSize:13,color:'rgba(255,255,255,.4)',lineHeight:1.8,maxWidth:240}}>La solution de gestion d'équipes pour les professionnels terrain. Propulsé par SwitzerIT.</p>
-            <div style={{display:'flex',gap:8,marginTop:14}}>
-              {['🇨🇭 Suisse','🔒 RGPD','⚡ 2-4h'].map((t,i)=><span key={i} style={{fontSize:11,color:'rgba(255,255,255,.4)',background:'rgba(255,255,255,.06)',padding:'4px 10px',borderRadius:20}}>{t}</span>)}
-            </div>
-          </div>
-          <div>
-            <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.3)',letterSpacing:'.08em',marginBottom:14}}>PRODUIT</div>
-            {['Fonctionnalités','Tarifs','Contact'].map((l,i)=>(
-              <div key={i} onClick={()=>goPage(l.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''))} style={{fontSize:13,color:'rgba(255,255,255,.5)',marginBottom:10,cursor:'pointer'}}>{l}</div>
-            ))}
-          </div>
-          <div>
-            <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.3)',letterSpacing:'.08em',marginBottom:14}}>LÉGAL</div>
-            {['CGU','Confidentialité','RGPD'].map((l,i)=>(
-              <div key={i} onClick={()=>{goPage('legal');setLegalSection(l.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace('ialite','identialite'))}} style={{fontSize:13,color:'rgba(255,255,255,.5)',marginBottom:10,cursor:'pointer'}}>{l}</div>
-            ))}
-          </div>
-        </div>
-        <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
-          <span style={{fontSize:12,color:'rgba(255,255,255,.25)'}}>© 2026 Varman by SwitzerIT · Suisse</span>
-          <button onClick={()=>setShowLogin(true)} style={{background:A,color:'white',border:'none',padding:'8px 18px',borderRadius:8,fontSize:12,fontWeight:700,cursor:'pointer'}}>Connexion →</button>
-        </div>
-      </div>
-    </footer>
-  )
 
 
   // ══ SET PASSWORD MODAL ═══════════════════════════════════════════════
