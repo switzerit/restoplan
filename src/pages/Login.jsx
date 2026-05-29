@@ -780,7 +780,7 @@ export default function Login() {
             <Reveal>
               <div>
 
-                <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:16,lineHeight:1.1}>Prêt à simplifier<br/>la gestion de<br/>votre équipe ?</h2>
+                <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:16,lineHeight:1.1}}>Prêt à simplifier<br/>la gestion de<br/>votre équipe ?</h2>
                 <p style={{fontSize:15,color:TEXT2,marginBottom:32,lineHeight:1.8}}>Sans carte bancaire. Sans engagement.<br/>Notre équipe configure tout pour vous en 2 à 4 heures.</p>
                 <button onClick={()=>goPage('contact')} style={{width:'100%',maxWidth:320,padding:'15px 28px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',marginBottom:10}}
                   onMouseEnter={e=>e.currentTarget.style.opacity='.88'} onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
