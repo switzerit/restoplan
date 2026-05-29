@@ -567,7 +567,7 @@ export default function Gerant() {
         <div style={{fontSize:48,marginBottom:16}}>⏰</div>
         <h1 style={{fontSize:24,fontWeight:900,color:'#0C1A35',marginBottom:8}}>Votre essai est terminé</h1>
         <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:32}}>Vos 14 jours d'essai gratuit sont écoulés. Contactez-nous pour continuer à utiliser Varman.</p>
-        <a href='/contact?raison=essai-expire' style={{display:'block',padding:'14px',borderRadius:12,background:'#E11D48',color:'white',fontSize:15,fontWeight:700,textDecoration:'none',marginBottom:10,textAlign:'center'}}>Continuer avec Varman →</a>
+        <button onClick={async()=>{await supabase.auth.signOut();window.location.href='/contact?raison=essai-expire'}} style={{width:'100%',padding:'14px',borderRadius:12,background:'#E11D48',color:'white',fontSize:15,fontWeight:700,border:'none',cursor:'pointer',marginBottom:10}}>Continuer avec Varman →</button>
         <button onClick={()=>{supabase.auth.signOut();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'1px solid #e8eaf0',background:'white',color:'#64748b',fontSize:14,fontWeight:600,cursor:'pointer'}}>Se déconnecter</button>
       </div>
     </div>
