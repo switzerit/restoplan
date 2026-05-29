@@ -772,10 +772,16 @@ export default function Login() {
           </div>
         </div>
       </section>
-      {/* 8. FAQ + CTA */}
+      {/* 8. CTA FINAL */}
       <section style={{background:BG,padding:SEC}}>
         <div style={W}>
-          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr',gap:40,alignItems:'start',maxWidth:560,margin:'0 auto'}}>
+          <Reveal>
+            <div style={{textAlign:'center',marginBottom:52}}>
+              <h2 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.04}}>Prêt à simplifier<br/>la gestion de votre équipe ?</h2>
+              <p style={{fontSize:16,color:TEXT2,maxWidth:460,margin:'0 auto',lineHeight:1.8}}>Sans carte bancaire. Sans engagement. Notre équipe configure tout pour vous.</p>
+            </div>
+          </Reveal>
+          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:40,alignItems:'start'}}>
 
             <div style={{marginTop:isMobile?52:0}}>
               <Reveal delay={120}>
