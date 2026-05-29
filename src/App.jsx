@@ -38,6 +38,7 @@ function App() {
         <Route path="/tarifs" element={<Login />} />
         <Route path="/contact" element={<Login />} />
         <Route path="/legal" element={<Login />} />
+        <Route path="/faq" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/borne" element={<Borne />} />
         <Route path="/gerant" element={<ProtectedGerant><Gerant /></ProtectedGerant>} />
