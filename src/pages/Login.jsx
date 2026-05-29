@@ -365,7 +365,7 @@ export default function Login() {
   const SEC=isMobile?'56px 20px':'80px 0'
 
   const scrollTop=()=>{setTimeout(()=>window.scrollTo({top:0,left:0,behavior:'instant'}),20)}
-  const pageMap={'home':'/','fonctionnalites':'/fonctionnalites','tarifs':'/tarifs','contact':'/contact','legal':'/legal'}
+  const pageMap={'home':'/','fonctionnalites':'/fonctionnalites','tarifs':'/tarifs','faq':'/faq','contact':'/contact','legal':'/legal'}
   const goPage=(p)=>{navigate(pageMap[p]||'/'+p);setMenuOpen(false);scrollTop()}
   const path=location.pathname.replace('/','') || 'home'
   const page=path==='login'?'home':path||'home'
@@ -387,7 +387,7 @@ export default function Login() {
           </div>
         ):(
           <div style={{display:'flex',gap:1,alignItems:'center'}}>
-            {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([l,id])=>(
+            {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['FAQ','faq'],['Contact','contact']].map(([l,id])=>(
               <button key={id} onClick={()=>goPage(id)} style={{padding:'7px 15px',borderRadius:9,border:'none',background:page===id?AG:'transparent',color:page===id?A:TEXT2,fontSize:13,fontWeight:page===id?600:500,cursor:'pointer',transition:'all .15s'}}>{l}</button>
             ))}
             <div style={{width:1,height:18,background:BORDER,margin:'0 14px'}}/>
@@ -402,7 +402,7 @@ export default function Login() {
       </nav>
       {isMobile&&menuOpen&&(
         <div style={{position:'fixed',top:62,left:0,right:0,zIndex:99,background:SURF,boxShadow:'0 8px 24px rgba(0,0,0,.06)',padding:'8px 0 18px'}}>
-          {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']].map(([l,id])=>(
+          {[['Accueil','home'],['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['FAQ','faq'],['Contact','contact']].map(([l,id])=>(
             <button key={id} onClick={()=>goPage(id)} style={{width:'100%',padding:'13px 24px',border:'none',background:'transparent',color:TEXT,fontSize:14,fontWeight:500,cursor:'pointer',textAlign:'left',display:'block'}}>{l}</button>
           ))}
           <div style={{margin:'8px 20px 0',paddingTop:12,borderTop:`1px solid ${BORDER}`}}>
@@ -433,7 +433,7 @@ export default function Login() {
             </div>
           </div>
           {[
-            {title:'Produit',links:[['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['Contact','contact']]},
+            {title:'Produit',links:[['Fonctionnalités','fonctionnalites'],['Tarifs','tarifs'],['FAQ','faq'],['Contact','contact']]},
             {title:'Support',links:[['Contact','contact'],['Démo Teams','contact']]},
             {title:'Légal',links:[['CGU','legal'],['Confidentialité','legal'],['RGPD','legal']]},
           ].map(col=>(
@@ -1011,6 +1011,41 @@ export default function Login() {
   )
 
   // ══ PAGE CONTACT ═══════════════════════════════════════════════════
+  const PageFaq=()=>(
+    <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
+      <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
+        <Reveal>
+          <div style={{marginBottom:52}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>FAQ</div>
+            <h1 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:14,lineHeight:1.04}}>Tout ce que vous<br/>voulez savoir.</h1>
+            <p style={{fontSize:16,color:TEXT2,maxWidth:460,lineHeight:1.8}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
+          </div>
+        </Reveal>
+        <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'2fr 1fr',gap:48,alignItems:'start'}}>
+          <Reveal>
+            <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:20,padding:'8px 32px 24px'}}>
+              <FaqSection/>
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div style={{display:'flex',flexDirection:'column',gap:12,marginTop:isMobile?24:0}}>
+              <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:14,padding:'20px 22px'}}>
+                <div style={{fontSize:14,fontWeight:800,color:TEXT,marginBottom:6}}>Vous ne trouvez pas ?</div>
+                <div style={{fontSize:13,color:TEXT2,lineHeight:1.7,marginBottom:14}}>Notre équipe vous répond sous 24h ouvrées.</div>
+                <button onClick={()=>goPage('contact')} style={{width:'100%',padding:'10px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Nous contacter →</button>
+              </div>
+              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:14,padding:'20px 22px'}}>
+                <div style={{fontSize:14,fontWeight:800,color:TEXT,marginBottom:6}}>Prêt à essayer ?</div>
+                <div style={{fontSize:13,color:TEXT2,lineHeight:1.7,marginBottom:14}}>Démo gratuite, sans engagement, en 30 min.</div>
+                <button onClick={()=>goPage('contact')} style={{width:'100%',padding:'10px',borderRadius:9,border:`1.5px solid ${BORDER}`,background:'white',color:TEXT,fontSize:13,fontWeight:700,cursor:'pointer'}}>Commencer l'essai →</button>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </div>
+  )
+
   const PageContact=()=>(
     <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
       <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
@@ -1068,28 +1103,7 @@ export default function Login() {
             ))}
           </div>
         </div>
-        {/* FAQ */}
-        <Reveal>
-          <div style={{marginTop:64,borderTop:`1px solid ${BORDER}`,paddingTop:64,background:BG,borderRadius:20,padding:isMobile?'32px 20px':'48px 56px',marginLeft:isMobile?0:-56,marginRight:isMobile?0:-56}}>
-            <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 2fr',gap:56,alignItems:'start'}}>
-              {/* Gauche - titre */}
-              <div style={{position:isMobile?'static':'sticky',top:100}}>
-                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>FAQ</div>
-                <h2 style={{fontSize:isMobile?22:30,fontWeight:900,color:TEXT,letterSpacing:'-.04em',lineHeight:1.15,marginBottom:16}}>Tout ce que vous voulez savoir.</h2>
-                <p style={{fontSize:14,color:TEXT2,lineHeight:1.8,marginBottom:24}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
-                <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:12,padding:'16px 18px'}}>
-                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:4}}>Vous ne trouvez pas ?</div>
-                  <div style={{fontSize:12,color:TEXT2,marginBottom:10}}>Notre équipe vous répond sous 24h.</div>
-                  <a href="mailto:contact@switzerit.com" style={{fontSize:12,color:A,fontWeight:700,textDecoration:'none'}}>contact@switzerit.com →</a>
-                </div>
-              </div>
-              {/* Droite - questions */}
-              <div>
-                <FaqSection/>
-              </div>
-            </div>
-          </div>
-        </Reveal>
+
       </div>
     </div>
   )
@@ -1232,6 +1246,7 @@ export default function Login() {
       {page==='home'&&<PageHome/>}
       {page==='fonctionnalites'&&<PageFeatures/>}
       {page==='tarifs'&&<PagePricing/>}
+      {page==='faq'&&<PageFaq/>}
       {page==='contact'&&<PageContact/>}
       {page==='legal'&&<PageLegal/>}
       <Footer/>
