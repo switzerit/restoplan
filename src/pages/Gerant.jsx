@@ -183,19 +183,21 @@ export default function Gerant() {
       const saved = savedId ? data.find(r=>r.id===savedId) : null
       const resto = saved || data[0]
       setCurrentResto(resto)
-      // Vérifier trial sur le gerant (prendre le trial_end_at le plus récent parmi ses restos)
-      const trialResto = data.find(r => r.statut === 'trial') || data[0]
-      const trialEnd = trialResto?.trial_end_at
+      // Vérifier trial — si UN restaurant est expiré, tout est bloqué
       const now = new Date()
-      if(trialResto?.statut === 'expired' || (trialEnd && new Date(trialEnd) < now)) {
+      const anyExpired = data.some(r =>
+        r.statut === 'expired' || (r.trial_end_at && new Date(r.trial_end_at) < now)
+      )
+      const anyTrialNoDate = data.some(r => r.statut === 'trial' && !r.trial_end_at)
+      const trialResto = data.find(r => r.statut === 'trial' && r.trial_end_at && new Date(r.trial_end_at) >= now)
+      if(anyExpired) {
         setTrialStatut('expired')
-      } else if(trialResto?.statut === 'trial' && trialEnd) {
-        const daysLeft = Math.ceil((new Date(trialEnd) - now) / (1000*60*60*24))
+      } else if(anyTrialNoDate && !trialResto) {
+        setTrialStatut('expired')
+      } else if(trialResto) {
+        const daysLeft = Math.ceil((new Date(trialResto.trial_end_at) - now) / (1000*60*60*24))
         setTrialStatut('trial')
         setTrialDaysLeft(Math.max(0, daysLeft))
-      } else if(trialResto?.statut === 'trial' && !trialEnd) {
-        // trial sans date = bloqué
-        setTrialStatut('expired')
       } else {
         setTrialStatut('active')
       }
