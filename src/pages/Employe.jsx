@@ -99,13 +99,14 @@ export default function Employe() {
     if(!profil||profil.role!=='employe'){navigate('/gerant');return}
     const {data:emp}=await supabase.from('employes').select('*').eq('id',profil.employe_id).single()
     if(!emp){navigate('/login');return}
-    // Vérifier trial du gérant
+    // Vérifier trial du gérant via fonction sécurisée
     const {data:resto} = await supabase.from('restaurants').select('gerant_id').eq('id',emp.restaurant_id).single()
     if(resto?.gerant_id){
-      const {data:gerant} = await supabase.from('gerants').select('statut,trial_end_at').eq('user_id',resto.gerant_id).single()
-      if(gerant){
+      const {data:trialData} = await supabase.rpc('get_gerant_trial', {gerant_user_id: resto.gerant_id})
+      if(trialData?.length > 0){
+        const {statut, trial_end_at} = trialData[0]
         const now = new Date()
-        if(gerant.statut==='expired' || (gerant.trial_end_at && new Date(gerant.trial_end_at) < now) || (gerant.statut==='trial' && !gerant.trial_end_at)){
+        if(statut==='expired' || (trial_end_at && new Date(trial_end_at) < now) || (statut==='trial' && !trial_end_at)){
           setTrialExpire(true)
         }
       }
