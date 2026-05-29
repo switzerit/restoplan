@@ -128,6 +128,7 @@ export default function Employe() {
   }
 
   const [shiftsMois, setShiftsMois] = useState([])
+  const [trialExpire, setTrialExpire] = useState(false)
 
   async function loadShiftsMois(){
     if(!employe) return
