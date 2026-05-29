@@ -773,61 +773,49 @@ export default function Login() {
         </div>
       </section>
       {/* 8. CTA FINAL */}
-      <section style={{background:BG,padding:SEC}}>
+      <section style={{background:'#0C1A35',padding:SEC}}>
         <div style={W}>
-          <Reveal>
-            <div style={{textAlign:'center',marginBottom:52}}>
-              <h2 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.04}}>Prêt à simplifier<br/>la gestion de votre équipe ?</h2>
-              <p style={{fontSize:16,color:TEXT2,maxWidth:460,margin:'0 auto',lineHeight:1.8}}>Sans carte bancaire. Sans engagement. Notre équipe configure tout pour vous.</p>
-            </div>
-          </Reveal>
-          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:40,alignItems:'start'}}>
-
-            <div style={{marginTop:isMobile?52:0}}>
-              <Reveal delay={120}>
-                <div style={{background:TEXT,borderRadius:22,padding:'36px',marginBottom:12,overflow:'hidden',position:'relative'}}>
-                  <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=60" alt="Team"
-                    style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:.08,display:'block'}} onError={e=>e.target.style.display='none'}/>
-                  <div style={{position:'relative'}}>
-                  <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 12px',borderRadius:20,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.12)',marginBottom:22}}>
-                    <span style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-                    <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.55)'}}>Démo disponible cette semaine</span>
-                  </div>
-                  <h3 style={{fontSize:isMobile?22:28,fontWeight:900,color:'white',letterSpacing:'-.04em',marginBottom:14,lineHeight:1.08}}>Prêt à simplifier<br/>la gestion de votre équipe ?</h3>
-                  <p style={{fontSize:14,color:'rgba(255,255,255,.45)',marginBottom:28,lineHeight:1.75}}>Essai gratuit via Teams. Notre équipe configure tout pour vous, sans engagement.</p>
-                  <button onClick={()=>goPage('contact')} style={{width:'100%',padding:'15px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',marginBottom:10,transition:'opacity .15s'}}
-                  onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
-                  onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-                    Commencer l'essai gratuit <IcoArr/>
-                  </button>
-                  <button onClick={()=>setShowLogin(true)} style={{width:'100%',padding:'13px',borderRadius:12,border:'1px solid rgba(255,255,255,.12)',background:'transparent',color:'rgba(255,255,255,.45)',fontSize:14,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.25)';e.currentTarget.style.color='rgba(255,255,255,.65)'}}
+          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:48,alignItems:'center'}}>
+            {/* Gauche - Texte */}
+            <Reveal>
+              <div>
+                <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 14px',borderRadius:20,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.12)',marginBottom:24}}>
+                  <span style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}/>
+                  <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.55)'}}>Démo disponible cette semaine</span>
+                </div>
+                <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:'white',letterSpacing:'-.04em',marginBottom:16,lineHeight:1.1}}>Prêt à simplifier<br/>la gestion de<br/>votre équipe ?</h2>
+                <p style={{fontSize:15,color:'rgba(255,255,255,.45)',marginBottom:32,lineHeight:1.8}}>Sans carte bancaire. Sans engagement.<br/>Notre équipe configure tout pour vous en 2 à 4 heures.</p>
+                <button onClick={()=>goPage('contact')} style={{width:'100%',maxWidth:320,padding:'15px 28px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',marginBottom:10}}
+                  onMouseEnter={e=>e.currentTarget.style.opacity='.88'} onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+                  Commencer l'essai gratuit <IcoArr/>
+                </button>
+                <button onClick={()=>setShowLogin(true)} style={{width:'100%',maxWidth:320,padding:'13px',borderRadius:12,border:'1px solid rgba(255,255,255,.12)',background:'transparent',color:'rgba(255,255,255,.45)',fontSize:14,fontWeight:500,cursor:'pointer'}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.3)';e.currentTarget.style.color='rgba(255,255,255,.7)'}}
                   onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.12)';e.currentTarget.style.color='rgba(255,255,255,.45)'}}>
-                    Déjà client — Se connecter
-                  </button>
-                  <div style={{fontSize:11,color:'rgba(255,255,255,.18)',textAlign:'center',marginTop:14}}>Sans carte bancaire · Sans engagement · Réponse sous 24h</div>
-                  </div>
-                </div>
-              </Reveal>
-              <Reveal delay={180}>
-                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,overflow:'hidden'}}>
-                  <img src="https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=600&q=80" alt="Démo Teams"
-                    style={{width:'100%',height:130,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
-                  <div style={{padding:'20px'}}>
-                    <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:14}}>Mise en place en 4 étapes</div>
-                    {[{e:'📹',t:'Démo 30 min',d:'Présentation Varman adaptée à votre secteur.'},{e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},{e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés, documentation fournie.'},{e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'}].map((s,i)=>(
-                      <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:i<3?12:0}}>
-                        <div style={{width:32,height:32,borderRadius:9,background:BG,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>{s.e}</div>
-                        <div style={{paddingTop:2}}>
-                          <div style={{fontSize:13,fontWeight:600,color:TEXT,marginBottom:2}}>{s.t}</div>
-                          <div style={{fontSize:12,color:TEXT2,lineHeight:1.5}}>{s.d}</div>
-                        </div>
+                  Déjà client — Se connecter
+                </button>
+                <div style={{fontSize:11,color:'rgba(255,255,255,.18)',marginTop:14}}>Sans carte bancaire · Sans engagement · Réponse sous 24h</div>
+              </div>
+            </Reveal>
+            {/* Droite - 4 étapes */}
+            <Reveal delay={120}>
+              <div style={{background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.08)',borderRadius:20,overflow:'hidden',marginTop:isMobile?32:0}}>
+                <img src="https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=600&q=80" alt="Mise en place"
+                  style={{width:'100%',height:160,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
+                <div style={{padding:'24px'}}>
+                  <div style={{fontSize:13,fontWeight:700,color:'white',marginBottom:20}}>Mise en place en 4 étapes</div>
+                  {[{e:'📹',t:'Démo 30 min',d:'Présentation Varman adaptée à votre secteur.'},{e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},{e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés, documentation fournie.'},{e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'}].map((s,i)=>(
+                    <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:i<3?16:0}}>
+                      <div style={{width:34,height:34,borderRadius:9,background:'rgba(255,255,255,.07)',border:'1px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>{s.e}</div>
+                      <div style={{paddingTop:2}}>
+                        <div style={{fontSize:13,fontWeight:600,color:'white',marginBottom:2}}>{s.t}</div>
+                        <div style={{fontSize:12,color:'rgba(255,255,255,.4)',lineHeight:1.5}}>{s.d}</div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              </Reveal>
-            </div>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
