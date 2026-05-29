@@ -98,6 +98,8 @@ export default function Gerant() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [notifsNonLues, setNotifsNonLues] = useState({})
   const [notifsDetail, setNotifsDetail] = useState(null) // {empId, notifs, nom}
+  const [trialStatut, setTrialStatut] = useState(null) // null | 'trial' | 'active' | 'expired'
+  const [trialDaysLeft, setTrialDaysLeft] = useState(null)
 
   async function loadNotifsDetail(empId, empNom){
     const {data} = await supabase.from('notifications')
@@ -179,7 +181,18 @@ export default function Gerant() {
     if(data?.length>0){
       const savedId = localStorage.getItem('restoplan_current_resto')
       const saved = savedId ? data.find(r=>r.id===savedId) : null
-      setCurrentResto(saved || data[0])
+      const resto = saved || data[0]
+      setCurrentResto(resto)
+      // Vérifier trial
+      if(resto.statut === 'expired' || (resto.trial_end_at && new Date(resto.trial_end_at) < new Date())) {
+        setTrialStatut('expired')
+      } else if(resto.statut === 'trial' && resto.trial_end_at) {
+        const daysLeft = Math.ceil((new Date(resto.trial_end_at) - new Date()) / (1000*60*60*24))
+        setTrialStatut('trial')
+        setTrialDaysLeft(Math.max(0, daysLeft))
+      } else {
+        setTrialStatut('active')
+      }
     }
   }
 
@@ -544,6 +557,16 @@ export default function Gerant() {
       {/* SIDEBAR DESKTOP */}
       {!isMobile && (
       <div style={{width:220,background:'var(--surface)',borderRight:'1px solid var(--border)',display:'flex',flexDirection:'column',padding:'18px 10px',flexShrink:0}}>
+        {trialStatut==='trial' && trialDaysLeft !== null && (
+          <div style={{background:trialDaysLeft<=3?'#fef2f2':'#fff7ed',border:`1px solid ${trialDaysLeft<=3?'#fecaca':'#fed7aa'}`,borderRadius:10,padding:'10px 12px',marginBottom:12,textAlign:'center'}}>
+            <div style={{fontSize:12,fontWeight:700,color:trialDaysLeft<=3?'#dc2626':'#ea580c'}}>
+              {trialDaysLeft===0?'Dernier jour !':trialDaysLeft===1?'1 jour restant':`${trialDaysLeft} jours d'essai`}
+            </div>
+            <a href="mailto:contact@switzerit.com" style={{fontSize:11,color:trialDaysLeft<=3?'#dc2626':'#ea580c',textDecoration:'none',fontWeight:600}}>
+              Activer mon compte →
+            </a>
+          </div>
+        )}
         <div style={{marginBottom:20}}>
           <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 8px',marginBottom:8}}>
             <div><div style={{fontSize:15,fontWeight:800}}><Logo height={28}/></div><div style={{fontSize:11,color:'var(--text3)'}}>Dashboard gérant</div></div>
@@ -870,7 +893,24 @@ export default function Gerant() {
                 const connColor=!hasAccount?'#6b7280':lastSeen===null?'#ea580c':diffDays<=1?'#16a34a':diffDays<=7?'#E11D48':'#6b7280'
                 const connBg=!hasAccount?'#f3f4f6':lastSeen===null?'#fff7ed':diffDays<=1?'#f0fdf4':diffDays<=7?'#fff1f3':'#f3f4f6'
                 const connBc=!hasAccount?'#e5e7eb':lastSeen===null?'#fed7aa':diffDays<=1?'#bbf7d0':diffDays<=7?'#fecdd3':'#e5e7eb'
-                if(isMobile) return (
+                // ── PAGE TRIAL EXPIRÉ ──
+  if(trialStatut === 'expired') return (
+    <div style={{minHeight:'100vh',background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+      <div style={{background:'white',borderRadius:20,padding:'48px 40px',maxWidth:460,width:'100%',textAlign:'center',boxShadow:'0 8px 40px rgba(0,0,0,.08)',border:'1px solid #e8eaf0'}}>
+        <div style={{fontSize:48,marginBottom:16}}>⏰</div>
+        <h1 style={{fontSize:24,fontWeight:900,color:'#0C1A35',marginBottom:8}}>Votre essai est terminé</h1>
+        <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:32}}>Vos 14 jours d'essai gratuit sont écoulés. Contactez-nous pour continuer à utiliser Varman.</p>
+        <a href="mailto:contact@switzerit.com" style={{display:'block',width:'100%',padding:'14px',borderRadius:12,background:'#E11D48',color:'white',fontSize:15,fontWeight:700,textDecoration:'none',marginBottom:10}}>
+          Contacter SwitzerIT →
+        </a>
+        <button onClick={()=>{supabase.auth.signOut();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'1px solid #e8eaf0',background:'white',color:'#64748b',fontSize:14,fontWeight:600,cursor:'pointer'}}>
+          Se déconnecter
+        </button>
+      </div>
+    </div>
+  )
+
+  if(isMobile) return (
                   <div key={emp.id} style={{padding:'11px 14px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:10}}>
                     <div style={{position:'relative',flexShrink:0}}>
                       <div style={{width:34,height:34,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
