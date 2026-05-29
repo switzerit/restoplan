@@ -563,7 +563,7 @@ export default function Login() {
           {icon:'⏱️',t:'Présences en direct',d:'Dashboard temps réel. Arrivées, départs, pauses. Écarts calculés automatiquement.'},
           {icon:'🏖️',t:'Congés & absences',d:'Demandes employés, validation gérant, décompte automatique des soldes.'},
           {icon:'📄',t:'Export paie',d:'Rapports PDF par employé et par période. Prêt pour votre comptable.'},
-          {icon:'🔔',t:'Notifications',d:'L'employé voit les changements de planning en temps réel sur son téléphone.'},
+          {icon:'🔔',t:'Notifications',d:'L\'employé voit les changements de planning en temps réel sur son téléphone.'},
         ].map((f,i)=>(
           <div key={i} style={{background:'white',borderRadius:14,padding:24,border:`1px solid ${BORDER}`,display:'flex',gap:16,alignItems:'flex-start'}}>
             <div style={{fontSize:28,flexShrink:0}}>{f.icon}</div>
