@@ -1070,11 +1070,24 @@ export default function Login() {
         </div>
         {/* FAQ */}
         <Reveal>
-          <div style={{marginTop:56,borderTop:`1px solid ${BORDER}`,paddingTop:48}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Questions fréquentes</div>
-            <h2 style={{fontSize:isMobile?24:32,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:12}}>Tout ce que vous voulez savoir.</h2>
-            <p style={{fontSize:15,color:TEXT2,marginBottom:32,lineHeight:1.8}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
-            <FaqSection/>
+          <div style={{marginTop:64,borderTop:`1px solid ${BORDER}`,paddingTop:64,background:BG,borderRadius:20,padding:isMobile?'32px 20px':'48px 56px',marginLeft:isMobile?0:-56,marginRight:isMobile?0:-56}}>
+            <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 2fr',gap:56,alignItems:'start'}}>
+              {/* Gauche - titre */}
+              <div style={{position:isMobile?'static':'sticky',top:100}}>
+                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.1em',textTransform:'uppercase',marginBottom:12}}>FAQ</div>
+                <h2 style={{fontSize:isMobile?22:30,fontWeight:900,color:TEXT,letterSpacing:'-.04em',lineHeight:1.15,marginBottom:16}}>Tout ce que vous voulez savoir.</h2>
+                <p style={{fontSize:14,color:TEXT2,lineHeight:1.8,marginBottom:24}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
+                <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:12,padding:'16px 18px'}}>
+                  <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:4}}>Vous ne trouvez pas ?</div>
+                  <div style={{fontSize:12,color:TEXT2,marginBottom:10}}>Notre équipe vous répond sous 24h.</div>
+                  <a href="mailto:contact@switzerit.com" style={{fontSize:12,color:A,fontWeight:700,textDecoration:'none'}}>contact@switzerit.com →</a>
+                </div>
+              </div>
+              {/* Droite - questions */}
+              <div>
+                <FaqSection/>
+              </div>
+            </div>
           </div>
         </Reveal>
       </div>
