@@ -152,8 +152,8 @@ export default function Employe() {
     <div style={{position:'fixed',inset:0,background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',padding:20,zIndex:9999}}>
       <div style={{background:'white',borderRadius:20,padding:'40px 32px',maxWidth:400,width:'100%',textAlign:'center',boxShadow:'0 8px 40px rgba(0,0,0,.08)'}}>
         <div style={{fontSize:40,marginBottom:12}}>⏰</div>
-        <h1 style={{fontSize:20,fontWeight:900,color:'#0C1A35',marginBottom:8}}>Service suspendu</h1>
-        <p style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:24}}>L'accès à Varman est temporairement suspendu. Contactez votre responsable.</p>
+        <h1 style={{fontSize:20,fontWeight:900,color:'#0C1A35',marginBottom:8}}>Compte en pause</h1>
+        <p style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:24}}>L'accès à l'application est momentanément indisponible.<br/>Votre responsable est en train de renouveler l'abonnement.<br/><br/>Si vous avez une urgence, contactez-le directement.</p>
         <button onClick={async()=>{await supabase.auth.signOut();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'none',background:'#E11D48',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Se déconnecter</button>
       </div>
     </div>
