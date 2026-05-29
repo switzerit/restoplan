@@ -462,721 +462,222 @@ export default function Login() {
   // ══ PAGE HOME ═══════════════════════════════════════════════════════
   const PageHome=()=>(
     <>
-      {/* 1. HERO */}
-      <section style={{paddingTop:62,background:SURF}}>
-        <div style={{...W,padding:isMobile?'72px 20px 64px':'96px 56px 88px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:64,alignItems:'center'}}>
+      {/* HERO */}
+      <section style={{padding:isMobile?'100px 20px 60px':'120px 0 80px',maxWidth:1020,margin:'0 auto',paddingLeft:isMobile?20:48,paddingRight:isMobile?20:48}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:48,alignItems:'center'}}>
           <div>
-            <HeroReveal delay={80}>
-              <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 13px',borderRadius:20,background:AG,border:`1px solid ${AB}`,marginBottom:28}}>
-                <span style={{width:7,height:7,borderRadius:'50%',background:'#22c55e',boxShadow:'0 0 0 2px rgba(34,197,94,.2)',display:'inline-block'}}></span>
-                <span style={{fontSize:12,fontWeight:600,color:A}}>Badgeage QR · Planning · Présences</span>
+            <div style={{display:'inline-flex',alignItems:'center',gap:6,background:AG,border:`1px solid ${AB}`,borderRadius:20,padding:'5px 14px',marginBottom:24}}>
+              <div style={{width:6,height:6,background:A,borderRadius:'50%'}}/>
+              <span style={{fontSize:12,color:A,fontWeight:600}}>Badgeage QR · Planning · Présences</span>
+            </div>
+            <h1 style={{fontSize:isMobile?38:52,fontWeight:900,color:TEXT,lineHeight:1.1,letterSpacing:'-2px',marginBottom:16}}>
+              Le planning qui<br/><span style={{color:A}}>se gère tout seul.</span>
+            </h1>
+            <p style={{fontSize:16,color:TEXT2,lineHeight:1.7,marginBottom:32,maxWidth:440}}>
+              Badgeage QR, présences en direct, export paie automatique. Sans paperasse, sans appels inutiles.
+            </p>
+            <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+              <button onClick={()=>setShowLogin(true)} style={{background:A,color:'white',border:'none',padding:'14px 28px',borderRadius:10,fontSize:15,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
+              <button onClick={()=>goPage('fonctionnalites')} style={{background:'white',color:TEXT,border:`1.5px solid ${BORDER}`,padding:'14px 24px',borderRadius:10,fontSize:15,fontWeight:600,cursor:'pointer'}}>Voir les fonctionnalités</button>
+            </div>
+          </div>
+          {!isMobile&&(
+            <div style={{background:'#0C1A35',borderRadius:16,padding:24,boxShadow:'0 24px 60px rgba(12,26,53,.2)'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+                <div>
+                  <div style={{fontSize:13,fontWeight:700,color:'white'}}>Varman · Le Bistrot</div>
+                  <div style={{display:'flex',alignItems:'center',gap:4,marginTop:2}}>
+                    <div style={{width:6,height:6,background:'#22c55e',borderRadius:'50%'}}/>
+                    <span style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>En direct</span>
+                  </div>
+                </div>
+                <div style={{display:'flex',gap:5}}>
+                  {['#E11D48','#F59E0B','#22c55e'].map((c,i)=><div key={i} style={{width:10,height:10,background:c,borderRadius:'50%'}}/>)}
+                </div>
               </div>
-            </HeroReveal>
-            <HeroReveal delay={180}>
-              <h1 style={{fontSize:isMobile?38:62,fontWeight:900,lineHeight:1.03,margin:'0 0 6px',letterSpacing:'-.06em',color:TEXT}}>Le planning qui</h1>
-              <h1 style={{fontSize:isMobile?38:62,fontWeight:900,lineHeight:1.03,margin:'0 0 24px',letterSpacing:'-.06em',color:A}}>se gère tout seul.</h1>
-            </HeroReveal>
-            <HeroReveal delay={300}>
-              <p style={{fontSize:isMobile?15:17,color:TEXT2,lineHeight:1.8,marginBottom:36,maxWidth:400}}>
-                Badgeage QR, présences en direct, export paie automatique. Tout ce dont votre équipe terrain a besoin — sans la paperasse.
-              </p>
-            </HeroReveal>
-            <HeroReveal delay={400}>
-              <div style={{display:'flex',gap:10,flexDirection:isMobile?'column':'row',marginBottom:28}}>
-                <button onClick={()=>goPage('contact')} style={{padding:'15px 26px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',boxShadow:'0 4px 20px rgba(0,102,204,.25)',transition:'transform .2s,box-shadow .2s'}}
-                onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 8px 28px rgba(0,102,204,.3)'}}
-                onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 20px rgba(0,102,204,.25)'}}>
-                  Demander une démo gratuite <IcoArr/>
-                </button>
-                <button onClick={()=>goPage('fonctionnalites')} style={{padding:'15px 20px',borderRadius:12,border:`1.5px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:15,fontWeight:600,cursor:'pointer',transition:'border-color .15s'}}
-                onMouseEnter={e=>e.currentTarget.style.borderColor='#999'}
-                onMouseLeave={e=>e.currentTarget.style.borderColor=BORDER}>
-                  Voir les fonctionnalités
-                </button>
-              </div>
-              <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
-                {['Démo gratuite','Sans engagement','2-4h mise en place'].map(t=>(
-                  <div key={t} style={{display:'flex',alignItems:'center',gap:6}}>
-                    <IcoChk size={13}/>
-                    <span style={{fontSize:13,color:TEXT3}}>{t}</span>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:14}}>
+                {[{n:8,l:'Présents',c:'#22c55e'},{n:3,l:'Absents',c:A},{n:2,l:'En pause',c:'#F59E0B'}].map((s,i)=>(
+                  <div key={i} style={{background:'rgba(255,255,255,.07)',borderRadius:8,padding:'10px',textAlign:'center'}}>
+                    <div style={{fontSize:22,fontWeight:900,color:s.c}}>{s.n}</div>
+                    <div style={{fontSize:10,color:'rgba(255,255,255,.4)'}}>{s.l}</div>
                   </div>
                 ))}
               </div>
-            </HeroReveal>
-          </div>
-
-          {!isMobile&&(
-            <HeroReveal delay={120}>
-              <div style={{background:'#f8fafc',borderRadius:20,padding:18,border:`1px solid ${BORDER}`,boxShadow:'0 8px 40px rgba(0,0,0,.06)'}}>
-                {/* Barre titre */}
-                <div style={{background:TEXT,borderRadius:12,padding:'11px 16px',marginBottom:12,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <div>
-                    <div style={{fontSize:11,fontWeight:700,color:'white'}}>Varman · Le Bistrot</div>
-                    <div style={{display:'flex',alignItems:'center',gap:5,marginTop:2}}>
-                      <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-                      <span style={{fontSize:9,color:'rgba(255,255,255,.4)'}}>En direct</span>
-                    </div>
+              {[{i:'SM',n:'Sophie Martin',r:'Cuisine',t:'09:02'},{i:'MD',n:'Marc Dupont',r:'Salle',t:'09:15'},{i:'JB',n:'Julie Bernard',r:'Bar',t:'En pause'}].map((e,i)=>(
+                <div key={i} style={{background:'rgba(255,255,255,.06)',borderRadius:8,padding:'9px 12px',display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:6}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{width:26,height:26,borderRadius:'50%',background:A,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:'white'}}>{e.i}</div>
+                    <div><div style={{fontSize:12,fontWeight:600,color:'white'}}>{e.n}</div><div style={{fontSize:10,color:'rgba(255,255,255,.4)'}}>{e.r}</div></div>
                   </div>
-                  <div style={{display:'flex',gap:4}}>{['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:8,height:8,borderRadius:'50%',background:c}}></div>)}</div>
+                  <span style={{fontSize:10,color:'rgba(255,255,255,.4)'}}>{e.t}</span>
                 </div>
-                {/* Stats */}
-                <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:7,marginBottom:10}}>
-                  {[{v:'8',l:'Présents',bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a'},{v:'3',l:'Absents',bg:'#fef2f2',bc:'#fecaca',c:'#dc2626'},{v:'2',l:'En pause',bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c'}].map((s,i)=>(
-                    <div key={i} style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:9,padding:'10px 6px',textAlign:'center'}}>
-                      <div style={{fontSize:22,fontWeight:900,color:s.c,letterSpacing:'-.03em'}}>{s.v}</div>
-                      <div style={{fontSize:9,color:s.c,fontWeight:600,marginTop:2}}>{s.l}</div>
-                    </div>
-                  ))}
-                </div>
-                {/* Équipe */}
-                <div style={{background:'white',border:`1px solid ${BORDER}`,borderRadius:10,padding:'10px',marginBottom:10}}>
-                  <div style={{fontSize:9,fontWeight:700,color:TEXT3,letterSpacing:'.08em',marginBottom:8}}>ÉQUIPE EN DIRECT</div>
-                  {[{n:'Sophie Martin',p:'Cuisine',h:'09:02',s:'#22c55e'},{n:'Marc Dupont',p:'Salle',h:'09:15',s:'#22c55e'},{n:'Julie Bernard',p:'Bar',h:'En pause',s:'#f97316'},{n:'Thomas Petit',p:'Cuisine',h:'Absent',s:'#e5e5e5'}].map((e,i)=>(
-                    <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'4px 7px',borderRadius:7,background:i%2===0?'#f8fafc':'transparent',marginBottom:2}}>
-                      <div style={{width:25,height:25,borderRadius:'50%',background:AG,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700,color:A,flexShrink:0,position:'relative'}}>
-                        {e.n.split(' ').map(x=>x[0]).join('')}
-                        <div style={{position:'absolute',bottom:0,right:0,width:6,height:6,borderRadius:'50%',background:e.s,border:'1.5px solid white'}}></div>
-                      </div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:10,fontWeight:600,color:TEXT,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{e.n}</div>
-                        <div style={{fontSize:8,color:TEXT3}}>{e.p}</div>
-                      </div>
-                      <span style={{fontSize:9,color:TEXT2,fontWeight:500}}>{e.h}</span>
-                    </div>
-                  ))}
-                </div>
-                {/* QR */}
-                <div style={{background:'white',border:`1px solid ${BORDER}`,borderRadius:10,padding:'10px 12px',display:'flex',alignItems:'center',gap:12}}>
-                  <QRDisplay/>
-                  <div>
-                    <div style={{fontSize:10,fontWeight:700,color:TEXT,marginBottom:3}}>QR Code actif</div>
-                    <div style={{fontSize:9,color:TEXT2,lineHeight:1.5}}>Vos employés scannent<br/>depuis leur téléphone</div>
-                    <div style={{display:'flex',alignItems:'center',gap:4,marginTop:5}}>
-                      <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-                      <span style={{fontSize:8,color:'#16a34a',fontWeight:600}}>Sécurisé · Renouvelé auto</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </HeroReveal>
+              ))}
+            </div>
           )}
         </div>
       </section>
 
-      {/* 2+3. TRUST + STATS */}
-      <section style={{background:"#f8fafc"}}> 
-        <div style={{maxWidth:1020,margin:"0 auto",padding:isMobile?"0 20px":"0 48px"}}>
-          <Reveal>
-            {/* Ligne trust */}
-            <div style={{padding:"16px 0 12px",display:"flex",alignItems:"center",justifyContent:"center",gap:14,flexWrap:"wrap",marginBottom:0}}>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <div style={{display:"flex"}}>
-                  {[{bg:AG,c:A,t:"SM"},{bg:"#f0fdf4",c:"#16a34a",t:"JD"},{bg:"#fff7ed",c:"#ea580c",t:"AL"}].map((a,i)=>(
-                    <div key={i} style={{width:28,height:28,borderRadius:"50%",background:a.bg,border:"2px solid white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-7:0,zIndex:3-i,boxShadow:"0 1px 3px rgba(0,0,0,.1)"}}>{a.t}</div>
-                  ))}
-                </div>
-                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111",fontSize:16,fontWeight:900,letterSpacing:"-1px",fontFamily:"-apple-system,'Inter',sans-serif"}}>varman<span style={{color:"#E11D48"}}>.</span></strong></span>
-              </div>
-              <div style={{width:1,height:16,background:"#e8e8e8"}}></div>
-              <div style={{display:"flex",alignItems:"center",gap:4,background:"#fffbeb",border:"1px solid #fde68a",borderRadius:20,padding:"4px 12px"}}>
-                <span style={{color:"#E11D48",fontSize:12}}>★★★★★</span>
-                <span style={{fontSize:13,fontWeight:700,color:"#111"}}>4.8/5</span>
-                <span style={{fontSize:11,color:"#999"}}>· SwitzerIT</span>
-              </div>
-            </div>
-            {/* Stats en ligne bien visibles */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)"}}>
-              {[{v:"2-4h",l:"Mise en place",c:A,bg:AG},{v:"30s",l:"Par badgeage",c:"#16a34a",bg:"#f0fdf4"},{v:"8+",l:"Secteurs",c:"#ea580c",bg:"#fff7ed"},{v:"100%",l:"Mobile",c:"#7c3aed",bg:"#faf5ff"}].map((s,i)=>(
-                <div key={i} style={{padding:"14px 0",textAlign:"center",borderRight:i<3?"1px solid #f0f0f0":"none",background:i===0?AG:"white"}}>
-                  <div style={{fontSize:22,fontWeight:900,color:s.c,letterSpacing:"-.04em",lineHeight:1}}>{s.v}</div>
-                  <div style={{fontSize:11,color:s.c,marginTop:3,fontWeight:500,opacity:.8}}>{s.l}</div>
-                </div>
-              ))}
-            </div>
-            {/* Bande défilante */}
-            <div style={{position:"relative",overflow:"hidden",padding:"10px 0"}}>
-              <div style={{position:"absolute",left:0,top:0,bottom:0,width:40,background:"linear-gradient(to right,#fafafa,transparent)",zIndex:2,pointerEvents:"none"}}></div>
-              <div style={{position:"absolute",right:0,top:0,bottom:0,width:40,background:"linear-gradient(to left,#fafafa,transparent)",zIndex:2,pointerEvents:"none"}}></div>
-              <style>{`@keyframes kscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
-              <div style={{display:"flex",animation:"kscroll 28s linear infinite",width:"max-content"}}>
-                {[["🍽️","Restaurants"],["🏨","Hôtels"],["🏥","Cliniques"],["🔧","Garages"],["🛒","Commerce"],["📦","Logistique"],["💆","Spas"],["🏗️","BTP"],["🎓","Éducation"],["🏪","Distribution"],["🍽️","Restaurants"],["🏨","Hôtels"],["🏥","Cliniques"],["🔧","Garages"],["🛒","Commerce"],["📦","Logistique"],["💆","Spas"],["🏗️","BTP"],["🎓","Éducation"],["🏪","Distribution"]].map(([e,t],i)=>(
-                  <div key={i} style={{display:"flex",alignItems:"center",gap:5,padding:"5px 13px",background:"white",border:"1px solid #e8e8e8",borderRadius:100,whiteSpace:"nowrap",margin:"0 4px",fontSize:12,color:"#444",fontWeight:500,flexShrink:0,boxShadow:"0 1px 2px rgba(0,0,0,.04)"}}>
-                    <span>{e}</span><span>{t}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-      {/* 4. PHOTO + ACCROCHE */}
-      <section style={{background:BG,padding:SEC}}>
-        <div style={WM}>
-          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:56,alignItems:'center'}}>
-            <Reveal>
-              <div style={{marginBottom:isMobile?32:0}}>
-                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Pourquoi Varman</div>
-                <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:20,lineHeight:1.06}}>Arrêtez de perdre du temps sur des tâches qui n'apportent rien.</h2>
-                <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Feuilles papier, appels incessants, erreurs de paie — tout ça a un coût réel chaque mois. Varman les remplace automatiquement en 2 à 4 heures.</p>
-                {[
-                  {c:'#dc2626',bg:'#fef2f2',bc:'#fecaca',t:'Feuilles de présence perdues',s:'→ Badgeage QR en 2 secondes'},
-                  {c:'#ea580c',bg:'#fff7ed',bc:'#fed7aa',t:'Appels pour savoir qui est là',s:'→ Dashboard en temps réel'},
-                  {c:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff',t:'Erreurs sur les bulletins de paie',s:'→ Export PDF automatique'},
-                ].map((item,i)=>(
-                  <div key={i} style={{display:'flex',alignItems:'center',gap:12,marginBottom:12,padding:'12px 14px',background:item.bg,border:`1px solid ${item.bc}`,borderRadius:10}}>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:13,fontWeight:600,color:item.c,textDecoration:'line-through',opacity:.7}}>{item.t}</div>
-                      <div style={{fontSize:13,fontWeight:600,color:'#16a34a',marginTop:2}}>{item.s}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-            <Reveal delay={100}>
-              <div style={{borderRadius:20,overflow:'hidden',boxShadow:'0 12px 48px rgba(0,0,0,.1)',border:`1px solid ${BORDER}`}}>
-                <img
-                  src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80"
-                  alt="Équipe restaurant"
-                  style={{width:'100%',height:320,objectFit:'cover',display:'block'}}
-                  onError={e=>{e.target.style.display='none'}}
-                />
-                <div style={{background:SURF,padding:'16px 20px',display:'flex',alignItems:'center',gap:12}}>
-                  <div style={{width:36,height:36,borderRadius:'50%',background:AG,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <span style={{fontSize:16}}>👨‍🍳</span>
-                  </div>
-                  <div>
-                    <div style={{fontSize:13,fontWeight:600,color:TEXT}}>Restaurant Le Bistrot</div>
-                    <div style={{fontSize:11,color:TEXT3}}>8 employés · Badgeage QR actif</div>
-                  </div>
-                  <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:5,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:20,padding:'4px 10px'}}>
-                    <span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-                    <span style={{fontSize:11,color:'#16a34a',fontWeight:600}}>En direct</span>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. FONCTIONNALITÉS */}
-      <section style={{background:SURF,padding:SEC}}>
-        <div style={W}>
-          <Reveal>
-            <div style={{textAlign:'center',marginBottom:56}}>
-              <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Fonctionnalités</div>
-              <h2 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.04}}>Tout ce dont vous avez besoin.</h2>
-              <p style={{fontSize:16,color:TEXT2,maxWidth:440,margin:'0 auto',lineHeight:1.8}}>Une solution complète, sans complexité. Ça marche dès le premier jour.</p>
-            </div>
-          </Reveal>
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12}}>
+      {/* 3 FEATURES */}
+      <section style={{background:'white',padding:isMobile?'48px 20px':'72px 0',borderTop:`1px solid ${BORDER}`,borderBottom:`1px solid ${BORDER}`}}>
+        <div style={{maxWidth:1020,margin:'0 auto',padding:isMobile?'0':'0 48px'}}>
+          <h2 style={{fontSize:isMobile?26:34,fontWeight:900,color:TEXT,textAlign:'center',letterSpacing:'-1px',marginBottom:8}}>Tout ce dont vous avez besoin.</h2>
+          <p style={{fontSize:15,color:TEXT2,textAlign:'center',marginBottom:48}}>Une solution complète, sans complexité.</p>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:24}}>
             {[
-              {Icon:IcoCalendar,bg:'#fff1f3',bc:'#fecdd3',c:A,title:'Planning intelligent',desc:'Créez et publiez les plannings en quelques clics. Shifts simples ou coupés. Postes adaptés à votre secteur.'},
-              {Icon:IcoQR,bg:'#faf5ff',bc:'#e9d5ff',c:'#7c3aed',title:'Badgeage QR Code',desc:'QR dynamique renouvelé toutes les 30s. Scan depuis le téléphone. Borne tablette disponible.'},
-              {Icon:IcoUsers,bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a',title:'Présences en direct',desc:'Qui est là maintenant. Heures prévues vs pointées. Écarts calculés automatiquement.'},
-              {Icon:IcoPhone,bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c',title:'App mobile employé',desc:'Planning, badgeage, historique. Installable sur iPhone et Android.'},
-              {Icon:IcoFile,bg:'#f0f9ff',bc:'#bae6fd',c:'#0891b2',title:'Export PDF paie',desc:'Rapports détaillés en un clic. Par employé, par période. Prêt pour votre comptable.'},
-              {Icon:IcoBuilding,bg:'#fdf2f8',bc:'#fbcfe8',c:'#be185d',title:'Multi-établissements',desc:'Gérez plusieurs sites depuis un seul tableau de bord. Données isolées par site.'},
+              {icon:'📅',title:'Planning intelligent',desc:'Créez et publiez les plannings en quelques clics. Shifts simples ou coupés, postes adaptés à votre secteur.'},
+              {icon:'📱',title:'Badgeage QR Code',desc:'QR dynamique renouvelé toutes les 30s. Scan depuis le téléphone. Borne tablette disponible.'},
+              {icon:'⏱️',title:'Présences en direct',desc:'Qui est là maintenant. Heures prévues vs pointées. Export PDF prêt pour votre comptable.'},
             ].map((f,i)=>(
-              <Reveal key={i} delay={i*60}>
-                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'24px',transition:'transform .2s,box-shadow .2s,border-color .2s',height:'100%'}}
-                onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-3px)';e.currentTarget.style.boxShadow='0 8px 28px rgba(0,0,0,.07)';e.currentTarget.style.borderColor=f.bc}}
-                onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';e.currentTarget.style.borderColor=BORDER}}>
-                  <div style={{width:44,height:44,borderRadius:12,background:f.bg,border:`1px solid ${f.bc}`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16}}>
-                    <f.Icon c={f.c}/>
-                  </div>
-                  <div style={{fontSize:15,fontWeight:700,color:TEXT,marginBottom:8,letterSpacing:'-.01em'}}>{f.title}</div>
-                  <div style={{fontSize:13,color:TEXT2,lineHeight:1.7}}>{f.desc}</div>
-                </div>
-              </Reveal>
+              <div key={i} style={{background:BG,borderRadius:14,padding:28,border:`1px solid ${BORDER}`}}>
+                <div style={{fontSize:32,marginBottom:14}}>{f.icon}</div>
+                <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:8}}>{f.title}</div>
+                <div style={{fontSize:14,color:TEXT2,lineHeight:1.7}}>{f.desc}</div>
+              </div>
             ))}
           </div>
-          <Reveal>
-            <div style={{textAlign:'center',marginTop:28}}>
-              <button onClick={()=>goPage('fonctionnalites')} style={{padding:'11px 22px',borderRadius:10,border:`1.5px solid ${BORDER}`,background:SURF,color:A,fontSize:13,fontWeight:600,cursor:'pointer',transition:'all .15s'}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=A;e.currentTarget.style.background=AG}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER;e.currentTarget.style.background=SURF}}>
-                Toutes les fonctionnalités →
-              </button>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div style={{marginTop:48,borderRadius:20,overflow:'hidden',border:`1px solid ${BORDER}`,boxShadow:'0 8px 32px rgba(0,0,0,.07)',position:'relative'}}>
-              <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80" alt="Restaurant équipe"
-                style={{width:'100%',height:isMobile?200:300,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
-              <div style={{position:'absolute',inset:0,background:'linear-gradient(to right, rgba(0,0,0,.65) 0%, rgba(0,0,0,.1) 65%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
-                <div>
-                  <div style={{fontSize:isMobile?18:28,fontWeight:800,color:'white',letterSpacing:'-.03em',marginBottom:8,lineHeight:1.2}}>Varman s'adapte à tous<br/>vos établissements</div>
-                  <div style={{fontSize:isMobile?12:14,color:'rgba(255,255,255,.7)',marginBottom:16}}>Restaurants, hôtels, cliniques, garages et plus</div>
-                  <button onClick={()=>goPage('contact')} style={{padding:'10px 20px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Voir les secteurs →</button>
-                </div>
-              </div>
-            </div>
-          </Reveal>
         </div>
       </section>
 
-      {/* 6. PHOTO ÉQUIPE + SECTEURS */}
-      <section style={{background:BG,padding:SEC}}>
-        <div style={WM}>
-          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1.4fr 1fr',gap:56,alignItems:'center'}}>
-            <div>
-              <Reveal>
-                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Secteurs</div>
-                <h2 style={{fontSize:isMobile?28:40,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:16,lineHeight:1.06}}>Votre secteur,<br/>vos postes.</h2>
-                <p style={{fontSize:15,color:TEXT2,lineHeight:1.8,marginBottom:28}}>Varman s'adapte à votre activité avec les termes exacts que vous utilisez. Chaque établissement configure ses propres postes — restaurant, clinique, garage ou autre.</p>
-              </Reveal>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-                {[
-                  {bg:AG,bc:AB,c:A,title:'Restaurants & Hôtels',postes:'Cuisine · Salle · Bar · Réception'},
-                  {bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a',title:'Cliniques & Santé',postes:'Médecin · Infirmier · Accueil'},
-                  {bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c',title:'Garages & BTP',postes:'Mécanicien · Atelier · Chantier'},
-                  {bg:'#faf5ff',bc:'#e9d5ff',c:'#7c3aed',title:'Commerce',postes:'Caissier · Rayon · Manager'},
-                  {bg:'#f0f9ff',bc:'#bae6fd',c:'#0891b2',title:'Logistique',postes:'Préparateur · Chef équipe'},
-                  {bg:'#fdf2f8',bc:'#fbcfe8',c:'#be185d',title:'Spas & Éducation',postes:'Esthéticien · Formateur'},
-                ].map((s,i)=>(
-                  <Reveal key={i} delay={i*50}>
-                    <div style={{background:s.bg,border:`1px solid ${s.bc}`,borderRadius:12,padding:'14px 16px',transition:'transform .2s'}}
-                    onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
-                    onMouseLeave={e=>e.currentTarget.style.transform='none'}>
-                      <div style={{fontSize:13,fontWeight:700,color:s.c,marginBottom:5}}>{s.title}</div>
-                      <div style={{fontSize:11,color:s.c,opacity:.7,lineHeight:1.6}}>{s.postes}</div>
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
-              <Reveal>
-                <div style={{marginTop:16}}>
-                  <span style={{fontSize:13,color:TEXT2}}>Votre secteur n'est pas listé ? </span>
-                  <span onClick={()=>goPage('contact')} style={{fontSize:13,color:A,fontWeight:600,cursor:'pointer'}}>Contactez-nous →</span>
-                </div>
-              </Reveal>
-            </div>
-            <Reveal delay={100}>
-              <div style={{borderRadius:20,overflow:'hidden',boxShadow:'0 12px 48px rgba(0,0,0,.08)',border:`1px solid ${BORDER}`,marginTop:isMobile?32:0}}>
-                <img
-                  src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500&q=80"
-                  alt="Équipe médicale"
-                  style={{width:'100%',height:280,objectFit:'cover',display:'block'}}
-                  onError={e=>{e.target.style.display='none'}}
-                />
-                <img
-                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&q=80"
-                  alt="Équipe logistique"
-                  style={{width:'100%',height:180,objectFit:'cover',display:'block'}}
-                  onError={e=>{e.target.style.display='none'}}
-                />
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. CALCULATEUR ROI */}
-      <section style={{background:SURF,padding:SEC}}>
-        <div style={W}>
-          <Reveal>
-            <div style={{textAlign:'center',marginBottom:52}}>
-              <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Calculateur</div>
-              <h2 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.04}}>Combien vous coûte<br/>l'ancien système ?</h2>
-              <p style={{fontSize:16,color:TEXT2,maxWidth:400,margin:'0 auto',lineHeight:1.8}}>Calculez le vrai coût des feuilles papier et des appels inutiles.</p>
-            </div>
-          </Reveal>
-          <Reveal delay={80}><RoiCalc isMobile={isMobile}/></Reveal>
-        </div>
-      </section>
-
-      {/* 8. FAQ + CTA */}
-      <section style={{background:BG,padding:SEC}}>
-        <div style={W}>
-          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:72,alignItems:'start'}}>
-            <div>
-              <Reveal>
-                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Questions fréquentes</div>
-                <h2 style={{fontSize:isMobile?26:38,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:12,lineHeight:1.08}}>Tout ce que vous voulez savoir.</h2>
-                <p style={{fontSize:15,color:TEXT2,marginBottom:36,lineHeight:1.8}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
-              </Reveal>
-              <FaqSection/>
-            </div>
-            <div style={{marginTop:isMobile?52:0}}>
-              <Reveal delay={120}>
-                <div style={{background:TEXT,borderRadius:22,padding:'36px',marginBottom:12,overflow:'hidden',position:'relative'}}>
-                  <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=60" alt="Team"
-                    style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',opacity:.08,display:'block'}} onError={e=>e.target.style.display='none'}/>
-                  <div style={{position:'relative'}}>
-                  <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 12px',borderRadius:20,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.12)',marginBottom:22}}>
-                    <span style={{width:6,height:6,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>
-                    <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.55)'}}>Démo disponible cette semaine</span>
-                  </div>
-                  <h3 style={{fontSize:isMobile?22:28,fontWeight:900,color:'white',letterSpacing:'-.04em',marginBottom:14,lineHeight:1.08}}>Prêt à simplifier<br/>la gestion de votre équipe ?</h3>
-                  <p style={{fontSize:14,color:'rgba(255,255,255,.45)',marginBottom:28,lineHeight:1.75}}>Démo gratuite via Teams. Notre équipe configure tout pour vous, sans engagement.</p>
-                  <button onClick={()=>goPage('contact')} style={{width:'100%',padding:'15px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',marginBottom:10,transition:'opacity .15s'}}
-                  onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
-                  onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-                    Réserver ma démo gratuite <IcoArr/>
-                  </button>
-                  <button onClick={()=>setShowLogin(true)} style={{width:'100%',padding:'13px',borderRadius:12,border:'1px solid rgba(255,255,255,.12)',background:'transparent',color:'rgba(255,255,255,.45)',fontSize:14,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.25)';e.currentTarget.style.color='rgba(255,255,255,.65)'}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.12)';e.currentTarget.style.color='rgba(255,255,255,.45)'}}>
-                    Déjà client — Se connecter
-                  </button>
-                  <div style={{fontSize:11,color:'rgba(255,255,255,.18)',textAlign:'center',marginTop:14}}>Sans carte bancaire · Sans engagement · Réponse sous 24h</div>
-                  </div>
-                </div>
-              </Reveal>
-              <Reveal delay={180}>
-                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,overflow:'hidden'}}>
-                  <img src="https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=600&q=80" alt="Démo Teams"
-                    style={{width:'100%',height:130,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
-                  <div style={{padding:'20px'}}>
-                    <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:14}}>Mise en place en 4 étapes</div>
-                    {[{e:'📹',t:'Démo 30 min',d:'Présentation Varman adaptée à votre secteur.'},{e:'⚙️',t:'Configuration',d:'SwitzerIT configure tout pour vous.'},{e:'🎓',t:'Formation incluse',d:'Gérants et équipes formés, documentation fournie.'},{e:'🚀',t:'En production',d:'Vos équipes scannent. Vous suivez.'}].map((s,i)=>(
-                      <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start',marginBottom:i<3?12:0}}>
-                        <div style={{width:32,height:32,borderRadius:9,background:BG,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>{s.e}</div>
-                        <div style={{paddingTop:2}}>
-                          <div style={{fontSize:13,fontWeight:600,color:TEXT,marginBottom:2}}>{s.t}</div>
-                          <div style={{fontSize:12,color:TEXT2,lineHeight:1.5}}>{s.d}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-          </div>
+      {/* CTA FINAL */}
+      <section style={{padding:isMobile?'56px 20px':'80px 0',textAlign:'center'}}>
+        <div style={{maxWidth:600,margin:'0 auto',padding:isMobile?'0':'0 48px'}}>
+          <h2 style={{fontSize:isMobile?28:36,fontWeight:900,color:TEXT,letterSpacing:'-1.5px',marginBottom:16}}>Prêt à simplifier votre gestion ?</h2>
+          <p style={{fontSize:15,color:TEXT2,lineHeight:1.7,marginBottom:32}}>Démo gratuite en 30 min. Notre équipe configure tout pour vous, sans engagement.</p>
+          <button onClick={()=>setShowLogin(true)} style={{background:A,color:'white',border:'none',padding:'16px 40px',borderRadius:12,fontSize:16,fontWeight:700,cursor:'pointer',display:'inline-block'}}>
+            Demander une démo gratuite →
+          </button>
+          <div style={{fontSize:12,color:TEXT3,marginTop:12}}>Sans carte bancaire · Sans engagement · Réponse sous 24h</div>
         </div>
       </section>
     </>
   )
 
-  // ══ PAGE FONCTIONNALITÉS ════════════════════════════════════════════
   const PageFeatures=()=>(
-    <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
-      <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
-        <Reveal>
-          <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${BORDER}`,marginBottom:52,position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,.07)'}}>
-            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80" alt="Équipe Varman"
-              style={{width:'100%',height:isMobile?180:260,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
-            <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(0,0,0,.7) 0%,rgba(0,0,0,.15) 60%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
-              <div>
-                <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.6)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:10}}>Fonctionnalités</div>
-                <div style={{fontSize:isMobile?22:36,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1.1,marginBottom:8}}>Tout ce que Varman<br/>peut faire pour vous.</div>
-                <div style={{fontSize:13,color:'rgba(255,255,255,.65)'}}>Planning · Badgeage QR · Présences · Export PDF</div>
-              </div>
-            </div>
+    <section style={{padding:isMobile?'100px 20px 60px':'120px 0 80px',maxWidth:1020,margin:'0 auto',paddingLeft:isMobile?20:48,paddingRight:isMobile?20:48}}>
+      <h1 style={{fontSize:isMobile?32:44,fontWeight:900,color:TEXT,letterSpacing:'-1.5px',marginBottom:16}}>Fonctionnalités</h1>
+      <p style={{fontSize:16,color:TEXT2,marginBottom:48,maxWidth:540}}>Tout ce dont votre équipe terrain a besoin, sans la complexité des grands outils RH.</p>
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,1fr)',gap:20}}>
+        {[
+          {icon:'📅',t:'Planning',d:'Shifts simples ou coupés. Publication avec notification aux employés. Vue semaine et mois.'},
+          {icon:'📱',t:'Badgeage QR',d:'QR renouvelé toutes les 30s. Scan depuis mobile ou borne tablette. Anti-fraude intégré.'},
+          {icon:'⏱️',t:'Présences en direct',d:'Dashboard temps réel. Arrivées, départs, pauses. Écarts calculés automatiquement.'},
+          {icon:'🏖️',t:'Congés & absences',d:'Demandes employés, validation gérant, décompte automatique des soldes.'},
+          {icon:'📄',t:'Export paie',d:'Rapports PDF par employé et par période. Prêt pour votre comptable.'},
+          {icon:'🔔',t:'Notifications',d:'L'employé voit les changements de planning en temps réel sur son téléphone.'},
+        ].map((f,i)=>(
+          <div key={i} style={{background:'white',borderRadius:14,padding:24,border:`1px solid ${BORDER}`,display:'flex',gap:16,alignItems:'flex-start'}}>
+            <div style={{fontSize:28,flexShrink:0}}>{f.icon}</div>
+            <div><div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:6}}>{f.t}</div><div style={{fontSize:14,color:TEXT2,lineHeight:1.6}}>{f.d}</div></div>
           </div>
-        </Reveal>
-        {/* Feature principale */}
-        <Reveal>
-          <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:20,padding:isMobile?'24px':'40px',marginBottom:12,display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:40,alignItems:'center'}}>
-            <div>
-              <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 12px',borderRadius:20,background:AG,border:`1px solid ${AB}`,marginBottom:18}}>
-                <IcoCalendar c={A}/>
-                <span style={{fontSize:12,fontWeight:600,color:A}}>Fonctionnalité clé</span>
-              </div>
-              <h2 style={{fontSize:isMobile?22:30,fontWeight:800,color:TEXT,letterSpacing:'-.04em',marginBottom:14}}>Planning intelligent</h2>
-              <p style={{fontSize:14,color:TEXT2,lineHeight:1.8,marginBottom:20}}>Créez des plannings complets en quelques minutes. Shifts simples ou coupés, postes adaptés, publication en un clic.</p>
-              <div style={{display:'flex',flexDirection:'column',gap:9}}>
-                {['Shifts simples ou coupés','Postes personnalisables','Publication instantanée','Vue semaine / jour','Modification en temps réel'].map((item,j)=>(
-                  <div key={j} style={{display:'flex',alignItems:'center',gap:9}}>
-                    <IcoChk size={12}/>
-                    <span style={{fontSize:13,color:TEXT2}}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div style={{background:BG,borderRadius:14,padding:'20px',border:`1px solid ${BORDER}`,marginTop:isMobile?20:0}}>
-              <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.1em',marginBottom:12}}>PLANNING SEMAINE</div>
-              {['Lundi','Mardi','Mercredi','Jeudi','Vendredi'].map((j,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                  <div style={{fontSize:11,color:TEXT3,width:52,flexShrink:0}}>{j}</div>
-                  <div style={{flex:1,height:26,borderRadius:7,background:AG,display:'flex',alignItems:'center',paddingLeft:10,border:`1px solid ${AB}`}}>
-                    <span style={{fontSize:10,color:A,fontWeight:600}}>{['Sophie M. · 09:00-17:00','Marc D. · 10:00-18:00','Julie B. · 09:00-15:00','Sophie M. · 11:00-19:00','Marc D. · 09:00-17:00'][i]}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,1fr)',gap:12,marginBottom:12}}>
-          {[
-            {Icon:IcoQR,bg:'#faf5ff',bc:'#e9d5ff',c:'#7c3aed',title:'Badgeage QR Code sécurisé',items:['QR dynamique renouvelé toutes les 30s','Scan depuis le smartphone','Vérification d\'appartenance','Borne tablette avec PIN']},
-            {Icon:IcoUsers,bg:'#f0fdf4',bc:'#bbf7d0',c:'#16a34a',title:'Suivi des présences',items:['Vue temps réel','Heures planifiées vs pointées','Calcul auto des écarts','Correction manuelle']},
-            {Icon:IcoFile,bg:'#f0f9ff',bc:'#bae6fd',c:'#0891b2',title:'Rapports et export PDF',items:['PDF professionnels en 1 clic','Filtrage par période','Détail par employé','Export immédiat']},
-            {Icon:IcoPhone,bg:'#fff7ed',bc:'#fed7aa',c:'#ea580c',title:'App mobile employé',items:['iPhone et Android (PWA)','Planning toujours à jour','Bouton scan QR intégré','Hors connexion']},
-          ].map((f,i)=>(
-            <Reveal key={i} delay={i*70}>
-              <div style={{background:f.bg,border:`1px solid ${f.bc}`,borderRadius:16,padding:'24px',transition:'transform .2s'}}
-              onMouseEnter={e=>e.currentTarget.style.transform='translateY(-3px)'}
-              onMouseLeave={e=>e.currentTarget.style.transform='none'}>
-                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
-                  <div style={{width:40,height:40,background:'white',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',border:`1px solid ${f.bc}`}}><f.Icon c={f.c}/></div>
-                  <div style={{fontSize:15,fontWeight:700,color:TEXT}}>{f.title}</div>
-                </div>
-                {f.items.map((item,j)=>(
-                  <div key={j} style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                    <IcoChk size={11} c={f.c}/>
-                    <span style={{fontSize:13,color:TEXT2}}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal>
-          <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'28px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:28,alignItems:'center',marginBottom:12}}>
-            <div>
-              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
-                <div style={{width:40,height:40,background:'#fdf2f8',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid #fbcfe8'}}><IcoBuilding c="#be185d"/></div>
-                <div style={{fontSize:15,fontWeight:700,color:TEXT}}>Multi-établissements</div>
-              </div>
-              <p style={{fontSize:13,color:TEXT2,lineHeight:1.75}}>Gérez plusieurs sites depuis un seul tableau de bord. Données entièrement isolées. Idéal pour les groupes et franchises.</p>
-            </div>
-            <div style={{background:BG,border:`1px solid ${BORDER}`,borderRadius:12,padding:'16px',marginTop:isMobile?16:0}}>
-              {['Le Bistrot · Paris','Hotel Lumière · Lyon','Clinique Santé · Genève'].map((e,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 12px',background:SURF,border:`1px solid ${BORDER}`,borderRadius:8,marginBottom:8}}>
-                  <span style={{fontSize:12,color:TEXT,fontWeight:500}}>{e}</span>
-                  <span style={{fontSize:10,color:'#16a34a',fontWeight:600,display:'flex',alignItems:'center',gap:4}}><span style={{width:5,height:5,borderRadius:'50%',background:'#22c55e',display:'inline-block'}}></span>Actif</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-        <Reveal>
-          <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:16,padding:'28px',textAlign:'center'}}>
-            <h3 style={{fontSize:18,fontWeight:800,color:TEXT,marginBottom:10}}>Fonctionnalités à venir</h3>
-            <div style={{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap',marginBottom:20}}>
-              {['Notifications email','Analytics avancées','Intégration paie','Messagerie équipe','Multi-langue'].map(f=>(
-                <span key={f} style={{padding:'6px 14px',borderRadius:20,background:'white',border:`1px solid ${AB}`,fontSize:12,fontWeight:600,color:A}}>{f}</span>
-              ))}
-            </div>
-            <button onClick={()=>goPage('contact')} style={{padding:'12px 24px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
-          </div>
-        </Reveal>
+        ))}
       </div>
-    </div>
+      <div style={{textAlign:'center',marginTop:56}}>
+        <button onClick={()=>setShowLogin(true)} style={{background:A,color:'white',border:'none',padding:'14px 32px',borderRadius:10,fontSize:15,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
+      </div>
+    </section>
   )
 
-  // ══ PAGE TARIFS ════════════════════════════════════════════════════
   const PagePricing=()=>(
-    <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
-      <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
-        <Reveal>
-          <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${BORDER}`,marginBottom:52,position:'relative',boxShadow:'0 8px 32px rgba(0,0,0,.07)'}}>
-            <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=80" alt="Tarifs Varman"
-              style={{width:'100%',height:isMobile?160:240,objectFit:'cover',display:'block'}} onError={e=>e.target.style.display='none'}/>
-            <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,.12) 65%)',display:'flex',alignItems:'center',padding:isMobile?'20px':'48px'}}>
-              <div>
-                <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.6)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:10}}>Tarifs</div>
-                <div style={{fontSize:isMobile?22:36,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1.1,marginBottom:8}}>Investissez dans<br/>ce qui compte vraiment.</div>
-                <div style={{fontSize:13,color:'rgba(255,255,255,.65)'}}>Tarification sur mesure · Démo gratuite · Sans engagement</div>
-              </div>
-            </div>
-          </div>
-        </Reveal>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:14,marginBottom:28}}>
-          {[
-            {name:'Mise en place',icon:'🚀',bg:'white',border:BORDER,c:A,
-             desc:'Configuration complète par SwitzerIT.',
-             items:['Création et configuration','Paramétrage établissements','Import des employés','Installation borne tablette','Formation gérant','Documentation complète'],
-             tag:'Sur devis',featured:false},
-            {name:'Abonnement mensuel',icon:'✨',bg:'white',border:A,c:A,
-             desc:'Accès complet à Varman pour votre établissement.',
-             items:['Planning et badgeage illimités','Tous vos employés inclus','Rapports PDF illimités','Support email sous 24h','Mises à jour automatiques','Hébergement sécurisé Suisse'],
-             tag:'Sur devis · en CHF',featured:true},
-            {name:'Support & maintenance',icon:'🛡️',bg:'white',border:BORDER,c:'#7c3aed',
-             desc:'Accompagnement continu pour votre sérénité.',
-             items:['Support prioritaire','Intervention sous 4h','Formations supplémentaires','Évolutions personnalisées','Suivi trimestriel','SLA garanti'],
-             tag:'Options disponibles',featured:false},
-          ].map((plan,i)=>(
-            <Reveal key={i} delay={i*80}>
-              <div style={{background:plan.bg,border:`${plan.featured?'2px':'1px'} solid ${plan.border}`,borderRadius:20,padding:'26px',display:'flex',flexDirection:'column',position:'relative',boxShadow:plan.featured?'0 8px 40px rgba(0,102,204,.1)':'none',height:'100%'}}>
-                {plan.featured&&<div style={{position:'absolute',top:-13,left:'50%',transform:'translateX(-50%)',padding:'4px 16px',borderRadius:20,background:A,color:'white',fontSize:10,fontWeight:700,whiteSpace:'nowrap'}}>RECOMMANDÉ</div>}
-                <div style={{fontSize:28,marginBottom:12}}>{plan.icon}</div>
-                <div style={{fontSize:17,fontWeight:800,color:TEXT,marginBottom:7}}>{plan.name}</div>
-                <div style={{fontSize:13,color:TEXT2,lineHeight:1.6,marginBottom:18}}>{plan.desc}</div>
-                <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20,flex:1}}>
-                  {plan.items.map(f=>(
-                    <div key={f} style={{display:'flex',alignItems:'flex-start',gap:9,fontSize:13,color:TEXT2}}>
-                      <div style={{flexShrink:0,marginTop:2}}><IcoChk size={11} c={plan.c}/></div>{f}
-                    </div>
-                  ))}
-                </div>
-                <div style={{padding:'9px 14px',background:plan.featured?AG:BG,border:`1px solid ${plan.featured?AB:BORDER}`,borderRadius:9,fontSize:13,fontWeight:700,color:plan.c,textAlign:'center',marginBottom:12}}>{plan.tag}</div>
-                <button onClick={()=>goPage('contact')} style={{width:'100%',height:42,borderRadius:10,border:plan.featured?'none':`1.5px solid ${A}`,background:plan.featured?A:'transparent',color:plan.featured?'white':A,fontSize:13,fontWeight:700,cursor:'pointer',transition:'opacity .15s'}}
-                onMouseEnter={e=>e.currentTarget.style.opacity='.8'}
-                onMouseLeave={e=>e.currentTarget.style.opacity='1'}>Demander un devis</button>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal>
-          <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:18,padding:'28px',display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:32,alignItems:'center',marginBottom:14}}>
-            <div>
-              <h3 style={{fontSize:isMobile?18:24,fontWeight:800,color:TEXT,marginBottom:12,letterSpacing:'-.03em'}}>Un investissement qui se rentabilise en moins d'un mois.</h3>
-              <p style={{fontSize:13,color:TEXT2,lineHeight:1.75}}>En moyenne, nos clients économisent 2 à 4 heures de travail administratif par semaine. Pour un gérant à 60 CHF/h, Varman se rentabilise dès le premier mois.</p>
-            </div>
-            <div style={{marginTop:isMobile?20:0}}>
-              {[{label:'Temps économisé / semaine',val:'2-4h',c:A},{label:'Erreurs de paie évitées',val:'100%',c:'#16a34a'},{label:'Mise en place',val:'2-4h',c:'#ea580c'},{label:'Retour sur investissement',val:'< 1 mois',c:'#7c3aed'}].map((s,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'11px 0',borderBottom:i<3?`1px solid ${BORDER}`:'none'}}>
-                  <span style={{fontSize:13,color:TEXT2}}>{s.label}</span>
-                  <span style={{fontSize:14,fontWeight:800,color:s.c}}>{s.val}</span>
+    <section style={{padding:isMobile?'100px 20px 60px':'120px 0 80px',maxWidth:1020,margin:'0 auto',paddingLeft:isMobile?20:48,paddingRight:isMobile?20:48}}>
+      <h1 style={{fontSize:isMobile?32:44,fontWeight:900,color:TEXT,letterSpacing:'-1.5px',marginBottom:8,textAlign:'center'}}>Tarifs simples.</h1>
+      <p style={{fontSize:16,color:TEXT2,textAlign:'center',marginBottom:56}}>Sans surprise. Sans engagement.</p>
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(2,1fr)',gap:24,maxWidth:720,margin:'0 auto'}}>
+        {[
+          {name:'Starter',price:'49',period:'/mois',desc:'Jusqu'à 10 employés',features:['Planning & shifts','Badgeage QR','Présences en direct','App mobile employé','Export PDF'],cta:'Commencer',accent:false},
+          {name:'Pro',price:'99',period:'/mois',desc:'Employés illimités',features:['Tout Starter inclus','Multi-établissements','Statistiques avancées','Support prioritaire','Onboarding dédié'],cta:'Demander une démo',accent:true},
+        ].map((p,i)=>(
+          <div key={i} style={{background:p.accent?'#0C1A35':'white',borderRadius:16,padding:32,border:p.accent?'none':`1px solid ${BORDER}`}}>
+            <div style={{fontSize:13,fontWeight:700,color:p.accent?'rgba(255,255,255,.5)':TEXT3,marginBottom:8,letterSpacing:'.05em'}}>{p.name.toUpperCase()}</div>
+            <div style={{fontSize:44,fontWeight:900,color:p.accent?'white':TEXT,letterSpacing:'-2px',marginBottom:4}}>{p.price}<span style={{fontSize:16,fontWeight:500,opacity:.6}}>CHF{p.period}</span></div>
+            <div style={{fontSize:14,color:p.accent?'rgba(255,255,255,.5)':TEXT2,marginBottom:24}}>{p.desc}</div>
+            <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:28}}>
+              {p.features.map((f,j)=>(
+                <div key={j} style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:18,height:18,borderRadius:'50%',background:p.accent?A:'#f0fdf4',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    <span style={{fontSize:10,color:p.accent?'white':'#16a34a',fontWeight:900}}>✓</span>
+                  </div>
+                  <span style={{fontSize:14,color:p.accent?'rgba(255,255,255,.8)':TEXT}}>{f}</span>
                 </div>
               ))}
             </div>
+            <button onClick={()=>setShowLogin(true)} style={{width:'100%',padding:'12px',borderRadius:10,border:p.accent?'none':`1.5px solid ${BORDER}`,background:p.accent?A:'white',color:p.accent?'white':TEXT,fontSize:14,fontWeight:700,cursor:'pointer'}}>{p.cta} →</button>
           </div>
-        </Reveal>
-        <Reveal>
-          <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:14,padding:'24px',display:'flex',alignItems:isMobile?'flex-start':'center',gap:16,flexDirection:isMobile?'column':'row'}}>
-            <div style={{fontSize:32,flexShrink:0}}>📹</div>
-            <div style={{flex:1}}>
-              <div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:5}}>Démo gratuite via Teams — 30 minutes</div>
-              <div style={{fontSize:13,color:TEXT2,lineHeight:1.65}}>On vous présente Varman adapté à votre secteur. Repartez avec un devis personnalisé. Sans engagement.</div>
-            </div>
-            <button onClick={()=>goPage('contact')} style={{padding:'13px 22px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto'}}>Réserver ma démo →</button>
-          </div>
-        </Reveal>
+        ))}
       </div>
-    </div>
+    </section>
   )
 
-  // ══ PAGE CONTACT ═══════════════════════════════════════════════════
   const PageContact=()=>(
-    <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
-      <div style={{...W,padding:isMobile?'52px 20px':'72px 56px'}}>
-        <Reveal>
-          <div style={{textAlign:'center',marginBottom:56}}>
-            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Contact</div>
-            <h1 style={{fontSize:isMobile?28:48,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:14,lineHeight:1.02}}>Parlons de votre projet.</h1>
-            <p style={{fontSize:16,color:TEXT2,maxWidth:420,margin:'0 auto',lineHeight:1.8}}>Notre équipe vous répond sous 24h et organise une démo Teams gratuite.</p>
+    <section style={{padding:isMobile?'100px 20px 60px':'120px 0 80px',maxWidth:600,margin:'0 auto',paddingLeft:isMobile?20:48,paddingRight:isMobile?20:48}}>
+      <h1 style={{fontSize:isMobile?32:44,fontWeight:900,color:TEXT,letterSpacing:'-1.5px',marginBottom:8}}>Contactez-nous</h1>
+      <p style={{fontSize:16,color:TEXT2,marginBottom:40}}>Une question ? On vous répond sous 24h.</p>
+      <div style={{display:'flex',flexDirection:'column',gap:12}}>
+        {[{l:'Email',v:'contact@switzerit.com'},{l:'Téléphone',v:'+41 79 000 00 00'},{l:'Démo',v:'Réservez via le bouton ci-dessous'}].map((c,i)=>(
+          <div key={i} style={{background:'white',borderRadius:12,padding:'16px 20px',border:`1px solid ${BORDER}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:13,color:TEXT2,fontWeight:600}}>{c.l}</span>
+            <span style={{fontSize:14,color:TEXT,fontWeight:700}}>{c.v}</span>
           </div>
-        </Reveal>
-        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1.3fr 1fr',gap:20}}>
-          <Reveal>
-            <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:20,padding:'32px'}}>
-              <ContactForm goPage={goPage} setShowLogin={setShowLogin}/>
+        ))}
+      </div>
+      <button onClick={()=>setShowLogin(true)} style={{width:'100%',marginTop:24,padding:'14px',borderRadius:10,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer'}}>Demander une démo gratuite →</button>
+    </section>
+  )
+
+  const PageLegal=()=>(
+    <section style={{padding:isMobile?'100px 20px 60px':'120px 0 80px',maxWidth:800,margin:'0 auto',paddingLeft:isMobile?20:48,paddingRight:isMobile?20:48}}>
+      <h1 style={{fontSize:28,fontWeight:900,color:TEXT,marginBottom:32}}>Mentions légales</h1>
+      <div style={{display:'flex',gap:8,marginBottom:32}}>
+        {['cgu','confidentialite','rgpd'].map(s=>(
+          <button key={s} onClick={()=>setLegalSection(s)} style={{padding:'7px 14px',borderRadius:8,border:`1px solid ${legalSection===s?A:BORDER}`,background:legalSection===s?AG:'white',color:legalSection===s?A:TEXT2,fontSize:13,fontWeight:600,cursor:'pointer'}}>
+            {s==='cgu'?'CGU':s==='confidentialite'?'Confidentialité':'RGPD'}
+          </button>
+        ))}
+      </div>
+      <div style={{fontSize:14,color:TEXT2,lineHeight:1.8}}>
+        {legalSection==='cgu'&&<><p><strong>1. Objet</strong> — Les présentes CGU régissent l'accès et l'utilisation de la plateforme Varman, éditée par SwitzerIT, basée en Suisse.</p><p><strong>2. Description</strong> — Varman est une solution SaaS de gestion d'équipes permettant la création de plannings, le badgeage par QR code, le suivi des présences et l'export de rapports.</p><p><strong>3. Accès</strong> — L'accès est réservé aux professionnels disposant d'un compte valide créé par leur établissement.</p><p><strong>6. Propriété intellectuelle</strong> — L'ensemble des éléments de Varman est la propriété exclusive de SwitzerIT. Toute reproduction non autorisée est interdite.</p></>}
+        {legalSection==='confidentialite'&&<><p>Varman collecte uniquement les données nécessaires au fonctionnement du service : nom, email, horaires de travail et pointages.</p><p>Ces données sont hébergées en Europe sur des serveurs sécurisés et ne sont jamais revendues à des tiers.</p></>}
+        {legalSection==='rgpd'&&<><p><strong>Engagement</strong> — Varman respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse.</p><p>Vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Contactez-nous à contact@switzerit.com.</p></>}
+      </div>
+    </section>
+  )
+
+  const Footer=()=>(
+    <footer style={{background:'#0C1A35',color:'white',padding:isMobile?'40px 20px 24px':'56px 0 32px',marginTop:0}}>
+      <div style={{maxWidth:1020,margin:'0 auto',padding:isMobile?'0':'0 48px'}}>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2fr 1fr 1fr',gap:32,marginBottom:40}}>
+          <div>
+            <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:12}}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="28">
+                <text x="0" y="36" fontFamily="-apple-system,'Inter',sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="white">varman</text>
+                <circle cx="152" cy="32" r="7" fill="#E11D48"/>
+              </svg>
             </div>
-          </Reveal>
-          <div style={{display:'flex',flexDirection:'column',gap:10}}>
-            {[
-              {delay:80,content:(
-                <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'22px',overflow:'hidden',position:'relative'}}>
-                  <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&q=70" alt="Team" style={{width:'100%',height:140,objectFit:'cover',borderRadius:10,display:'block',marginBottom:14}} onError={e=>e.target.style.display='none'}/>
-                  <div style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:6}}>📹 Démo Teams gratuite</div>
-                  <div style={{fontSize:13,color:TEXT2,lineHeight:1.7,marginBottom:12}}>30 min adaptées à votre secteur. Repartez avec un devis personnalisé.</div>
-                  <div style={{display:'flex',flexDirection:'column',gap:7}}>
-                    {['Présentation adaptée','Questions illimitées','Devis inclus','Sans engagement'].map((t,i)=>(
-                      <div key={i} style={{display:'flex',alignItems:'center',gap:7}}>
-                        <IcoChk size={12}/><span style={{fontSize:12,color:TEXT2}}>{t}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )},
-              {delay:140,content:(
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-                  {[{icon:<IcoShield c={A}/>,bg:AG,bc:AB,t:'RGPD & LPD Suisse',d:'Données sécurisées'},{icon:<IcoZap c='#ea580c'/>,bg:'#fff7ed',bc:'#fed7aa',t:'Mise en place rapide',d:'2 à 4 heures'},{icon:<IcoClock c='#16a34a'/>,bg:'#f0fdf4',bc:'#bbf7d0',t:'Réponse sous 24h',d:'Équipe humaine'},{icon:<span style={{fontSize:18}}>🇨🇭</span>,bg:'#f8fafc',bc:BORDER,t:'Basé en Suisse',d:'Facturation CHF'}].map((info,i)=>(
-                    <div key={i} style={{background:info.bg,border:`1px solid ${info.bc}`,borderRadius:12,padding:'14px'}}>
-                      <div style={{marginBottom:8}}>{info.icon}</div>
-                      <div style={{fontSize:12,fontWeight:700,color:TEXT,marginBottom:3}}>{info.t}</div>
-                      <div style={{fontSize:11,color:TEXT2}}>{info.d}</div>
-                    </div>
-                  ))}
-                </div>
-              )},
-              {delay:180,content:(
-                <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:12,padding:'16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10}}>
-                  <div>
-                    <div style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:4}}>Déjà client ?</div>
-                    <div style={{fontSize:12,color:TEXT2}}>Accédez à votre espace gérant.</div>
-                  </div>
-                  <button onClick={()=>setShowLogin(true)} style={{padding:'9px 18px',borderRadius:9,border:'none',background:A,color:'white',fontSize:12,fontWeight:700,cursor:'pointer',flexShrink:0}}>Se connecter →</button>
-                </div>
-              )},
-            ].map((item,i)=>(
-              <Reveal key={i} delay={item.delay}>{item.content}</Reveal>
+            <p style={{fontSize:13,color:'rgba(255,255,255,.4)',lineHeight:1.8,maxWidth:240}}>La solution de gestion d'équipes pour les professionnels terrain. Propulsé par SwitzerIT.</p>
+            <div style={{display:'flex',gap:8,marginTop:14}}>
+              {['🇨🇭 Suisse','🔒 RGPD','⚡ 2-4h'].map((t,i)=><span key={i} style={{fontSize:11,color:'rgba(255,255,255,.4)',background:'rgba(255,255,255,.06)',padding:'4px 10px',borderRadius:20}}>{t}</span>)}
+            </div>
+          </div>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.3)',letterSpacing:'.08em',marginBottom:14}}>PRODUIT</div>
+            {['Fonctionnalités','Tarifs','Contact'].map((l,i)=>(
+              <div key={i} onClick={()=>goPage(l.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''))} style={{fontSize:13,color:'rgba(255,255,255,.5)',marginBottom:10,cursor:'pointer'}}>{l}</div>
+            ))}
+          </div>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.3)',letterSpacing:'.08em',marginBottom:14}}>LÉGAL</div>
+            {['CGU','Confidentialité','RGPD'].map((l,i)=>(
+              <div key={i} onClick={()=>{goPage('legal');setLegalSection(l.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace('ialite','identialite'))}} style={{fontSize:13,color:'rgba(255,255,255,.5)',marginBottom:10,cursor:'pointer'}}>{l}</div>
             ))}
           </div>
         </div>
-      </div>
-    </div>
-  )
-
-  // ══ PAGE LÉGAL ═════════════════════════════════════════════════════
-  const PageLegal=()=>{
-    const sections={
-      cgu:{title:"Conditions Générales d'Utilisation",last:"11 mai 2026",content:[
-        {h:"1. Objet",t:"Les présentes CGU régissent l'accès et l'utilisation de la plateforme Varman, éditée par SwitzerIT, basée en Suisse."},
-        {h:"2. Description",t:"Varman est une solution SaaS de gestion d'équipes permettant la création de plannings, le badgeage par QR code, le suivi des présences et l'export de rapports."},
-        {h:"3. Accès",t:"L'accès est réservé aux professionnels. Chaque compte est associé à un établissement géré par un gérant désigné."},
-        {h:"4. Obligations",t:"L'utilisateur s'engage à fournir des informations exactes et à maintenir la confidentialité de ses identifiants."},
-        {h:"5. Responsabilité",t:"La responsabilité est limitée au montant des sommes versées au cours des 12 derniers mois."},
-        {h:"6. Propriété intellectuelle",t:"L'ensemble des éléments de Varman est la propriété exclusive de SwitzerIT. Toute reproduction non autorisée est interdite."},
-        {h:"7. Résiliation",t:"Chaque partie peut résilier avec un préavis de 30 jours."},
-        {h:"8. Droit applicable",t:"Les CGU sont soumises au droit suisse. Les tribunaux du canton de Vaud sont seuls compétents."},
-      ]},
-      confidentialite:{title:"Politique de Confidentialité",last:"11 mai 2026",content:[
-        {h:"Responsable",t:"SwitzerIT, basé en Suisse. Contact : contact@switzerit.com"},
-        {h:"Données collectées",t:"Données d'identification, données professionnelles, données de pointage."},
-        {h:"Finalités",t:"Gestion des comptes, fonctionnement du service, génération de rapports."},
-        {h:"Conservation",t:"Durée du contrat + 3 ans. Données de pointage : 5 ans."},
-        {h:"Partage",t:"Les données ne sont jamais vendues. Partagées uniquement avec nos sous-traitants avec garanties contractuelles."},
-        {h:"Vos droits",t:"Conformément à la LPD suisse et au RGPD : accès, rectification, effacement, portabilité. Contact : contact@switzerit.com"},
-        {h:"Sécurité",t:"Données chiffrées en transit et au repos. Authentification sécurisée."},
-      ]},
-      rgpd:{title:"Conformité RGPD",last:"11 mai 2026",content:[
-        {h:"Engagement",t:"Varman respecte le RGPD (UE 2016/679) pour les utilisateurs UE, ainsi que la nLPD suisse."},
-        {h:"Données traitées",t:"Noms et prénoms des employés, emails professionnels, données de badgeage."},
-        {h:"Conservation",t:"Employés actifs : durée du contrat. Facturation : 10 ans. Logs sécurité : 12 mois."},
-        {h:"Sous-traitants",t:"Supabase Inc. et Vercel Inc. (clauses contractuelles types)."},
-        {h:"Contact DPO",t:"contact@switzerit.com — réponse sous 30 jours."},
-      ]},
-      cookies:{title:"Politique de Cookies",last:"11 mai 2026",content:[
-        {h:"Cookies nécessaires",t:"Cookies d'authentification, préférences, sécurité CSRF. Non désactivables."},
-        {h:"Cookies fonctionnels",t:"Établissement sélectionné, état de la borne, préférences d'affichage."},
-        {h:"Cookies analytiques",t:"Nous n'utilisons pas de cookies analytiques tiers."},
-        {h:"Durée",t:"Session : supprimés à la fermeture. Persistants : maximum 12 mois."},
-      ]},
-    }
-    const s=sections[legalSection]
-    return (
-      <div style={{paddingTop:62,minHeight:'100vh',background:BG}}>
-        <div style={{...W,padding:isMobile?'28px 20px':'56px 56px'}}>
-          {isMobile?(
-            <>
-              <div style={{display:'flex',gap:8,marginBottom:22,overflowX:'auto',paddingBottom:4}}>
-                {[['cgu','CGU'],['confidentialite','Confidentialité'],['rgpd','RGPD'],['cookies','Cookies']].map(([id,label])=>(
-                  <button key={id} onClick={()=>setLegalSection(id)} style={{padding:'7px 16px',borderRadius:20,border:'none',background:legalSection===id?A:'transparent',color:legalSection===id?'white':TEXT2,fontSize:13,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>{label}</button>
-                ))}
-              </div>
-              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:14,padding:'24px'}}>
-                <div style={{fontSize:10,color:TEXT3,marginBottom:6}}>Mise à jour : {s.last}</div>
-                <h1 style={{fontSize:22,fontWeight:900,color:TEXT,marginBottom:20}}>{s.title}</h1>
-                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:20}}><h2 style={{fontSize:13,fontWeight:700,color:TEXT,marginBottom:6}}>{block.h}</h2><p style={{fontSize:13,color:TEXT2,lineHeight:1.75,margin:0}}>{block.t}</p></div>))}
-                <div style={{marginTop:22,padding:'13px 16px',background:AG,borderRadius:10,fontSize:13,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
-              </div>
-            </>
-          ):(
-            <div style={{display:'grid',gridTemplateColumns:'190px 1fr',gap:24,alignItems:'start'}}>
-              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:13,padding:'16px 13px',position:'sticky',top:74}}>
-                <div style={{fontSize:10,fontWeight:700,color:TEXT3,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:13}}>Légal</div>
-                {[['cgu','CGU'],['confidentialite','Confidentialité'],['rgpd','RGPD'],['cookies','Cookies']].map(([id,label])=>(
-                  <button key={id} onClick={()=>setLegalSection(id)} style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'none',background:legalSection===id?AG:'transparent',color:legalSection===id?A:TEXT2,fontSize:13,fontWeight:legalSection===id?600:400,cursor:'pointer',textAlign:'left',marginBottom:2,display:'block'}}>{label}</button>
-                ))}
-              </div>
-              <div style={{background:SURF,border:`1px solid ${BORDER}`,borderRadius:16,padding:'36px'}}>
-                <div style={{fontSize:10,color:TEXT3,marginBottom:8}}>Mise à jour : {s.last}</div>
-                <h1 style={{fontSize:28,fontWeight:900,color:TEXT,letterSpacing:'-.04em',marginBottom:24}}>{s.title}</h1>
-                {s.content.map((block,i)=>(<div key={i} style={{marginBottom:22}}><h2 style={{fontSize:14,fontWeight:700,color:TEXT,marginBottom:7}}>{block.h}</h2><p style={{fontSize:13,color:TEXT2,lineHeight:1.8,margin:0}}>{block.t}</p></div>))}
-                <div style={{marginTop:28,padding:'14px 18px',background:AG,borderRadius:10,fontSize:13,color:A}}><strong>Des questions ?</strong> <a href="mailto:contact@switzerit.com" style={{color:A}}>contact@switzerit.com</a></div>
-              </div>
-            </div>
-          )}
+        <div style={{borderTop:'1px solid rgba(255,255,255,.08)',paddingTop:20,display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+          <span style={{fontSize:12,color:'rgba(255,255,255,.25)'}}>© 2026 Varman by SwitzerIT · Suisse</span>
+          <button onClick={()=>setShowLogin(true)} style={{background:A,color:'white',border:'none',padding:'8px 18px',borderRadius:8,fontSize:12,fontWeight:700,cursor:'pointer'}}>Connexion →</button>
         </div>
       </div>
-    )
-  }
+    </footer>
+  )
+
 
   // ══ SET PASSWORD MODAL ═══════════════════════════════════════════════
   function SetPasswordModal(){
