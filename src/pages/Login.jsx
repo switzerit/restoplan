@@ -174,7 +174,7 @@ function ContactForm({goPage,setShowLogin}) {
   )
   return (
     <>
-      <div style={{fontSize:18,fontWeight:800,color:'#111',marginBottom:5}}>Demander une démo Teams</div>
+      <div style={{fontSize:18,fontWeight:800,color:'#111',marginBottom:5}}>Essayer gratuitement Teams</div>
       <div style={{fontSize:13,color:'#888',marginBottom:24}}>Gratuite · 30 min · Sans engagement</div>
       {[{f:'nom',l:'Nom complet *',ph:'Jean Dupont',t:'text'},{f:'email',l:'Email *',ph:'jean@exemple.fr',t:'email'},{f:'entreprise',l:'Établissement *',ph:'Mon Établissement',t:'text'}].map(({f,l,ph,t})=>(
         <div key={f} style={{marginBottom:14}}>
@@ -279,7 +279,7 @@ function LoginModal({onClose, goPage}) {
         </form>
         <div style={{textAlign:'center',marginTop:14}}>
           <span style={{fontSize:12,color:'#999'}}>Pas encore client ? </span>
-          <span style={{fontSize:12,color:'#E11D48',fontWeight:600,cursor:'pointer'}} onClick={()=>{onClose();goPage('contact')}}>Demander une démo</span>
+          <span style={{fontSize:12,color:'#E11D48',fontWeight:600,cursor:'pointer'}} onClick={()=>{onClose();goPage('contact')}}>Essayer gratuitement</span>
         </div>
       </div>
     </div>
@@ -396,7 +396,7 @@ export default function Login() {
             onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER}}>Connexion</button>
             <button onClick={()=>goPage('contact')} style={{padding:'8px 18px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer',marginLeft:6,transition:'opacity .15s'}}
             onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
-            onMouseLeave={e=>e.currentTarget.style.opacity='1'}>Demander une démo</button>
+            onMouseLeave={e=>e.currentTarget.style.opacity='1'}>Essayer gratuitement</button>
           </div>
         )}
       </nav>
@@ -406,7 +406,7 @@ export default function Login() {
             <button key={id} onClick={()=>goPage(id)} style={{width:'100%',padding:'13px 24px',border:'none',background:'transparent',color:TEXT,fontSize:14,fontWeight:500,cursor:'pointer',textAlign:'left',display:'block'}}>{l}</button>
           ))}
           <div style={{margin:'8px 20px 0',paddingTop:12,borderTop:`1px solid ${BORDER}`}}>
-            <button onClick={()=>{goPage('contact');setMenuOpen(false)}} style={{width:'100%',padding:'14px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
+            <button onClick={()=>{goPage('contact');setMenuOpen(false)}} style={{width:'100%',padding:'14px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Essayer gratuitement →</button>
           </div>
         </div>
       )}
@@ -486,7 +486,7 @@ export default function Login() {
                 <button onClick={()=>goPage('contact')} style={{padding:'15px 26px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',boxShadow:'0 4px 20px rgba(0,102,204,.25)',transition:'transform .2s,box-shadow .2s'}}
                 onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 8px 28px rgba(0,102,204,.3)'}}
                 onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 20px rgba(0,102,204,.25)'}}>
-                  Demander une démo gratuite <IcoArr/>
+                  Essayer gratuitement <IcoArr/>
                 </button>
                 <button onClick={()=>goPage('fonctionnalites')} style={{padding:'15px 20px',borderRadius:12,border:`1.5px solid ${BORDER}`,background:SURF,color:TEXT,fontSize:15,fontWeight:600,cursor:'pointer',transition:'border-color .15s'}}
                 onMouseEnter={e=>e.currentTarget.style.borderColor='#999'}
@@ -495,7 +495,7 @@ export default function Login() {
                 </button>
               </div>
               <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
-                {['Démo gratuite','Sans engagement','2-4h mise en place'].map(t=>(
+                {['Essai gratuit','Sans engagement','2-4h mise en place'].map(t=>(
                   <div key={t} style={{display:'flex',alignItems:'center',gap:6}}>
                     <IcoChk size={13}/>
                     <span style={{fontSize:13,color:TEXT3}}>{t}</span>
@@ -772,21 +772,6 @@ export default function Login() {
           </div>
         </div>
       </section>
-
-      {/* 7. CALCULATEUR ROI */}
-      <section style={{background:SURF,padding:SEC}}>
-        <div style={W}>
-          <Reveal>
-            <div style={{textAlign:'center',marginBottom:52}}>
-              <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Calculateur</div>
-              <h2 style={{fontSize:isMobile?28:44,fontWeight:900,color:TEXT,letterSpacing:'-.06em',marginBottom:16,lineHeight:1.04}}>Combien vous coûte<br/>l'ancien système ?</h2>
-              <p style={{fontSize:16,color:TEXT2,maxWidth:400,margin:'0 auto',lineHeight:1.8}}>Calculez le vrai coût des feuilles papier et des appels inutiles.</p>
-            </div>
-          </Reveal>
-          <Reveal delay={80}><RoiCalc isMobile={isMobile}/></Reveal>
-        </div>
-      </section>
-
       {/* 8. FAQ + CTA */}
       <section style={{background:BG,padding:SEC}}>
         <div style={W}>
@@ -810,11 +795,11 @@ export default function Login() {
                     <span style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.55)'}}>Démo disponible cette semaine</span>
                   </div>
                   <h3 style={{fontSize:isMobile?22:28,fontWeight:900,color:'white',letterSpacing:'-.04em',marginBottom:14,lineHeight:1.08}}>Prêt à simplifier<br/>la gestion de votre équipe ?</h3>
-                  <p style={{fontSize:14,color:'rgba(255,255,255,.45)',marginBottom:28,lineHeight:1.75}}>Démo gratuite via Teams. Notre équipe configure tout pour vous, sans engagement.</p>
+                  <p style={{fontSize:14,color:'rgba(255,255,255,.45)',marginBottom:28,lineHeight:1.75}}>Essai gratuit via Teams. Notre équipe configure tout pour vous, sans engagement.</p>
                   <button onClick={()=>goPage('contact')} style={{width:'100%',padding:'15px',borderRadius:12,border:'none',background:A,color:'white',fontSize:15,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:9,justifyContent:'center',marginBottom:10,transition:'opacity .15s'}}
                   onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
                   onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
-                    Réserver ma démo gratuite <IcoArr/>
+                    Commencer l'essai gratuit <IcoArr/>
                   </button>
                   <button onClick={()=>setShowLogin(true)} style={{width:'100%',padding:'13px',borderRadius:12,border:'1px solid rgba(255,255,255,.12)',background:'transparent',color:'rgba(255,255,255,.45)',fontSize:14,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
                   onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(255,255,255,.25)';e.currentTarget.style.color='rgba(255,255,255,.65)'}}
@@ -951,7 +936,7 @@ export default function Login() {
                 <span key={f} style={{padding:'6px 14px',borderRadius:20,background:'white',border:`1px solid ${AB}`,fontSize:12,fontWeight:600,color:A}}>{f}</span>
               ))}
             </div>
-            <button onClick={()=>goPage('contact')} style={{padding:'12px 24px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Demander une démo →</button>
+            <button onClick={()=>goPage('contact')} style={{padding:'12px 24px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Essayer gratuitement →</button>
           </div>
         </Reveal>
       </div>
@@ -970,7 +955,7 @@ export default function Login() {
               <div>
                 <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.6)',letterSpacing:'.12em',textTransform:'uppercase',marginBottom:10}}>Tarifs</div>
                 <div style={{fontSize:isMobile?22:36,fontWeight:900,color:'white',letterSpacing:'-.04em',lineHeight:1.1,marginBottom:8}}>Investissez dans<br/>ce qui compte vraiment.</div>
-                <div style={{fontSize:13,color:'rgba(255,255,255,.65)'}}>Tarification sur mesure · Démo gratuite · Sans engagement</div>
+                <div style={{fontSize:13,color:'rgba(255,255,255,.65)'}}>Tarification sur mesure · Essai gratuit · Sans engagement</div>
               </div>
             </div>
           </div>
@@ -1031,7 +1016,7 @@ export default function Login() {
           <div style={{background:AG,border:`1px solid ${AB}`,borderRadius:14,padding:'24px',display:'flex',alignItems:isMobile?'flex-start':'center',gap:16,flexDirection:isMobile?'column':'row'}}>
             <div style={{fontSize:32,flexShrink:0}}>📹</div>
             <div style={{flex:1}}>
-              <div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:5}}>Démo gratuite via Teams — 30 minutes</div>
+              <div style={{fontSize:16,fontWeight:800,color:TEXT,marginBottom:5}}>Essai gratuit via Teams — 30 minutes</div>
               <div style={{fontSize:13,color:TEXT2,lineHeight:1.65}}>On vous présente Varman adapté à votre secteur. Repartez avec un devis personnalisé. Sans engagement.</div>
             </div>
             <button onClick={()=>goPage('contact')} style={{padding:'13px 22px',borderRadius:10,border:'none',background:A,color:'white',fontSize:14,fontWeight:700,cursor:'pointer',flexShrink:0,width:isMobile?'100%':'auto'}}>Réserver ma démo →</button>
