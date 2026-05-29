@@ -775,15 +775,8 @@ export default function Login() {
       {/* 8. FAQ + CTA */}
       <section style={{background:BG,padding:SEC}}>
         <div style={W}>
-          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:72,alignItems:'start'}}>
-            <div>
-              <Reveal>
-                <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Questions fréquentes</div>
-                <h2 style={{fontSize:isMobile?26:38,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:12,lineHeight:1.08}}>Tout ce que vous voulez savoir.</h2>
-                <p style={{fontSize:15,color:TEXT2,marginBottom:36,lineHeight:1.8}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
-              </Reveal>
-              <FaqSection/>
-            </div>
+          <div style={{display:isMobile?'block':'grid',gridTemplateColumns:'1fr',gap:40,alignItems:'start',maxWidth:560,margin:'0 auto'}}>
+
             <div style={{marginTop:isMobile?52:0}}>
               <Reveal delay={120}>
                 <div style={{background:TEXT,borderRadius:22,padding:'36px',marginBottom:12,overflow:'hidden',position:'relative'}}>
@@ -1084,6 +1077,15 @@ export default function Login() {
             ))}
           </div>
         </div>
+        {/* FAQ */}
+        <Reveal>
+          <div style={{marginTop:56,borderTop:`1px solid ${BORDER}`,paddingTop:48}}>
+            <div style={{fontSize:11,fontWeight:700,color:A,letterSpacing:'.12em',textTransform:'uppercase',marginBottom:14}}>Questions fréquentes</div>
+            <h2 style={{fontSize:isMobile?24:32,fontWeight:900,color:TEXT,letterSpacing:'-.05em',marginBottom:12}}>Tout ce que vous voulez savoir.</h2>
+            <p style={{fontSize:15,color:TEXT2,marginBottom:32,lineHeight:1.8}}>Les réponses aux questions qu'on nous pose le plus souvent.</p>
+            <FaqSection/>
+          </div>
+        </Reveal>
       </div>
     </div>
   )
