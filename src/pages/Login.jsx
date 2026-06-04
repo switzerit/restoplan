@@ -398,7 +398,7 @@ export default function Login() {
               <button key={id} onClick={()=>goPage(id)} style={{padding:'7px 15px',borderRadius:9,border:'none',background:page===id?AG:'transparent',color:page===id?A:TEXT2,fontSize:13,fontWeight:page===id?600:500,cursor:'pointer',transition:'all .15s'}}>{l}</button>
             ))}
             <div style={{width:1,height:18,background:BORDER,margin:'0 14px'}}/>
-            <button onClick={()=>setShowLogin(true)} style={{padding:'8px 18px',borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,color:TEXT2,fontSize:13,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
+            <button onClick={()=>sessionRole?window.location.href=(sessionRole==='super_admin'?'/admin':sessionRole==='gerant'?'/gerant':'/moi'):setShowLogin(true)} style={{padding:'8px 18px',borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,color:TEXT2,fontSize:13,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
             onMouseEnter={e=>{e.currentTarget.style.borderColor='#aaa'}}
             onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER}}>{sessionRole?'← Mon espace':'Connexion'}</button>
             <button onClick={()=>goPage('contact')} style={{padding:'8px 18px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer',marginLeft:6,transition:'opacity .15s'}}
