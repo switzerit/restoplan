@@ -26,7 +26,7 @@ export default function Admin() {
   const [employes, setEmployes] = useState([])
   const [selectedGerant, setSelectedGerant] = useState(null)
   const [createModal, setCreateModal] = useState(false)
-  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:"",compte_type:'trial',trial_days:14})
+  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14})
   const [editGerantModal, setEditGerantModal] = useState(null)
   const [trialModal, setTrialModal] = useState(null)
   const [trialForm, setTrialForm] = useState({statut:'trial', days:14})
@@ -82,7 +82,7 @@ export default function Admin() {
       nom:nom_resto, adresse, secteur:secteur||'restaurant', actif:true, pin_borne:"1234"
     }).select().single()
     if(restoErr){showToast("Erreur: "+restoErr.message);return}
-    const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password,prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
+    const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password:"",prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
     if(error||data?.error){
       let msg = data?.error || "Erreur inconnue"
       if(!data && error){
@@ -98,6 +98,7 @@ export default function Admin() {
       await supabase.from("restaurants").update({gerant_id:newUserId}).eq("id",resto.id)
       const trial_end_at = createForm.compte_type==='trial' ? new Date(Date.now()+createForm.trial_days*24*60*60*1000).toISOString() : null
       await supabase.from("gerants").insert({user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto,statut:createForm.compte_type,trial_end_at})
+      await supabase.functions.invoke('invite-gerant',{body:{email,prenom,nom,entreprise:entreprise||nom_resto,restaurant_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type}})
     }
     setCreateModal(false)
     setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
@@ -447,7 +448,7 @@ export default function Admin() {
             <div key={f}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
           ))}
         </div>
-        {[{f:"email",l:"Email *",ph:"sophie@bistrot.fr"},{f:"telephone",l:"Telephone",ph:"+41 79 123 45 67"},{f:"entreprise",l:"Entreprise",ph:"SAS Bistrot du Port"},{f:"password",l:"Mot de passe *",ph:"Min. 6 caracteres"}].map(({f,l,ph})=>(
+        {[{f:"email",l:"Email *",ph:"sophie@bistrot.fr"},{f:"telephone",l:"Telephone",ph:"+41 79 123 45 67"},{f:"entreprise",l:"Entreprise",ph:"SAS Bistrot du Port"}].map(({f,l,ph})=>(
           <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input type={f==="password"?"password":"text"} placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
         ))}
         <div style={{marginBottom:14}}>
