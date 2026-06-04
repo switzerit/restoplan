@@ -28,6 +28,8 @@ export default function Admin() {
   const [createModal, setCreateModal] = useState(false)
   const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
   const [editGerantModal, setEditGerantModal] = useState(null)
+  const [trialModal, setTrialModal] = useState(null)
+  const [trialForm, setTrialForm] = useState({statut:'trial', days:14})
   const [editGerantForm, setEditGerantForm] = useState({prenom:"",nom:"",email:"",telephone:"",entreprise:""})
   const [addRestoModal, setAddRestoModal] = useState(null)
   const [addRestoForm, setAddRestoForm] = useState({nom:"",adresse:"",secteur:"restaurant"})
@@ -46,6 +48,19 @@ export default function Admin() {
     if(profil?.role !== "super_admin"){navigate("/gerant");return false}
     setLoading(false)
     return true
+  }
+
+  async function saveTrial(){
+    if(!trialModal) return
+    const trial_end_at = trialForm.statut === 'active' ? null :
+      new Date(Date.now() + trialForm.days * 24*60*60*1000).toISOString()
+    await supabase.from('gerants').update({
+      statut: trialForm.statut,
+      trial_end_at: trialForm.statut === 'active' ? null : trial_end_at
+    }).eq('id', trialModal.id)
+    showToast('Trial mis à jour ✅')
+    setTrialModal(null)
+    loadData()
   }
 
   async function loadData(){
@@ -222,6 +237,27 @@ export default function Admin() {
             ))}
           </div>
         </div>
+        {/* TRIAL */}
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:20,marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+            <div style={{fontSize:13,fontWeight:700}}>⏱️ Abonnement / Trial</div>
+            <button onClick={()=>{setTrialForm({statut:g.statut||'trial',days:14});setTrialModal(g)}} style={{padding:"6px 14px",borderRadius:9,border:"none",background:"var(--accent)",color:"white",fontSize:12,fontWeight:700,cursor:"pointer"}}>Gérer</button>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <div style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
+              <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>STATUT</div>
+              <div style={{fontSize:13,fontWeight:700,color:g.statut==='active'?'#16a34a':g.statut==='expired'?'#dc2626':'#ea580c'}}>
+                {g.statut==='active'?'✅ Actif':g.statut==='expired'?'❌ Expiré':'⏳ Trial'}
+              </div>
+            </div>
+            <div style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
+              <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>FIN DU TRIAL</div>
+              <div style={{fontSize:13,fontWeight:600}}>
+                {g.trial_end_at ? new Date(g.trial_end_at).toLocaleDateString('fr-FR') : g.statut==='active' ? '—' : 'Non défini'}
+              </div>
+            </div>
+          </div>
+        </div>
         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden",marginBottom:16}}>
           <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div style={{fontSize:13,fontWeight:700}}>Restaurants ({restos.length})</div>
@@ -258,6 +294,42 @@ export default function Admin() {
           </div>
         </div>}
       </div>
+      {trialModal&&<div onClick={()=>setTrialModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}>
+        <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
+          <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>⏱️ Gérer le trial</div>
+          <div style={{fontSize:13,color:"var(--text2)",marginBottom:20}}>{trialModal.prenom} {trialModal.nom}</div>
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--text2)",marginBottom:8}}>STATUT</div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {[{v:'trial',l:'⏳ Trial en cours',d:'Accès limité dans le temps'},{v:'active',l:'✅ Compte actif',d:'Accès complet sans limite'},{v:'expired',l:'❌ Expiré',d:'Accès bloqué'}].map(({v,l,d})=>(
+                <div key={v} onClick={()=>setTrialForm(f=>({...f,statut:v}))}
+                  style={{padding:"10px 14px",borderRadius:10,border:`2px solid ${trialForm.statut===v?"var(--accent)":"var(--border)"}`,background:trialForm.statut===v?"var(--accent-bg)":"var(--bg)",cursor:"pointer"}}>
+                  <div style={{fontSize:13,fontWeight:700,color:trialForm.statut===v?"var(--accent)":"var(--text)"}}>{l}</div>
+                  <div style={{fontSize:11,color:"var(--text2)"}}>{d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {trialForm.statut==='trial'&&<div style={{marginBottom:20}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--text2)",marginBottom:8}}>DURÉE DU TRIAL</div>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {[7,14,30,60].map(d=>(
+                <button key={d} onClick={()=>setTrialForm(f=>({...f,days:d}))}
+                  style={{padding:"8px 16px",borderRadius:9,border:`2px solid ${trialForm.days===d?"var(--accent)":"var(--border)"}`,background:trialForm.days===d?"var(--accent-bg)":"var(--bg)",color:trialForm.days===d?"var(--accent)":"var(--text)",fontSize:13,fontWeight:600,cursor:"pointer"}}>
+                  {d}j
+                </button>
+              ))}
+            </div>
+            <div style={{fontSize:12,color:"var(--text2)",marginTop:8}}>
+              Expiration : {new Date(Date.now()+trialForm.days*24*60*60*1000).toLocaleDateString('fr-FR')}
+            </div>
+          </div>}
+          <div style={{display:"flex",gap:10}}>
+            <button onClick={()=>setTrialModal(null)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
+            <button onClick={saveTrial} style={{flex:2,height:44,borderRadius:12,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>Sauvegarder</button>
+          </div>
+        </div>
+      </div>}
       {editGerantModal&&<div onClick={()=>setEditGerantModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
         <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:400,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
           <div style={{fontSize:17,fontWeight:800,marginBottom:20}}>Modifier le gerant</div>
