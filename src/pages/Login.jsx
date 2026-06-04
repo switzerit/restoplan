@@ -292,6 +292,7 @@ function LoginModal({onClose, goPage}) {
 export default function Login() {
   const [loading,setLoading]=useState(true)
   const [showLogin,setShowLogin]=useState(false)
+  const [sessionRole,setSessionRole]=useState(null)
   const [setPasswordMode,setSetPasswordMode]=useState(false)
   const [menuOpen,setMenuOpen]=useState(false)
   const [legalSection,setLegalSection]=useState('cgu')
@@ -315,11 +316,14 @@ export default function Login() {
     }
     supabase.auth.getSession().then(async({data})=>{
       const publicPaths = ['/contact','/faq','/legal','/fonctionnalites','/tarifs']
-      if(data.session && !publicPaths.includes(location.pathname)){
+      if(data.session){
         const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
-        if(p?.role==='super_admin')navigate('/admin')
-        else if(p?.role==='gerant')navigate('/gerant')
-        else navigate('/moi')
+        setSessionRole(p?.role||null)
+        if(!publicPaths.includes(location.pathname)){
+          if(p?.role==='super_admin')navigate('/admin')
+          else if(p?.role==='gerant')navigate('/gerant')
+          else navigate('/moi')
+        } else { setLoading(false) }
       } else {setLoading(false);if(location.pathname==='/login')setShowLogin(true)}
     })
   },[])
@@ -396,7 +400,7 @@ export default function Login() {
             <div style={{width:1,height:18,background:BORDER,margin:'0 14px'}}/>
             <button onClick={()=>setShowLogin(true)} style={{padding:'8px 18px',borderRadius:9,border:`1px solid ${BORDER}`,background:SURF,color:TEXT2,fontSize:13,fontWeight:500,cursor:'pointer',transition:'all .15s'}}
             onMouseEnter={e=>{e.currentTarget.style.borderColor='#aaa'}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER}}>Connexion</button>
+            onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER}}>{sessionRole?'← Mon espace':'Connexion'}</button>
             <button onClick={()=>goPage('contact')} style={{padding:'8px 18px',borderRadius:9,border:'none',background:A,color:'white',fontSize:13,fontWeight:700,cursor:'pointer',marginLeft:6,transition:'opacity .15s'}}
             onMouseEnter={e=>e.currentTarget.style.opacity='.88'}
             onMouseLeave={e=>e.currentTarget.style.opacity='1'}>Essayer gratuitement</button>
