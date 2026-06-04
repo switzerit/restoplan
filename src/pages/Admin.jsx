@@ -29,7 +29,7 @@ export default function Admin() {
   const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14})
   const [editGerantModal, setEditGerantModal] = useState(null)
   const [trialModal, setTrialModal] = useState(null)
-  const [trialForm, setTrialForm] = useState({statut:'trial', days:14})
+  const [trialForm, setTrialForm] = useState({statut:'trial', days:14, customDate:''})
   const [editGerantForm, setEditGerantForm] = useState({prenom:"",nom:"",email:"",telephone:"",entreprise:""})
   const [addRestoModal, setAddRestoModal] = useState(null)
   const [addRestoForm, setAddRestoForm] = useState({nom:"",adresse:"",secteur:"restaurant"})
@@ -60,6 +60,20 @@ export default function Admin() {
     }).eq('id', trialModal.id)
     const msg = trialForm.statut==='active'?'Compte activé ✅':trialForm.statut==='expired'?'Compte bloqué ❌':`Trial prolongé de ${trialForm.days} jours ✅`
     showToast(msg)
+    // Notifier le gérant par email
+    const emailType = trialForm.statut==='active'?'activated':trialForm.statut==='expired'?'expired':'trial_extended'
+    const restos = restaurants.filter(r=>r.gerant_id===trialModal.user_id)
+    await supabase.functions.invoke('invite-gerant',{body:{
+      email: trialModal.email,
+      prenom: trialModal.prenom,
+      nom: trialModal.nom,
+      entreprise: trialModal.entreprise,
+      restaurant_nom: restos[0]?.nom||'',
+      trial_days: trialForm.days,
+      statut: trialForm.statut,
+      type: emailType,
+      trial_end_at: trialForm.statut==='trial' ? new Date(Date.now()+trialForm.days*24*60*60*1000).toISOString() : null
+    }})
     setTrialModal(null)
     loadData()
   }
