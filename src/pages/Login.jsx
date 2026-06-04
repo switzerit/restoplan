@@ -314,7 +314,8 @@ export default function Login() {
       return
     }
     supabase.auth.getSession().then(async({data})=>{
-      if(data.session){
+      const publicPaths = ['/contact','/faq','/legal','/fonctionnalites','/tarifs']
+      if(data.session && !publicPaths.includes(location.pathname)){
         const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
         if(p?.role==='super_admin')navigate('/admin')
         else if(p?.role==='gerant')navigate('/gerant')
