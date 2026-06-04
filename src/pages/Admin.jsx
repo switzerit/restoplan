@@ -74,10 +74,9 @@ export default function Admin() {
   }
 
   async function createClient(){
-    const {nom_resto,adresse,secteur,prenom,nom,email,telephone,entreprise,password} = createForm
-    if(!nom_resto||!email||!password||!prenom||!nom){showToast("Remplis tous les champs obligatoires");return}
-    if(password.length<6){showToast("Mot de passe min. 6 caracteres");return}
-    showToast("Creation en cours...")
+    const {nom_resto,adresse,secteur,prenom,nom,email,telephone,entreprise} = createForm
+    if(!nom_resto||!email||!prenom||!nom){showToast("Remplis tous les champs obligatoires");return}
+        showToast("Creation en cours...")
     const {data:resto,error:restoErr} = await supabase.from("restaurants").insert({
       nom:nom_resto, adresse, secteur:secteur||'restaurant', actif:true, pin_borne:"1234"
     }).select().single()
@@ -101,7 +100,7 @@ export default function Admin() {
       await supabase.functions.invoke('invite-gerant',{body:{email,prenom,nom,entreprise:entreprise||nom_resto,restaurant_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type}})
     }
     setCreateModal(false)
-    setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
+    setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:"trial",trial_days:14})
     await loadData()
     showToast("Client cree avec succes !")
   }
