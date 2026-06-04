@@ -58,7 +58,8 @@ export default function Admin() {
       statut: trialForm.statut,
       trial_end_at: trialForm.statut === 'active' ? null : trial_end_at
     }).eq('id', trialModal.id)
-    showToast('Trial mis à jour ✅')
+    const msg = trialForm.statut==='active'?'Compte activé ✅':trialForm.statut==='expired'?'Compte bloqué ❌':`Trial prolongé de ${trialForm.days} jours ✅`
+    showToast(msg)
     setTrialModal(null)
     loadData()
   }
@@ -218,7 +219,7 @@ export default function Admin() {
       </div>
       <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
-          {[{icon:"🏪",label:"Restaurants",value:restos.length},{icon:"👥",label:"Employes",value:empCount},{icon:"📊",label:"Statut",value:g.actif?"Actif":"Inactif",color:g.actif?"var(--green)":"var(--red)"}].map((s,i)=>(
+          {[{icon:"🏪",label:"Restaurants",value:restos.length},{icon:"👥",label:"Employes",value:empCount},{icon:"📊",label:"Statut",value:g.statut==='active'?'Actif':g.statut==='expired'?'Expiré':'Trial',color:g.statut==='active'?'var(--green)':g.statut==='expired'?'var(--red)':'#ea580c'}].map((s,i)=>(
             <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 20px"}}>
               <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
               <div style={{fontSize:24,fontWeight:800,color:s.color||"var(--text)"}}>{s.value}</div>
@@ -297,7 +298,10 @@ export default function Admin() {
       {trialModal&&<div onClick={()=>setTrialModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}>
         <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
           <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>⏱️ Gérer le trial</div>
-          <div style={{fontSize:13,color:"var(--text2)",marginBottom:20}}>{trialModal.prenom} {trialModal.nom}</div>
+          <div style={{fontSize:13,color:"var(--text2)",marginBottom:12}}>{trialModal.prenom} {trialModal.nom}</div>
+          {trialModal.statut==='expired'&&<div style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,padding:"10px 14px",marginBottom:16,fontSize:13,color:"#dc2626",fontWeight:600}}>
+            ⚠️ Ce compte est expiré depuis le {trialModal.trial_end_at?new Date(trialModal.trial_end_at).toLocaleDateString('fr-FR'):'—'}. Choisissez une action ci-dessous.
+          </div>}
           <div style={{marginBottom:16}}>
             <div style={{fontSize:11,fontWeight:700,color:"var(--text2)",marginBottom:8}}>STATUT</div>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -326,7 +330,7 @@ export default function Admin() {
           </div>}
           <div style={{display:"flex",gap:10}}>
             <button onClick={()=>setTrialModal(null)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
-            <button onClick={saveTrial} style={{flex:2,height:44,borderRadius:12,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>Sauvegarder</button>
+            <button onClick={saveTrial} style={{flex:2,height:44,borderRadius:12,border:"none",background:trialForm.statut==="expired"?"#dc2626":"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>{trialModal?.statut==='expired'&&trialForm.statut!=='expired'?'✅ Prolonger l\'accès':trialForm.statut==='active'?'✅ Activer':trialForm.statut==='expired'?'❌ Bloquer':'Sauvegarder'}</button>
           </div>
         </div>
       </div>}
