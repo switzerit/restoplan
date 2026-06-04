@@ -81,7 +81,7 @@ export default function Admin() {
       nom:nom_resto, adresse, secteur:secteur||'restaurant', actif:true, pin_borne:"1234"
     }).select().single()
     if(restoErr){showToast("Erreur: "+restoErr.message);return}
-    const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password:"",prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
+    const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password:"VarmanTmp2026!",prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
     if(error||data?.error){
       let msg = data?.error || "Erreur inconnue"
       if(!data && error){
