@@ -26,7 +26,7 @@ export default function Admin() {
   const [employes, setEmployes] = useState([])
   const [selectedGerant, setSelectedGerant] = useState(null)
   const [createModal, setCreateModal] = useState(false)
-  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
+  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:"",compte_type:'trial',trial_days:14})
   const [editGerantModal, setEditGerantModal] = useState(null)
   const [trialModal, setTrialModal] = useState(null)
   const [trialForm, setTrialForm] = useState({statut:'trial', days:14})
@@ -96,7 +96,8 @@ export default function Admin() {
     if(newUserId){
       await supabase.from("profils").update({role:"gerant",employe_id:null}).eq("user_id",newUserId)
       await supabase.from("restaurants").update({gerant_id:newUserId}).eq("id",resto.id)
-      await supabase.from("gerants").insert({user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto})
+      const trial_end_at = createForm.compte_type==='trial' ? new Date(Date.now()+createForm.trial_days*24*60*60*1000).toISOString() : null
+      await supabase.from("gerants").insert({user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto,statut:createForm.compte_type,trial_end_at})
     }
     setCreateModal(false)
     setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",password:""})
@@ -377,7 +378,7 @@ export default function Admin() {
     </div>
     <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:28}}>
-        {[{icon:"👤",label:"Clients",value:gerants.length},{icon:"🏪",label:"Etablissements actifs",value:restaurants.filter(r=>r.actif&&r.gerant_id).length},{icon:"👥",label:"Employes",value:employes.length},{icon:"✅",label:"Clients actifs",value:gerants.filter(g=>g.actif).length}].map((s,i)=>(
+        {[{icon:"👤",label:"Clients",value:gerants.length},{icon:"🏪",label:"Etablissements actifs",value:restaurants.filter(r=>r.actif&&r.gerant_id).length},{icon:"👥",label:"Employes",value:employes.length},{icon:"✅",label:"Clients actifs",value:gerants.filter(g=>g.statut==='active').length},{icon:"⏳",label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length}].map((s,i)=>(
           <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
             <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
             <div style={{fontSize:22,fontWeight:800}}>{s.value}</div>
@@ -404,7 +405,10 @@ export default function Admin() {
               <div style={{flex:1,minWidth:0}}>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div>
-                  <span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:20,background:g.actif?"var(--green-bg)":"var(--red-bg)",color:g.actif?"#1a6b35":"var(--red)"}}>{g.actif?"Actif":"Inactif"}</span>
+                  <span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:20,
+                    background:g.statut==='active'?"var(--green-bg)":g.statut==='expired'?"var(--red-bg)":"#fff7ed",
+                    color:g.statut==='active'?"#1a6b35":g.statut==='expired'?"var(--red)":"#ea580c"
+                  }}>{g.statut==='active'?'✅ Actif':g.statut==='expired'?'❌ Expiré':'⏳ Trial'}</span>
                 </div>
                 <div style={{fontSize:12,color:"var(--text2)",marginTop:3}}>{g.entreprise||"—"} • {g.email}</div>
                 {g.telephone&&<div style={{fontSize:11,color:"var(--text3)",marginTop:1}}>📞 {g.telephone}</div>}
@@ -446,6 +450,30 @@ export default function Admin() {
         {[{f:"email",l:"Email *",ph:"sophie@bistrot.fr"},{f:"telephone",l:"Telephone",ph:"+41 79 123 45 67"},{f:"entreprise",l:"Entreprise",ph:"SAS Bistrot du Port"},{f:"password",l:"Mot de passe *",ph:"Min. 6 caracteres"}].map(({f,l,ph})=>(
           <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input type={f==="password"?"password":"text"} placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
         ))}
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>TYPE DE COMPTE</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {[{v:'trial',l:'⏳ Trial',d:'Accès limité dans le temps'},{v:'active',l:'✅ Actif',d:'Accès complet sans limite'}].map(({v,l,d})=>(
+              <div key={v} onClick={()=>setCreateForm(f=>({...f,compte_type:v}))}
+                style={{padding:"10px 14px",borderRadius:10,border:`2px solid ${createForm.compte_type===v?"var(--accent)":"var(--border)"}`,background:createForm.compte_type===v?"var(--accent-bg)":"var(--bg)",cursor:"pointer"}}>
+                <div style={{fontSize:13,fontWeight:700,color:createForm.compte_type===v?"var(--accent)":"var(--text)"}}>{l}</div>
+                <div style={{fontSize:11,color:"var(--text2)"}}>{d}</div>
+              </div>
+            ))}
+          </div>
+          {createForm.compte_type==='trial'&&<div style={{marginTop:10}}>
+            <div style={{fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:6}}>Durée du trial</div>
+            <div style={{display:"flex",gap:8}}>
+              {[7,14,30,60].map(d=>(
+                <button key={d} onClick={()=>setCreateForm(f=>({...f,trial_days:d}))}
+                  style={{padding:"6px 14px",borderRadius:9,border:`2px solid ${createForm.trial_days===d?"var(--accent)":"var(--border)"}`,background:createForm.trial_days===d?"var(--accent-bg)":"var(--bg)",color:createForm.trial_days===d?"var(--accent)":"var(--text)",fontSize:13,fontWeight:600,cursor:"pointer"}}>
+                  {d}j
+                </button>
+              ))}
+            </div>
+            <div style={{fontSize:11,color:"var(--text2)",marginTop:6}}>Expiration : {new Date(Date.now()+createForm.trial_days*24*60*60*1000).toLocaleDateString('fr-FR')}</div>
+          </div>}
+        </div>
         <div style={{padding:"10px 14px",background:"var(--accent-bg)",borderRadius:10,marginBottom:16,fontSize:12,color:"var(--accent)"}}>Le PIN de la borne sera 1234 par defaut · Secteur determine les postes disponibles</div>
         <div style={{display:"flex",gap:10}}>
           <button onClick={()=>setCreateModal(false)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
