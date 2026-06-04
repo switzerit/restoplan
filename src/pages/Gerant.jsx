@@ -584,8 +584,8 @@ export default function Gerant() {
             <div style={{fontSize:12,fontWeight:700,color:trialDaysLeft<=3?'#dc2626':'#ea580c'}}>
               {trialDaysLeft===0?'Dernier jour !':trialDaysLeft===1?'1 jour restant':`${trialDaysLeft} jours d'essai`}
             </div>
-            <a href="/?contact=1" style={{fontSize:11,color:trialDaysLeft<=3?'#dc2626':'#ea580c',textDecoration:'none',fontWeight:600}}>
-              Activer mon compte →
+            <a href="/contact" style={{fontSize:11,color:trialDaysLeft<=3?'#dc2626':'#ea580c',textDecoration:'none',fontWeight:600}}>
+              Souscrire à Varman →
             </a>
           </div>
         )}
