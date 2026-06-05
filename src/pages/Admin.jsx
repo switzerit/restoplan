@@ -26,7 +26,9 @@ export default function Admin() {
   const [employes, setEmployes] = useState([])
   const [selectedGerant, setSelectedGerant] = useState(null)
   const [createModal, setCreateModal] = useState(false)
-  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14})
+  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14,features:{badgeage:true,conges:true,signalements:true,export_paie:true}})
+  const [featuresModal, setFeaturesModal] = useState(null)
+  const [featuresForm, setFeaturesForm] = useState({badgeage:true,conges:true,signalements:true,export_paie:true})
   const [editGerantModal, setEditGerantModal] = useState(null)
   const [trialModal, setTrialModal] = useState(null)
   const [trialForm, setTrialForm] = useState({statut:'trial', days:14, customDate:'', customDays:''})
@@ -48,6 +50,14 @@ export default function Admin() {
     if(profil?.role !== "super_admin"){navigate("/gerant");return false}
     setLoading(false)
     return true
+  }
+
+  async function saveFeatures(){
+    if(!featuresModal) return
+    await supabase.from('gerants').update({features:featuresForm}).eq('id',featuresModal.id)
+    showToast('Fonctionnalités mises à jour ✅')
+    setFeaturesModal(null)
+    loadData()
   }
 
   async function saveTrial(){
@@ -114,7 +124,7 @@ export default function Admin() {
       await supabase.from("profils").update({role:"gerant",employe_id:null}).eq("user_id",newUserId)
       await supabase.from("restaurants").update({gerant_id:newUserId}).eq("id",resto.id)
       const trial_end_at = createForm.compte_type==='trial' ? new Date(Date.now()+createForm.trial_days*24*60*60*1000).toISOString() : null
-      await supabase.from("gerants").insert({user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto,statut:createForm.compte_type,trial_end_at})
+      await supabase.from("gerants").insert({user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto,statut:createForm.compte_type,trial_end_at,features:createForm.features})
       await supabase.functions.invoke('invite-gerant',{body:{email,prenom,nom,entreprise:entreprise||nom_resto,restaurant_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type}})
     }
     setCreateModal(false)
@@ -278,6 +288,19 @@ export default function Admin() {
             </div>
           </div>
         </div>
+        {/* FEATURES */}
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:20,marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+            <div style={{fontSize:13,fontWeight:700}}>🧩 Fonctionnalités</div>
+            <button onClick={()=>{setFeaturesForm(g.features||{badgeage:true,conges:true,signalements:true,export_paie:true});setFeaturesModal(g)}} style={{padding:"6px 14px",borderRadius:9,border:"none",background:"var(--accent)",color:"white",fontSize:12,fontWeight:700,cursor:"pointer"}}>Configurer</button>
+          </div>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            {[['badgeage','📱 Badgeage QR'],['conges','🏖️ Congés'],['signalements','🔔 Signalements'],['export_paie','📄 Export paie']].map(([k,l])=>{
+              const on=(g.features||{})[k]!==false
+              return <span key={k} style={{fontSize:11,fontWeight:700,padding:"4px 10px",borderRadius:20,background:on?"var(--green-bg)":"var(--red-bg)",color:on?"#1a6b35":"var(--red)",border:`1px solid ${on?"#bbf7d0":"#fecaca"}`}}>{l} {on?'✓':'✗'}</span>
+            })}
+          </div>
+        </div>
         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden",marginBottom:16}}>
           <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div style={{fontSize:13,fontWeight:700}}>Restaurants ({restos.length})</div>
@@ -370,6 +393,30 @@ export default function Admin() {
             <button onClick={saveTrial} style={{flex:2,height:44,borderRadius:12,border:"none",background:trialForm.statut==="expired"?"#dc2626":trialForm.statut==="active"?"#16a34a":"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>
               {trialForm.statut==='active'?'Activer':trialForm.statut==='expired'?'Bloquer':trialModal?.statut==='trial'&&trialModal?.trial_end_at?'Prolonger':'Demarrer'}
             </button>
+          </div>
+        </div>
+      </div>}
+      {featuresModal&&<div onClick={()=>setFeaturesModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}>
+        <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:380,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
+          <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>🧩 Fonctionnalités</div>
+          <div style={{fontSize:13,color:"var(--text2)",marginBottom:20}}>{featuresModal.prenom} {featuresModal.nom}</div>
+          <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:24}}>
+            {[['badgeage','📱 Badgeage QR','Borne, scan QR, présences en direct'],['conges','🏖️ Congés','Demandes et validation des congés'],['signalements','🔔 Signalements','Erreurs de pointage employés'],['export_paie','📄 Export paie','Rapports PDF pour la comptabilité']].map(([k,label,desc])=>(
+              <div key={k} onClick={()=>setFeaturesForm(f=>({...f,[k]:!f[k]}))}
+                style={{display:"flex",alignItems:"center",gap:14,padding:"12px 16px",borderRadius:12,border:`2px solid ${featuresForm[k]!==false?"var(--accent)":"var(--border)"}`,background:featuresForm[k]!==false?"var(--accent-bg)":"var(--bg)",cursor:"pointer"}}>
+                <div style={{width:22,height:22,borderRadius:6,border:`2px solid ${featuresForm[k]!==false?"var(--accent)":"var(--border)"}`,background:featuresForm[k]!==false?"var(--accent)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {featuresForm[k]!==false&&<span style={{color:"white",fontSize:14,fontWeight:900}}>✓</span>}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:14,fontWeight:700,color:featuresForm[k]!==false?"var(--accent)":"var(--text)"}}>{label}</div>
+                  <div style={{fontSize:11,color:"var(--text2)"}}>{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:"flex",gap:10}}>
+            <button onClick={()=>setFeaturesModal(null)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
+            <button onClick={saveFeatures} style={{flex:2,height:44,borderRadius:12,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>Sauvegarder</button>
           </div>
         </div>
       </div>}
@@ -511,6 +558,20 @@ export default function Admin() {
             </div>
             <div style={{fontSize:11,color:"var(--text2)",marginTop:6}}>Expiration : {new Date(Date.now()+createForm.trial_days*24*60*60*1000).toLocaleDateString('fr-FR')}</div>
           </div>}
+        </div>
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>FONCTIONNALITÉS INCLUSES</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            {[['badgeage','📱 Badgeage QR'],['conges','🏖️ Congés'],['signalements','🔔 Signalements'],['export_paie','📄 Export paie']].map(([k,l])=>(
+              <div key={k} onClick={()=>setCreateForm(f=>({...f,features:{...f.features,[k]:!f.features[k]}}))}
+                style={{display:"flex",alignItems:"center",gap:8,padding:"9px 12px",borderRadius:10,border:`2px solid ${createForm.features[k]?"var(--accent)":"var(--border)"}`,background:createForm.features[k]?"var(--accent-bg)":"var(--bg)",cursor:"pointer"}}>
+                <div style={{width:18,height:18,borderRadius:4,border:`2px solid ${createForm.features[k]?"var(--accent)":"var(--border)"}`,background:createForm.features[k]?"var(--accent)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {createForm.features[k]&&<span style={{color:"white",fontSize:11,fontWeight:900}}>✓</span>}
+                </div>
+                <span style={{fontSize:12,fontWeight:600,color:createForm.features[k]?"var(--accent)":"var(--text)"}}>{l}</span>
+              </div>
+            ))}
+          </div>
         </div>
         <div style={{padding:"10px 14px",background:"var(--accent-bg)",borderRadius:10,marginBottom:16,fontSize:12,color:"var(--accent)"}}>Le PIN de la borne sera 1234 par defaut · Secteur determine les postes disponibles</div>
         <div style={{display:"flex",gap:10}}>
