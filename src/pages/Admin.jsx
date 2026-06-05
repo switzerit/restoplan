@@ -29,7 +29,7 @@ export default function Admin() {
   const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14})
   const [editGerantModal, setEditGerantModal] = useState(null)
   const [trialModal, setTrialModal] = useState(null)
-  const [trialForm, setTrialForm] = useState({statut:'trial', days:14, customDate:''})
+  const [trialForm, setTrialForm] = useState({statut:'trial', days:14, customDate:'', customDays:''})
   const [editGerantForm, setEditGerantForm] = useState({prenom:"",nom:"",email:"",telephone:"",entreprise:""})
   const [addRestoModal, setAddRestoModal] = useState(null)
   const [addRestoForm, setAddRestoForm] = useState({nom:"",adresse:"",secteur:"restaurant"})
@@ -52,8 +52,12 @@ export default function Admin() {
 
   async function saveTrial(){
     if(!trialModal) return
+    const days = parseInt(trialForm.customDays)||trialForm.days
+    const baseDate = trialModal?.statut==='trial'&&trialModal?.trial_end_at&&trialForm.statut==='trial'
+      ? new Date(trialModal.trial_end_at)
+      : new Date()
     const trial_end_at = trialForm.statut === 'active' ? null :
-      new Date(Date.now() + trialForm.days * 24*60*60*1000).toISOString()
+      new Date(baseDate.getTime() + days * 24*60*60*1000).toISOString()
     await supabase.from('gerants').update({
       statut: trialForm.statut,
       trial_end_at: trialForm.statut === 'active' ? null : trial_end_at
@@ -330,22 +334,42 @@ export default function Admin() {
             </div>
           </div>
           {trialForm.statut==='trial'&&<div style={{marginBottom:20}}>
-            <div style={{fontSize:11,fontWeight:700,color:"var(--text2)",marginBottom:8}}>DURÉE DU TRIAL</div>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--text2)",marginBottom:8}}>
+              {trialModal?.statut==='trial'&&trialModal?.trial_end_at?'PROLONGER DE':'DURÉE DU TRIAL'}
+            </div>
+            {trialModal?.statut==='trial'&&trialModal?.trial_end_at&&(
+              <div style={{background:"var(--bg)",border:"1px solid var(--border)",borderRadius:8,padding:"8px 12px",marginBottom:10,fontSize:12,color:"var(--text2)"}}>
+                Expiration actuelle : <strong style={{color:"var(--text)"}}>{new Date(trialModal.trial_end_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</strong>
+              </div>
+            )}
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:10}}>
               {[7,14,30,60].map(d=>(
-                <button key={d} onClick={()=>setTrialForm(f=>({...f,days:d}))}
-                  style={{padding:"8px 16px",borderRadius:9,border:`2px solid ${trialForm.days===d?"var(--accent)":"var(--border)"}`,background:trialForm.days===d?"var(--accent-bg)":"var(--bg)",color:trialForm.days===d?"var(--accent)":"var(--text)",fontSize:13,fontWeight:600,cursor:"pointer"}}>
-                  {d}j
+                <button key={d} onClick={()=>setTrialForm(f=>({...f,days:d,customDays:''}))}
+                  style={{padding:"8px 16px",borderRadius:9,border:`2px solid ${trialForm.days===d&&!trialForm.customDays?"var(--accent)":"var(--border)"}`,background:trialForm.days===d&&!trialForm.customDays?"var(--accent-bg)":"var(--bg)",color:trialForm.days===d&&!trialForm.customDays?"var(--accent)":"var(--text)",fontSize:13,fontWeight:600,cursor:"pointer"}}>
+                  +{d}j
                 </button>
               ))}
             </div>
-            <div style={{fontSize:12,color:"var(--text2)",marginTop:8}}>
-              Expiration : {new Date(Date.now()+trialForm.days*24*60*60*1000).toLocaleDateString('fr-FR')}
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+              <input type="number" min="1" max="365"
+                placeholder="Nombre de jours personnalisé"
+                value={trialForm.customDays||''}
+                onChange={e=>setTrialForm(f=>({...f,customDays:e.target.value,days:parseInt(e.target.value)||f.days}))}
+                style={{flex:1,padding:"8px 12px",borderRadius:9,border:`2px solid ${trialForm.customDays?"var(--accent)":"var(--border)"}`,background:"var(--bg)",color:"var(--text)",fontSize:13,outline:"none"}}/>
+              <span style={{fontSize:12,color:"var(--text2)"}}>jours</span>
+            </div>
+            <div style={{fontSize:12,color:"var(--text2)",background:"var(--bg)",borderRadius:8,padding:"8px 12px"}}>
+              {trialModal?.statut==='trial'&&trialModal?.trial_end_at
+                ? <>Nouvelle expiration : <strong style={{color:"var(--accent)"}}>{new Date(new Date(trialModal.trial_end_at).getTime()+(trialForm.customDays||trialForm.days)*24*60*60*1000).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</strong></>
+                : <>Expiration : <strong style={{color:"var(--accent)"}}>{new Date(Date.now()+(trialForm.customDays||trialForm.days)*24*60*60*1000).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</strong></>
+              }
             </div>
           </div>}
           <div style={{display:"flex",gap:10}}>
             <button onClick={()=>setTrialModal(null)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
-            <button onClick={saveTrial} style={{flex:2,height:44,borderRadius:12,border:"none",background:trialForm.statut==="expired"?"#dc2626":"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>{trialModal?.statut==='expired'&&trialForm.statut!=='expired'?'✅ Prolonger l\'accès':trialForm.statut==='active'?'✅ Activer':trialForm.statut==='expired'?'❌ Bloquer':'Sauvegarder'}</button>
+            <button onClick={saveTrial} style={{flex:2,height:44,borderRadius:12,border:"none",background:trialForm.statut==="expired"?"#dc2626":trialForm.statut==="active"?"#16a34a":"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>
+              {trialForm.statut==='active'?'✅ Activer le compte':trialForm.statut==='expired'?'❌ Bloquer l'accès':trialModal?.statut==='trial'&&trialModal?.trial_end_at?'⏳ Prolonger l'essai':'⏳ Démarrer l'essai'}
+            </button>
           </div>
         </div>
       </div>}
