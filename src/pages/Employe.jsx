@@ -216,7 +216,7 @@ export default function Employe() {
         </div>
         {/* Tabs */}
         <div style={{display:'flex',gap:0}}>
-          {[{id:'accueil',l:'Accueil',icon:'🏠'},{id:'planning',l:'Planning',icon:'📅'},...(features.badgeage?[{id:'historique',l:'Historique',icon:'📋'}]:[]),{id:'profil',l:'Profil',icon:'👤'},...(features.conges?[{id:'conges',l:'Congés',icon:'🏖️'}]:[]),...(features.signalements?[{id:'signalements',l:'Signaler',icon:'🔔'}]:[])].flat().map(t=>(
+          {[{id:'accueil',l:'Accueil',icon:'🏠'},{id:'planning',l:'Planning',icon:'📅'},...(features.badgeage?[{id:'historique',l:'Historique',icon:'📋'}]:[]),...(features.conges?[{id:'conges',l:'Congés',icon:'🏖️'}]:[]),...(features.signalements?[{id:'signalements',l:'Signaler',icon:'🔔'}]:[]),{id:'profil',l:'Profil',icon:'👤'}].flat().map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:'10px 4px',border:'none',background:'transparent',cursor:'pointer',fontSize:12,fontWeight:600,color:tab===t.id?'var(--accent)':'var(--text2)',borderBottom:`2px solid ${tab===t.id?'var(--accent)':'transparent'}`,transition:'all .15s',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
               <span style={{fontSize:16}}>{t.icon}</span>
               {t.l}
