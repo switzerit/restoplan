@@ -104,11 +104,12 @@ export default function Employe() {
     if(resto?.gerant_id){
       const {data:trialData} = await supabase.rpc('get_gerant_trial', {gerant_user_id: resto.gerant_id})
       if(trialData?.length > 0){
-        const {statut, trial_end_at} = trialData[0]
+        const {statut, trial_end_at, features:f} = trialData[0]
         const now = new Date()
         if(statut==='expired' || (trial_end_at && new Date(trial_end_at) < now) || (statut==='trial' && !trial_end_at)){
           setTrialExpire(true)
         }
+        if(f) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...f})
       }
     }
     setEmploye(emp)
@@ -130,6 +131,7 @@ export default function Employe() {
 
   const [shiftsMois, setShiftsMois] = useState([])
   const [trialExpire, setTrialExpire] = useState(false)
+  const [features, setFeatures] = useState({badgeage:true,conges:true,signalements:true,export_paie:true})
 
   async function loadShiftsMois(){
     if(!employe) return
@@ -213,7 +215,7 @@ export default function Employe() {
         </div>
         {/* Tabs */}
         <div style={{display:'flex',gap:0}}>
-          {[{id:'accueil',l:'Accueil',icon:'🏠'},{id:'planning',l:'Planning',icon:'📅'},{id:'historique',l:'Historique',icon:'📋'},{id:'profil',l:'Profil',icon:'👤'},{id:'conges',l:'Congés',icon:'🏖️'},{id:'signalements',l:'Signaler',icon:'🔔'}].map(t=>(
+          {[{id:'accueil',l:'Accueil',icon:'🏠'},{id:'planning',l:'Planning',icon:'📅'},{id:'historique',l:'Historique',icon:'📋'},{id:'profil',l:'Profil',icon:'👤'},...(features.conges?[{id:'conges',l:'Congés',icon:'🏖️'}]:[]),...(features.signalements?[{id:'signalements',l:'Signaler',icon:'🔔'}]:[])].flat().map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:'10px 4px',border:'none',background:'transparent',cursor:'pointer',fontSize:12,fontWeight:600,color:tab===t.id?'var(--accent)':'var(--text2)',borderBottom:`2px solid ${tab===t.id?'var(--accent)':'transparent'}`,transition:'all .15s',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
               <span style={{fontSize:16}}>{t.icon}</span>
               {t.l}
