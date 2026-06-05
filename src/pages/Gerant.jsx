@@ -98,7 +98,8 @@ export default function Gerant() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [notifsNonLues, setNotifsNonLues] = useState({})
   const [notifsDetail, setNotifsDetail] = useState(null) // {empId, notifs, nom}
-  const [trialStatut, setTrialStatut] = useState('loading') // loading | trial | active | expired
+  const [trialStatut, setTrialStatut] = useState('loading')
+  const [features, setFeatures] = useState({badgeage:true,conges:true,signalements:true,export_paie:true}) // loading | trial | active | expired
   const [trialDaysLeft, setTrialDaysLeft] = useState(null)
 
   async function loadNotifsDetail(empId, empNom){
@@ -184,7 +185,7 @@ export default function Gerant() {
       setCurrentResto(saved || data[0])
     }
     // Vérifier trial depuis la table gerants
-    const {data:gerantData} = await supabase.from('gerants').select('statut,trial_end_at').eq('user_id',session?.user?.id).single()
+    const {data:gerantData} = await supabase.from('gerants').select('statut,trial_end_at,features').eq('user_id',session?.user?.id).single()
     if(gerantData){
       const now = new Date()
       const {statut, trial_end_at} = gerantData
@@ -202,6 +203,7 @@ export default function Gerant() {
     } else {
       setTrialStatut('active')
     }
+    if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
   }
 
   async function loadAll(date){
@@ -614,10 +616,10 @@ export default function Gerant() {
         </div>
         {[
           {id:'planning',icon:'📅',label:'Planning'},
-          {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
+          ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
           {id:'employes',icon:'👤',label:'Équipe'},
-          {id:'conges',icon:'🏖️',label:'Congés'},
-          {id:'signalements',icon:'🔔',label:'Signalements'},
+          ...(features.conges?[{id:'conges',icon:'🏖️',label:'Congés'}]:[]),
+          ...(features.signalements?[{id:'signalements',icon:'🔔',label:'Signalements'}]:[]),
           {id:'parametres',icon:'⚙️',label:'Paramètres'},
         ].map(item=>(
           <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',alignItems:'center',gap:9,padding:'9px 10px',borderRadius:9,cursor:'pointer',fontSize:13,fontWeight:600,border:'none',width:'100%',textAlign:'left',background:view===item.id?'var(--accent-bg)':'transparent',color:view===item.id?'var(--accent)':'var(--text2)',marginBottom:2}}>
@@ -711,7 +713,7 @@ export default function Gerant() {
               Publier{pendingEmp.size>0&&<span style={{position:'absolute',top:-6,right:-6,minWidth:18,height:18,borderRadius:9,background:'#dc2626',color:'white',fontSize:10,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',border:'2px solid white',padding:'0 3px'}}>{pendingEmp.size}</span>}
             </button>
           </>}
-          {view==='presences'&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
+          {view==='presences'&&features.export_paie&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
           {view==='employes'&&<button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>}
         </div>}
         {/* TOPBAR MOBILE ACTION */}
@@ -822,7 +824,7 @@ export default function Gerant() {
         )}
 
         {/* VUE PRESENCES */}
-        {view==='presences'&&(
+        {view==='presences'&&features.badgeage&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16,background:'var(--surface)',borderRadius:12,padding:'12px 16px',border:'1px solid var(--border)'}}>
               <span style={{fontSize:13,fontWeight:600,color:'var(--text2)'}}>Pointages du</span>
@@ -981,12 +983,12 @@ export default function Gerant() {
           <div style={{flex:1,overflowY:'auto',padding:20}}>
           </div>
         )}
-        {view==='signalements'&&(
+        {view==='signalements'&&features.signalements&&(
           <div style={{flex:1,overflowY:'auto',padding:20}}>
             <SignalementsGerant restaurant={currentResto} employes={employes}/>
           </div>
         )}
-        {view==='conges'&&(
+        {view==='conges'&&features.conges&&(
           <div style={{padding:16}}>
             <CongesGerant restaurant={currentResto} employes={employes} showToast={showToast}/>
           </div>
@@ -1072,10 +1074,10 @@ export default function Gerant() {
         <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:4,paddingBottom:'max(8px, env(safe-area-inset-bottom))',flexShrink:0}}>
           {[
             {id:'planning',icon:'📅',label:'Planning'},
-            {id:'presences',icon:'👥',label:'Présences',badge:presentCount},
+            ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
             {id:'employes',icon:'👤',label:'Équipe'},
-            {id:'conges',icon:'🏖️',label:'Congés'},
-          {id:'signalements',icon:'🔔',label:'Signalements'},
+            ...(features.conges?[{id:'conges',icon:'🏖️',label:'Congés'}]:[]),
+          ...(features.signalements?[{id:'signalements',icon:'🔔',label:'Signalements'}]:[]),
             {id:'parametres',icon:'⚙️',label:'Réglages'},
           ].map(item=>(
             <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'2px 12px',border:'none',background:'transparent',cursor:'pointer',position:'relative'}}>
