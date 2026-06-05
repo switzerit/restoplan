@@ -229,7 +229,7 @@ export default function Employe() {
         <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:12}}>
 
           {/* Carte statut + badge */}
-          <div style={{background:isPresent?'#f0fdf4':'var(--surface)',border:`2px solid ${isPresent?'#22c55e':'var(--border)'}`,borderRadius:18,padding:20,transition:'all .3s'}}>
+          {features.badgeage&&<div style={{background:isPresent?'#f0fdf4':'var(--surface)',border:`2px solid ${isPresent?'#22c55e':'var(--border)'}`,borderRadius:18,padding:20,transition:'all .3s'}}>
             <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
               <div style={{width:12,height:12,borderRadius:'50%',background:isPresent?'#22c55e':'#e0e0e0',boxShadow:isPresent?'0 0 0 4px rgba(34,197,94,.2)':'none',transition:'all .3s',flexShrink:0}}></div>
               <div style={{flex:1}}>
@@ -255,7 +255,7 @@ export default function Employe() {
             <div style={{fontSize:11,color:'var(--text3)',textAlign:'center',marginTop:8}}>
               Scannez le QR code affiché sur la borne
             </div>
-          </div>
+          </div>}
 
           {/* Pointages du jour */}
           {pointages.length>0&&(
@@ -483,7 +483,7 @@ export default function Employe() {
       {tab==='conges'&&<CongesEmploye employe={employe}/>}
 
       {/* ── SCANNER ── */}
-      {showScanner&&(
+      {features.badgeage&&showScanner&&(
         <QRScanner
           employe={employe}
           onSuccess={(type,time)=>{
@@ -498,7 +498,7 @@ export default function Employe() {
       )}
 
       {/* ── FLASH BADGE ── */}
-      {badgeFlash&&(
+      {features.badgeage&&badgeFlash&&(
         <div style={{position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',zIndex:300,background:'rgba(0,0,0,.4)',backdropFilter:'blur(8px)'}}>
           <div style={{background:badgeFlash.type==='arrivee'?'#f0fdf4':'#111',borderRadius:24,padding:'36px 48px',textAlign:'center',boxShadow:'0 16px 48px rgba(0,0,0,.2)',border:badgeFlash.type==='arrivee'?'2px solid #22c55e':'2px solid #333'}}>
             <div style={{fontSize:56,marginBottom:12}}>{badgeFlash.type==='arrivee'?'✅':'👋'}</div>
