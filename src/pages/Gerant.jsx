@@ -996,7 +996,7 @@ export default function Gerant() {
         {view==='parametres'&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{maxWidth:500}}>
-              <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',marginBottom:16}}>
+              {features.badgeage&&<div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',marginBottom:16}}>
                 <div style={{padding:'14px 20px',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
                   <div style={{fontSize:14,fontWeight:800}}>Code PIN de la borne</div>
                   <div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>Modifiez le PIN d'accès à la tablette de badgeage</div>
@@ -1025,7 +1025,7 @@ export default function Gerant() {
                     ⚠️ La tablette demandera le nouveau PIN au prochain déverrouillage
                   </div>
                 </div>
-              </div>
+              </div>}
               <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden'}}>
                 <div style={{padding:'14px 20px',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
                   <div style={{fontSize:14,fontWeight:800}}>Informations du restaurant</div>
