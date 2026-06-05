@@ -125,6 +125,7 @@ export default function Employe() {
   }
 
   async function loadPointages(){
+    if(!features.badgeage){setPointages([]);return}
     const {data}=await supabase.from('pointages').select('*').eq('employe_id',employe.id).eq('date',today).order('heure_arrivee',{ascending:true})
     setPointages(data||[])
   }
@@ -372,7 +373,7 @@ export default function Employe() {
                 </div>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:12}}>
                   {[
-                    {n:Math.round(hPointees*10)/10+'h',l:'Pointées',c:'#16a34a',bg:'#f0fdf4',bc:'#bbf7d0'},
+                    ...(features.badgeage?[{n:Math.round(hPointees*10)/10+'h',l:'Pointées',c:'#16a34a',bg:'#f0fdf4',bc:'#bbf7d0'}]:[]),
                     {n:Math.round(hPlanifiees*10)/10+'h',l:'Planifiées',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
                     {n:pct+'%',l:'Réalisé',c:couleur,bg:'var(--bg)',bc:'var(--border)'},
                   ].map((s,i)=>(
@@ -385,7 +386,7 @@ export default function Employe() {
                 <div style={{background:'var(--bg)',borderRadius:8,overflow:'hidden',height:8}}>
                   <div style={{height:'100%',width:pct+'%',background:couleur,borderRadius:8,transition:'width .4s'}}/>
                 </div>
-                <div style={{fontSize:10,color:'var(--text3)',marginTop:6,textAlign:'right'}}>{pct}% des heures planifiées effectuées</div>
+                {features.badgeage&&<div style={{fontSize:10,color:'var(--text3)',marginTop:6,textAlign:'right'}}>{pct}% des heures planifiées effectuées</div>}
               </div>
             )
           })()}
