@@ -368,7 +368,7 @@ export default function Admin() {
           <div style={{display:"flex",gap:10}}>
             <button onClick={()=>setTrialModal(null)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
             <button onClick={saveTrial} style={{flex:2,height:44,borderRadius:12,border:"none",background:trialForm.statut==="expired"?"#dc2626":trialForm.statut==="active"?"#16a34a":"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>
-              {trialForm.statut==='active'?'✅ Activer le compte':trialForm.statut==='expired'?'❌ Bloquer l'accès':trialModal?.statut==='trial'&&trialModal?.trial_end_at?'⏳ Prolonger l'essai':'⏳ Démarrer l'essai'}
+              {trialForm.statut==='active'?'Activer':trialForm.statut==='expired'?'Bloquer':trialModal?.statut==='trial'&&trialModal?.trial_end_at?'Prolonger':'Demarrer'}
             </button>
           </div>
         </div>
