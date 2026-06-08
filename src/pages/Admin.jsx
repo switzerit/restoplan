@@ -6,7 +6,7 @@ const COLORS=[{bg:'#fff1f3',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},{bg:
 function ini(p,n){return((p?.[0]||"")+(n?.[0]||"")).toUpperCase()}
 
 const SECTEURS=[
-  {id:'établissement',l:'🍽️ Établissement'},
+  {id:'restaurant',l:'🍽️ Restaurant'},
   {id:'hotel',l:'🏨 Hôtel'},
   {id:'garage',l:'🔧 Garage'},
   {id:'commerce',l:'🏪 Commerce'},
@@ -26,7 +26,7 @@ export default function Admin() {
   const [employes, setEmployes] = useState([])
   const [selectedGerant, setSelectedGerant] = useState(null)
   const [createModal, setCreateModal] = useState(false)
-  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"établissement",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14,features:{badgeage:true,conges:true,signalements:true,export_paie:true}})
+  const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14,features:{badgeage:true,conges:true,signalements:true,export_paie:true}})
   const [featuresModal, setFeaturesModal] = useState(null)
   const [trialSaving, setTrialSaving] = useState(false)
   const [featuresForm, setFeaturesForm] = useState({badgeage:true,conges:true,signalements:true,export_paie:true})
@@ -35,7 +35,7 @@ export default function Admin() {
   const [trialForm, setTrialForm] = useState({statut:'trial', days:14, customDate:'', customDays:''})
   const [editGerantForm, setEditGerantForm] = useState({prenom:"",nom:"",email:"",telephone:"",entreprise:""})
   const [addRestoModal, setAddRestoModal] = useState(null)
-  const [addRestoForm, setAddRestoForm] = useState({nom:"",adresse:"",secteur:"établissement"})
+  const [addRestoForm, setAddRestoForm] = useState({nom:"",adresse:"",secteur:"restaurant"})
   const [resetPwdModal, setResetPwdModal] = useState(null)
   const [resetPwd, setResetPwd] = useState("")
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(null)
@@ -131,7 +131,7 @@ export default function Admin() {
       await supabase.functions.invoke('invite-gerant',{body:{email,prenom,nom,entreprise:entreprise||nom_resto,restaurant_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type}})
     }
     setCreateModal(false)
-    setCreateForm({nom_resto:"",adresse:"",secteur:"établissement",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:"trial",trial_days:14})
+    setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:"trial",trial_days:14})
     await loadData()
     showToast("Client cree avec succes !")
   }
@@ -179,7 +179,7 @@ export default function Admin() {
       secteur:addRestoForm.secteur||'établissement',
       actif:true, pin_borne:"1234", gerant_id:addRestoModal.user_id
     })
-    setAddRestoModal(null);setAddRestoForm({nom:"",adresse:"",secteur:"établissement"});loadData();showToast("Établissement ajoute !")
+    setAddRestoModal(null);setAddRestoForm({nom:"",adresse:"",secteur:"restaurant"});loadData();showToast("Établissement ajoute !")
   }
 
   async function toggleResto(r){await supabase.from("restaurants").update({actif:!r.actif}).eq("id",r.id);loadData()}
