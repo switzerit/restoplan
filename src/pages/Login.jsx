@@ -150,7 +150,7 @@ function FaqSection() {
 // ── CONTACT FORM isolé ────────────────────────────────────────────────
 function ContactForm({goPage,setShowLogin}) {
   const params = new URLSearchParams(window.location.search)
-  const defaultMsg = params.get('raison')==='essai-expire' ? 'Mon essai de 14 jours est terminé. Je souhaite continuer à utiliser Varman.' : ''
+  const defaultMsg = params.get('raison')==='essai-expire' ? 'Ma période d\'accès à Varman est terminée. Je souhaite continuer à utiliser la plateforme.' : ''
   const [form,setForm]=useState({nom:'',email:'',entreprise:'',secteur:'',message:defaultMsg})
   const [sent,setSent]=useState(false)
   const [errs,setErrs]=useState({})
