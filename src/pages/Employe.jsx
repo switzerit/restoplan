@@ -98,7 +98,19 @@ export default function Employe() {
     const {data:profil}=await supabase.from('profils').select('*').eq('user_id',session.user.id).single()
     if(!profil||profil.role!=='employe'){navigate('/gerant');return}
     const {data:emp}=await supabase.from('employes').select('*').eq('id',profil.employe_id).single()
-    if(!emp){navigate('/login');return}
+    if(!emp){
+      // Compte supprimé - déconnecter proprement
+      await supabase.auth.signOut()
+      navigate('/')
+      return
+    }
+    // Vérifier que le restaurant existe encore
+    const {data:restoCheck}=await supabase.from('restaurants').select('id,actif').eq('id',emp.restaurant_id).single()
+    if(!restoCheck || !restoCheck.actif){
+      await supabase.auth.signOut()
+      navigate('/')
+      return
+    }
     // Vérifier trial du gérant via fonction sécurisée
     const {data:resto} = await supabase.from('restaurants').select('gerant_id').eq('id',emp.restaurant_id).single()
     if(resto?.gerant_id){
