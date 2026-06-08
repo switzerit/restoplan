@@ -164,6 +164,19 @@ export default function Admin() {
   async function toggleGerant(g){
     const newStatut = g.statut==='expired' ? 'active' : 'expired'
     await supabase.from("gerants").update({actif:g.statut==='expired', statut:newStatut}).eq("id",g.id)
+    // Notifier par email
+    const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
+    await supabase.functions.invoke('invite-gerant',{body:{
+      email: g.email,
+      prenom: g.prenom,
+      nom: g.nom,
+      entreprise: g.entreprise,
+      restaurant_nom: restos[0]?.nom||'',
+      trial_days: 0,
+      statut: newStatut,
+      type: newStatut==='active' ? 'activated' : 'expired',
+      trial_end_at: null
+    }})
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
     for(const r of restos) await supabase.from("restaurants").update({actif:!g.actif}).eq("id",r.id)
     loadData();showToast(g.actif?"Compte desactive":"Compte active")
