@@ -1374,7 +1374,7 @@ export default function Gerant() {
                 <div style={{padding:'10px 12px',background:'var(--green-bg)',borderRadius:10,marginBottom:8,fontSize:12,color:'#1a6b35',fontWeight:600}}>
                   ✓ Cet employé a un compte app
                 </div>
-                <button onClick={()=>sendInvitation(editEmpModal)} style={{width:'100%',padding:'10px',borderRadius:10,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                <button onClick={async()=>{if(editEmpForm.email!==editEmpModal.email){await updateEmploye()}; sendInvitation({...editEmpModal,email:editEmpForm.email})}} style={{width:'100%',padding:'10px',borderRadius:10,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
                   🔄 Renvoyer un lien de connexion
                 </button>
               </div>
