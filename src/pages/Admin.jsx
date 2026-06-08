@@ -66,11 +66,11 @@ export default function Admin() {
     const baseDate = trialModal?.statut==='trial'&&trialModal?.trial_end_at&&new Date(trialModal.trial_end_at)>new Date()&&trialForm.statut==='trial'
       ? new Date(trialModal.trial_end_at)
       : new Date()
-    const trial_end_at = (trialForm.statut === 'active' || trialForm.statut === 'expired') ? null :
+    const trial_end_at = trialForm.statut === 'active' ? null : trialForm.statut === 'expired' ? new Date().toISOString() :
       new Date(baseDate.getTime() + days * 24*60*60*1000).toISOString()
     await supabase.from('gerants').update({
       statut: trialForm.statut,
-      trial_end_at: (trialForm.statut === 'active' || trialForm.statut === 'expired') ? null : trial_end_at
+      trial_end_at: trialForm.statut === 'active' ? null : trialForm.statut === 'expired' ? new Date().toISOString() : trial_end_at
     }).eq('id', trialModal.id)
     const msg = trialForm.statut==='active'?'Compte activé ✅':trialForm.statut==='expired'?'Compte bloqué ❌':`Trial prolongé de ${trialForm.days} jours ✅`
     showToast(msg)
@@ -282,7 +282,7 @@ export default function Admin() {
               </div>
             </div>
             <div style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
-              <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>FIN DU TRIAL</div>
+              <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>{g.statut==='expired'?'BLOQUÉ DEPUIS':'FIN DU TRIAL'}</div>
               <div style={{fontSize:13,fontWeight:600}}>
                 {g.statut==='active' ? '—' : g.trial_end_at ? new Date(g.trial_end_at).toLocaleDateString('fr-FR') : '—'}
               </div>
