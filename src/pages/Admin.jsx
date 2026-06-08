@@ -460,7 +460,7 @@ export default function Admin() {
   // VUE LISTE GERANTS
   return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
     <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12}}>
-      <div style={{flex:1}}><Logo height={24}/><div style={{fontSize:11,color:"var(--text3)",marginTop:2}}>{gerants.length} client{gerants.length>1?"s":""} • {établissements.length} etablissement{établissements.length>1?"s":""}</div></div>
+      <div style={{flex:1}}><Logo height={24}/><div style={{fontSize:11,color:"var(--text3)",marginTop:2}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
       <button onClick={()=>setCreateModal(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
       <button onClick={deconnexion} style={{padding:"8px 14px",borderRadius:10,border:"1px solid var(--border2)",background:"transparent",color:"var(--text2)",fontSize:13,cursor:"pointer",fontWeight:600}}>Deconnexion</button>
     </div>
