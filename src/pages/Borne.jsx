@@ -234,10 +234,15 @@ export default function Borne() {
   useEffect(() => {
     if (!token) { setState('invalid'); return }
     supabase.from('restaurants')
-      .select('id,nom,secteur,qr_secret,pin_borne,borne_verrouillee,borne_tentatives,borne_bloquee_jusqu_a')
+      .select('id,nom,secteur,qr_secret,pin_borne,borne_verrouillee,borne_tentatives,borne_bloquee_jusqu_a,gerant_id')
       .eq('borne_token', token).single()
-      .then(({ data, error }) => {
+      .then(async ({ data, error }) => {
         if (error || !data) { setState('invalid'); return }
+        // Vérifier si le badgeage est activé pour ce gérant
+        const { data: gerant, error: gerantErr } = await supabase.rpc('get_gerant_trial', { gerant_user_id: data.gerant_id })
+        if(gerantErr || !gerant || gerant.length === 0) { setState('invalid'); return }
+        const features = gerant[0]?.features || {}
+        if(features.badgeage === false) { setState('invalid'); return }
         setRestaurant(data)
         setTentatives(data.borne_tentatives || 0)
         setBloqueJusqua(data.borne_bloquee_jusqu_a)
