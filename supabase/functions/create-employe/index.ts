@@ -13,17 +13,78 @@ async function sendEmail(resendKey: string, to: string, subject: string, html: s
   })
 }
 
-function emailHtml(titre: string, intro: string, ctaUrl: string, ctaText: string) {
-  return `<div style="font-family:-apple-system,sans-serif;max-width:500px;margin:40px auto;padding:32px;border:1px solid #e2e8f0;border-radius:12px">
-    <div style="text-align:center;margin-bottom:24px">
-      <span style="font-size:28px;font-weight:900;letter-spacing:-1px;color:#0C1A35">varman</span>
-      <span style="width:8px;height:8px;background:#E11D48;border-radius:50%;display:inline-block;margin-left:2px;vertical-align:middle"></span>
-    </div>
-    <h2 style="color:#0C1A35;margin-bottom:12px">${titre}</h2>
-    <p style="color:#64748b;line-height:1.7;margin-bottom:28px">${intro}</p>
-    <a href="${ctaUrl}" style="display:block;text-align:center;background:#E11D48;color:white;padding:14px;border-radius:10px;text-decoration:none;font-weight:700;margin-bottom:16px">${ctaText}</a>
-    <p style="color:#94a3b8;font-size:12px;text-align:center">Ce lien expire dans 24h.</p>
-  </div>`
+function emailHtml(titre: string, badge: string, intro: string, ctaUrl: string, ctaText: string, email: string, restoNom: string, siteUrl: string) {
+  const infoRows = [
+    ['Email', email],
+    ...(restoNom ? [['Établissement', restoNom]] : []),
+    ['Application', siteUrl.replace('https://','')],
+  ]
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,'Helvetica Neue',Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 16px">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%">
+  <tr>
+    <td align="center" style="background:#0C1A35;border-radius:12px 12px 0 0;padding:28px 40px;text-align:center">
+      <table cellpadding="0" cellspacing="0" style="margin:0 auto"><tr valign="bottom">
+        <td style="font-size:32px;font-weight:900;letter-spacing:-1px;color:#ffffff">varman</td>
+        <td style="padding-bottom:4px;padding-left:3px"><div style="width:9px;height:9px;background:#E11D48;border-radius:50%"></div></td>
+      </tr></table>
+      <p style="margin:10px 0 0;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase">Gestion d'équipe professionnelle</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="background:#ffffff;padding:36px 40px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0">
+      <table cellpadding="0" cellspacing="0" style="margin-bottom:20px"><tr>
+        <td style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;border-radius:4px;padding:4px 12px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">${badge}</td>
+      </tr></table>
+      <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#0C1A35;letter-spacing:-.5px">${titre}</h1>
+      <div style="width:40px;height:2px;background:#E11D48;margin:16px 0;border-radius:1px"></div>
+      <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.8">${intro}</p>
+      <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:32px">
+        <tr><td align="center" style="background:#E11D48;border-radius:8px">
+          <a href="${ctaUrl}" style="display:block;padding:15px 40px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none">${ctaText} &rarr;</a>
+        </td></tr>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:28px">
+        <tr><td colspan="2" style="background:#f8fafc;padding:12px 20px;border-bottom:1px solid #e2e8f0">
+          <span style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase">Vos informations</span>
+        </td></tr>
+        ${infoRows.map(([label, val], i) => `
+        <tr>
+          <td style="padding:10px 20px;font-size:13px;color:#94a3b8;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};width:130px;vertical-align:top">${label}</td>
+          <td style="padding:10px 20px;font-size:13px;color:#1e293b;font-weight:500;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};vertical-align:top">${val}</td>
+        </tr>`).join('')}
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" style="background:#fafafa;border:1px solid #e2e8f0;border-radius:8px">
+        <tr><td style="padding:14px 20px">
+          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.6">
+            Une question ? Contactez votre responsable ou notre équipe :<br>
+            <a href="mailto:contact@switzerit.com" style="color:#E11D48;text-decoration:none;font-weight:600">contact@switzerit.com</a>
+          </p>
+        </td></tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:20px 40px">
+      <table cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td><p style="margin:0;font-size:12px;color:#94a3b8">Cet email a été envoyé à <strong>${email}</strong>.<br>${ctaText.includes('initi') ? "Si vous n\'avez pas demandé cette réinitialisation, ignorez-le." : "Si vous n\'attendiez pas cet email, ignorez-le."}</p></td>
+          <td align="right"><p style="margin:0;font-size:12px;color:#cbd5e1">🇨🇭 Suisse</p></td>
+        </tr>
+        <tr><td colspan="2" style="padding-top:12px;border-top:1px solid #e2e8f0;margin-top:12px"></td></tr>
+        <tr><td colspan="2"><p style="margin:0;font-size:11px;color:#cbd5e1">© 2026 Varman by SwitzerIT &nbsp;&bull;&nbsp; <a href="${siteUrl}/legal" style="color:#cbd5e1;text-decoration:none">CGU</a> &nbsp;&bull;&nbsp; <a href="${siteUrl}/contact" style="color:#cbd5e1;text-decoration:none">Contact</a></p></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`
 }
 
 Deno.serve(async (req) => {
@@ -75,10 +136,12 @@ Deno.serve(async (req) => {
           await sendEmail(RESEND_KEY, email,
             'Réinitialisation de votre mot de passe Varman',
             emailHtml(
+              `Réinitialisation 🔑`,
               'Réinitialisation de mot de passe',
-              `Bonjour${prenomEmp ? ' ' + prenomEmp : ''},<br>Cliquez ci-dessous pour réinitialiser votre mot de passe Varman.`,
+              `Bonjour${prenomEmp ? ' ' + prenomEmp : ''},<br>Vous avez demandé à réinitialiser votre mot de passe Varman.<br>Cliquez ci-dessous pour choisir un nouveau mot de passe.`,
               linkData.properties.action_link,
-              'Réinitialiser mon mot de passe →'
+              'Réinitialiser mon mot de passe',
+              email, restoNom, SITE_URL
             )
           )
         } else {
@@ -87,9 +150,11 @@ Deno.serve(async (req) => {
             `Bienvenue sur Varman${prenomEmp ? ', ' + prenomEmp : ''} — Créez votre mot de passe`,
             emailHtml(
               `Bienvenue${prenomEmp ? ', ' + prenomEmp : ''} 👋`,
-              `${gerantNom ? '<strong>' + gerantNom + '</strong> vous a ajouté sur Varman.' : 'Vous avez été ajouté sur Varman.'}<br>${restoNom ? 'Établissement : <strong>' + restoNom + '</strong><br>' : ''}Définissez votre mot de passe pour accéder à votre planning.`,
+              'Invitation employé',
+              `${gerantNom ? '<strong>' + gerantNom + '</strong> vous a ajouté sur Varman.' : 'Vous avez été ajouté sur Varman.'}<br>Définissez votre mot de passe pour accéder à votre planning, vos horaires et pointages.`,
               linkData.properties.action_link,
-              'Créer mon mot de passe →'
+              'Créer mon mot de passe',
+              email, restoNom, SITE_URL
             )
           )
         }
@@ -144,9 +209,11 @@ Deno.serve(async (req) => {
           `Bienvenue sur Varman${prenomEmp ? ', ' + prenomEmp : ''} — Créez votre mot de passe`,
           emailHtml(
             `Bienvenue${prenomEmp ? ', ' + prenomEmp : ''} 👋`,
-            `${gerantNom ? '<strong>' + gerantNom + '</strong> vous a ajouté sur Varman.' : 'Vous avez été ajouté sur Varman.'}<br>${restoNom ? 'Établissement : <strong>' + restoNom + '</strong><br>' : ''}Définissez votre mot de passe pour accéder à votre planning.`,
+            'Invitation employé',
+            `${gerantNom ? '<strong>' + gerantNom + '</strong> vous a ajouté sur Varman.' : 'Vous avez été ajouté sur Varman.'}<br>Définissez votre mot de passe pour accéder à votre planning, vos horaires et pointages.`,
             linkData.properties.action_link,
-            'Créer mon mot de passe →'
+            'Créer mon mot de passe',
+            email, restoNom, SITE_URL
           )
         )
       }
