@@ -383,14 +383,14 @@ export default function Gerant() {
     const {data:existingGerant} = await supabase.from('gerants').select('id').eq('email',empForm.email).maybeSingle()
     if(existingGerant){showToast('❌ Cet email appartient déjà à un compte gérant');return}
     const {data:empData,error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id}).select().single()
-    if(error){showToast('Erreur: '+error.message);return}
+    if(error){showToast('❌ Une erreur est survenue, réessayez');return}
     showToast("Envoi de l'invitation...")
     const {data:fnData,error:fnErr} = await supabase.functions.invoke('create-employe',{
       body:{email:empForm.email,password:'',skip_employe:true,employe_id:empData.id}
     })
     if(fnErr||fnData?.error){
       await supabase.from('employes').delete().eq('id',empData.id)
-      if(fnData?.error==='EMAIL_EXISTS') showToast('❌ Cet email est déjà associé à un compte Varman')
+      if(fnData?.error==='EMAIL_EXISTS') showToast('❌ Cet email est déjà utilisé sur Varman')
       else showToast('❌ Erreur lors de l\'invitation')
     } else{
       await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id)
@@ -422,7 +422,7 @@ export default function Gerant() {
       email:editEmpForm.email,
       role:editEmpForm.role
     }).eq('id',editEmpModal.id)
-    if(error){showToast('Erreur: '+error.message);return}
+    if(error){showToast('❌ Une erreur est survenue, réessayez');return}
     // Si mot de passe fourni
     if(editEmpForm.password && editEmpForm.password.length>=6){
       const aDejaUnCompte = !!profilsMap[editEmpModal.id]
@@ -431,14 +431,14 @@ export default function Gerant() {
         const {data,error:fnErr} = await supabase.functions.invoke('reset-password',{
           body:{email:editEmpForm.email, new_password:editEmpForm.password}
         })
-        if(fnErr||data?.error) showToast('Erreur: '+(data?.error||fnErr?.message))
+        if(fnErr||data?.error) showToast(data?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
         else showToast('Mot de passe modifié pour '+editEmpForm.prenom+' !')
       } else {
         // Pas de compte — en créer un
         const {data,error:fnErr} = await supabase.functions.invoke('create-employe',{
           body:{email:editEmpForm.email, password:editEmpForm.password, skip_employe:true, employe_id:editEmpModal.id}
         })
-        if(fnErr||data?.error) showToast('Erreur: '+(data?.error||fnErr?.message))
+        if(fnErr||data?.error) showToast(data?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
         else {
           await supabase.from('employes').update({a_un_compte:true}).eq('id',editEmpModal.id)
           showToast(editEmpForm.prenom+' — compte créé !')
@@ -458,14 +458,14 @@ export default function Gerant() {
       const {error} = await supabase.auth.resetPasswordForEmail(emp.email,{
         redirectTo: window.location.origin+'/login'
       })
-      if(error) showToast('Erreur: '+error.message)
+      if(error) showToast('❌ Une erreur est survenue, réessayez')
       else showToast('Lien de connexion envoyé à '+emp.email+' !')
     } else {
       // Nouvel employé → invitation
       const {data,error} = await supabase.functions.invoke('create-employe',{
         body:{email:emp.email,password:'',skip_employe:true,employe_id:emp.id}
       })
-      if(error||data?.error) showToast('Erreur: '+(data?.error||error?.message))
+      if(error||data?.error) showToast(data?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
       else{
         await supabase.from('employes').update({a_un_compte:true}).eq('id',emp.id)
         showToast('Invitation envoyée à '+emp.email+' !')
