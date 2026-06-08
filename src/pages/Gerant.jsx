@@ -377,14 +377,22 @@ export default function Gerant() {
   }
   async function addEmploye(){
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
+    // Vérifier si email déjà utilisé
+    const {data:existingEmp} = await supabase.from('employes').select('id').eq('email',empForm.email).single()
+    if(existingEmp){showToast('❌ Cet email est déjà utilisé par un autre employé');return}
     const {data:empData,error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id}).select().single()
     if(error){showToast('Erreur: '+error.message);return}
     showToast("Envoi de l'invitation...")
     const {data:fnData,error:fnErr} = await supabase.functions.invoke('create-employe',{
       body:{email:empForm.email,password:'',skip_employe:true,employe_id:empData.id}
     })
-    if(fnErr||fnData?.error) showToast('Employé ajouté — erreur invitation: '+(fnData?.error||fnErr?.message))
-    else{
+    if(fnErr||fnData?.error){
+      // Supprimer l'employé si invitation échouée
+      await supabase.from('employes').delete().eq('id',empData.id)
+      const errMsg = fnData?.error||fnErr?.message||''
+      if(errMsg.includes('existe déjà')) showToast('❌ Un compte avec cet email existe déjà')
+      else showToast('❌ Erreur lors de l'invitation: '+errMsg)
+    } else{
       await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id)
       showToast(empForm.prenom+' ajouté — invitation envoyée !')
     }
