@@ -43,8 +43,8 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from('profils').insert({ user_id: userId, role: 'employe', employe_id: finalEmpId })
     }
 
-    // Générer lien reset password et envoyer via Resend si pas de password fourni
-    if(!password || password.trim() === '' || password === 'VarmanTmp2026!') {
+    // Générer lien reset password et envoyer via Resend - seulement pour les employés (pas les gérants)
+    if((!password || password.trim() === '' || password === 'VarmanTmp2026!') && !skip_employe) {
       const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery', email,
         options: { redirectTo: SITE_URL + '/login' }
