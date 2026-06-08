@@ -99,16 +99,15 @@ export default function Employe() {
     if(!profil||profil.role!=='employe'){navigate('/gerant');return}
     const {data:emp}=await supabase.from('employes').select('*').eq('id',profil.employe_id).single()
     if(!emp){
-      // Compte supprimé - déconnecter proprement
       await supabase.auth.signOut()
-      navigate('/')
+      window.location.href = '/'
       return
     }
     // Vérifier que le restaurant existe encore
     const {data:restoCheck}=await supabase.from('restaurants').select('id,actif').eq('id',emp.restaurant_id).single()
     if(!restoCheck || !restoCheck.actif){
       await supabase.auth.signOut()
-      navigate('/')
+      window.location.href = '/'
       return
     }
     // Vérifier trial du gérant via fonction sécurisée
