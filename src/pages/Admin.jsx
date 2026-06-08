@@ -28,6 +28,7 @@ export default function Admin() {
   const [createModal, setCreateModal] = useState(false)
   const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"établissement",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14,features:{badgeage:true,conges:true,signalements:true,export_paie:true}})
   const [featuresModal, setFeaturesModal] = useState(null)
+  const [trialSaving, setTrialSaving] = useState(false)
   const [featuresForm, setFeaturesForm] = useState({badgeage:true,conges:true,signalements:true,export_paie:true})
   const [editGerantModal, setEditGerantModal] = useState(null)
   const [trialModal, setTrialModal] = useState(null)
@@ -62,6 +63,7 @@ export default function Admin() {
 
   async function saveTrial(){
     if(!trialModal) return
+    setTrialSaving(true)
     const days = parseInt(trialForm.customDays)||trialForm.days
     const baseDate = trialModal?.statut==='trial'&&trialModal?.trial_end_at&&new Date(trialModal.trial_end_at)>new Date()&&trialForm.statut==='trial'
       ? new Date(trialModal.trial_end_at)
@@ -88,6 +90,7 @@ export default function Admin() {
       type: emailType,
       trial_end_at: trialForm.statut==='trial' ? new Date(Date.now()+trialForm.days*24*60*60*1000).toISOString() : null
     }})
+    setTrialSaving(false)
     setTrialModal(null)
     loadData()
   }
@@ -391,8 +394,8 @@ export default function Admin() {
           </div>}
           <div style={{display:"flex",gap:10}}>
             <button onClick={()=>setTrialModal(null)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
-            <button onClick={saveTrial} style={{flex:2,height:44,borderRadius:12,border:"none",background:trialForm.statut==="expired"?"#dc2626":trialForm.statut==="active"?"#16a34a":"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>
-              {trialForm.statut==='active'?'Activer':trialForm.statut==='expired'?'Bloquer':trialModal?.statut==='trial'&&trialModal?.trial_end_at?'Prolonger':'Demarrer'}
+            <button onClick={saveTrial} disabled={trialSaving} style={{flex:2,height:44,borderRadius:12,border:"none",background:trialForm.statut==="expired"?"#dc2626":trialForm.statut==="active"?"#16a34a":"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer",opacity:trialSaving?.7:1}}>
+              {trialSaving?'Envoi...' :trialForm.statut==='active'?'Activer':trialForm.statut==='expired'?'Bloquer':trialModal?.statut==='trial'&&trialModal?.trial_end_at?'Prolonger':'Demarrer'}
             </button>
           </div>
         </div>
