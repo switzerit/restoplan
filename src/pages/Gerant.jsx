@@ -57,9 +57,9 @@ function fmtDateLocal(d){
 function fmtLabel(d){return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}
 
 function NoRestoForm({supabase, onCreated}) {
-  const [nom, setNom] = React.useState('')
-  const [adresse, setAdresse] = React.useState('')
-  const [loading, setLoading] = React.useState(false)
+  const [nom, setNom] = useState('')
+  const [adresse, setAdresse] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function create() {
     if(!nom) return
