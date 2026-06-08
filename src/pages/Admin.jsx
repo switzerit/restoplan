@@ -22,7 +22,7 @@ const SECTEURS=[
 export default function Admin() {
   const [loading, setLoading] = useState(true)
   const [gerants, setGerants] = useState([])
-  const [établissements, setÉtablissements] = useState([])
+  const [restaurants, setRestaurants] = useState([])
   const [employes, setEmployes] = useState([])
   const [selectedGerant, setSelectedGerant] = useState(null)
   const [createModal, setCreateModal] = useState(false)
@@ -99,7 +99,7 @@ export default function Admin() {
     const {data:g} = await supabase.from("gerants").select("*").order("created_at",{ascending:false})
     setGerants(g||[])
     const {data:r} = await supabase.from("restaurants").select("*").order("nom")
-    setÉtablissements(r||[])
+    setRestaurants(r||[])
     const {data:e} = await supabase.from("employes").select("*").order("prenom")
     setEmployes(e||[])
   }
@@ -224,7 +224,7 @@ export default function Admin() {
       <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:400,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
         <div style={{fontSize:17,fontWeight:800,marginBottom:4,color:"var(--red)"}}>Supprimer ce client ?</div>
         <div style={{fontSize:13,color:"var(--text2)",marginBottom:12}}>{deleteConfirmModal.prenom} {deleteConfirmModal.nom}</div>
-        <div style={{padding:"12px 14px",background:"var(--red-bg)",borderRadius:10,marginBottom:20,fontSize:12,color:"var(--red)"}}>Action irreversible. Tous les établissements, employes, shifts et pointages seront supprimes.</div>
+        <div style={{padding:"12px 14px",background:"var(--red-bg)",borderRadius:10,marginBottom:20,fontSize:12,color:"var(--red)"}}>Action irreversible. Tous les restaurants, employes, shifts et pointages seront supprimes.</div>
         <div style={{display:"flex",gap:8}}>
           <button onClick={()=>setDeleteConfirmModal(null)} style={{flex:1,height:42,borderRadius:10,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:13,fontWeight:600,cursor:"pointer"}}>Annuler</button>
           <button onClick={()=>deleteGerant(deleteConfirmModal)} style={{flex:1,height:42,borderRadius:10,border:"none",background:"var(--red)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>Supprimer definitivement</button>
