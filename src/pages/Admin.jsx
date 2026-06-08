@@ -78,13 +78,13 @@ export default function Admin() {
     showToast(msg)
     // Notifier le gérant par email
     const emailType = trialForm.statut==='active'?'activated':trialForm.statut==='expired'?'expired':'trial_extended'
-    const restos = établissements.filter(r=>r.gerant_id===trialModal.user_id)
+    const restos = restaurants.filter(r=>r.gerant_id===trialModal.user_id)
     await supabase.functions.invoke('invite-gerant',{body:{
       email: trialModal.email,
       prenom: trialModal.prenom,
       nom: trialModal.nom,
       entreprise: trialModal.entreprise,
-      établissement_nom: restos[0]?.nom||'',
+      restaurant_nom: restos[0]?.nom||'',
       trial_days: trialForm.days,
       statut: trialForm.statut,
       type: emailType,
@@ -112,7 +112,7 @@ export default function Admin() {
       nom:nom_resto, adresse, secteur:secteur||'établissement', actif:true, pin_borne:"1234"
     }).select().single()
     if(restoErr){showToast("Erreur: "+restoErr.message);return}
-    const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password:"VarmanTmp2026!",prenom,nom,role:"Gerant",établissement_id:resto.id,skip_employe:true,employe_id:null}})
+    const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password:"VarmanTmp2026!",prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
     if(error||data?.error){
       let msg = data?.error || "Erreur inconnue"
       if(!data && error){
@@ -128,7 +128,7 @@ export default function Admin() {
       await supabase.from("restaurants").update({gerant_id:newUserId}).eq("id",resto.id)
       const trial_end_at = createForm.compte_type==='trial' ? new Date(Date.now()+createForm.trial_days*24*60*60*1000).toISOString() : null
       await supabase.from("gerants").insert({user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto,statut:createForm.compte_type,trial_end_at,features:createForm.features})
-      await supabase.functions.invoke('invite-gerant',{body:{email,prenom,nom,entreprise:entreprise||nom_resto,établissement_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type}})
+      await supabase.functions.invoke('invite-gerant',{body:{email,prenom,nom,entreprise:entreprise||nom_resto,restaurant_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type}})
     }
     setCreateModal(false)
     setCreateForm({nom_resto:"",adresse:"",secteur:"établissement",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:"trial",trial_days:14})
@@ -151,11 +151,11 @@ export default function Admin() {
 
   async function deleteGerant(g){
     setDeleteConfirmModal(null);showToast("Suppression en cours...")
-    const restosToggle = établissements.filter(r=>r.gerant_id===g.user_id)
+    const restosToggle = restaurants.filter(r=>r.gerant_id===g.user_id)
     for(const r of restos){
-      await supabase.from("shifts").delete().eq("établissement_id",r.id)
-      await supabase.from("pointages").delete().eq("établissement_id",r.id)
-      await supabase.from("employes").delete().eq("établissement_id",r.id)
+      await supabase.from("shifts").delete().eq("restaurant_id",r.id)
+      await supabase.from("pointages").delete().eq("restaurant_id",r.id)
+      await supabase.from("employes").delete().eq("restaurant_id",r.id)
       await supabase.from("restaurants").delete().eq("id",r.id)
     }
     await supabase.from("profils").delete().eq("user_id",g.user_id)
@@ -167,7 +167,7 @@ export default function Admin() {
   async function toggleGerant(g){
     const newStatut = g.statut==='expired' ? 'active' : 'expired'
     await supabase.from("gerants").update({actif:g.statut==='expired', statut:newStatut}).eq("id",g.id)
-    const restos = établissements.filter(r=>r.gerant_id===g.user_id)
+    const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
     for(const r of restos) await supabase.from("restaurants").update({actif:g.statut==='expired'}).eq("id",r.id)
     loadData()
   }
@@ -186,9 +186,9 @@ export default function Admin() {
 
   async function deleteResto(restoId){
     if(!window.confirm("Supprimer ce établissement ?")) return
-    await supabase.from("shifts").delete().eq("établissement_id",restoId)
-    await supabase.from("pointages").delete().eq("établissement_id",restoId)
-    await supabase.from("employes").delete().eq("établissement_id",restoId)
+    await supabase.from("shifts").delete().eq("restaurant_id",restoId)
+    await supabase.from("pointages").delete().eq("restaurant_id",restoId)
+    await supabase.from("employes").delete().eq("restaurant_id",restoId)
     await supabase.from("restaurants").delete().eq("id",restoId)
     loadData();showToast("Établissement supprime")
   }
@@ -237,8 +237,8 @@ export default function Admin() {
   // VUE DETAIL GERANT
   if(selectedGerant){
     const g = gerants.find(x=>x.id===selectedGerant.id)||selectedGerant
-    const restos = établissements.filter(r=>r.gerant_id===g.user_id)
-    const empCount = employes.filter(e=>restos.some(r=>r.id===e.établissement_id)).length
+    const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
+    const empCount = employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).length
     return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
       <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
         <button onClick={()=>setSelectedGerant(null)} style={btnSecondary}>← Retour</button>
@@ -312,7 +312,7 @@ export default function Admin() {
           </div>
           {restos.length===0&&<div style={{padding:24,textAlign:"center",color:"var(--text3)",fontSize:13}}>Aucun établissement</div>}
           {restos.map(r=>{
-            const nbEmp=employes.filter(e=>e.établissement_id===r.id).length
+            const nbEmp=employes.filter(e=>e.restaurant_id===r.id).length
             const secteurLabel = SECTEURS.find(s=>s.id===r.secteur)?.l||'🍽️ Établissement'
             return(
               <div key={r.id} style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:12}}>
@@ -332,7 +332,7 @@ export default function Admin() {
         {empCount>0&&<div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden"}}>
           <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)"}}><div style={{fontSize:13,fontWeight:700}}>Employes ({empCount})</div></div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:8,padding:12}}>
-            {employes.filter(e=>restos.some(r=>r.id===e.établissement_id)).map((emp,i)=>{const c=COLORS[i%COLORS.length];const resto=restos.find(r=>r.id===emp.établissement_id);return(
+            {employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).map((emp,i)=>{const c=COLORS[i%COLORS.length];const resto=restos.find(r=>r.id===emp.restaurant_id);return(
               <div key={emp.id} style={{background:"var(--bg)",border:"1px solid var(--border)",borderRadius:10,padding:"10px 12px",display:"flex",alignItems:"center",gap:8}}>
                 <div style={{width:32,height:32,borderRadius:"50%",background:c.bg,color:c.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
                 <div style={{minWidth:0}}><div style={{fontSize:12,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{emp.prenom} {emp.nom}</div><div style={{fontSize:10,color:"var(--text3)"}}>{resto?.nom}</div></div>
@@ -468,7 +468,7 @@ export default function Admin() {
       <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:28}}>
         {[
           {icon:"👤",label:"Clients",value:gerants.length},
-          {icon:"🏪",label:"Etablissements",value:établissements.filter(r=>r.actif&&r.gerant_id).length},
+          {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length},
           {icon:"👥",label:"Employes",value:employes.length},
           {icon:"✅",label:"Actifs",value:gerants.filter(g=>g.statut==='active').length},
           {icon:"⏳",label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length},
@@ -490,8 +490,8 @@ export default function Admin() {
           <button onClick={()=>setCreateModal(true)} style={{padding:"10px 24px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
         </div>}
         {gerants.map((g,i)=>{
-          const restos=établissements.filter(r=>r.gerant_id===g.user_id)
-          const empCount=employes.filter(e=>restos.some(r=>r.id===e.établissement_id)).length
+          const restos=restaurants.filter(r=>r.gerant_id===g.user_id)
+          const empCount=employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).length
           const c=COLORS[i%COLORS.length]
           return <div key={g.id} onClick={()=>setSelectedGerant(g)} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"18px 22px",cursor:"pointer",transition:"all .15s"}}
             onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--accent)";e.currentTarget.style.boxShadow="0 4px 16px rgba(0,113,227,.08)"}}
