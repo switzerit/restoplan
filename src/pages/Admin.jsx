@@ -284,7 +284,7 @@ export default function Admin() {
             <div style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
               <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>FIN DU TRIAL</div>
               <div style={{fontSize:13,fontWeight:600}}>
-                {g.trial_end_at ? new Date(g.trial_end_at).toLocaleDateString('fr-FR') : g.statut==='active' ? '—' : 'Non défini'}
+                {g.statut==='active' ? '—' : g.trial_end_at ? new Date(g.trial_end_at).toLocaleDateString('fr-FR') : 'Non défini'}
               </div>
             </div>
           </div>
