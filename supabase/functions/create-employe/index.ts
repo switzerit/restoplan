@@ -19,7 +19,9 @@ Deno.serve(async (req) => {
 
     const { data: users } = await supabaseAdmin.auth.admin.listUsers()
     const existingUser = users?.users?.find(u => u.email === email)
-    if(existingUser) throw new Error('Un compte avec cet email existe déjà')
+    if(existingUser) return new Response(JSON.stringify({ error: 'EMAIL_EXISTS' }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
 
     let userId: string
     let finalEmpId = employe_id
