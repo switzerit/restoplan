@@ -455,26 +455,26 @@ export default function Admin() {
   }
 
   // VUE LISTE GERANTS
-  return <div style={{minHeight:"100vh",background:"#f8fafc",fontFamily:"var(--font)"}}>
-    <div style={{background:"#0C1A35",padding:"0 32px",display:"flex",alignItems:"center",height:56,gap:16}}>
-      <div style={{flex:1}}><Logo height={22}/></div>
-      <span style={{fontSize:11,color:"rgba(255,255,255,.3)",marginRight:8}}>{gerants.length} client{gerants.length>1?"s":""} · {restaurants.length} étab.</span>
-      <button onClick={()=>setCreateModal(true)} style={{padding:"7px 16px",borderRadius:8,border:"none",background:"#E11D48",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
-      <button onClick={deconnexion} style={{padding:"7px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,.15)",background:"transparent",color:"rgba(255,255,255,.6)",fontSize:12,cursor:"pointer"}}>Déconnexion</button>
+  return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
+    <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12}}>
+      <div style={{flex:1}}><Logo height={24}/><div style={{fontSize:11,color:"var(--text3)",marginTop:2}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
+      <button onClick={()=>setCreateModal(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
+      <button onClick={deconnexion} style={{padding:"8px 14px",borderRadius:10,border:"1px solid var(--border2)",background:"transparent",color:"var(--text2)",fontSize:13,cursor:"pointer",fontWeight:600}}>Deconnexion</button>
     </div>
-    <div style={{maxWidth:960,margin:"0 auto",padding:"28px 24px"}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:10,marginBottom:28}}>
+    <div style={{maxWidth:960,margin:"0 auto",padding:28}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:28}}>
         {[
-          {label:"Clients",value:gerants.length,c:"#0C1A35"},
-          {label:"Établissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length,c:"#0C1A35"},
-          {label:"Employés",value:employes.length,c:"#0C1A35"},
-          {label:"Actifs",value:gerants.filter(g=>g.statut==='active').length,c:"#16a34a"},
-          {label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length,c:"#ea580c"},
-          {label:"Expirés",value:gerants.filter(g=>g.statut==='expired'||(g.trial_end_at&&new Date(g.trial_end_at)<new Date())).length,c:"#dc2626"},
+          {icon:"👤",label:"Clients",value:gerants.length},
+          {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length},
+          {icon:"👥",label:"Employes",value:employes.length},
+          {icon:"✅",label:"Actifs",value:gerants.filter(g=>g.statut==='active').length},
+          {icon:"⏳",label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length},
+          {icon:"❌",label:"Expirés",value:gerants.filter(g=>g.statut==='expired'||(g.trial_end_at&&new Date(g.trial_end_at)<new Date())).length},
         ].map((s,i)=>(
-          <div key={i} style={{background:"white",border:"1px solid #e2e8f0",borderRadius:12,padding:"14px 16px"}}>
-            <div style={{fontSize:24,fontWeight:800,color:s.c,lineHeight:1}}>{s.value}</div>
-            <div style={{fontSize:11,color:"#94a3b8",marginTop:4}}>{s.label}</div>
+          <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
+            <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
+            <div style={{fontSize:22,fontWeight:800}}>{s.value}</div>
+            <div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{s.label}</div>
           </div>
         ))}
       </div>
