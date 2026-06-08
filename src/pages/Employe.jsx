@@ -96,7 +96,12 @@ export default function Employe() {
     const {data:{session}}=await supabase.auth.getSession()
     if(!session){navigate('/login');return}
     const {data:profil}=await supabase.from('profils').select('*').eq('user_id',session.user.id).single()
-    if(!profil||profil.role!=='employe'){navigate('/gerant');return}
+    if(!profil){
+      await supabase.auth.signOut()
+      window.location.href = '/'
+      return
+    }
+    if(profil.role!=='employe'){navigate('/gerant');return}
     const {data:emp}=await supabase.from('employes').select('*').eq('id',profil.employe_id).single()
     if(!emp){
       await supabase.auth.signOut()
