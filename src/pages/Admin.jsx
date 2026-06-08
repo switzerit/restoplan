@@ -177,7 +177,6 @@ export default function Admin() {
       type: newStatut==='active' ? 'activated' : 'expired',
       trial_end_at: null
     }})
-    const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
     for(const r of restos) await supabase.from("restaurants").update({actif:!g.actif}).eq("id",r.id)
     loadData();showToast(g.actif?"Compte desactive":"Compte active")
   }
