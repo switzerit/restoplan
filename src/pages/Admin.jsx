@@ -66,11 +66,11 @@ export default function Admin() {
     const baseDate = trialModal?.statut==='trial'&&trialModal?.trial_end_at&&trialForm.statut==='trial'
       ? new Date(trialModal.trial_end_at)
       : new Date()
-    const trial_end_at = trialForm.statut === 'active' ? null :
+    const trial_end_at = (trialForm.statut === 'active' || trialForm.statut === 'expired') ? null :
       new Date(baseDate.getTime() + days * 24*60*60*1000).toISOString()
     await supabase.from('gerants').update({
       statut: trialForm.statut,
-      trial_end_at: trialForm.statut === 'active' ? null : trial_end_at
+      trial_end_at: (trialForm.statut === 'active' || trialForm.statut === 'expired') ? null : trial_end_at
     }).eq('id', trialModal.id)
     const msg = trialForm.statut==='active'?'Compte activé ✅':trialForm.statut==='expired'?'Compte bloqué ❌':`Trial prolongé de ${trialForm.days} jours ✅`
     showToast(msg)
