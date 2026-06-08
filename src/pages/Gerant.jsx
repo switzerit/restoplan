@@ -176,6 +176,7 @@ export default function Gerant() {
   useEffect(()=>{if(currentResto){loadAll(selectedDate)}},[selectedDate])
 
   async function loadRestaurants(){
+    try{
     const {data:{session}} = await supabase.auth.getSession()
     const {data} = await supabase.from('restaurants').select('*').eq('actif',true).eq('gerant_id',session?.user?.id).order('nom')
     setRestaurants(data||[])
@@ -206,6 +207,7 @@ export default function Gerant() {
       setTrialStatut('active')
     }
     if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
+    } catch(e){ console.error('loadRestaurants error:',e); setTrialStatut('active') }
   }
 
   async function loadAll(date){
