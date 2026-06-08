@@ -63,7 +63,7 @@ export default function Admin() {
   async function saveTrial(){
     if(!trialModal) return
     const days = parseInt(trialForm.customDays)||trialForm.days
-    const baseDate = trialModal?.statut==='trial'&&trialModal?.trial_end_at&&trialForm.statut==='trial'
+    const baseDate = trialModal?.statut==='trial'&&trialModal?.trial_end_at&&new Date(trialModal.trial_end_at)>new Date()&&trialForm.statut==='trial'
       ? new Date(trialModal.trial_end_at)
       : new Date()
     const trial_end_at = (trialForm.statut === 'active' || trialForm.statut === 'expired') ? null :
