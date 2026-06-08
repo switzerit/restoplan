@@ -186,11 +186,20 @@ export default function Admin() {
 
   async function deleteResto(restoId){
     if(!window.confirm("Supprimer ce établissement ?")) return
+    // Supprimer les comptes auth des employés
+    const {data:emps} = await supabase.from("employes").select("id").eq("restaurant_id",restoId)
+    if(emps?.length){
+      const {data:profils} = await supabase.from("profils").select("user_id").in("employe_id",emps.map(e=>e.id))
+      for(const p of profils||[]){
+        await supabase.functions.invoke("delete-user",{body:{user_id:p.user_id}})
+      }
+      await supabase.from("profils").delete().in("employe_id",emps.map(e=>e.id))
+    }
     await supabase.from("shifts").delete().eq("restaurant_id",restoId)
     await supabase.from("pointages").delete().eq("restaurant_id",restoId)
     await supabase.from("employes").delete().eq("restaurant_id",restoId)
     await supabase.from("restaurants").delete().eq("id",restoId)
-    loadData();showToast("Établissement supprime")
+    loadData();showToast("Établissement supprimé")
   }
 
   function showToast(msg){setToast(msg);setTimeout(()=>setToast(""),3000)}

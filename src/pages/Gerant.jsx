@@ -573,7 +573,15 @@ export default function Gerant() {
     </div>
   )
   if(trialStatut === 'loading') return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'#aaa'}}>Chargement...</div>
-  if(!currentResto) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>Chargement...</div>
+  if(!currentResto) return (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',background:'var(--bg)',flexDirection:'column',gap:16,padding:20,textAlign:'center'}}>
+      <div style={{fontSize:48}}>🏪</div>
+      <h2 style={{fontSize:22,fontWeight:800,color:'var(--text)',margin:0}}>Aucun établissement</h2>
+      <p style={{fontSize:15,color:'var(--text2)',maxWidth:360,margin:0,lineHeight:1.7}}>Votre compte ne dispose d'aucun établissement actif. Contactez votre administrateur.</p>
+      <a href="/contact" style={{padding:'12px 24px',borderRadius:10,background:'#E11D48',color:'white',textDecoration:'none',fontSize:14,fontWeight:700}}>Contacter le support →</a>
+      <button onClick={()=>{supabase.auth.signOut();window.location.href='/'}} style={{padding:'10px 20px',borderRadius:10,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer'}}>Se déconnecter</button>
+    </div>
+  )
 
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Signalements':'Paramètres'
 
