@@ -184,6 +184,7 @@ export default function Gerant() {
       const saved = savedId ? data.find(r=>r.id===savedId) : null
       setCurrentResto(saved || data[0])
     }
+    if(!data?.length) setTrialStatut('active') // sera écrasé par le check gérant ci-dessous
     // Vérifier trial depuis la table gerants
     const {data:gerantData} = await supabase.from('gerants').select('statut,trial_end_at,features').eq('user_id',session?.user?.id).single()
     if(gerantData){
