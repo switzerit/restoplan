@@ -56,6 +56,40 @@ function fmtDateLocal(d){
 }
 function fmtLabel(d){return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}
 
+function NoRestoForm({supabase, onCreated}) {
+  const [nom, setNom] = React.useState('')
+  const [adresse, setAdresse] = React.useState('')
+  const [loading, setLoading] = React.useState(false)
+
+  async function create() {
+    if(!nom) return
+    setLoading(true)
+    const {data:{session}} = await supabase.auth.getSession()
+    const token = Math.random().toString(36).slice(2)
+    await supabase.from('restaurants').insert({
+      nom, adresse, secteur:'restaurant', actif:true,
+      pin_borne:'1234', gerant_id:session.user.id,
+      borne_token:token
+    })
+    setLoading(false)
+    onCreated()
+  }
+
+  return (
+    <div style={{background:'white',border:'1px solid #e2e8f0',borderRadius:14,padding:24,width:'100%',maxWidth:380,textAlign:'left'}}>
+      <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:'#0C1A35'}}>Créer mon établissement</div>
+      <input value={nom} onChange={e=>setNom(e.target.value)} placeholder="Nom de l'établissement *"
+        style={{width:'100%',padding:'10px 12px',borderRadius:9,border:'1.5px solid #e2e8f0',fontSize:14,outline:'none',marginBottom:10,boxSizing:'border-box'}}/>
+      <input value={adresse} onChange={e=>setAdresse(e.target.value)} placeholder="Adresse (optionnel)"
+        style={{width:'100%',padding:'10px 12px',borderRadius:9,border:'1.5px solid #e2e8f0',fontSize:14,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
+      <button onClick={create} disabled={!nom||loading}
+        style={{width:'100%',padding:'11px',borderRadius:9,border:'none',background:'#E11D48',color:'white',fontSize:14,fontWeight:700,cursor:'pointer',opacity:!nom||loading?.7:1}}>
+        {loading?'Création...':'Créer →'}
+      </button>
+    </div>
+  )
+}
+
 export default function Gerant() {
   const [view, setView] = useState('planning')
   const [restaurants, setRestaurants] = useState([])
@@ -577,9 +611,9 @@ export default function Gerant() {
     <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',background:'var(--bg)',flexDirection:'column',gap:16,padding:20,textAlign:'center'}}>
       <div style={{fontSize:48}}>🏪</div>
       <h2 style={{fontSize:22,fontWeight:800,color:'var(--text)',margin:0}}>Aucun établissement</h2>
-      <p style={{fontSize:15,color:'var(--text2)',maxWidth:360,margin:0,lineHeight:1.7}}>Votre compte ne dispose d'aucun établissement actif. Contactez votre administrateur.</p>
-      <a href="/contact" style={{padding:'12px 24px',borderRadius:10,background:'#E11D48',color:'white',textDecoration:'none',fontSize:14,fontWeight:700}}>Contacter le support →</a>
-      <button onClick={()=>{supabase.auth.signOut();window.location.href='/'}} style={{padding:'10px 20px',borderRadius:10,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer'}}>Se déconnecter</button>
+      <p style={{fontSize:15,color:'var(--text2)',maxWidth:360,margin:0,lineHeight:1.7}}>Vous n'avez pas encore d'établissement. Créez-en un pour commencer.</p>
+      <NoRestoForm supabase={supabase} onCreated={()=>loadRestaurants()}/>
+      <button onClick={()=>{supabase.auth.signOut();window.location.href='/'}} style={{padding:'10px 20px',borderRadius:10,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer',marginTop:8}}>Se déconnecter</button>
     </div>
   )
 
