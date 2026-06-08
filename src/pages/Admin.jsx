@@ -164,21 +164,9 @@ export default function Admin() {
   async function toggleGerant(g){
     const newStatut = g.statut==='expired' ? 'active' : 'expired'
     await supabase.from("gerants").update({actif:g.statut==='expired', statut:newStatut}).eq("id",g.id)
-    // Notifier par email
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
-    await supabase.functions.invoke('invite-gerant',{body:{
-      email: g.email,
-      prenom: g.prenom,
-      nom: g.nom,
-      entreprise: g.entreprise,
-      restaurant_nom: restos[0]?.nom||'',
-      trial_days: 0,
-      statut: newStatut,
-      type: newStatut==='active' ? 'activated' : 'expired',
-      trial_end_at: null
-    }})
-    for(const r of restos) await supabase.from("restaurants").update({actif:!g.actif}).eq("id",r.id)
-    loadData();showToast(g.actif?"Compte desactive":"Compte active")
+    for(const r of restos) await supabase.from("restaurants").update({actif:g.statut==='expired'}).eq("id",r.id)
+    loadData()
   }
 
   async function addRestaurant(){
@@ -255,7 +243,7 @@ export default function Admin() {
         <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div><div style={{fontSize:11,color:"var(--text3)"}}>{g.entreprise||"—"} • {g.email}</div></div>
         <button onClick={()=>{setEditGerantForm({prenom:g.prenom,nom:g.nom,email:g.email,telephone:g.telephone||"",entreprise:g.entreprise||""});setEditGerantModal(g)}} style={btnSecondary}>✏️ Modifier</button>
         <button onClick={()=>{setResetPwdModal(g);setResetPwd("")}} style={btnSecondary}>🔑 MDP</button>
-        <button onClick={()=>toggleGerant(g)} style={{padding:"7px 14px",borderRadius:9,border:"none",background:g.statut==='expired'?"var(--green-bg)":"var(--red-bg)",color:g.statut==='expired'?"#1a6b35":"var(--red)",fontSize:13,fontWeight:600,cursor:"pointer"}}>{g.statut==='expired'?"Activer":"Désactiver"}</button>
+        
         <button onClick={()=>setDeleteConfirmModal(g)} style={{padding:"7px 14px",borderRadius:9,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:13,fontWeight:600,cursor:"pointer"}}>🗑️ Supprimer</button>
         <button onClick={deconnexion} style={{...btnSecondary,background:"transparent"}}>Deconnexion</button>
       </div>
