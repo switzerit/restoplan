@@ -19,9 +19,43 @@ Deno.serve(async (req) => {
 
     const { data: users } = await supabaseAdmin.auth.admin.listUsers()
     const existingUser = users?.users?.find(u => u.email === email)
-    if(existingUser) return new Response(JSON.stringify({ error: 'EMAIL_EXISTS' }), {
-      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    })
+    if(existingUser) {
+      // Si resend demandé → générer lien reset et envoyer via Resend
+      const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery', email,
+        options: { redirectTo: (Deno.env.get('SITE_URL')||'https://restoplan.vercel.app') + '/login' }
+      })
+      if(linkData) {
+        // Récupérer infos pour l'email
+        let restoNom = '', gerantNom = ''
+        if(employe_id) {
+          const { data: emp2 } = await supabaseAdmin.from('employes').select('restaurant_id').eq('id', employe_id).single()
+          if(emp2?.restaurant_id) {
+            const { data: resto2 } = await supabaseAdmin.from('restaurants').select('nom,gerant_id').eq('id', emp2.restaurant_id).single()
+            restoNom = resto2?.nom || ''
+            if(resto2?.gerant_id) {
+              const { data: g2 } = await supabaseAdmin.from('gerants').select('prenom,nom').eq('user_id', resto2.gerant_id).single()
+              if(g2) gerantNom = g2.prenom + (g2.nom ? ' ' + g2.nom : '')
+            }
+          }
+        }
+        const RESEND_KEY = Deno.env.get('RESEND_API_KEY')!
+        const html = `<div style="font-family:sans-serif;max-width:500px;margin:40px auto;padding:32px;border:1px solid #e2e8f0;border-radius:12px">
+          <h2 style="color:#0C1A35;margin-bottom:8px">Accès à votre espace Varman</h2>
+          <p style="color:#64748b;margin-bottom:24px">${gerantNom ? gerantNom + ' vous invite à accéder à votre espace.' : 'Cliquez ci-dessous pour accéder à votre espace.'}</p>
+          <a href="${linkData.properties.action_link}" style="display:block;text-align:center;background:#E11D48;color:white;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">Accéder à mon espace →</a>
+          <p style="color:#94a3b8;font-size:12px;margin-top:20px;text-align:center">Ce lien expire dans 24h</p>
+        </div>`
+        await fetch('https://api.resend.com/emails', {
+          method:'POST',
+          headers:{'Authorization':`Bearer ${RESEND_KEY}`,'Content-Type':'application/json'},
+          body: JSON.stringify({from:'Varman <noreply@switzerit.com>',to:[email],subject:'Votre lien de connexion Varman',html})
+        })
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
 
     let userId: string
     let finalEmpId = employe_id
