@@ -45,8 +45,8 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from('profils').insert({ user_id: userId, role: 'employe', employe_id: finalEmpId })
     }
 
-    // Générer lien reset password et envoyer via Resend - seulement pour les employés (pas les gérants)
-    if((!password || password.trim() === '' || password === 'VarmanTmp2026!') && !skip_employe) {
+    // Générer lien reset password et envoyer via Resend si pas de vrai password
+    if(!password || password.trim() === '' || password === 'VarmanTmp2026!') {
       const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery', email,
         options: { redirectTo: SITE_URL + '/login' }
@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             from: 'Varman <noreply@switzerit.com>',
             to: [email],
-            subject: `${restoNom ? restoNom + ' — ' : ''}Votre invitation Varman`,
+            subject: `${prenom ? prenom + ' ' + (nom||'') + ' — ' : ''}Votre invitation Varman`,
             html
           })
         })

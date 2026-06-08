@@ -454,12 +454,11 @@ export default function Gerant() {
     showToast("Envoi du lien...")
     const dejaUnCompte = !!profilsMap[emp.id]
     if(dejaUnCompte){
-      // Employé existant → lien de réinitialisation de mot de passe
-      const {error} = await supabase.auth.resetPasswordForEmail(emp.email,{
-        redirectTo: window.location.origin+'/login'
+      // Employé existant → reset via Resend
+      await supabase.functions.invoke('create-employe',{
+        body:{email:emp.email, password:'', skip_employe:true, employe_id:emp.id}
       })
-      if(error) showToast('❌ Une erreur est survenue, réessayez')
-      else showToast('Lien de connexion envoyé à '+emp.email+' !')
+      showToast('Lien de connexion envoyé à '+emp.email+' !')
     } else {
       // Nouvel employé → invitation
       const {data,error} = await supabase.functions.invoke('create-employe',{
