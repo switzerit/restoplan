@@ -111,6 +111,7 @@ export default function Gerant() {
   }
 
   async function loadMonthData(date){
+  if(trialStatut === 'expired') return (
     if(!currentResto) return
     const y=date.getFullYear(), m=date.getMonth()
     const from=y+'-'+String(m+1).padStart(2,'0')+'-01'
@@ -561,13 +562,12 @@ export default function Gerant() {
   }
   const shiftColors = new Proxy({},{get:(_,poste)=>getShiftColor(poste)})
 
+  if(trialStatut === 'loading') return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'#aaa'}}>Chargement...</div>
   if(!currentResto) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>Chargement...</div>
 
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Signalements':'Paramètres'
 
   // ── TRIAL CHECKS ──
-  if(trialStatut === 'loading') return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'#aaa'}}>Chargement...</div>
-  if(trialStatut === 'expired') return (
     <div style={{position:'fixed',inset:0,background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',padding:20,zIndex:9999}}>
       <div style={{background:'white',borderRadius:20,padding:'48px 40px',maxWidth:460,width:'100%',textAlign:'center',boxShadow:'0 8px 40px rgba(0,0,0,.08)'}}>
         <div style={{fontSize:48,marginBottom:16}}>⏰</div>
