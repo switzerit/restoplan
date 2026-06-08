@@ -55,14 +55,23 @@ Deno.serve(async (req) => {
         const inviteUrl = linkData.properties.action_link
         // Récupérer infos restaurant
         let restoNom = ''
+        let gerantNom = ''
         if(restaurant_id) {
-          const { data: resto } = await supabaseAdmin.from('restaurants').select('nom').eq('id', restaurant_id).single()
+          const { data: resto } = await supabaseAdmin.from('restaurants').select('nom,gerant_id').eq('id', restaurant_id).single()
           restoNom = resto?.nom || ''
+          if(resto?.gerant_id) {
+            const { data: gerant } = await supabaseAdmin.from('gerants').select('prenom,nom').eq('user_id', resto.gerant_id).single()
+            if(gerant) gerantNom = gerant.prenom + (gerant.nom ? ' ' + gerant.nom : '')
+          }
         } else if(employe_id) {
           const { data: emp } = await supabaseAdmin.from('employes').select('restaurant_id').eq('id', employe_id).single()
           if(emp?.restaurant_id) {
-            const { data: resto } = await supabaseAdmin.from('restaurants').select('nom').eq('id', emp.restaurant_id).single()
+            const { data: resto } = await supabaseAdmin.from('restaurants').select('nom,gerant_id').eq('id', emp.restaurant_id).single()
             restoNom = resto?.nom || ''
+            if(resto?.gerant_id) {
+              const { data: gerant } = await supabaseAdmin.from('gerants').select('prenom,nom').eq('user_id', resto.gerant_id).single()
+              if(gerant) gerantNom = gerant.prenom + (gerant.nom ? ' ' + gerant.nom : '')
+            }
           }
         }
 
@@ -91,7 +100,7 @@ Deno.serve(async (req) => {
       <p style="margin:0 0 8px;font-size:14px;color:#94a3b8">Votre espace employé est prêt.</p>
       <div style="width:40px;height:2px;background:#E11D48;margin:16px 0;border-radius:1px"></div>
       <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.8">
-        ${restoNom ? `<strong>${restoNom}</strong> vous a ajouté sur Varman.` : 'Vous avez été ajouté sur Varman.'}<br>
+        ${gerantNom ? `<strong>${gerantNom}</strong> vous a ajouté sur Varman.` : restoNom ? `<strong>${restoNom}</strong> vous a ajouté sur Varman.` : 'Vous avez été ajouté sur Varman.'}<br>
         Définissez votre mot de passe pour accéder à votre planning, vos horaires et pointages.
       </p>
       <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:32px">
