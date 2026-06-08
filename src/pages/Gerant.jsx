@@ -377,9 +377,11 @@ export default function Gerant() {
   }
   async function addEmploye(){
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
-    // Vérifier si email déjà utilisé
-    const {data:existingEmp} = await supabase.from('employes').select('id').eq('email',empForm.email).single()
-    if(existingEmp){showToast('❌ Cet email est déjà utilisé par un autre employé');return}
+    // Vérifier si email déjà utilisé (employes + gerants)
+    const {data:existingEmp} = await supabase.from('employes').select('id').eq('email',empForm.email).maybeSingle()
+    if(existingEmp){showToast('❌ Cet email est déjà utilisé par un employé');return}
+    const {data:existingGerant} = await supabase.from('gerants').select('id').eq('email',empForm.email).maybeSingle()
+    if(existingGerant){showToast('❌ Cet email appartient déjà à un compte gérant');return}
     const {data:empData,error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id}).select().single()
     if(error){showToast('Erreur: '+error.message);return}
     showToast("Envoi de l'invitation...")
@@ -389,9 +391,13 @@ export default function Gerant() {
     if(fnErr||fnData?.error){
       // Supprimer l'employé si invitation échouée
       await supabase.from('employes').delete().eq('id',empData.id)
-      const errMsg = fnData?.error||fnErr?.message||''
-      if(errMsg.includes('existe déjà')) showToast('❌ Un compte avec cet email existe déjà')
-      else showToast('❌ Erreur lors de l'invitation: '+errMsg)
+      const errMsg = fnData?.error||''
+      if(errMsg.includes('existe') || empForm.email === empForm.email){
+        // Vérifier si c'est un doublon d'email auth
+        showToast('❌ Cet email est déjà associé à un compte Varman')
+      } else {
+        showToast('❌ Erreur: '+errMsg)
+      }
     } else{
       await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id)
       showToast(empForm.prenom+' ajouté — invitation envoyée !')
