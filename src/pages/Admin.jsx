@@ -151,7 +151,7 @@ export default function Admin() {
 
   async function deleteGerant(g){
     setDeleteConfirmModal(null);showToast("Suppression en cours...")
-    const restosToggle = restaurants.filter(r=>r.gerant_id===g.user_id)
+    const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
     for(const r of restos){
       await supabase.from("shifts").delete().eq("restaurant_id",r.id)
       await supabase.from("pointages").delete().eq("restaurant_id",r.id)
