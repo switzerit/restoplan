@@ -111,7 +111,6 @@ export default function Gerant() {
   }
 
   async function loadMonthData(date){
-  if(trialStatut === 'expired') return (
     if(!currentResto) return
     const y=date.getFullYear(), m=date.getMonth()
     const from=y+'-'+String(m+1).padStart(2,'0')+'-01'
@@ -562,6 +561,17 @@ export default function Gerant() {
   }
   const shiftColors = new Proxy({},{get:(_,poste)=>getShiftColor(poste)})
 
+  if(trialStatut === 'expired') return (
+    <div style={{position:'fixed',inset:0,background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',padding:20,zIndex:9999}}>
+      <div style={{background:'white',borderRadius:20,padding:'48px 40px',maxWidth:460,width:'100%',textAlign:'center',boxShadow:'0 8px 40px rgba(0,0,0,.08)'}}>
+        <div style={{fontSize:48,marginBottom:16}}>⏰</div>
+        <h1 style={{fontSize:24,fontWeight:900,color:'#0C1A35',marginBottom:8}}>Votre essai est terminé</h1>
+        <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:32}}>Vos 14 jours d'essai gratuit sont écoulés. Contactez-nous pour continuer à utiliser Varman.</p>
+        <button onClick={async()=>{await supabase.auth.signOut();window.location.href='/contact?raison=essai-expire'}} style={{width:'100%',padding:'14px',borderRadius:12,background:'#E11D48',color:'white',fontSize:15,fontWeight:700,border:'none',cursor:'pointer',marginBottom:10}}>Continuer avec Varman →</button>
+        <button onClick={()=>{supabase.auth.signOut();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'1px solid #e8eaf0',background:'white',color:'#64748b',fontSize:14,fontWeight:600,cursor:'pointer'}}>Se déconnecter</button>
+      </div>
+    </div>
+  )
   if(trialStatut === 'loading') return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'#aaa'}}>Chargement...</div>
   if(!currentResto) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',fontFamily:'var(--font)',color:'var(--text2)'}}>Chargement...</div>
 
