@@ -391,7 +391,7 @@ export default function Gerant() {
     if(fnErr||fnData?.error){
       await supabase.from('employes').delete().eq('id',empData.id)
       if(fnData?.error==='EMAIL_EXISTS') showToast('❌ Cet email est déjà associé à un compte Varman')
-      else showToast('❌ Erreur lors de l'invitation')
+      else showToast('❌ Erreur lors de l\'invitation')
     } else{
       await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id)
       showToast(empForm.prenom+' ajouté — invitation envoyée !')
