@@ -1358,7 +1358,10 @@ export default function Gerant() {
       {editEmpModal&&(
         <div onClick={()=>setEditEmpModal(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)',maxHeight:'90vh',overflowY:'auto'}}>
-            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Modifier l'employé</div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
+                  <div style={{fontSize:17,fontWeight:800}}>Modifier l'employé</div>
+                  <button onClick={()=>{setEditEmpModal(false);setEditCustomRole('')}} style={{width:28,height:28,borderRadius:6,border:'none',background:'var(--bg)',cursor:'pointer',fontSize:18,color:'var(--text3)',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+                </div>
             <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{editEmpModal.prenom} {editEmpModal.nom}</div>
             {[{f:'prenom',l:'Prénom',t:'text'},{f:'nom',l:'Nom',t:'text'},{f:'email',l:'Email',t:'email'}].map(({f,l,t})=>(
               <div key={f} style={{marginBottom:12}}>
