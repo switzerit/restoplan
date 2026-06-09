@@ -186,8 +186,8 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from('profils').insert({ user_id: userId, role: 'employe', employe_id: finalEmpId })
     }
 
-    // Envoyer email invitation si pas de vrai mot de passe
-    if(!password || password.trim() === '' || password === 'VarmanTmp2026!') {
+    // Envoyer email invitation si pas de vrai mot de passe ET c'est un employé (pas un gérant)
+    if((!password || password.trim() === '' || password === 'VarmanTmp2026!') && !skip_employe) {
       const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery', email,
         options: { redirectTo: SITE_URL + '/login' }
