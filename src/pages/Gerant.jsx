@@ -115,7 +115,7 @@ export default function Gerant() {
   const [correctModal, setCorrectModal] = useState(null)
   const [restoModal, setRestoModal] = useState(false)
   const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00',coupe:false,heure_debut_2:'',heure_fin_2:''})
-  const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
+  const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:''})
   const [restoForm, setRestoForm] = useState({nom:'',adresse:''})
   const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:'',date:''})
   const [toast, setToast] = useState('')
@@ -381,7 +381,7 @@ export default function Gerant() {
     const {data:existingEmp} = await supabase.from('employes').select('id').eq('email',empForm.email).maybeSingle()
     if(existingEmp){showToast('❌ Cet email est déjà utilisé par un employé');return}
     const {data:existingGerant} = await supabase.from('gerants').select('id').eq('email',empForm.email).maybeSingle()
-    if(existingGerant){showToast('❌ Cet email appartient déjà à un compte gérant');return}
+    if(existingGerant){showToast('Cet email est déjà utilisé sur Varman');return}
     const {data:empData,error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id}).select().single()
     if(error){showToast('❌ Une erreur est survenue, réessayez');return}
     showToast("Envoi de l'invitation...")
