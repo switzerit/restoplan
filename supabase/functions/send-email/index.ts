@@ -105,7 +105,7 @@ function templateInvitation(prenom: string, nom: string, email: string, password
       ⚠️ Pensez à changer votre mot de passe après votre première connexion.
     </div>
     <div style="text-align:center">
-      <a href="${Deno.env.get('SITE_URL')||'https://restoplan.vercel.app'}/login" style="display:inline-block;background:linear-gradient(135deg,#0071e3,#5856d6);color:white;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700">
+      <a href="${Deno.env.get('SITE_URL')||'https://varman.ch'}/login" style="display:inline-block;background:linear-gradient(135deg,#0071e3,#5856d6);color:white;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700">
         Se connecter →
       </a>
     </div>

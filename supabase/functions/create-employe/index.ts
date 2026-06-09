@@ -97,7 +97,7 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
-    const SITE_URL = Deno.env.get('SITE_URL') || 'https://restoplan.vercel.app'
+    const SITE_URL = Deno.env.get('SITE_URL') || 'https://varman.ch'
     const RESEND_KEY = Deno.env.get('RESEND_API_KEY')!
 
     // Vérifier si l'utilisateur existe déjà
