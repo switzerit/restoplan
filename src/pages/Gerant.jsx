@@ -802,7 +802,7 @@ export default function Gerant() {
                       <div style={{width:36,height:36,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
                       <div style={{flex:1}}>
                         <div style={{fontSize:13,fontWeight:700}}>{emp.prenom} {emp.nom}</div>
-                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
+                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div>
                       </div>
                       {sh ? (
                         <div style={{textAlign:'right'}}>
@@ -845,7 +845,7 @@ export default function Gerant() {
                   <div key={emp.id} style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)'}}>
                     <div style={{padding:'10px 12px',display:'flex',alignItems:'center',gap:8,borderRight:'1px solid var(--border)',background:'var(--surface)'}}>
                       <div style={{width:28,height:28,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
-                      <div><div style={{fontSize:12,fontWeight:700}}>{emp.prenom}</div><div style={{fontSize:10,color:'var(--text3)'}}>{emp.role}</div></div>
+                      <div><div style={{fontSize:12,fontWeight:700}}>{emp.prenom}</div><div style={{fontSize:10,color:'var(--text3)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div></div>
                     </div>
                     {weekDays.map((d,di)=>{
                       const sh=getShift(emp.id,di)
@@ -913,7 +913,7 @@ export default function Gerant() {
                       <div style={{width:32,height:32,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{fontSize:13,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {emp.nom}</div>
-                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
+                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div>
                       </div>
                       {(()=>{
                         const pts=getPointages(emp.id)
@@ -982,7 +982,7 @@ export default function Gerant() {
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
-                      <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
+                      <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div>
                     </div>
                     <span style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:20,background:connBg,color:connColor,border:`1px solid ${connBc}`,flexShrink:0}}>{connLabel}</span>
                     <button onClick={()=>openEditEmp(emp)} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,cursor:'pointer',flexShrink:0}}>✏️</button>
@@ -999,7 +999,7 @@ export default function Gerant() {
                       </div>
                       <div style={{minWidth:0}}>
                         <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
-                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role}</div>
+                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div>
                     {notifsNonLues[emp.id]>0&&<span onClick={e=>{e.stopPropagation();loadNotifsDetail(emp.id,emp.prenom+' '+emp.nom)}} style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',marginLeft:4,cursor:'pointer'}}>🔔 {notifsNonLues[emp.id]} non lu{notifsNonLues[emp.id]>1?'es':''}</span>}
                       </div>
                     </div>
