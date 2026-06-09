@@ -413,7 +413,10 @@ export default function Gerant() {
   }
 
   function openEditEmp(emp){
-    setEditEmpForm({prenom:emp.prenom,nom:emp.nom,email:emp.email,role:emp.role,password:''})
+    const postes = POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre
+    const isCustom = emp.role && !postes.includes(emp.role)
+    setEditEmpForm({prenom:emp.prenom,nom:emp.nom,email:emp.email,role:isCustom?'__autre__':emp.role,password:''})
+    setEditCustomRole(isCustom?emp.role:'')
     setEditEmpModal(emp)
   }
 
