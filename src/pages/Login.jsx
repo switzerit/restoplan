@@ -1210,8 +1210,8 @@ export default function Login() {
       const {data:{session}} = await supabase.auth.getSession()
       if(session){
         const {data:p} = await supabase.from('profils').select('role').eq('user_id',session.user.id).single()
-        if(p?.role==='gerant') navigate('/gerant')
-        else navigate('/moi')
+        if(p?.role==='gerant') window.location.href='/gerant'
+        else window.location.href='/moi'
       }
     }
 
