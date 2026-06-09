@@ -54,16 +54,17 @@ function emailHtml(titre: string, badge: string, intro: string, ctaUrl: string, 
         </td></tr>
         ${infoRows.map(([label, val], i) => `
         <tr>
-          <td style="padding:10px 20px;font-size:13px;color:#94a3b8;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};width:130px;vertical-align:top">${label}</td>
-          <td style="padding:10px 20px;font-size:13px;color:#1e293b;font-weight:500;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};vertical-align:top">${val}</td>
+          <td style="padding:10px 20px ${i<infoRows.length-1?'4px':'10px'};font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-bottom:none">${label}</td>
+        </tr>
+        <tr>
+          <td style="padding:0 20px ${i<infoRows.length-1?'12px':'10px'};font-size:13px;color:#1e293b;font-weight:500;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};word-break:break-word;overflow-wrap:anywhere">${val}</td>
         </tr>`).join('')}
       </table>
       <table cellpadding="0" cellspacing="0" width="100%" style="background:#fafafa;border:1px solid #e2e8f0;border-radius:8px">
         <tr><td style="padding:14px 20px">
-          <p style="margin:0;font-size:13px;color:#64748b;line-height:1.6">
-            Une question ? Contactez votre responsable ou notre équipe :<br>
-            <a href="mailto:contact@switzerit.com" style="color:#E11D48;text-decoration:none;font-weight:600">contact@switzerit.com</a>
-          </p>
+          <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#1e293b">Besoin d'aide ?</p>
+          <p style="margin:0 0 6px;font-size:13px;color:#64748b;line-height:1.6">L'équipe SwitzerIT est disponible 7j/7 de 8h à 22h.</p>
+          <a href="mailto:contact@switzerit.com" style="color:#E11D48;text-decoration:none;font-weight:600;font-size:13px">contact@switzerit.com</a>
         </td></tr>
       </table>
     </td>
@@ -72,8 +73,7 @@ function emailHtml(titre: string, badge: string, intro: string, ctaUrl: string, 
     <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:20px 40px">
       <table cellpadding="0" cellspacing="0" width="100%">
         <tr>
-          <td><p style="margin:0;font-size:12px;color:#94a3b8">Cet email a été envoyé à <strong>${email}</strong>.<br>${ctaText.includes('initi') ? "Si vous n\'avez pas demandé cette réinitialisation, ignorez-le." : "Si vous n\'attendiez pas cet email, ignorez-le."}</p></td>
-          <td align="right"><p style="margin:0;font-size:12px;color:#cbd5e1">🇨🇭 Suisse</p></td>
+          <td colspan="2"><p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6">Vous recevez cet email car un espace Varman a été créé à votre adresse <strong>${email}</strong>. Si ce n'est pas vous, contactez-nous à <a href="mailto:contact@switzerit.com" style="color:#94a3b8">contact@switzerit.com</a></p></td>
         </tr>
         <tr><td colspan="2" style="padding-top:12px;border-top:1px solid #e2e8f0;margin-top:12px"></td></tr>
         <tr><td colspan="2"><p style="margin:0;font-size:11px;color:#cbd5e1">© 2026 Varman by SwitzerIT &nbsp;&bull;&nbsp; <a href="${siteUrl}/legal" style="color:#cbd5e1;text-decoration:none">CGU</a> &nbsp;&bull;&nbsp; <a href="${siteUrl}/contact" style="color:#cbd5e1;text-decoration:none">Contact</a></p></td></tr>
