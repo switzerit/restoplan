@@ -117,6 +117,7 @@ export default function Gerant() {
   const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00',coupe:false,heure_debut_2:'',heure_fin_2:''})
   const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:''})
   const [customRole, setCustomRole] = useState('')
+  const [editCustomRole, setEditCustomRole] = useState('')
   const [restoForm, setRestoForm] = useState({nom:'',adresse:''})
   const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:'',date:''})
   const [toast, setToast] = useState('')
@@ -1244,7 +1245,7 @@ export default function Gerant() {
             ))}
             <div style={{marginBottom:16}}>
               <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Poste</label>
-              <select value={(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).includes(empForm.role)?empForm.role:'__autre__'}
+              <select value={empForm.role===''?'':((POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).includes(empForm.role)?empForm.role:'__autre__')}
                 onChange={e=>setEmpForm(f=>({...f,role:e.target.value==='__autre__'?'__autre__':e.target.value}))}
                 style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',marginBottom:6}}>
                 <option value="">— Choisir un poste</option>
@@ -1365,14 +1366,14 @@ export default function Gerant() {
             <div style={{marginBottom:12}}>
               <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Poste</label>
               <select value={(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).includes(editEmpForm.role)?editEmpForm.role:editEmpForm.role&&editEmpForm.role!=='__autre__'?'__autre__':editEmpForm.role}
-                onChange={e=>setEditEmpForm(f=>({...f,role:e.target.value==='__autre__'?'':e.target.value}))}
+                onChange={e=>setEditEmpForm(f=>({...f,role:e.target.value==='__autre__'?'__autre__':e.target.value}))}
                 style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',marginBottom:6}}>
                 <option value="">— Choisir un poste</option>
                 {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(r=><option key={r} value={r}>{r.charAt(0).toUpperCase()+r.slice(1)}</option>)}
                 <option value="__autre__">Autre</option>
               </select>
               {editEmpForm.role==='__autre__'&&(
-                <input value={''} onChange={e=>setEditEmpForm(f=>({...f,role:e.target.value}))} placeholder="Poste personnalisé..."
+                <input value={editCustomRole} onChange={e=>{setEditCustomRole(e.target.value);setEditEmpForm(f=>({...f,role:e.target.value||'__autre__'}))}} placeholder="Poste personnalisé..."
                   autoFocus style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--accent)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               )}
             </div>
