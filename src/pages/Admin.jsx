@@ -244,7 +244,7 @@ export default function Admin() {
     {toast&&<div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:"var(--text)",color:"white",padding:"10px 22px",borderRadius:22,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:"nowrap"}}>{toast}</div>}
   </>
 
-  // VUE DETAIL GERANT
+  // VUE DETAIL GÉRANT
   if(selectedGerant){
     const g = gerants.find(x=>x.id===selectedGerant.id)||selectedGerant
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
@@ -273,7 +273,7 @@ export default function Admin() {
         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:20,marginBottom:20}}>
           <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--text2)"}}>INFORMATIONS</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-            {[{l:"Prenom",v:g.prenom},{l:"Nom",v:g.nom},{l:"Email",v:g.email},{l:"Telephone",v:g.telephone||"—"},{l:"Entreprise",v:g.entreprise||"—"},{l:"Client depuis",v:new Date(g.created_at).toLocaleDateString("fr-FR")}].map(({l,v})=>(
+            {[{l:"Prenom",v:g.prenom},{l:"Nom",v:g.nom},{l:"Email",v:g.email},{l:"Téléphone",v:g.telephone||"—"},{l:"Entreprise",v:g.entreprise||"—"},{l:"Client depuis",v:new Date(g.created_at).toLocaleDateString("fr-FR")}].map(({l,v})=>(
               <div key={l} style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
                 <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>{l.toUpperCase()}</div>
                 <div style={{fontSize:13,fontWeight:600}}>{v}</div>
@@ -437,7 +437,7 @@ export default function Admin() {
       {editGerantModal&&<div onClick={()=>setEditGerantModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
         <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:400,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
           <div style={{fontSize:17,fontWeight:800,marginBottom:20}}>Modifier le gérant</div>
-          {[{f:"prenom",l:"Prenom"},{f:"nom",l:"Nom"},{f:"email",l:"Email"},{f:"telephone",l:"Telephone"},{f:"entreprise",l:"Entreprise"}].map(({f,l})=>(
+          {[{f:"prenom",l:"Prenom"},{f:"nom",l:"Nom"},{f:"email",l:"Email"},{f:"telephone",l:"Téléphone"},{f:"entreprise",l:"Entreprise"}].map(({f,l})=>(
             <div key={f} style={{marginBottom:12}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:5}}>{l}</label><input value={editGerantForm[f]} onChange={e=>setEditGerantForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
           ))}
           <div style={{display:"flex",gap:8,marginTop:16}}>
@@ -467,7 +467,7 @@ export default function Admin() {
     </div>
   }
 
-  // VUE LISTE GERANTS
+  // VUE LISTE GÉRANTS
   return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
     <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12}}>
       <div style={{flex:1}}><Logo height={24}/><div style={{fontSize:11,color:"var(--text3)",marginTop:2}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
@@ -520,7 +520,7 @@ export default function Admin() {
                 {g.telephone&&<div style={{fontSize:11,color:"var(--text3)",marginTop:1}}>📞 {g.telephone}</div>}
               </div>
               <div style={{display:"flex",gap:20,marginRight:12}}>
-                <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:"var(--accent)"}}>{restos.length}</div><div style={{fontSize:10,color:"var(--text3)"}}>etabl.</div></div>
+                <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:"var(--accent)"}}>{restos.length}</div><div style={{fontSize:10,color:"var(--text3)"}}>étab.</div></div>
                 <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800}}>{empCount}</div><div style={{fontSize:10,color:"var(--text3)"}}>emp.</div></div>
               </div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap",maxWidth:200}}>
@@ -545,22 +545,22 @@ export default function Admin() {
               ✕
             </button>
           </div>
-        <div style={{fontSize:13,color:"var(--text2)",marginBottom:22}}>Cree l'etablissement + compte gerant en une fois</div>
-        <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>ETABLISSEMENT</div>
+        <div style={{fontSize:13,color:"var(--text2)",marginBottom:22}}>Créez l'établissement + compte gérant en une fois</div>
+        <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>ÉTABLISSEMENT</div>
         <div style={{marginBottom:10}}>
-          <label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>Secteur d'activite *</label>
+          <label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>Secteur d'activité *</label>
           <SecteurSelect value={createForm.secteur} onChange={v=>setCreateForm(f=>({...f,secteur:v}))}/>
         </div>
         {[{f:"nom_resto",l:"Nom *",ph:"Le Bistrot du Port"},{f:"adresse",l:"Adresse",ph:"12 rue du Port, Marseille"}].map(({f,l,ph})=>(
           <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
         ))}
-        <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10,marginTop:18}}>GERANT</div>
+        <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10,marginTop:18}}>GÉRANT</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
-          {[{f:"prenom",l:"Prenom *",ph:"Sophie"},{f:"nom",l:"Nom *",ph:"Martin"}].map(({f,l,ph})=>(
+          {[{f:"prenom",l:"Prénom *",ph:"Sophie"},{f:"nom",l:"Nom *",ph:"Martin"}].map(({f,l,ph})=>(
             <div key={f}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
           ))}
         </div>
-        {[{f:"email",l:"Email *",ph:"sophie@bistrot.fr"},{f:"telephone",l:"Telephone",ph:"+41 79 123 45 67"},{f:"entreprise",l:"Entreprise",ph:"SAS Bistrot du Port"}].map(({f,l,ph})=>(
+        {[{f:"email",l:"Email *",ph:"sophie@bistrot.fr"},{f:"telephone",l:"Téléphone",ph:"+41 79 123 45 67"},{f:"entreprise",l:"Entreprise",ph:"SAS Bistrot du Port"}].map(({f,l,ph})=>(
           <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input type={f==="password"?"password":"text"} placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
         ))}
         <div style={{marginBottom:14}}>
@@ -601,10 +601,10 @@ export default function Admin() {
             ))}
           </div>
         </div>
-        <div style={{padding:"10px 14px",background:"var(--accent-bg)",borderRadius:10,marginBottom:16,fontSize:12,color:"var(--accent)"}}>Le PIN de la borne sera 1234 par defaut · Secteur determine les postes disponibles</div>
+        <div style={{padding:"10px 14px",background:"var(--accent-bg)",borderRadius:10,marginBottom:16,fontSize:12,color:"var(--accent)"}}>Le PIN de la borne sera 1234 par défaut · Le secteur détermine les postes disponibles</div>
         <div style={{display:"flex",gap:10}}>
           <button onClick={()=>setCreateModal(false)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
-          <button onClick={createClient} style={{flex:1,height:44,borderRadius:12,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>Creer le client</button>
+          <button onClick={createClient} style={{flex:1,height:44,borderRadius:12,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>Créer le client</button>
         </div>
       </div>
     </div>}
