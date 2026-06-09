@@ -134,13 +134,13 @@ export default function Admin() {
     setSelectedGerant(null)
     setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:"trial",trial_days:14,features:{badgeage:true,conges:true,signalements:true,export_paie:true}})
     await loadData()
-    showToast("Client cree avec succes !")
+    showToast("Client créé avec succès !")
   }
 
   async function updateGerant(){
     const {error} = await supabase.from("gerants").update({prenom:editGerantForm.prenom,nom:editGerantForm.nom,email:editGerantForm.email,telephone:editGerantForm.telephone,entreprise:editGerantForm.entreprise}).eq("id",editGerantModal.id)
     if(error){showToast("Erreur: "+error.message);return}
-    setEditGerantModal(null);loadData();showToast("Gerant mis a jour !")
+    setEditGerantModal(null);loadData();showToast("Gérant mis à jour !")
   }
 
   async function resetPassword(){
@@ -162,7 +162,7 @@ export default function Admin() {
     await supabase.from("profils").delete().eq("user_id",g.user_id)
     await supabase.from("gerants").delete().eq("id",g.id)
     await supabase.functions.invoke("delete-user",{body:{email:g.email}})
-    setSelectedGerant(null);await loadData();showToast("Client supprime")
+    setSelectedGerant(null);await loadData();showToast("Client supprimé")
   }
 
   async function toggleGerant(g){
@@ -180,7 +180,7 @@ export default function Admin() {
       secteur:addRestoForm.secteur||'établissement',
       actif:true, pin_borne:"1234", gerant_id:addRestoModal.user_id
     })
-    setAddRestoModal(null);setAddRestoForm({nom:"",adresse:"",secteur:"restaurant"});loadData();showToast("Établissement ajoute !")
+    setAddRestoModal(null);setAddRestoForm({nom:"",adresse:"",secteur:"restaurant"});loadData();showToast("Établissement ajouté !")
   }
 
   async function toggleResto(r){await supabase.from("restaurants").update({actif:!r.actif}).eq("id",r.id);loadData()}
@@ -234,10 +234,10 @@ export default function Admin() {
       <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:400,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
         <div style={{fontSize:17,fontWeight:800,marginBottom:4,color:"var(--red)"}}>Supprimer ce client ?</div>
         <div style={{fontSize:13,color:"var(--text2)",marginBottom:12}}>{deleteConfirmModal.prenom} {deleteConfirmModal.nom}</div>
-        <div style={{padding:"12px 14px",background:"var(--red-bg)",borderRadius:10,marginBottom:20,fontSize:12,color:"var(--red)"}}>Action irreversible. Tous les restaurants, employes, shifts et pointages seront supprimes.</div>
+        <div style={{padding:"12px 14px",background:"var(--red-bg)",borderRadius:10,marginBottom:20,fontSize:12,color:"var(--red)"}}>Action irréversible. Tous les établissements, employés, shifts et pointages seront supprimés.</div>
         <div style={{display:"flex",gap:8}}>
           <button onClick={()=>setDeleteConfirmModal(null)} style={{flex:1,height:42,borderRadius:10,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:13,fontWeight:600,cursor:"pointer"}}>Annuler</button>
-          <button onClick={()=>deleteGerant(deleteConfirmModal)} style={{flex:1,height:42,borderRadius:10,border:"none",background:"var(--red)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>Supprimer definitivement</button>
+          <button onClick={()=>deleteGerant(deleteConfirmModal)} style={{flex:1,height:42,borderRadius:10,border:"none",background:"var(--red)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer"}}>Supprimer définitivement</button>
         </div>
       </div>
     </div>}
@@ -262,7 +262,7 @@ export default function Admin() {
       </div>
       <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
-          {[{icon:"🏪",label:"Établissements",value:restos.length},{icon:"👥",label:"Employes",value:empCount},{icon:"📊",label:"Statut",value:g.statut==='active'?'Actif':g.statut==='expired'?'Expiré':'Trial',color:g.statut==='active'?'var(--green)':g.statut==='expired'?'var(--red)':'#ea580c'}].map((s,i)=>(
+          {[{icon:"🏪",label:"Établissements",value:restos.length},{icon:"👥",label:"Employés",value:empCount},{icon:"📊",label:"Statut",value:g.statut==='active'?'Actif':g.statut==='expired'?'Expiré':'Trial',color:g.statut==='active'?'var(--green)':g.statut==='expired'?'var(--red)':'#ea580c'}].map((s,i)=>(
             <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 20px"}}>
               <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
               <div style={{fontSize:24,fontWeight:800,color:s.color||"var(--text)"}}>{s.value}</div>
@@ -329,18 +329,18 @@ export default function Admin() {
                 <div style={{width:38,height:38,borderRadius:10,background:"var(--accent-bg)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{secteurLabel.split(' ')[0]}</div>
                 <div style={{flex:1}}>
                   <div style={{fontSize:13,fontWeight:700}}>{r.nom}</div>
-                  <div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{r.adresse||"—"} • {nbEmp} employe{nbEmp>1?"s":""} • PIN: {r.pin_borne} • {secteurLabel}</div>
+                  <div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{r.adresse||"—"} • {nbEmp} employé{nbEmp>1?"s":""} • PIN: {r.pin_borne} • {secteurLabel}</div>
                 </div>
                 <span style={{fontSize:10,fontWeight:700,padding:"2px 9px",borderRadius:20,background:r.actif?"var(--green-bg)":"var(--red-bg)",color:r.actif?"#1a6b35":"var(--red)"}}>{r.actif?"Actif":"Inactif"}</span>
                 <button onClick={()=>toggleResto(r)} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>{r.actif?"Pause":"Activer"}</button>
-{((gerants.find(g=>g.user_id===r.gerant_id)?.features||{badgeage:true}).badgeage!==false)&&<button onClick={()=>navigator.clipboard.writeText(window.location.origin+"/borne?token="+r.borne_token).then(()=>showToast("URL copiee !"))} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>URL borne</button>}
+{((gerants.find(g=>g.user_id===r.gerant_id)?.features||{badgeage:true}).badgeage!==false)&&<button onClick={()=>navigator.clipboard.writeText(window.location.origin+"/borne?token="+r.borne_token).then(()=>showToast("URL copiée !"))} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>URL borne</button>}
                 <button onClick={()=>deleteResto(r.id)} style={{padding:"5px 8px",borderRadius:8,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:11,cursor:"pointer"}}>🗑️</button>
               </div>
             )
           })}
         </div>
         {empCount>0&&<div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,overflow:"hidden"}}>
-          <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)"}}><div style={{fontSize:13,fontWeight:700}}>Employes ({empCount})</div></div>
+          <div style={{padding:"14px 20px",borderBottom:"1px solid var(--border)"}}><div style={{fontSize:13,fontWeight:700}}>Employés ({empCount})</div></div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))",gap:8,padding:12}}>
             {employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).map((emp,i)=>{const c=COLORS[i%COLORS.length];const resto=restos.find(r=>r.id===emp.restaurant_id);return(
               <div key={emp.id} style={{background:"var(--bg)",border:"1px solid var(--border)",borderRadius:10,padding:"10px 12px",display:"flex",alignItems:"center",gap:8}}>
@@ -436,7 +436,7 @@ export default function Admin() {
       </div>}
       {editGerantModal&&<div onClick={()=>setEditGerantModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
         <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:400,boxShadow:"0 20px 60px rgba(0,0,0,.15)"}}>
-          <div style={{fontSize:17,fontWeight:800,marginBottom:20}}>Modifier le gerant</div>
+          <div style={{fontSize:17,fontWeight:800,marginBottom:20}}>Modifier le gérant</div>
           {[{f:"prenom",l:"Prenom"},{f:"nom",l:"Nom"},{f:"email",l:"Email"},{f:"telephone",l:"Telephone"},{f:"entreprise",l:"Entreprise"}].map(({f,l})=>(
             <div key={f} style={{marginBottom:12}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:5}}>{l}</label><input value={editGerantForm[f]} onChange={e=>setEditGerantForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
           ))}
@@ -479,7 +479,7 @@ export default function Admin() {
         {[
           {icon:"👤",label:"Clients",value:gerants.length},
           {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length},
-          {icon:"👥",label:"Employes",value:employes.length},
+          {icon:"👥",label:"Employés",value:employes.length},
           {icon:"✅",label:"Actifs",value:gerants.filter(g=>g.statut==='active').length},
           {icon:"⏳",label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length},
           {icon:"❌",label:"Expirés",value:gerants.filter(g=>g.statut==='expired'||(g.trial_end_at&&new Date(g.trial_end_at)<new Date())).length},
