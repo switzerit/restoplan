@@ -1233,9 +1233,12 @@ export default function Gerant() {
       )}
 
       {empModal&&(
-        <div onClick={()=>setEmpModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
-            <div style={{fontSize:17,fontWeight:800,marginBottom:4}}>Nouvel employé</div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
+                  <div style={{fontSize:17,fontWeight:800}}>Nouvel employé</div>
+                  <button onClick={()=>{setEmpModal(false);setCustomRole('')}} style={{width:28,height:28,borderRadius:6,border:'none',background:'var(--bg)',cursor:'pointer',fontSize:18,color:'var(--text3)',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+                </div>
             <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour {currentResto.nom}</div>
             {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'}].map(({f,l,t,ph})=>(
               <div key={f} style={{marginBottom:12}}>
@@ -1252,8 +1255,8 @@ export default function Gerant() {
                 {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(r=><option key={r} value={r}>{r.charAt(0).toUpperCase()+r.slice(1)}</option>)}
                 <option value="__autre__">Autre</option>
               </select>
-              {empForm.role==='__autre__'&&(
-                <input value={customRole} onChange={e=>{setCustomRole(e.target.value);setEmpForm(f=>({...f,role:e.target.value||'__autre__'}))}} placeholder="Poste personnalisé..."
+              {(empForm.role==='__autre__'||customRole)&&(
+                <input value={customRole} onChange={e=>setCustomRole(e.target.value)} onBlur={e=>setEmpForm(f=>({...f,role:e.target.value||'__autre__'}))} placeholder="Poste personnalisé..."
                   autoFocus style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--accent)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               )}
             </div>
@@ -1372,8 +1375,8 @@ export default function Gerant() {
                 {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(r=><option key={r} value={r}>{r.charAt(0).toUpperCase()+r.slice(1)}</option>)}
                 <option value="__autre__">Autre</option>
               </select>
-              {editEmpForm.role==='__autre__'&&(
-                <input value={editCustomRole} onChange={e=>{setEditCustomRole(e.target.value);setEditEmpForm(f=>({...f,role:e.target.value||'__autre__'}))}} placeholder="Poste personnalisé..."
+              {(editEmpForm.role==='__autre__'||editCustomRole)&&(
+                <input value={editCustomRole} onChange={e=>setEditCustomRole(e.target.value)} onBlur={e=>setEditEmpForm(f=>({...f,role:e.target.value||'__autre__'}))} placeholder="Poste personnalisé..."
                   autoFocus style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--accent)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               )}
             </div>
