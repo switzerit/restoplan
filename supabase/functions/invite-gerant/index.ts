@@ -98,7 +98,7 @@ function buildEmail(opts: {
 
     <!-- HEADER -->
     <tr>
-      <td style="background:#0C1A35;border-radius:12px 12px 0 0;padding:32px 48px;text-align:center">
+      <td style="background:#0C1A35 !important;border-radius:12px 12px 0 0;padding:32px 48px;text-align:center" bgcolor="#0C1A35">
         ${logo()}
         <p style="margin:12px 0 0;font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase">Gestion d'équipe professionnelle</p>
       </td>
@@ -126,7 +126,7 @@ function buildEmail(opts: {
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:36px">
           <tr>
             <td align="center" style="border-radius:8px;background:${c.ctaColor}">
-              <a href="${c.ctaUrl}" target="_blank" style="display:inline-block;padding:15px 40px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:-.2px">${c.ctaText} &rarr;</a>
+              <a href="${c.ctaUrl}" target="_blank" style="display:inline-block;padding:15px 32px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:-.2px;white-space:nowrap">${c.ctaText} &rarr;</a>
             </td>
           </tr>
         </table>
@@ -140,8 +140,8 @@ function buildEmail(opts: {
           </tr>
           ${infoRows.map((row, i) => `
           <tr>
-            <td style="padding:11px 20px;font-size:13px;color:#94a3b8;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};width:140px;vertical-align:top">${row[0]}</td>
-            <td style="padding:11px 20px;font-size:13px;color:#1e293b;font-weight:500;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};vertical-align:top">${row[1]}</td>
+            <td style="padding:11px 20px;font-size:13px;color:#94a3b8;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};width:120px;white-space:nowrap;vertical-align:top">${row[0]}</td>
+            <td style="padding:11px 20px;font-size:13px;color:#1e293b;font-weight:500;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};vertical-align:top;word-break:break-all">${row[1]}</td>
           </tr>`).join('')}
         </table>
 
