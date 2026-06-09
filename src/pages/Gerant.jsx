@@ -116,6 +116,7 @@ export default function Gerant() {
   const [restoModal, setRestoModal] = useState(false)
   const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00',coupe:false,heure_debut_2:'',heure_fin_2:''})
   const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:''})
+  const [customRole, setCustomRole] = useState('')
   const [restoForm, setRestoForm] = useState({nom:'',adresse:''})
   const [correctForm, setCorrectForm] = useState({heure_arrivee:'',heure_depart:'',date:''})
   const [toast, setToast] = useState('')
@@ -396,7 +397,7 @@ export default function Gerant() {
       await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id)
       showToast(empForm.prenom+' ajouté — invitation envoyée !')
     }
-    setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'Serveur / Serveuse',password:''})
+    setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'',password:''});setCustomRole('')
     loadAll()
   }
 
@@ -1251,7 +1252,7 @@ export default function Gerant() {
                 <option value="__autre__">Autre</option>
               </select>
               {empForm.role==='__autre__'&&(
-                <input value={''} onChange={e=>setEmpForm(f=>({...f,role:e.target.value}))} placeholder="Poste personnalisé..."
+                <input value={customRole} onChange={e=>{setCustomRole(e.target.value);setEmpForm(f=>({...f,role:e.target.value||'__autre__'}))}} placeholder="Poste personnalisé..."
                   autoFocus style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--accent)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               )}
             </div>
