@@ -537,7 +537,14 @@ export default function Admin() {
     </div>
     {createModal&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:440,boxShadow:"0 20px 60px rgba(0,0,0,.2)",maxHeight:"90vh",overflowY:"auto"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}><div style={{fontSize:18,fontWeight:800}}>Nouveau client</div><button onClick={()=>setCreateModal(false)} style={{width:28,height:28,borderRadius:"50%",border:"1px solid var(--border)",background:"var(--bg)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,color:"var(--text2)"}}>×</button></div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+            <div style={{fontSize:18,fontWeight:800}}>Nouveau client</div>
+            <button onClick={()=>setCreateModal(false)} style={{width:32,height:32,borderRadius:8,border:"none",background:"var(--bg)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text3)",fontSize:20,lineHeight:1,fontWeight:300,transition:"all .15s"}}
+              onMouseEnter={e=>{e.currentTarget.style.background="var(--border)";e.currentTarget.style.color="var(--text)"}}
+              onMouseLeave={e=>{e.currentTarget.style.background="var(--bg)";e.currentTarget.style.color="var(--text3)"}}>
+              ✕
+            </button>
+          </div>
         <div style={{fontSize:13,color:"var(--text2)",marginBottom:22}}>Cree l'etablissement + compte gerant en une fois</div>
         <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>ETABLISSEMENT</div>
         <div style={{marginBottom:10}}>
