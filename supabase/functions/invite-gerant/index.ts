@@ -140,8 +140,10 @@ function buildEmail(opts: {
           </tr>
           ${infoRows.map((row, i) => `
           <tr>
-            <td style="padding:11px 20px;font-size:13px;color:#94a3b8;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};width:120px;white-space:nowrap;vertical-align:top">${row[0]}</td>
-            <td style="padding:11px 20px;font-size:13px;color:#1e293b;font-weight:500;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};vertical-align:top;word-break:break-word;overflow-wrap:anywhere;max-width:200px">${row[1]}</td>
+            <td style="padding:10px 20px ${i<infoRows.length-1?'4px':'10px'};font-size:11px;color:#94a3b8;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border-bottom:none">${row[0]}</td>
+          </tr>
+          <tr>
+            <td style="padding:0 20px ${i<infoRows.length-1?'12px':'10px'};font-size:13px;color:#1e293b;font-weight:500;border-bottom:${i<infoRows.length-1?'1px solid #f1f5f9':'none'};word-break:break-word;overflow-wrap:anywhere">${row[1]}</td>
           </tr>`).join('')}
         </table>
 
