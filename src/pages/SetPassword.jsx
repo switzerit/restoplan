@@ -29,13 +29,13 @@ export default function SetPassword() {
     if (loginResult?.access) {
       setDone(true)
       setTimeout(() => {
-        if(loginResult.role === 'gerant') navigate('/gerant')
-        else if(loginResult.role === 'employe') navigate('/moi')
-        else navigate('/login')
+        if(loginResult.role === 'gerant') window.location.href='/gerant'
+        else if(loginResult.role === 'employe') window.location.href='/moi'
+        else window.location.href='/login'
       }, 1500)
     } else {
       setDone(true)
-      setTimeout(() => navigate('/login'), 1500)
+      setTimeout(() => { window.location.href='/login' }, 1500)
     }
   }
 
