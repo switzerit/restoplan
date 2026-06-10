@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
 import socket from '../socketClient'
 import { api } from '../apiClient'
 import { useNavigate } from 'react-router-dom'

@@ -1,7 +1,6 @@
 import Logo from '../components/Logo'
 import { useEffect, useState } from 'react'
 import { generatePDF } from '../lib/exportPDF'
-import { supabase } from '../lib/supabase'
 import socket from '../socketClient'
 import { api } from '../apiClient'
 import CongesGerant from '../components/CongesGerant'

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 import { verifyToken } from '../lib/qrToken'
-import { supabase } from '../lib/supabase'
 import { api } from '../apiClient'
 
 export default function QRScanner({ employe, onSuccess, onClose }) {

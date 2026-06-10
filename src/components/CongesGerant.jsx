@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 import socket from '../socketClient'
 import { api } from '../apiClient'
 

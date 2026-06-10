@@ -1,6 +1,5 @@
 import Logo from '../components/Logo'
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
 import { api } from '../apiClient'
 import { useNavigate } from 'react-router-dom'
 const COLORS=[{bg:'#fff1f3',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},{bg:'#fff8ee',color:'#8a4a00'},{bg:'#f0f0fc',color:'#3a3880'},{bg:'#fff2f1',color:'#b02020'},{bg:'#fdf0f8',color:'#8a2060'}]

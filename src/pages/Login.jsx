@@ -1,6 +1,5 @@
 import Logo from '../components/Logo'
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
 import { api } from '../apiClient'
 import { useNavigate, useLocation } from 'react-router-dom'
 

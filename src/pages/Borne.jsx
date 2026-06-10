@@ -1,6 +1,5 @@
 import Logo from '../components/Logo'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
 import socket from '../socketClient'
 import { api } from '../apiClient'
 import { generateToken, secondsLeft } from '../lib/qrToken'
