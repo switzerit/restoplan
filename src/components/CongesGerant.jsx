@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 
 const TYPES = {
   conge_paye:{l:'Congé payé',emoji:'🏖️',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
@@ -103,7 +104,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
   },[restaurant?.id])
 
   async function loadConges(){
-    const {data}=await supabase.from('conges')
+    const data=await api.get(`/conges?restaurant_id=${restaurant.id}`)
       .select('*,employes(id,prenom,nom,email,role,conges_total,conges_pris,rtt_total,rtt_pris)')
       .eq('restaurant_id',restaurant.id)
       .order('created_at',{ascending:false})
@@ -113,24 +114,21 @@ export default function CongesGerant({restaurant, employes, showToast}) {
   async function traiter(id, statut){
     const c=conges.find(x=>x.id===id)
     const jours=nbJours(c.date_debut,c.date_fin)
-    await supabase.from('conges').update({statut,commentaire_gerant:commentaire||null}).eq('id',id)
+    await api.put(`/conges/${id}`, {statut,commentaire_gerant:commentaire||null})
     if(statut==='accepte'){
-      if(c.type==='conge_paye') await supabase.from('employes').update({conges_pris:(c.employes?.conges_pris||0)+jours}).eq('id',c.employe_id)
-      if(c.type==='rtt') await supabase.from('employes').update({rtt_pris:(c.employes?.rtt_pris||0)+jours}).eq('id',c.employe_id)
+      if(c.type==='conge_paye') await api.put(`/employes/${c.employe_id}`, {conges_pris:(c.employes?.conges_pris||0)+jours})
+      if(c.type==='rtt') await api.put(`/employes/${c.employe_id}`, {rtt_pris:(c.employes?.rtt_pris||0)+jours})
       // Supprimer les shifts en conflit automatiquement
-      await supabase.from('shifts').delete()
-        .eq('employe_id',c.employe_id)
-        .gte('date',c.date_debut)
-        .lte('date',c.date_fin)
+      await api.delete(`/shifts/employe/${c.employe_id}?from=${c.date_debut}&to=${c.date_fin}`)
     }
     if((statut==='refuse'||statut==='annule')&&c?.statut==='accepte'){
-      if(c.type==='conge_paye') await supabase.from('employes').update({conges_pris:Math.max(0,(c.employes?.conges_pris||0)-jours)}).eq('id',c.employe_id)
-      if(c.type==='rtt') await supabase.from('employes').update({rtt_pris:Math.max(0,(c.employes?.rtt_pris||0)-jours)}).eq('id',c.employe_id)
+      if(c.type==='conge_paye') await api.put(`/employes/${c.employe_id}`, {conges_pris:Math.max(0,(c.employes?.conges_pris||0)-jours)})
+      if(c.type==='rtt') await api.put(`/employes/${c.employe_id}`, {rtt_pris:Math.max(0,(c.employes?.rtt_pris||0)-jours)})
     }
     // Envoyer email notification à l'employé
     const empEmail = c.employes?.email
     if(empEmail) {
-      await supabase.functions.invoke('send-email', {
+      await api.post('/emails/conge', {
         body: {
           type: 'conge',
           to: empEmail,
@@ -152,7 +150,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
   async function saveSolde(empId,type){
     const val=parseInt(soldeTmp)
     if(isNaN(val)||val<0||val>365){showToast('Valeur invalide (0-365)');return}
-    await supabase.from('employes').update({[type==='rtt'?'rtt_total':'conges_total']:val}).eq('id',empId)
+    await api.put(`/employes/${empId}`, {[type==='rtt'?'rtt_total':'conges_total']:val})
     setEditSolde(null);setSoldeTmp('');showToast('Solde mis à jour ✓');loadConges()
   }
 

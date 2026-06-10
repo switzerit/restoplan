@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 
 const TYPES = {
   oubli_arrivee: "Oubli d'arrivée",
@@ -19,7 +20,7 @@ export default function SignalementsGerant({ restaurant, employes }) {
   useEffect(() => { if (restaurant) load() }, [restaurant?.id])
 
   async function load() {
-    const { data } = await supabase.from('signalements')
+    const data = await api.get(`/signalements?restaurant_id=${restaurant.id}`)
       .select('*, employes(prenom,nom)')
       .eq('restaurant_id', restaurant.id)
       .order('created_at', { ascending: false })
@@ -27,18 +28,18 @@ export default function SignalementsGerant({ restaurant, employes }) {
   }
 
   async function traiter(id, statut) {
-    await supabase.from('signalements').update({ statut, commentaire_gerant: commentaire || null }).eq('id', id)
+    await api.put(`/signalements/${id}`, { statut, commentaire_gerant: commentaire || null })
     setSelected(null); setCommentaire(''); load()
   }
 
   async function supprimer(id) {
     if (!confirm('Supprimer ce signalement ?')) return
-    await supabase.from('signalements').delete().eq('id', id)
+    await api.delete(`/signalements/${id}`)
     setSelected(null); load()
   }
 
   async function sauvegarderEdit() {
-    await supabase.from('signalements').update({
+    await api.put(`/signalements/${id}`, {
       date: editForm.date,
       type: editForm.type,
       heure_souhaitee: editForm.heure_souhaitee || null,
@@ -50,7 +51,7 @@ export default function SignalementsGerant({ restaurant, employes }) {
 
   async function supprimerTousTraites() {
     if (!confirm('Supprimer tous les signalements traités et rejetés ?')) return
-    await supabase.from('signalements').delete()
+    await api.delete(`/signalements/restaurant/${restaurant.id}`)
       .eq('restaurant_id', restaurant.id)
       .in('statut', ['traite', 'rejete'])
     load()

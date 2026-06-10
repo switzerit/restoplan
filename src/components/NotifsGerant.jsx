@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 
 function fmtTime(d) {
   const dt = new Date(d), now = new Date()
@@ -31,7 +32,7 @@ export default function NotifsGerant({ restaurant, employes }) {
   }, [restaurant?.id])
 
   async function loadNotifs() {
-    const { data } = await supabase.from('notifications')
+    const data = await api.get(`/notifications?employe_id=${empId}&lu=false&masque=false`)
       .select('*, employes(prenom, nom, role)')
       .eq('restaurant_id', restaurant.id)
       .order('created_at', { ascending: false })
