@@ -73,7 +73,7 @@ function emailHtml(titre: string, badge: string, intro: string, ctaUrl: string, 
     <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:20px 40px">
       <table cellpadding="0" cellspacing="0" width="100%">
         <tr>
-          <td colspan="2"><p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6">Vous recevez cet email car un espace Varman a été créé à votre adresse <strong>${email}</strong>. Si ce n'est pas vous, contactez-nous à <a href="mailto:contact@switzerit.com" style="color:#94a3b8">contact@switzerit.com</a></p></td>
+          <td colspan="2"><p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6">Vous recevez cet email car un espace Varman a été créé à votre adresse <strong>${email}</strong>.<br>Si ce n'est pas vous, contactez-nous à <a href="mailto:contact@switzerit.com" style="color:#94a3b8">contact@switzerit.com</a></p></td>
         </tr>
         <tr><td colspan="2" style="padding-top:12px;border-top:1px solid #e2e8f0;margin-top:12px"></td></tr>
         <tr><td colspan="2"><p style="margin:0;font-size:11px;color:#cbd5e1">© 2026 Varman by SwitzerIT &nbsp;&bull;&nbsp; <a href="${siteUrl}/legal" style="color:#cbd5e1;text-decoration:none">CGU</a> &nbsp;&bull;&nbsp; <a href="${siteUrl}/contact" style="color:#cbd5e1;text-decoration:none">Contact</a></p></td></tr>

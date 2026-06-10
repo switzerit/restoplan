@@ -168,7 +168,7 @@ function buildEmail(opts: {
           <tr>
             <td colspan="2">
               <p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6">
-                Vous recevez cet email car un espace Varman a été créé à votre adresse <strong>${email}</strong>. Si ce n'est pas vous, contactez-nous à <a href="mailto:contact@switzerit.com" style="color:#94a3b8">contact@switzerit.com</a>
+                Vous recevez cet email car un espace Varman a été créé à votre adresse <strong>${email}</strong>.<br>Si ce n'est pas vous, contactez-nous à <a href="mailto:contact@switzerit.com" style="color:#94a3b8">contact@switzerit.com</a>
               </p>
             </td>
           </tr>
