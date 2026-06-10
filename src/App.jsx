@@ -25,7 +25,7 @@ function ProtectedGerant({ children }) {
 function ProtectedEmploye({ children }) {
   const role = getTokenRole()
   if (!role) return <Navigate to="/" />
-  if (role !== 'employe') return <Navigate to="/" />
+  if (role !== 'employe' && role !== 'gerant' && role !== 'super_admin') return <Navigate to="/" />
   return children
 }
 

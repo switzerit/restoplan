@@ -244,9 +244,9 @@ function LoginModal({onClose, goPage}) {
     setError('')
     const data = await api.login(email, password)
     if(data.error){setError('Email ou mot de passe incorrect');setLoading(false);return}
-    if(data.role==='super_admin') navigate('/admin')
-    else if(data.role==='gerant') navigate('/gerant')
-    else navigate('/moi')
+    if(data.role==='super_admin') window.location.href='/admin'
+    else if(data.role==='gerant') window.location.href='/gerant'
+    else window.location.href='/moi'
     setLoading(false)
   }
 
