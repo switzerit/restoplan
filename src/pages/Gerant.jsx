@@ -2,6 +2,7 @@ import Logo from '../components/Logo'
 import { useEffect, useState } from 'react'
 import { generatePDF } from '../lib/exportPDF'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 import CongesGerant from '../components/CongesGerant'
 import PlanningMois from '../components/PlanningMois'
 import NotifsGerant from '../components/NotifsGerant'
@@ -64,9 +65,10 @@ function NoRestoForm({supabase, onCreated}) {
   async function create() {
     if(!nom) return
     setLoading(true)
-    const {data:{session}} = await supabase.auth.getSession()
+    const tokens = api.getTokens()
+    const session = tokens.access ? {user:{id: JSON.parse(atob(tokens.access.split('.')[1])).id}} : null
     const token = Math.random().toString(36).slice(2)
-    await supabase.from('restaurants').insert({
+    await api.post('/restaurants', {
       nom, adresse, secteur:'restaurant', actif:true,
       pin_borne:'1234', gerant_id:session.user.id,
       borne_token:token
@@ -139,10 +141,7 @@ export default function Gerant() {
   const [trialDaysLeft, setTrialDaysLeft] = useState(null)
 
   async function loadNotifsDetail(empId, empNom){
-    const {data} = await supabase.from('notifications')
-      .select('*').eq('employe_id',empId)
-      .eq('lu',false).eq('masque',false)
-      .order('created_at',{ascending:false})
+    const data = await api.get(`/notifications?employe_id=${empId}&lu=false&masque=false`)
     setNotifsDetail({empId, nom:empNom, notifs:data||[]})
   }
 
@@ -151,9 +150,9 @@ export default function Gerant() {
     const y=date.getFullYear(), m=date.getMonth()
     const from=y+'-'+String(m+1).padStart(2,'0')+'-01'
     const to=y+'-'+String(m+1).padStart(2,'0')+'-'+String(new Date(y,m+1,0).getDate()).padStart(2,'0')
-    const {data:sData}=await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    const sData=await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
     setShiftsMonth(sData||[])
-    const {data:cData}=await supabase.from('conges').select('*').eq('restaurant_id',currentResto.id).eq('statut','accepte').lte('date_debut',to).gte('date_fin',from)
+    const cData=await api.get(`/conges?restaurant_id=${currentResto.id}&statut=accepte&date_fin_gte=${from}&date_debut_lte=${to}`)
     setCongesMonth(cData||[])
   }
 
@@ -162,17 +161,15 @@ export default function Gerant() {
     const y=date.getFullYear(), m=date.getMonth()
     const from=y+'-'+String(m+1).padStart(2,'0')+'-01'
     const to=y+'-'+String(m+1).padStart(2,'0')+'-'+String(new Date(y,m+1,0).getDate()).padStart(2,'0')
-    const {data:sData}=await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    const sData=await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
     setShiftsMonth(sData||[])
-    const {data:cData}=await supabase.from('conges').select('*').eq('restaurant_id',currentResto.id).eq('statut','accepte').lte('date_debut',to).gte('date_fin',from)
+    const cData=await api.get(`/conges?restaurant_id=${currentResto.id}&statut=accepte&date_fin_gte=${from}&date_debut_lte=${to}`)
     setCongesMonth(cData||[])
   }
 
   async function loadNotifsNonLues(){
     if(!currentResto) return
-    const {data} = await supabase.from('notifications')
-      .select('employe_id').eq('restaurant_id',currentResto.id)
-      .eq('lu',false).eq('masque',false)
+    const data = await api.get(`/notifications?restaurant_id=${currentResto.id}&lu=false&masque=false`)
     const map={}
     data?.forEach(n=>{map[n.employe_id]=(map[n.employe_id]||0)+1})
     setNotifsNonLues(map)
@@ -213,8 +210,9 @@ export default function Gerant() {
 
   async function loadRestaurants(){
     try{
-    const {data:{session}} = await supabase.auth.getSession()
-    const {data} = await supabase.from('restaurants').select('*').eq('actif',true).eq('gerant_id',session?.user?.id).order('nom')
+    const tokens = api.getTokens()
+    if(!tokens.access){window.location.href='/login';return}
+    const data = await api.get('/restaurants')
     setRestaurants(data||[])
     if(data?.length>0){
       const savedId = localStorage.getItem('restoplan_current_resto')
@@ -223,7 +221,7 @@ export default function Gerant() {
     }
     if(!data?.length) setTrialStatut('active') // sera écrasé par le check gérant ci-dessous
     // Vérifier trial depuis la table gerants
-    const {data:gerantData} = await supabase.from('gerants').select('statut,trial_end_at,features').eq('user_id',session?.user?.id).single()
+    const gerantData = await api.get('/gerants/me')
     if(!gerantData){setTrialStatut('active');return}
     if(gerantData){
       const now = new Date()
@@ -248,9 +246,9 @@ export default function Gerant() {
 
   async function loadAll(date){
     const dateToLoad = date || selectedDate || today
-    const {data:e} = await supabase.from('employes').select('*').eq('actif',true).eq('restaurant_id',currentResto.id).order('prenom')
+    const e = await api.get(`/employes/${currentResto.id}`)
     setEmployes(e||[])
-    const {data:p} = await supabase.from('pointages').select('*').eq('date',dateToLoad).eq('restaurant_id',currentResto.id).order('heure_arrivee')
+    const p = await api.get(`/pointages?restaurant_id=${currentResto.id}&date=${dateToLoad}`)
     const pMap={}
     p?.forEach(pt=>{if(!pMap[pt.employe_id])pMap[pt.employe_id]=[];pMap[pt.employe_id].push(pt)})
     setPointages(pMap)
@@ -267,13 +265,10 @@ export default function Gerant() {
   async function loadShifts(){
     const from = fmtDate(weekStart)
     const to = fmtDate(addDays(weekStart,6))
-    const {data} = await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    const data = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
     setShifts(data||[])
     // Charger les congés acceptés de la semaine
-    const {data:cData} = await supabase.from('conges')
-      .select('*').eq('restaurant_id',currentResto.id)
-      .eq('statut','accepte')
-      .lte('date_debut',to).gte('date_fin',from)
+    const cData = await api.get(`/conges?restaurant_id=${currentResto.id}&statut=accepte&date_fin_gte=${from}&date_debut_lte=${to}`)
     setCongesSemaine(cData||[])
   }
 
@@ -310,9 +305,9 @@ export default function Gerant() {
       }
     }
     if(existing){
-      await supabase.from('shifts').update({poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null}).eq('id',existing.id)
+      await api.put(`/shifts/${existing.id}`, {poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null})
     } else {
-      await supabase.from('shifts').insert({employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null,restaurant_id:currentResto.id,publie:false})
+      await api.post('/shifts', {employe_id:shiftModal.empId,date:d,poste:form.poste,heure_debut:form.heure_debut,heure_fin:form.heure_fin,heure_debut_2:form.coupe?form.heure_debut_2:null,heure_fin_2:form.coupe?form.heure_fin_2:null,restaurant_id:currentResto.id,publie:false})
     }
     // Sauvegarder AVANT setShiftModal(null)
     const _empId = shiftModal.empId
@@ -331,7 +326,8 @@ export default function Gerant() {
     if(!destList.length){showToast('Choisissez au moins une semaine de destination');return}
     const from = fmtDateLocal(srcMonday)
     const to = fmtDateLocal(addDays(srcMonday,6))
-    let q = supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',from).lte('date',to)
+    let shiftsData = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
+    let q = shiftsData
     if(copierForm.employe) q = q.eq('employe_id',copierForm.employe)
     const {data:srcShifts} = await q
     if(!srcShifts?.length){showToast('Aucun shift sur cette semaine source');return}
@@ -342,7 +338,7 @@ export default function Gerant() {
       const dstTo = fmtDateLocal(new Date(dstMonday.getFullYear(),dstMonday.getMonth(),dstMonday.getDate()+6))
       if(dstFrom===from){showToast('Source et destination identiques');continue}
       // Charger tous les shifts existants de la semaine destination
-      const {data:existingShifts}=await supabase.from('shifts').select('employe_id,date').eq('restaurant_id',currentResto.id).eq('supprime_en_attente',false).eq('publie',true).gte('date',dstFrom).lte('date',dstTo)
+      const existingShifts=await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${dstFrom}&to=${dstTo}&publie=true`)
       const existingSet=new Set((existingShifts||[]).map(e=>e.employe_id+'_'+e.date))
       // Calculer le décalage
       const srcDay=srcMonday.getDate(), dstDay=dstMonday.getDate()
@@ -356,7 +352,7 @@ export default function Gerant() {
         const newD=new Date(sy,sm-1,sd+diffDays)
         const newDate=fmtDateLocal(newD)
         if(existingSet.has(s.employe_id+'_'+newDate)){skip++;continue}
-        await supabase.from('shifts').insert({employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id,publie:true,supprime_en_attente:false})
+        await api.post('/shifts', {employe_id:s.employe_id,date:newDate,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id,publie:true,supprime_en_attente:false})
         count++
       }
     }
@@ -373,29 +369,32 @@ export default function Gerant() {
   async function deleteShift(){
     const _dEmpId = shiftModal.empId
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
-    if(existing) await supabase.from('shifts').update({supprime_en_attente:true}).eq('id',existing.id)
+    if(existing) await api.put(`/shifts/${existing.id}`, {supprime_en_attente:true})
     setShiftModal(null);loadShifts();showToast('Shift retiré — publier pour appliquer')
     setPendingEmp(s=>new Set([...s,_dEmpId]))
   }
   async function addEmploye(){
     if(!empForm.prenom||!empForm.nom||!empForm.email){showToast('Remplis tous les champs');return}
     // Vérifier si email déjà utilisé (employes + gerants)
-    const {data:existingEmp} = await supabase.from('employes').select('id').eq('email',empForm.email).maybeSingle()
+    const existingEmpList = await api.get(`/employes/check-email?email=${encodeURIComponent(empForm.email)}`)
+    const existingEmp = existingEmpList?.[0] || null
     if(existingEmp){showToast('❌ Cet email est déjà utilisé par un employé');return}
-    const {data:existingGerant} = await supabase.from('gerants').select('id').eq('email',empForm.email).maybeSingle()
+    const existingGerantList = await api.get(`/gerants/check-email?email=${encodeURIComponent(empForm.email)}`)
+    const existingGerant = existingGerantList?.[0] || null
     if(existingGerant){showToast('Cet email est déjà utilisé sur Varman');return}
-    const {data:empData,error} = await supabase.from('employes').insert({prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role,restaurant_id:currentResto.id}).select().single()
+    const empData = await api.post('/employes', {prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role==='__autre__'?customRole:empForm.role,restaurant_id:currentResto.id})
+    const error = empData?.error || null
     if(error){showToast('❌ Une erreur est survenue, réessayez');return}
     showToast("Envoi de l'invitation...")
-    const {data:fnData,error:fnErr} = await supabase.functions.invoke('create-employe',{
+    const fnData = await api.post('/auth/create-employe', {
       body:{email:empForm.email,password:'',skip_employe:true,employe_id:empData.id}
     })
     if(fnErr||fnData?.error){
-      await supabase.from('employes').delete().eq('id',empData.id)
+      await api.delete(`/employes/${empData.id}`)
       if(fnData?.error==='EMAIL_EXISTS') showToast('❌ Cet email est déjà utilisé sur Varman')
       else showToast('❌ Erreur lors de l\'invitation')
     } else{
-      await supabase.from('employes').update({a_un_compte:true}).eq('id',empData.id)
+      await api.put(`/employes/${empData.id}`, {a_un_compte:true})
       showToast(empForm.prenom+' ajouté — invitation envoyée !')
     }
     setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'',password:''});setCustomRole('')
@@ -404,7 +403,7 @@ export default function Gerant() {
 
   async function addRestaurant(){
     if(!restoForm.nom){showToast('Entre un nom');return}
-    const {data} = await supabase.from('restaurants').insert(restoForm).select()
+    const data = await api.post('/restaurants', restoForm)
     setRestoModal(false);setRestoForm({nom:'',adresse:''})
     await loadRestaurants()
     if(data?.[0]) setCurrentResto(data[0])
@@ -421,7 +420,7 @@ export default function Gerant() {
   }
 
   async function updateEmploye(){
-    const {error} = await supabase.from('employes').update({
+    const result = await api.put(`/employes/${editEmpModal.id}`, {
       prenom:editEmpForm.prenom,
       nom:editEmpForm.nom,
       email:editEmpForm.email,
@@ -433,19 +432,15 @@ export default function Gerant() {
       const aDejaUnCompte = !!profilsMap[editEmpModal.id]
       if(aDejaUnCompte){
         // Compte existant — reset password via Edge Function
-        const {data,error:fnErr} = await supabase.functions.invoke('reset-password',{
-          body:{email:editEmpForm.email, new_password:editEmpForm.password}
-        })
-        if(fnErr||data?.error) showToast(data?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
+        const data = await api.post('/auth/reset-password', {email:editEmpForm.email, new_password:editEmpForm.password})
+        if(data?.error) showToast('❌ Une erreur est survenue')
         else showToast('Mot de passe modifié pour '+editEmpForm.prenom+' !')
       } else {
         // Pas de compte — en créer un
-        const {data,error:fnErr} = await supabase.functions.invoke('create-employe',{
-          body:{email:editEmpForm.email, password:editEmpForm.password, skip_employe:true, employe_id:editEmpModal.id}
-        })
-        if(fnErr||data?.error) showToast(data?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
+        const data2 = await api.post('/auth/create-employe', {email:editEmpForm.email, password:editEmpForm.password, skip_employe:true, employe_id:editEmpModal.id})
+        if(data2?.error) showToast(data2?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
         else {
-          await supabase.from('employes').update({a_un_compte:true}).eq('id',editEmpModal.id)
+          await api.put(`/employes/${editEmpModal.id}`, {a_un_compte:true})
           showToast(editEmpForm.prenom+' — compte créé !')
         }
       }
@@ -460,18 +455,18 @@ export default function Gerant() {
     const dejaUnCompte = !!profilsMap[emp.id]
     if(dejaUnCompte){
       // Employé existant → reset via Resend
-      await supabase.functions.invoke('create-employe',{
+      await api.post('/auth/create-employe', {
         body:{email:emp.email, password:'', skip_employe:true, employe_id:emp.id, prenom:emp.prenom}
       })
       showToast('Lien de connexion envoyé à '+emp.email+' !')
     } else {
       // Nouvel employé → invitation
-      const {data,error} = await supabase.functions.invoke('create-employe',{
+      const {data,error} = await api.post('/auth/create-employe', {
         body:{email:emp.email,password:'',skip_employe:true,employe_id:emp.id,prenom:emp.prenom}
       })
       if(error||data?.error) showToast(data?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
       else{
-        await supabase.from('employes').update({a_un_compte:true}).eq('id',emp.id)
+        await api.put(`/employes/${emp.id}`, {a_un_compte:true})
         showToast('Invitation envoyée à '+emp.email+' !')
         loadAll(selectedDate)
       }
@@ -483,7 +478,7 @@ export default function Gerant() {
     if(!pwd) return
     if(pwd.length<6){showToast('Min. 6 caractères');return}
     showToast('Création du compte...')
-    const {data,error} = await supabase.functions.invoke('create-employe-existing',{
+    const data = await api.post('/auth/create-employe', {
       body:{employe_id:emp.id,email:emp.email,password:pwd}
     })
     if(error||data?.error){
@@ -497,19 +492,15 @@ export default function Gerant() {
   async function supprimerEmploye(empId){
     if(!window.confirm('Supprimer cet employe ?')) return
     const emp = employes.find(e=>e.id===empId)
-    await supabase.from('shifts').delete().eq('employe_id',empId)
-    await supabase.from('pointages').delete().eq('employe_id',empId)
-    await supabase.from('profils').delete().eq('employe_id',empId)
-    await supabase.from('employes').delete().eq('id',empId)
-    if(emp?.email) await supabase.functions.invoke('delete-user',{body:{email:emp.email}})
+    await api.delete(`/employes/${empId}`)
     loadAll(selectedDate)
     showToast('Employe supprime')
   }
 
   async function doExport(){
     showToast('Génération du PDF...')
-    const {data:allShifts} = await supabase.from('shifts').select('*').eq('restaurant_id',currentResto.id).gte('date',exportForm.debut).lte('date',exportForm.fin)
-    const {data:allPointages} = await supabase.from('pointages').select('*').eq('restaurant_id',currentResto.id).gte('date',exportForm.debut).lte('date',exportForm.fin)
+    const allShifts = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${exportForm.debut}&to=${exportForm.fin}`)
+    const allPointages = await api.get(`/pointages?restaurant_id=${currentResto.id}&from=${exportForm.debut}&to=${exportForm.fin}`)
     generatePDF({
       restaurant:currentResto,
       employes,
@@ -525,27 +516,27 @@ export default function Gerant() {
   async function saveCorrection(){
     const p = getPointage(correctModal.empId)
     if(!p){
-      await supabase.from('pointages').insert({employe_id:correctModal.empId,date:today,heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null,restaurant_id:currentResto.id})
+      await api.post('/pointages', {employe_id:correctModal.empId,date:today,heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null,restaurant_id:currentResto.id})
     } else {
-      await supabase.from('pointages').update({heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null}).eq('id',p.id)
+      await api.put(`/pointages/${p.id}`, {heure_arrivee:correctForm.heure_arrivee||null,heure_depart:correctForm.heure_depart||null})
     }
     setCorrectModal(null);loadAll();showToast('Pointage corrigé')
   }
 
   async function supprimerPointage(){
     const dateToUse = correctForm.date || today
-    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',dateToUse).single()
-    if(existing) await supabase.from('pointages').delete().eq('id',existing.id)
+    const existing = (await api.get(`/pointages?restaurant_id=${currentResto.id}&date=${dateToUse}`))?.[0]
+    if(existing) await api.delete(`/pointages/${existing.id}`)
     setCorrectModal(null);loadAll();showToast('Pointage supprimé')
   }
 
   async function addPointage(){
     if(!addPointageForm.date||!addPointageForm.heure_arrivee){showToast('Date et heure arrivee obligatoires');return}
-    const {data:existing} = await supabase.from('pointages').select('*').eq('employe_id',addPointageModal.empId).eq('date',addPointageForm.date).maybeSingle()
+    const existing = (await api.get(`/pointages?restaurant_id=${currentResto.id}&date=${addPointageForm.date}`))?.[0]
     if(existing){
-      await supabase.from('pointages').update({heure_arrivee:addPointageForm.heure_arrivee||null,heure_depart:addPointageForm.heure_depart||null}).eq('id',existing.id)
+      await api.put(`/pointages/${existing.id}`, {heure_arrivee:addPointageForm.heure_arrivee||null,heure_depart:addPointageForm.heure_depart||null})
     } else {
-      await supabase.from('pointages').insert({employe_id:addPointageModal.empId,date:addPointageForm.date,heure_arrivee:addPointageForm.heure_arrivee||null,heure_depart:addPointageForm.heure_depart||null,restaurant_id:currentResto.id})
+      await api.post('/pointages', {employe_id:addPointageModal.empId,date:addPointageForm.date,heure_arrivee:addPointageForm.heure_arrivee||null,heure_depart:addPointageForm.heure_depart||null,restaurant_id:currentResto.id})
     }
     setAddPointageModal(null)
     setAddPointageForm({date:'',heure_arrivee:'',heure_depart:''})
@@ -554,7 +545,7 @@ export default function Gerant() {
   }
 
   async function deconnexion(){
-    await supabase.auth.signOut()
+    api.logout()
     window.location.href='/login'
   }
 
@@ -613,8 +604,8 @@ export default function Gerant() {
         <div style={{fontSize:48,marginBottom:16}}>⏰</div>
         <h1 style={{fontSize:24,fontWeight:900,color:'#0C1A35',marginBottom:8}}>Votre essai est terminé</h1>
         <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:32}}>Votre période d'accès à Varman est terminée. Contactez-nous pour continuer à utiliser la plateforme.</p>
-        <button onClick={async()=>{await supabase.auth.signOut();window.location.href='/contact?raison=essai-expire'}} style={{width:'100%',padding:'14px',borderRadius:12,background:'#E11D48',color:'white',fontSize:15,fontWeight:700,border:'none',cursor:'pointer',marginBottom:10}}>Continuer avec Varman →</button>
-        <button onClick={async()=>{await supabase.auth.signOut();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'1px solid #e8eaf0',background:'white',color:'#64748b',fontSize:14,fontWeight:600,cursor:'pointer'}}>Se déconnecter</button>
+        <button onClick={async()=>{api.logout();window.location.href='/contact?raison=essai-expire'}} style={{width:'100%',padding:'14px',borderRadius:12,background:'#E11D48',color:'white',fontSize:15,fontWeight:700,border:'none',cursor:'pointer',marginBottom:10}}>Continuer avec Varman →</button>
+        <button onClick={async()=>{api.logout();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'1px solid #e8eaf0',background:'white',color:'#64748b',fontSize:14,fontWeight:600,cursor:'pointer'}}>Se déconnecter</button>
       </div>
     </div>
   )
@@ -625,7 +616,7 @@ export default function Gerant() {
       <h2 style={{fontSize:22,fontWeight:800,color:'var(--text)',margin:0}}>Aucun établissement</h2>
       <p style={{fontSize:15,color:'var(--text2)',maxWidth:360,margin:0,lineHeight:1.7}}>Vous n'avez pas encore d'établissement. Créez-en un pour commencer.</p>
       <NoRestoForm supabase={supabase} onCreated={()=>loadRestaurants()}/>
-      <button onClick={()=>{supabase.auth.signOut();window.location.href='/'}} style={{padding:'10px 20px',borderRadius:10,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer',marginTop:8}}>Se déconnecter</button>
+      <button onClick={()=>{api.logout();window.location.href='/'}} style={{padding:'10px 20px',borderRadius:10,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,cursor:'pointer',marginTop:8}}>Se déconnecter</button>
     </div>
   )
 
@@ -753,15 +744,15 @@ export default function Gerant() {
             {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDateLocal(weekStart),destWeeks:[],employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
             <button onClick={async()=>{
               // Publier tous les shifts en brouillon
-              const {data:brouillons}=await supabase.from('shifts').select('id,employe_id').eq('restaurant_id',currentResto.id).eq('publie',false)
+              const brouillons=await api.get(`/shifts?restaurant_id=${currentResto.id}&publie=false`)
               if(!brouillons?.length&&pendingEmp.size===0){showToast('Aucun changement à publier');return}
-              if(brouillons?.length) await supabase.from('shifts').update({publie:true}).eq('restaurant_id',currentResto.id).eq('publie',false)
+              if(brouillons?.length) await api.put(`/shifts/publish`, {restaurant_id:currentResto.id})
               // Vraiment supprimer les shifts en attente de suppression
-              await supabase.from('shifts').delete().eq('restaurant_id',currentResto.id).eq('supprime_en_attente',true)
+              await api.delete(`/shifts/supprime?restaurant_id=${currentResto.id}`)
               // Notifier les employés concernés
               const empANotifier=new Set([...pendingEmp,...(brouillons||[]).map(s=>s.employe_id)])
               for(const empId of empANotifier){
-                await supabase.from('notifications').insert({employe_id:empId,restaurant_id:currentResto.id,type:'planning',titre:'📅 Planning mis à jour',message:'Votre responsable a publié votre planning. Consultez vos nouveaux horaires.'})
+                await api.post('/notifications', {employe_id:empId,restaurant_id:currentResto.id,type:'planning',titre:'Planning mis à jour',message:'Votre responsable a publié votre planning. Consultez vos nouveaux horaires.'})
               }
               setPendingEmp(new Set())
               loadShifts()
@@ -1072,7 +1063,7 @@ export default function Gerant() {
                     <button onClick={async()=>{
                       const val=document.getElementById('new-pin-input').value.slice(0,4)
                       if(val.length!==4||isNaN(val)){showToast('PIN = 4 chiffres');return}
-                      await supabase.from('restaurants').update({pin_borne:val}).eq('id',currentResto.id)
+                      await api.put(`/restaurants/${currentResto.id}`, {pin_borne:val})
                       setCurrentResto({...currentResto,pin_borne:val})
                       document.getElementById('new-pin-input').value=''
                       showToast('PIN modifié !')
@@ -1116,7 +1107,7 @@ export default function Gerant() {
                   <button onClick={async()=>{
                     const nom=document.getElementById('resto-nom').value
                     const adresse=document.getElementById('resto-adresse').value
-                    await supabase.from('restaurants').update({nom,adresse}).eq('id',currentResto.id)
+                    await api.put(`/restaurants/${currentResto.id}`, {nom,adresse})
                     setCurrentResto({...currentResto,nom,adresse})
                     showToast('Informations mises à jour')
                   }} style={{height:40,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
@@ -1159,7 +1150,7 @@ export default function Gerant() {
               <input type='date' value={correctForm.date} onChange={async e=>{
                 const newDate = e.target.value
                 setCorrectForm(f=>({...f,date:newDate,heure_arrivee:'',heure_depart:''}))
-                const {data:p} = await supabase.from('pointages').select('*').eq('employe_id',correctModal.empId).eq('date',newDate).single()
+                const p = (await api.get(`/pointages?restaurant_id=${currentResto.id}&date=${newDate}`))?.[0]
                 if(p) setCorrectForm(f=>({...f,date:newDate,heure_arrivee:p.heure_arrivee?.slice(0,5)||'',heure_depart:p.heure_depart?.slice(0,5)||''}))
               }} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
             </div>
