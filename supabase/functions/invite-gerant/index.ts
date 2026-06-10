@@ -202,7 +202,8 @@ function buildEmail(opts: {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
-    const { email, prenom, nom, entreprise, restaurant_nom, trial_days, statut, type = 'invite', trial_end_at } = await req.json()
+    const body = await req.json()
+    const { email, prenom, nom, entreprise, restaurant_nom, trial_days, statut, type = 'invite', trial_end_at, invite_url } = body
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -211,8 +212,8 @@ Deno.serve(async (req) => {
     const RESEND_KEY = Deno.env.get('RESEND_API_KEY')!
     const nomEtablissement = restaurant_nom || entreprise || 'votre établissement'
 
-    let inviteUrl = null
-    if(type === 'invite') {
+    let inviteUrl = invite_url || null
+    if(!inviteUrl && type === 'invite') {
       const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'recovery', email,
         options: { redirectTo: SITE_URL + '/login' }
