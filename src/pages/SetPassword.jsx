@@ -24,12 +24,19 @@ export default function SetPassword() {
     setError('')
     const result = await api.post('/auth/set-password', { token, password: pwd })
     if (result?.error) { setError(result.error); setLoading(false); return }
-    setDone(true)
-    setTimeout(() => {
-      if(result.role === 'gerant') navigate('/gerant')
-      else if(result.role === 'employe') navigate('/moi')
-      else navigate('/login')
-    }, 1500)
+    // Login automatique
+    const loginResult = await api.login(result.email, pwd)
+    if (loginResult?.access) {
+      setDone(true)
+      setTimeout(() => {
+        if(loginResult.role === 'gerant') navigate('/gerant')
+        else if(loginResult.role === 'employe') navigate('/moi')
+        else navigate('/login')
+      }, 1500)
+    } else {
+      setDone(true)
+      setTimeout(() => navigate('/login'), 1500)
+    }
   }
 
   return (
