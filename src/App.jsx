@@ -1,3 +1,4 @@
+import React from 'react'
 import SetPassword from './pages/SetPassword'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Borne from './pages/Borne'
@@ -23,9 +24,15 @@ function ProtectedGerant({ children }) {
 }
 
 function ProtectedEmploye({ children }) {
-  const role = getTokenRole()
+  const [checked, setChecked] = React.useState(false)
+  const [role, setRole] = React.useState(null)
+  React.useEffect(() => {
+    setRole(getTokenRole())
+    setChecked(true)
+  }, [])
+  if (!checked) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',color:'#aaa'}}>Chargement...</div>
   if (!role) return <Navigate to="/" />
-  if (role !== 'employe' && role !== 'gerant' && role !== 'super_admin') return <Navigate to="/" />
+  if (role !== 'employe') return <Navigate to="/" />
   return children
 }
 
