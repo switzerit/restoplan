@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import socket from '../socketClient'
 import { api } from '../apiClient'
 import { useNavigate } from 'react-router-dom'
 import QRScanner from '../components/QRScanner'
@@ -78,19 +79,12 @@ export default function Employe() {
   useEffect(()=>{
     if(!employe) return
     loadShifts();loadPointages();loadHistorique();loadShiftsMois()
-    // Realtime shifts
-    // Shifts: recharger seulement quand une notification arrive (= gérant a publié)
-    const chShifts = supabase.channel('employe-notifs-trigger')
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`employe_id=eq.${employe.id}`},()=>{loadShifts();loadPointages()})
-      .subscribe()
-    // Realtime pointages
-    const chPointages = supabase.channel('employe-pointages')
-      .on('postgres_changes',{event:'*',schema:'public',table:'pointages',filter:`employe_id=eq.${employe.id}`},()=>{loadPointages();loadHistorique()})
-      .subscribe()
-    return()=>{
-      supabase.removeChannel(chShifts)
-      supabase.removeChannel(chPointages)
-    }
+    // Realtime via Socket.io
+    socket.connect()
+    socket.emit('join-employe', employe.id)
+    socket.on('notification', () => { loadShifts(); loadPointages() })
+    socket.on('pointage', () => { loadPointages(); loadHistorique() })
+    return () => { socket.off('notification'); socket.off('pointage'); socket.disconnect() }
   },[employe])
 
   async function loadEmployeFromSession(){

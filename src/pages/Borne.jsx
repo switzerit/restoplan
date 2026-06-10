@@ -1,6 +1,7 @@
 import Logo from '../components/Logo'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import socket from '../socketClient'
 import { api } from '../apiClient'
 import { generateToken, secondsLeft } from '../lib/qrToken'
 import { useSearchParams } from 'react-router-dom'
@@ -154,11 +155,11 @@ function PresencesLive({ restoId }) {
 
   useEffect(() => {
     load()
-    // Realtime
-    const ch = supabase.channel('borne-presences')
-      .on('postgres_changes', { event:'*', schema:'public', table:'pointages', filter:`restaurant_id=eq.${restoId}` }, load)
-      .subscribe()
-    return () => supabase.removeChannel(ch)
+    // Realtime via Socket.io
+    socket.connect()
+    socket.emit('join-restaurant', restoId)
+    socket.on('pointage', load)
+    return () => { socket.off('pointage'); socket.disconnect() }
   }, [load])
 
   const presents = presences.filter(p => p.heure_arrivee && !p.heure_depart)
@@ -285,31 +286,18 @@ export default function Borne() {
   // Écouter les nouveaux pointages pour le flash
   useEffect(() => {
     if (state !== 'active' || !restaurant) return
-    const ch = supabase.channel('borne-flash')
-      .on('postgres_changes', {
-        event:'INSERT', schema:'public', table:'pointages',
-        filter:`restaurant_id=eq.${restaurant.id}`
-      }, async (payload) => {
-        const emp = await api.get(`/employes/one/${payload.new.employe_id}`)
-        if (emp) {
-          setLastBadge({ nom:`${emp.prenom} ${emp.nom}`, type:'entree', heure:payload.new.heure_arrivee?.slice(0,5) })
-          setTimeout(() => setLastBadge(null), 4000)
-        }
-      })
-      .on('postgres_changes', {
-        event:'UPDATE', schema:'public', table:'pointages',
-        filter:`restaurant_id=eq.${restaurant.id}`
-      }, async (payload) => {
-        if (payload.new.heure_depart) {
-          const emp = await api.get(`/employes/one/${payload.new.employe_id}`)
-          if (emp) {
-            setLastBadge({ nom:`${emp.prenom} ${emp.nom}`, type:'depart', heure:payload.new.heure_depart?.slice(0,5) })
-            setTimeout(() => setLastBadge(null), 4000)
-          }
-        }
-      })
-      .subscribe()
-    return () => supabase.removeChannel(ch)
+    socket.connect()
+    socket.emit('join-restaurant', restaurant.id)
+    socket.on('pointage', async (data) => {
+      const emp = await api.get(`/employes/one/${data.employe_id}`)
+      if (emp) {
+        const type = data.heure_depart ? 'depart' : 'entree'
+        const heure = (data.heure_depart || data.heure_arrivee)?.slice(0,5)
+        setLastBadge({ nom:`${emp.prenom} ${emp.nom}`, type, heure })
+        setTimeout(() => setLastBadge(null), 4000)
+      }
+    })
+    return () => { socket.off('pointage'); socket.disconnect() }
   }, [state, restaurant])
 
   const LOGO = (

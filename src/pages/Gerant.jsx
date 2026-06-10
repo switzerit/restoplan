@@ -2,6 +2,7 @@ import Logo from '../components/Logo'
 import { useEffect, useState } from 'react'
 import { generatePDF } from '../lib/exportPDF'
 import { supabase } from '../lib/supabase'
+import socket from '../socketClient'
 import { api } from '../apiClient'
 import CongesGerant from '../components/CongesGerant'
 import PlanningMois from '../components/PlanningMois'
@@ -206,10 +207,11 @@ export default function Gerant() {
   useEffect(()=>{
     if(!currentResto) return
     loadNotifsNonLues()
-    const ch=supabase.channel('notifs-watch')
-      .on('postgres_changes',{event:'*',schema:'public',table:'notifications',filter:`restaurant_id=eq.${currentResto.id}`},()=>loadNotifsNonLues())
-      .subscribe()
-    return()=>supabase.removeChannel(ch)
+    socket.connect()
+    socket.emit('join-restaurant', currentResto.id)
+    socket.on('notification', () => loadNotifsNonLues())
+    socket.on('pointage', () => loadAll(selectedDate))
+    return () => { socket.off('notification'); socket.off('pointage'); socket.disconnect() }
   },[currentResto?.id])
   useEffect(()=>{if(currentResto){loadAll(selectedDate)}},[selectedDate])
 

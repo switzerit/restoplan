@@ -577,7 +577,7 @@ export default function Login() {
                     <div key={i} style={{width:28,height:28,borderRadius:"50%",background:a.bg,border:"2px solid white",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,color:a.c,marginRight:i<2?-7:0,zIndex:3-i,boxShadow:"0 1px 3px rgba(0,0,0,.1)"}}>{a.t}</div>
                   ))}
                 </div>
-                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111",fontSize:16,fontWeight:900,letterSpacing:"-1px",fontFamily:"-apple-system,'Inter',sans-serif"}}>varman<span style={{color:"#E11D48"}}>.</span></strong></span>
+                <span style={{fontSize:13,color:"#555"}}>Des équipes terrain font confiance à <strong style={{color:"#111",fontSize:16,fontWeight:900,letterSpacing:"-1px",fontFamily:"'Figtree','Inter',sans-serif"}}>varman<span style={{color:"#E11D48"}}>.</span></strong></span>
               </div>
               <div style={{width:1,height:16,background:"#e8e8e8"}}></div>
               <div style={{display:"flex",alignItems:"center",gap:4,background:"#fffbeb",border:"1px solid #fde68a",borderRadius:20,padding:"4px 12px"}}>
