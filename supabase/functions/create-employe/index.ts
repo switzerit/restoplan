@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
         } else {
           // Jamais connecté → même email que l'invitation initiale
           await sendEmail(RESEND_KEY, email,
-            `Bienvenue sur Varman${prenomEmp ? ', ' + prenomEmp : ''} — Créez votre mot de passe`,
+            'Bienvenue sur Varman — Créez votre mot de passe',
             emailHtml(
               `Bienvenue${prenomEmp ? ', ' + prenomEmp : ''} 👋`,
               'Invitation employé',
@@ -206,7 +206,7 @@ Deno.serve(async (req) => {
         }
 
         await sendEmail(RESEND_KEY, email,
-          `Bienvenue sur Varman${prenomEmp ? ', ' + prenomEmp : ''} — Créez votre mot de passe`,
+          'Bienvenue sur Varman — Créez votre mot de passe',
           emailHtml(
             `Bienvenue${prenomEmp ? ', ' + prenomEmp : ''} 👋`,
             'Invitation employé',
