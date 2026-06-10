@@ -33,9 +33,7 @@ function fmtJour(dateStr){
 }
 
 export default function Employe() {
-export default function Employe() {
   console.log('Employe monte, token:', localStorage.getItem('varman_access_token')?.substring(0,20))
-  console.log('Employe monté, token:', localStorage.getItem('varman_access_token')?.substring(0,20))
   const [employe,setEmploye]=useState(null)
   const [loading,setLoading]=useState(true)
   const [shifts,setShifts]=useState([])
