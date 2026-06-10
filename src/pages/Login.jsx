@@ -322,9 +322,10 @@ export default function Login() {
         const role = payload.role
         setSessionRole(role||null)
         if(!publicPaths.includes(location.pathname)){
-          if(role==='super_admin')navigate('/admin')
-          else if(role==='gerant')navigate('/gerant')
-          else navigate('/moi')
+          if(role==='super_admin' && location.pathname!=='/admin')navigate('/admin')
+          else if(role==='gerant' && location.pathname!=='/gerant')navigate('/gerant')
+          else if(role==='employe' && location.pathname!=='/moi')navigate('/moi')
+          else setLoading(false)
         } else { setLoading(false) }
       } catch { setLoading(false);if(location.pathname==='/login')setShowLogin(true) }
     } else {setLoading(false);if(location.pathname==='/login')setShowLogin(true)}

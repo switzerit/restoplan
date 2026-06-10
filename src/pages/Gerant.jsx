@@ -211,7 +211,7 @@ export default function Gerant() {
   async function loadRestaurants(){
     try{
     const tokens = api.getTokens()
-    if(!tokens.access){navigate('/login');return}
+    if(!tokens.access){return}
     const data = await api.get('/restaurants')
     setRestaurants(data||[])
     if(data?.length>0){
