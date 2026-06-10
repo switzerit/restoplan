@@ -1,6 +1,7 @@
 import Logo from '../components/Logo'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 // ── LOGO ──────────────────────────────────────────────────────────────
@@ -241,11 +242,10 @@ function LoginModal({onClose, goPage}) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const {data,error} = await supabase.auth.signInWithPassword({email,password})
-    if(error){setError('Email ou mot de passe incorrect');setLoading(false);return}
-    const {data:p} = await supabase.from('profils').select('role').eq('user_id',data.user.id).single()
-    if(p?.role==='super_admin') navigate('/admin')
-    else if(p?.role==='gerant') navigate('/gerant')
+    const data = await api.login(email, password)
+    if(data.error){setError('Email ou mot de passe incorrect');setLoading(false);return}
+    if(data.role==='super_admin') navigate('/admin')
+    else if(data.role==='gerant') navigate('/gerant')
     else navigate('/moi')
     setLoading(false)
   }
@@ -314,18 +314,20 @@ export default function Login() {
       setShowLogin(true)
       return
     }
-    supabase.auth.getSession().then(async({data})=>{
-      const publicPaths = ['/contact','/faq','/legal','/fonctionnalites','/tarifs']
-      if(data.session){
-        const {data:p}=await supabase.from('profils').select('role').eq('user_id',data.session.user.id).single()
-        setSessionRole(p?.role||null)
+    const publicPaths = ['/contact','/faq','/legal','/fonctionnalites','/tarifs']
+    const tokens = api.getTokens()
+    if(tokens.access){
+      try {
+        const payload = JSON.parse(atob(tokens.access.split('.')[1]))
+        const role = payload.role
+        setSessionRole(role||null)
         if(!publicPaths.includes(location.pathname)){
-          if(p?.role==='super_admin')navigate('/admin')
-          else if(p?.role==='gerant')navigate('/gerant')
+          if(role==='super_admin')navigate('/admin')
+          else if(role==='gerant')navigate('/gerant')
           else navigate('/moi')
         } else { setLoading(false) }
-      } else {setLoading(false);if(location.pathname==='/login')setShowLogin(true)}
-    })
+      } catch { setLoading(false);if(location.pathname==='/login')setShowLogin(true) }
+    } else {setLoading(false);if(location.pathname==='/login')setShowLogin(true)}
   },[])
 
   // Bloquer le scroll du body quand la modale est ouverte
@@ -1203,14 +1205,13 @@ export default function Login() {
       if(pwd.length<6){setError('Minimum 6 caractères');return}
       if(pwd!==pwd2){setError('Les mots de passe ne correspondent pas');return}
       setLoading(true)
-      const {error:err} = await supabase.auth.updateUser({password:pwd})
-      if(err){setError(err.message);setLoading(false);return}
+      const result = await api.post('/auth/set-password', { token: api.getTokens().access, password: pwd })
+      if(result?.error){setError(result.error);setLoading(false);return}
       setSetPasswordMode(false)
-      // Rediriger selon le rôle
-      const {data:{session}} = await supabase.auth.getSession()
-      if(session){
-        const {data:p} = await supabase.from('profils').select('role').eq('user_id',session.user.id).single()
-        if(p?.role==='gerant') window.location.href='/gerant'
+      const tokens = api.getTokens()
+      if(tokens.access){
+        const payload = JSON.parse(atob(tokens.access.split('.')[1]))
+        if(payload.role==='gerant') window.location.href='/gerant'
         else window.location.href='/moi'
       }
     }

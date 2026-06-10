@@ -1,6 +1,7 @@
 import Logo from '../components/Logo'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 import { useNavigate } from 'react-router-dom'
 const COLORS=[{bg:'#fff1f3',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},{bg:'#fff8ee',color:'#8a4a00'},{bg:'#f0f0fc',color:'#3a3880'},{bg:'#fff2f1',color:'#b02020'},{bg:'#fdf0f8',color:'#8a2060'}]
 function ini(p,n){return((p?.[0]||"")+(n?.[0]||"")).toUpperCase()}
@@ -45,17 +46,19 @@ export default function Admin() {
   useEffect(()=>{checkAdmin().then(ok=>{if(ok) loadData()})},[])
 
   async function checkAdmin(){
-    const {data:{session}} = await supabase.auth.getSession()
-    if(!session){navigate("/login");return false}
-    const {data:profil} = await supabase.from("profils").select("role").eq("user_id",session.user.id).single()
-    if(profil?.role !== "super_admin"){navigate("/gerant");return false}
+    const tokens = api.getTokens()
+    if(!tokens.access){navigate("/login");return false}
+    try {
+      const payload = JSON.parse(atob(tokens.access.split('.')[1]))
+      if(payload.role !== "super_admin"){navigate("/gerant");return false}
+    } catch {navigate("/login");return false}
     setLoading(false)
     return true
   }
 
   async function saveFeatures(){
     if(!featuresModal) return
-    await supabase.from('gerants').update({features:featuresForm}).eq('id',featuresModal.id)
+    await api.put(`/gerants/${featuresModal.id}`, {features:featuresForm})
     showToast('Fonctionnalités mises à jour ✅')
     setFeaturesModal(null)
     loadData()
@@ -70,16 +73,16 @@ export default function Admin() {
       : new Date()
     const trial_end_at = trialForm.statut === 'active' ? null : trialForm.statut === 'expired' ? new Date().toISOString() :
       new Date(baseDate.getTime() + days * 24*60*60*1000).toISOString()
-    await supabase.from('gerants').update({
+    await api.put(`/gerants/${trialModal.id}`, {
       statut: trialForm.statut,
       trial_end_at: trialForm.statut === 'active' ? null : trialForm.statut === 'expired' ? new Date().toISOString() : trial_end_at
-    }).eq('id', trialModal.id)
+    })
     const msg = trialForm.statut==='active'?'Compte activé ✅':trialForm.statut==='expired'?'Compte bloqué ❌':`Trial prolongé de ${trialForm.days} jours ✅`
     showToast(msg)
     // Notifier le gérant par email
     const emailType = trialForm.statut==='active'?'activated':trialForm.statut==='expired'?'expired':'trial_extended'
     const restos = restaurants.filter(r=>r.gerant_id===trialModal.user_id)
-    await supabase.functions.invoke('invite-gerant',{body:{
+    await api.post('/auth/invite-gerant', {
       email: trialModal.email,
       prenom: trialModal.prenom,
       nom: trialModal.nom,
@@ -89,18 +92,18 @@ export default function Admin() {
       statut: trialForm.statut,
       type: emailType,
       trial_end_at: trialForm.statut==='trial' ? new Date(Date.now()+trialForm.days*24*60*60*1000).toISOString() : null
-    }})
+    })
     setTrialSaving(false)
     setTrialModal(null)
     loadData()
   }
 
   async function loadData(){
-    const {data:g} = await supabase.from("gerants").select("*").order("created_at",{ascending:false})
+    const g = await api.get('/gerants')
     setGerants(g||[])
-    const {data:r} = await supabase.from("restaurants").select("*").order("nom")
+    const r = await api.get('/restaurants')
     setRestaurants(r||[])
-    const {data:e} = await supabase.from("employes").select("*").order("prenom")
+    const e = await api.get('/employes/all')
     setEmployes(e||[])
   }
 
@@ -108,27 +111,21 @@ export default function Admin() {
     const {nom_resto,adresse,secteur,prenom,nom,email,telephone,entreprise} = createForm
     if(!nom_resto||!email||!prenom||!nom){showToast("Remplis tous les champs obligatoires");return}
         showToast("Creation en cours...")
-    const {data:resto,error:restoErr} = await supabase.from("restaurants").insert({
-      nom:nom_resto, adresse, secteur:secteur||'établissement', actif:true, pin_borne:"1234"
-    }).select().single()
-    if(restoErr){showToast("Erreur: "+restoErr.message);return}
-    const {data,error} = await supabase.functions.invoke("create-employe",{body:{email,password:"VarmanTmp2026!",prenom,nom,role:"Gerant",restaurant_id:resto.id,skip_employe:true,employe_id:null}})
-    if(error||data?.error){
-      let msg = data?.error || "Erreur inconnue"
-      if(!data && error){
-        try{const j=await error.context?.json?.();if(j?.error)msg=j.error}catch(e){}
-      }
-      await supabase.from("restaurants").delete().eq("id",resto.id)
-      showToast("Erreur: "+msg)
+    const resto = await api.post('/restaurants', {nom:nom_resto, adresse, secteur:secteur||'restaurant', gerant_id:null})
+    if(resto?.error){showToast("Erreur: "+resto.error);return}
+    const data = await api.post('/auth/create-employe', {email, password:'', prenom, nom, role:'Gerant', restaurant_id:resto.id, skip_employe:true, employe_id:null})
+    if(data?.error){
+      await api.delete(`/restaurants/${resto.id}`)
+      showToast("Erreur: "+data.error)
       return
     }
     const newUserId = data?.user_id
     if(newUserId){
-      await supabase.from("profils").update({role:"gerant",employe_id:null}).eq("user_id",newUserId)
-      await supabase.from("restaurants").update({gerant_id:newUserId}).eq("id",resto.id)
+      await api.put(`/profils/${newUserId}/role`, {role:'gerant'})
+      await api.put(`/restaurants/${resto.id}`, {gerant_id:newUserId})
       const trial_end_at = createForm.compte_type==='trial' ? new Date(Date.now()+createForm.trial_days*24*60*60*1000).toISOString() : null
-      await supabase.from("gerants").insert({user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto,statut:createForm.compte_type,trial_end_at,features:createForm.features})
-      await supabase.functions.invoke('invite-gerant',{body:{email,prenom,nom,entreprise:entreprise||nom_resto,restaurant_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type}})
+      await api.post('/gerants', {user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto,statut:createForm.compte_type,trial_end_at,features:createForm.features})
+      await api.post('/auth/invite-gerant', {email,prenom,nom,entreprise:entreprise||nom_resto,restaurant_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type})
     }
     setCreateModal(false)
     setSelectedGerant(null)
@@ -138,73 +135,50 @@ export default function Admin() {
   }
 
   async function updateGerant(){
-    const {error} = await supabase.from("gerants").update({prenom:editGerantForm.prenom,nom:editGerantForm.nom,email:editGerantForm.email,telephone:editGerantForm.telephone,entreprise:editGerantForm.entreprise}).eq("id",editGerantModal.id)
-    if(error){showToast("Erreur: "+error.message);return}
+    const result = await api.put(`/gerants/${editGerantModal.id}`, {prenom:editGerantForm.prenom,nom:editGerantForm.nom,email:editGerantForm.email,telephone:editGerantForm.telephone,entreprise:editGerantForm.entreprise})
+    if(result?.error){showToast("Erreur: "+result.error);return}
     setEditGerantModal(null);loadData();showToast("Gérant mis à jour !")
   }
 
   async function resetPassword(){
     if(!resetPwd||resetPwd.length<6){showToast("Mot de passe min. 6 caracteres");return}
-    const {error} = await supabase.functions.invoke("reset-password",{body:{email:resetPwdModal.email,new_password:resetPwd}})
-    if(error){showToast("Erreur: "+error.message);return}
+    const result = await api.post('/auth/reset-password', {email:resetPwdModal.email, new_password:resetPwd})
+    if(result?.error){showToast("Erreur: "+result.error);return}
     setResetPwdModal(null);setResetPwd("");showToast("Mot de passe reinitialise !")
   }
 
   async function deleteGerant(g){
     setDeleteConfirmModal(null);showToast("Suppression en cours...")
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
-    for(const r of restos){
-      await supabase.from("shifts").delete().eq("restaurant_id",r.id)
-      await supabase.from("pointages").delete().eq("restaurant_id",r.id)
-      await supabase.from("employes").delete().eq("restaurant_id",r.id)
-      await supabase.from("restaurants").delete().eq("id",r.id)
-    }
-    await supabase.from("profils").delete().eq("user_id",g.user_id)
-    await supabase.from("gerants").delete().eq("id",g.id)
-    await supabase.functions.invoke("delete-user",{body:{email:g.email}})
+    await api.delete(`/gerants/${g.id}`)
     setSelectedGerant(null);await loadData();showToast("Client supprimé")
   }
 
   async function toggleGerant(g){
     const newStatut = g.statut==='expired' ? 'active' : 'expired'
-    await supabase.from("gerants").update({actif:g.statut==='expired', statut:newStatut}).eq("id",g.id)
+    await api.put(`/gerants/${g.id}`, {actif:g.statut==='expired', statut:newStatut})
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
-    for(const r of restos) await supabase.from("restaurants").update({actif:g.statut==='expired'}).eq("id",r.id)
+    for(const r of restos) await api.put(`/restaurants/${r.id}`, {actif:g.statut==='expired'})
     loadData()
   }
 
   async function addÉtablissement(){
     if(!addRestoForm.nom){showToast("Nom obligatoire");return}
-    await supabase.from("restaurants").insert({
-      nom:addRestoForm.nom, adresse:addRestoForm.adresse,
-      secteur:addRestoForm.secteur||'établissement',
-      actif:true, pin_borne:"1234", gerant_id:addRestoModal.user_id
-    })
+    await api.post('/restaurants', {nom:addRestoForm.nom, adresse:addRestoForm.adresse, secteur:addRestoForm.secteur||'restaurant', gerant_id:addRestoModal.user_id})
     setAddRestoModal(null);setAddRestoForm({nom:"",adresse:"",secteur:"restaurant"});loadData();showToast("Établissement ajouté !")
   }
 
-  async function toggleResto(r){await supabase.from("restaurants").update({actif:!r.actif}).eq("id",r.id);loadData()}
+  async function toggleResto(r){await api.put(`/restaurants/${r.id}`, {actif:!r.actif});loadData()}
 
   async function deleteResto(restoId){
     if(!window.confirm("Supprimer ce établissement ?")) return
     // Supprimer les comptes auth des employés
-    const {data:emps} = await supabase.from("employes").select("id").eq("restaurant_id",restoId)
-    if(emps?.length){
-      const {data:profils} = await supabase.from("profils").select("user_id").in("employe_id",emps.map(e=>e.id))
-      for(const p of profils||[]){
-        await supabase.functions.invoke("delete-user",{body:{user_id:p.user_id}})
-      }
-      await supabase.from("profils").delete().in("employe_id",emps.map(e=>e.id))
-    }
-    await supabase.from("shifts").delete().eq("restaurant_id",restoId)
-    await supabase.from("pointages").delete().eq("restaurant_id",restoId)
-    await supabase.from("employes").delete().eq("restaurant_id",restoId)
-    await supabase.from("restaurants").delete().eq("id",restoId)
+    await api.delete(`/restaurants/${restoId}`)
     loadData();showToast("Établissement supprimé")
   }
 
   function showToast(msg){setToast(msg);setTimeout(()=>setToast(""),3000)}
-  async function deconnexion(){await supabase.auth.signOut();navigate("/login")}
+  async function deconnexion(){api.logout();navigate("/login")}
 
   if(loading) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",fontFamily:"var(--font)",background:"var(--bg)"}}><div style={{textAlign:"center"}}><div style={{fontSize:36,marginBottom:12}}>⚡</div><div style={{color:"var(--text2)"}}>Chargement...</div></div></div>
 
