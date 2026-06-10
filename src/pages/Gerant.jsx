@@ -223,6 +223,8 @@ export default function Gerant() {
     // Vérifier trial depuis la table gerants
     const gerantData = await api.get('/gerants/me')
     if(!gerantData){setTrialStatut('active');return}
+    setTrialStatut('active') // défaut si rien ne matche
+    setTrialStatut('active') // défaut si rien ne matche
     if(gerantData){
       const now = new Date()
       const {statut, trial_end_at} = gerantData
