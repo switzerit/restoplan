@@ -3,7 +3,7 @@ export default function Logo({ size = 28, dark = false, white = false }) {
   return (
     <div style={{display:'flex',alignItems:'baseline',gap:0}}>
       <span style={{
-        fontFamily:"'Inter','Helvetica Neue',Arial,sans-serif",
+        fontFamily:"'Figtree','Inter','Helvetica Neue',Arial,sans-serif",
         fontSize:size,
         fontWeight:900,
         letterSpacing:'-1px',
