@@ -104,6 +104,7 @@ export default function Employe() {
       return
     }
     if(profil.role!=='employe'){navigate('/gerant');return}
+    console.log('Loading employe:', profil.employe_id)
     const emp=await api.get(`/employes/one/${profil.employe_id}`)
     if(!emp){
       api.logout()
@@ -131,6 +132,7 @@ export default function Employe() {
       }
     }
     setEmploye(emp)
+    console.log('Employe chargé:', emp.prenom, 'setLoading false')
     // Enregistrer la dernière connexion
     await api.put(`/employes/${emp.id}`, {derniere_connexion: new Date().toISOString()})
     setLoading(false)
