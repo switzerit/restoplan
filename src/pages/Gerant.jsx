@@ -211,7 +211,7 @@ export default function Gerant() {
   async function loadRestaurants(){
     try{
     const tokens = api.getTokens()
-    if(!tokens.access){window.location.href='/login';return}
+    if(!tokens.access){navigate('/login');return}
     const data = await api.get('/restaurants')
     setRestaurants(data||[])
     if(data?.length>0){
@@ -243,7 +243,7 @@ export default function Gerant() {
       setTrialStatut('active')
     }
     if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
-    } catch(e){ console.error('loadRestaurants error:',e); setTrialStatut('active') }
+    } catch(e){ console.error('loadRestaurants error:', e.message, e.stack); setTrialStatut('active') }
   }
 
   async function loadAll(date){
