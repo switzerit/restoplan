@@ -1,16 +1,12 @@
 import Logo from '../components/Logo'
 import { useState, useEffect, useRef } from 'react'
+import Logo from '../components/Logo'
 import { supabase } from '../lib/supabase'
 import { api } from '../apiClient'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 // ── LOGO ──────────────────────────────────────────────────────────────
-const LOGO_SM = (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32">
-    <text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text>
-    <circle cx="152" cy="32" r="7" fill="#E11D48"/>
-  </svg>
-)
+const LOGO_SM = <Logo size={28}/>
 
 // ── ICONS SVG ─────────────────────────────────────────────────────────
 const IcoCalendar = ({c='#E11D48'}) => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
@@ -256,7 +252,7 @@ function LoginModal({onClose, goPage}) {
         <button onClick={onClose} style={{position:'absolute',top:14,right:14,width:30,height:30,borderRadius:'50%',border:'1px solid #e8e8e8',background:'#f8fafc',color:'#555',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
         <div style={{textAlign:'center',marginBottom:22}}>
           <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32"><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#E11D48"/></svg>
+            <Logo size={28}/>
           </div>
           <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Connexion</div>
           <div style={{fontSize:12,color:'#999',marginTop:4}}>Accédez à votre espace Varman</div>
@@ -430,10 +426,7 @@ export default function Login() {
         <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2.5fr 1fr 1fr 1fr',gap:isMobile?28:48,marginBottom:40}}>
           <div>
             <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="28">
-    <text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="white">varman</text>
-    <circle cx="152" cy="32" r="7" fill="#E11D48"/>
-  </svg>
+  <Logo size={24} white={true}/>
 </div>
             <div style={{fontSize:13,color:'rgba(255,255,255,.4)',lineHeight:1.85,maxWidth:230,marginBottom:16}}>La solution de gestion d'équipes pour les professionnels terrain. Propulsé par SwitzerIT.</div>
             <div style={{display:'flex',gap:8}}>
@@ -1222,7 +1215,7 @@ export default function Login() {
         <div style={{background:'white',borderRadius:20,padding:34,width:'100%',maxWidth:370,boxShadow:'0 24px 64px rgba(0,0,0,.15)',border:'1px solid #e8e8e8'}}>
           <div style={{textAlign:'center',marginBottom:22}}>
             <div style={{display:'flex',justifyContent:'center',marginBottom:12}}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32"><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#E11D48"/></svg>
+              <Logo size={28}/>
             </div>
             <div style={{fontSize:20,fontWeight:800,color:'#111',letterSpacing:'-.03em'}}>Bienvenue sur Varman !</div>
             <div style={{fontSize:12,color:'#999',marginTop:4}}>Choisissez votre mot de passe pour accéder à votre espace</div>

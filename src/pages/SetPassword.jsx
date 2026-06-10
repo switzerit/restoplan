@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Logo from '../components/Logo'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../apiClient'
 
@@ -45,7 +46,7 @@ export default function SetPassword() {
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#f1f5f9',fontFamily:'-apple-system,sans-serif',padding:16}}>
       <div style={{background:'white',borderRadius:20,padding:40,width:'100%',maxWidth:400,boxShadow:'0 20px 60px rgba(0,0,0,.1)'}}>
         <div style={{textAlign:'center',marginBottom:28}}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" height="32" style={{marginBottom:8}}><text x="0" y="36" fontFamily="-apple-system,'Inter','Helvetica Neue',Arial,sans-serif" fontSize="38" fontWeight="900" letterSpacing="-1.5" fill="#0C1A35">varman</text><circle cx="152" cy="32" r="7" fill="#E11D48"/></svg>
+          <Logo size={28}/>
           <div style={{fontSize:20,fontWeight:700,color:'#0C1A35',marginTop:8}}>Créer votre mot de passe</div>
           <div style={{fontSize:13,color:'#94a3b8',marginTop:4}}>Choisissez un mot de passe sécurisé</div>
         </div>
