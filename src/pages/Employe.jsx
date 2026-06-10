@@ -124,7 +124,7 @@ export default function Employe() {
       if(trialData?.length > 0){
         const {statut, trial_end_at, features:f} = trialData[0]
         const now = new Date()
-        if(statut==='expired' || (trial_end_at && new Date(trial_end_at) < now) || (statut==='trial' && !trial_end_at)){
+        if(statut==='expired' || (trial_end_at && new Date(trial_end_at) < now)){
           setTrialExpire(true)
         }
         if(f) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...f})
