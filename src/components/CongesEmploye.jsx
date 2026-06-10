@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import socket from '../socketClient'
 import { api } from '../apiClient'
 
 const TYPES = [
@@ -36,10 +37,9 @@ export default function CongesEmploye({employe}) {
   useEffect(()=>{
     loadConges()
     loadEmpData()
-    const ch=supabase.channel('conges-employe')
-      .on('postgres_changes',{event:'*',schema:'public',table:'conges',filter:`employe_id=eq.${employe.id}`},()=>{loadConges();loadEmpData()})
-      .subscribe()
-    return()=>supabase.removeChannel(ch)
+    socket.connect()
+    socket.on('conge', load)
+    return () => { socket.off('conge'); socket.disconnect() }
   },[employe.id])
 
   async function loadEmpData(){

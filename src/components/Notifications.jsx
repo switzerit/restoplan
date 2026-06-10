@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import socket from '../socketClient'
 import { api } from '../apiClient'
 
 export default function Notifications({ employe }) {
@@ -9,10 +10,9 @@ export default function Notifications({ employe }) {
   useEffect(() => {
     if (!employe) return
     loadNotifs()
-    const ch = supabase.channel('notifs-employe')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `employe_id=eq.${employe.id}` }, loadNotifs)
-      .subscribe()
-    return () => supabase.removeChannel(ch)
+    socket.connect()
+    socket.on('notification', loadNotifs)
+    return () => { socket.off('notification'); socket.disconnect() }
   }, [employe?.id])
 
   async function loadNotifs() {
