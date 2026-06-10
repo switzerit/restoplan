@@ -194,7 +194,12 @@ export default function Gerant() {
     }
   },[currentResto?.id])
 
-  useEffect(()=>{loadRestaurants()},[])
+  useEffect(()=>{
+    api.get('/auth/me').then(r => {
+      if(!r || r.error) { api.clearTokens(); window.location.href='/' }
+      else loadRestaurants()
+    })
+  },[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
   useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto,congesVersion])
   useEffect(()=>{if(currentResto&&planningMode==='mois'){loadMonthData(moisDate)}},[moisDate,currentResto,planningMode,congesVersion])
