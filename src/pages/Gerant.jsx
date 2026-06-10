@@ -388,7 +388,7 @@ export default function Gerant() {
     const error = empData?.error || null
     if(error){showToast('❌ Une erreur est survenue, réessayez');return}
     showToast("Envoi de l'invitation...")
-    const fnData = await api.post('/auth/create-employe', {email:empForm.email,password:'',skip_employe:true,employe_id:empData.id})
+    const fnData = await api.post('/auth/invite-employe', {email:empForm.email,password:'',skip_employe:true,employe_id:empData.id})
     if(fnData?.error){
       await api.delete(`/employes/${empData.id}`)
       if(fnData?.error==='EMAIL_EXISTS') showToast('❌ Cet email est déjà utilisé sur Varman')
@@ -437,7 +437,7 @@ export default function Gerant() {
         else showToast('Mot de passe modifié pour '+editEmpForm.prenom+' !')
       } else {
         // Pas de compte — en créer un
-        const data2 = await api.post('/auth/create-employe', {email:editEmpForm.email, password:editEmpForm.password, skip_employe:true, employe_id:editEmpModal.id})
+        const data2 = await api.post('/auth/invite-employe', {email:editEmpForm.email, password:editEmpForm.password, skip_employe:true, employe_id:editEmpModal.id})
         if(data2?.error) showToast(data2?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
         else {
           await api.put(`/employes/${editEmpModal.id}`, {a_un_compte:true})
@@ -455,11 +455,11 @@ export default function Gerant() {
     const dejaUnCompte = !!profilsMap[emp.id]
     if(dejaUnCompte){
       // Employé existant → reset via Resend
-      await api.post('/auth/create-employe', {email:emp.email, password:'', skip_employe:true, employe_id:emp.id, prenom:emp.prenom})
+      await api.post('/auth/invite-employe', {email:emp.email, password:'', skip_employe:true, employe_id:emp.id, prenom:emp.prenom})
       showToast('Lien de connexion envoyé à '+emp.email+' !')
     } else {
       // Nouvel employé → invitation
-      const data = await api.post('/auth/create-employe', {email:emp.email,password:'',skip_employe:true,employe_id:emp.id,prenom:emp.prenom})
+      const data = await api.post('/auth/invite-employe', {email:emp.email,password:'',skip_employe:true,employe_id:emp.id,prenom:emp.prenom})
       if(data?.error) showToast(data?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
       else{
         await api.put(`/employes/${emp.id}`, {a_un_compte:true})
@@ -474,7 +474,7 @@ export default function Gerant() {
     if(!pwd) return
     if(pwd.length<6){showToast('Min. 6 caractères');return}
     showToast('Création du compte...')
-    const data = await api.post('/auth/create-employe', {employe_id:emp.id,email:emp.email,password:pwd})
+    const data = await api.post('/auth/invite-employe', {employe_id:emp.id,email:emp.email,password:pwd})
     if(data?.error){
       showToast('❌ Une erreur est survenue')
       return
