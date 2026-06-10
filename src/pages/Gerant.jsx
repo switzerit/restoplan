@@ -461,13 +461,13 @@ export default function Gerant() {
     if(dejaUnCompte){
       // Employé existant → reset via Resend
       await supabase.functions.invoke('create-employe',{
-        body:{email:emp.email, password:'', skip_employe:true, employe_id:emp.id}
+        body:{email:emp.email, password:'', skip_employe:true, employe_id:emp.id, prenom:emp.prenom}
       })
       showToast('Lien de connexion envoyé à '+emp.email+' !')
     } else {
       // Nouvel employé → invitation
       const {data,error} = await supabase.functions.invoke('create-employe',{
-        body:{email:emp.email,password:'',skip_employe:true,employe_id:emp.id}
+        body:{email:emp.email,password:'',skip_employe:true,employe_id:emp.id,prenom:emp.prenom}
       })
       if(error||data?.error) showToast(data?.error==='EMAIL_EXISTS'?'❌ Cet email est déjà utilisé sur Varman':'❌ Une erreur est survenue')
       else{
