@@ -230,13 +230,12 @@ export default function Borne() {
   useEffect(() => {
     if (!token) { setState('invalid'); return }
     api.get(`/restaurants/borne/${token}`)
-      .then(async ({ data, error }) => {
-        if (error || !data) { setState('invalid'); return }
+      .then(async (data) => {
+        if (!data || data.error) { setState('invalid'); return }
         // Vérifier si le badgeage est activé pour ce gérant
-        const gerantArr = await api.get(`/gerants/trial-by-restaurant/${data.id}`)
-        const gerant = gerantArr ? [gerantArr] : []
-        if(gerantErr || !gerant || gerant.length === 0) { setState('invalid'); return }
-        const features = gerant[0]?.features || {}
+        const gerantData = await api.get(`/gerants/trial-by-restaurant/${data.id}`)
+        if(!gerantData) { setState('invalid'); return }
+        const features = gerantData?.features || {}
         if(features.badgeage === false) { setState('invalid'); return }
         setRestaurant(data)
         setTentatives(data.borne_tentatives || 0)
