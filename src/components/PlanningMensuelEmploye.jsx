@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { api } from '../apiClient'
 
 export default function PlanningMensuelEmploye({ employe, today, getPosteColor, supabase }) {
   const [planMois, setPlanMois] = useState(new Date())
