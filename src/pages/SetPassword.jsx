@@ -24,6 +24,8 @@ export default function SetPassword() {
     setError('')
     const result = await api.post('/auth/set-password', { token, password: pwd })
     if (result?.error) { setError(result.error); setLoading(false); return }
+    // Déconnecter l'utilisateur actuel avant de connecter le nouveau
+    api.clearTokens()
     // Login automatique
     const loginResult = await api.login(result.email, pwd)
     if (loginResult?.access) {
