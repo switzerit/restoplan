@@ -243,7 +243,8 @@ export default function Gerant() {
       setTrialStatut('active')
     }
     if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
-    } catch(e){ console.error('loadRestaurants error:', e.message, e.stack); setTrialStatut('active') }
+    } catch(e){
+ setTrialStatut('active') }
   }
 
   async function loadAll(date){
