@@ -104,7 +104,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
 
   async function loadConges(){
     const {data}=await supabase.from('conges')
-      .select('*,employes(id,prenom,nom,role,conges_total,conges_pris,rtt_total,rtt_pris)')
+      .select('*,employes(id,prenom,nom,email,role,conges_total,conges_pris,rtt_total,rtt_pris)')
       .eq('restaurant_id',restaurant.id)
       .order('created_at',{ascending:false})
     setConges(data||[])
@@ -126,6 +126,23 @@ export default function CongesGerant({restaurant, employes, showToast}) {
     if((statut==='refuse'||statut==='annule')&&c?.statut==='accepte'){
       if(c.type==='conge_paye') await supabase.from('employes').update({conges_pris:Math.max(0,(c.employes?.conges_pris||0)-jours)}).eq('id',c.employe_id)
       if(c.type==='rtt') await supabase.from('employes').update({rtt_pris:Math.max(0,(c.employes?.rtt_pris||0)-jours)}).eq('id',c.employe_id)
+    }
+    // Envoyer email notification à l'employé
+    const empEmail = c.employes?.email
+    if(empEmail) {
+      await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'conge',
+          to: empEmail,
+          prenom: c.employes?.prenom || '',
+          type_conge: c.type,
+          statut,
+          date_debut: c.date_debut,
+          date_fin: c.date_fin,
+          jours,
+          commentaire: commentaire || ''
+        }
+      })
     }
     setSelected(null);setCommentaire('');setAnnulerConfirm(null)
     showToast(statut==='accepte'?'Congé accepté ✅':statut==='annule'?'Congé annulé 🚫':'Congé refusé ❌')
