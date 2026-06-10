@@ -111,22 +111,13 @@ export default function Admin() {
     const {nom_resto,adresse,secteur,prenom,nom,email,telephone,entreprise} = createForm
     if(!nom_resto||!email||!prenom||!nom){showToast("Remplis tous les champs obligatoires");return}
         showToast("Creation en cours...")
-    const resto = await api.post('/restaurants', {nom:nom_resto, adresse, secteur:secteur||'restaurant', gerant_id:null})
-    if(resto?.error){showToast("Erreur: "+resto.error);return}
-    const data = await api.post('/auth/create-employe', {email, password:'', prenom, nom, role:'Gerant', restaurant_id:resto.id, skip_employe:true, employe_id:null})
-    if(data?.error){
-      await api.delete(`/restaurants/${resto.id}`)
-      showToast("Erreur: "+data.error)
-      return
-    }
-    const newUserId = data?.user_id
-    if(newUserId){
-      await api.put(`/profils/${newUserId}/role`, {role:'gerant'})
-      await api.put(`/restaurants/${resto.id}`, {gerant_id:newUserId})
-      const trial_end_at = createForm.compte_type==='trial' ? new Date(Date.now()+createForm.trial_days*24*60*60*1000).toISOString() : null
-      await api.post('/gerants', {user_id:newUserId,prenom,nom,email,telephone,entreprise:entreprise||nom_resto,statut:createForm.compte_type,trial_end_at,features:createForm.features})
-      await api.post('/auth/invite-gerant', {email,prenom,nom,entreprise:entreprise||nom_resto,restaurant_nom:createForm.nom_resto,trial_days:createForm.trial_days,statut:createForm.compte_type})
-    }
+    const data = await api.post('/auth/register-gerant', {
+      email, prenom, nom, telephone, entreprise,
+      nom_resto, adresse, secteur:secteur||'restaurant',
+      statut:createForm.compte_type, trial_days:createForm.trial_days,
+      features:createForm.features
+    })
+    if(data?.error){showToast("Erreur: "+data.error);return}
     setCreateModal(false)
     setSelectedGerant(null)
     setCreateForm({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:"trial",trial_days:14,features:{badgeage:true,conges:true,signalements:true,export_paie:true}})
