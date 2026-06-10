@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 
 export default function Notifications({ employe }) {
   const [notifs, setNotifs] = useState([])
@@ -15,24 +16,22 @@ export default function Notifications({ employe }) {
   }, [employe?.id])
 
   async function loadNotifs() {
-    const { data } = await supabase.from('notifications')
-      .select('*').eq('employe_id', employe.id)
-      .order('created_at', { ascending: false }).limit(30)
+    const data = await api.get(`/notifications?employe_id=${employe.id}&limit=30`)
     setNotifs(data || [])
   }
 
   async function marquerLu(id) {
-    await supabase.from('notifications').update({ lu: true, lu_at: new Date().toISOString() }).eq('id', id)
+    await api.put(`/notifications/${id}`, { lu: true, lu_at: new Date().toISOString() })
     loadNotifs()
   }
 
   async function supprimerNotif(id) {
-    await supabase.from('notifications').delete().eq('id', id)
+    await api.delete(`/notifications/${id}`)
     loadNotifs()
   }
 
   async function toutSupprimer() {
-    await supabase.from('notifications').delete().eq('employe_id', employe.id)
+    await api.delete(`/notifications/employe/${employe.id}`)
     loadNotifs()
   }
 
@@ -41,7 +40,7 @@ export default function Notifications({ employe }) {
     // Marquer toutes comme lues à l'ouverture
     const nonLues = notifs.filter(n => !n.lu).map(n => n.id)
     if (nonLues.length > 0) {
-      await supabase.from('notifications').update({ lu: true, lu_at: new Date().toISOString() }).in('id', nonLues)
+      await api.post('/notifications/mark-all-lu', { ids: nonLues })
       loadNotifs()
     }
   }

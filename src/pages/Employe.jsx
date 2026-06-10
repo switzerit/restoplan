@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 import { useNavigate } from 'react-router-dom'
 import QRScanner from '../components/QRScanner'
 import PlanningMensuelEmploye from '../components/PlanningMensuelEmploye'
@@ -93,32 +94,33 @@ export default function Employe() {
   },[employe])
 
   async function loadEmployeFromSession(){
-    const {data:{session}}=await supabase.auth.getSession()
-    if(!session){navigate('/login');return}
-    const {data:profil}=await supabase.from('profils').select('*').eq('user_id',session.user.id).single()
+    const tokens = api.getTokens()
+    if(!tokens.access){navigate('/login');return}
+    const payload = JSON.parse(atob(tokens.access.split('.')[1]))
+    const profil = {employe_id: payload.employe_id, role: payload.role}
     if(!profil){
-      await supabase.auth.signOut()
+      api.logout()
       window.location.href = '/'
       return
     }
     if(profil.role!=='employe'){navigate('/gerant');return}
-    const {data:emp}=await supabase.from('employes').select('*').eq('id',profil.employe_id).single()
+    const emp=await api.get(`/employes/one/${profil.employe_id}`)
     if(!emp){
-      await supabase.auth.signOut()
+      api.logout()
       window.location.href = '/'
       return
     }
     // Vérifier que le restaurant existe encore
-    const {data:restoCheck}=await supabase.from('restaurants').select('id,actif').eq('id',emp.restaurant_id).single()
+    const restoCheck=await api.get(`/restaurants/${emp.restaurant_id}`)
     if(!restoCheck || !restoCheck.actif){
-      await supabase.auth.signOut()
+      api.logout()
       window.location.href = '/'
       return
     }
     // Vérifier trial du gérant via fonction sécurisée
-    const {data:resto} = await supabase.from('restaurants').select('gerant_id').eq('id',emp.restaurant_id).single()
-    if(resto?.gerant_id){
-      const {data:trialData} = await supabase.rpc('get_gerant_trial', {gerant_user_id: resto.gerant_id})
+    const gerantData = await api.get(`/gerants/trial-by-restaurant/${emp.restaurant_id}`)
+    if(gerantData){
+      const trialData = [gerantData]
       if(trialData?.length > 0){
         const {statut, trial_end_at, features:f} = trialData[0]
         const now = new Date()
@@ -130,19 +132,19 @@ export default function Employe() {
     }
     setEmploye(emp)
     // Enregistrer la dernière connexion
-    await supabase.from('employes').update({derniere_connexion: new Date().toISOString()}).eq('id', emp.id)
+    await api.put(`/employes/${emp.id}`, {derniere_connexion: new Date().toISOString()})
     setLoading(false)
   }
 
   async function loadShifts(){
     const from=fmtDate(weekStart);const to=fmtDate(addDays(weekStart,6))
-    const {data}=await supabase.from('shifts').select('*').eq('employe_id',employe.id).gte('date',from).lte('date',to)
+    const data=await api.get(`/shifts?employe_id=${employe.id}&from=${from}&to=${to}`)
     setShifts(data||[])
   }
 
   async function loadPointages(){
     if(!features.badgeage){setPointages([]);return}
-    const {data}=await supabase.from('pointages').select('*').eq('employe_id',employe.id).eq('date',today).order('heure_arrivee',{ascending:true})
+    const data=await api.get(`/pointages?employe_id=${employe.id}&date=${today}`)
     setPointages(data||[])
   }
 
@@ -155,17 +157,17 @@ export default function Employe() {
     const now=new Date()
     const from=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01'
     const to=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(new Date(now.getFullYear(),now.getMonth()+1,0).getDate()).padStart(2,'0')
-    const {data}=await supabase.from('shifts').select('*').eq('employe_id',employe.id).gte('date',from).lte('date',to)
+    const data=await api.get(`/shifts?employe_id=${employe.id}&from=${from}&to=${to}`)
     setShiftsMois(data||[])
   }
 
   async function loadHistorique(){
     const depuis=fmtDate(addDays(new Date(),-30))
-    const {data}=await supabase.from('pointages').select('*').eq('employe_id',employe.id).gte('date',depuis).order('date',{ascending:false}).order('heure_arrivee',{ascending:false})
+    const data=await api.get(`/pointages?employe_id=${employe.id}&from=${depuis}`)
     setHistorique(data||[])
   }
 
-  async function deconnexion(){await supabase.auth.signOut();navigate('/login')}
+  async function deconnexion(){api.logout();navigate('/login')}
 
   if(trialExpire) return (
     <div style={{position:'fixed',inset:0,background:'#f8fafc',display:'flex',alignItems:'center',justifyContent:'center',padding:20,zIndex:9999}}>
@@ -173,7 +175,7 @@ export default function Employe() {
         <div style={{fontSize:40,marginBottom:12}}>⏰</div>
         <h1 style={{fontSize:20,fontWeight:900,color:'#0C1A35',marginBottom:8}}>Compte en pause</h1>
         <p style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:24}}>L'accès à l'application est momentanément indisponible.<br/>Votre responsable est en train de renouveler l'abonnement.<br/><br/>Si vous avez une urgence, contactez-le directement.</p>
-        <button onClick={async()=>{await supabase.auth.signOut();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'none',background:'#E11D48',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Se déconnecter</button>
+        <button onClick={async()=>{api.logout();window.location.href='/'}} style={{width:'100%',padding:'12px',borderRadius:12,border:'none',background:'#E11D48',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Se déconnecter</button>
       </div>
     </div>
   )

@@ -10,7 +10,7 @@ export default function PlanningMensuelEmploye({ employe, today, getPosteColor, 
     const y = planMois.getFullYear(), m = planMois.getMonth()
     const from = y + '-' + String(m+1).padStart(2,'0') + '-01'
     const to = y + '-' + String(m+1).padStart(2,'0') + '-' + String(new Date(y,m+1,0).getDate()).padStart(2,'0')
-    supabase.from('shifts').select('*').eq('employe_id', employe.id).gte('date', from).lte('date', to)
+    api.get(`/shifts?restaurant_id=${employe.restaurant_id}&from=${from}&to=${to}`).then(data => { setShifts(data||[]) })
       .then(({data}) => setShiftsMonth(data || []))
   }, [planMois, employe?.id])
 

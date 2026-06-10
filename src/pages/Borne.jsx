@@ -1,6 +1,7 @@
 import Logo from '../components/Logo'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 import { generateToken, secondsLeft } from '../lib/qrToken'
 import { useSearchParams } from 'react-router-dom'
 import QRCode from 'qrcode'
@@ -233,13 +234,12 @@ export default function Borne() {
 
   useEffect(() => {
     if (!token) { setState('invalid'); return }
-    supabase.from('restaurants')
-      .select('id,nom,secteur,qr_secret,pin_borne,borne_verrouillee,borne_tentatives,borne_bloquee_jusqu_a,gerant_id')
-      .eq('borne_token', token).single()
+    api.get(`/restaurants/borne/${token}`)
       .then(async ({ data, error }) => {
         if (error || !data) { setState('invalid'); return }
         // Vérifier si le badgeage est activé pour ce gérant
-        const { data: gerant, error: gerantErr } = await supabase.rpc('get_gerant_trial', { gerant_user_id: data.gerant_id })
+        const gerantArr = await api.get(`/gerants/trial-by-restaurant/${data.id}`)
+        const gerant = gerantArr ? [gerantArr] : []
         if(gerantErr || !gerant || gerant.length === 0) { setState('invalid'); return }
         const features = gerant[0]?.features || {}
         if(features.badgeage === false) { setState('invalid'); return }
@@ -252,17 +252,15 @@ export default function Borne() {
 
   const checkPin = async (pin) => {
     setPinError('')
-    const { data } = await supabase.from('restaurants')
-      .select('pin_borne,borne_tentatives,borne_bloquee_jusqu_a,borne_verrouillee')
-      .eq('borne_token', token).single()
-    if (!data) return
+    const data = await api.get(`/restaurants/borne/${token}`)
+    if(!data) return
 
     if (data.borne_bloquee_jusqu_a && new Date(data.borne_bloquee_jusqu_a) > new Date()) {
       setBloqueJusqua(data.borne_bloquee_jusqu_a); return
     }
 
     if (pin === data.pin_borne) {
-      await supabase.from('restaurants').update({ borne_tentatives:0, borne_bloquee_jusqu_a:null }).eq('borne_token', token)
+      await api.put(`/restaurants/borne-token/${token}`, { borne_tentatives:0, borne_bloquee_jusqu_a:null })
       setState('active')
     } else {
       const nouv = (data.borne_tentatives || 0) + 1
@@ -276,7 +274,7 @@ export default function Borne() {
       } else {
         setPinError(`PIN incorrect — ${3-(nouv%3)} tentative${3-(nouv%3)>1?'s':''} restante${3-(nouv%3)>1?'s':''}`)
       }
-      await supabase.from('restaurants').update(upd).eq('borne_token', token)
+      await api.put(`/restaurants/borne-token/${token}`, upd)
       setTentatives(nouv)
     }
   }
@@ -292,7 +290,7 @@ export default function Borne() {
         event:'INSERT', schema:'public', table:'pointages',
         filter:`restaurant_id=eq.${restaurant.id}`
       }, async (payload) => {
-        const { data:emp } = await supabase.from('employes').select('prenom,nom').eq('id', payload.new.employe_id).single()
+        const emp = await api.get(`/employes/one/${payload.new.employe_id}`)
         if (emp) {
           setLastBadge({ nom:`${emp.prenom} ${emp.nom}`, type:'entree', heure:payload.new.heure_arrivee?.slice(0,5) })
           setTimeout(() => setLastBadge(null), 4000)
@@ -303,7 +301,7 @@ export default function Borne() {
         filter:`restaurant_id=eq.${restaurant.id}`
       }, async (payload) => {
         if (payload.new.heure_depart) {
-          const { data:emp } = await supabase.from('employes').select('prenom,nom').eq('id', payload.new.employe_id).single()
+          const emp = await api.get(`/employes/one/${payload.new.employe_id}`)
           if (emp) {
             setLastBadge({ nom:`${emp.prenom} ${emp.nom}`, type:'depart', heure:payload.new.heure_depart?.slice(0,5) })
             setTimeout(() => setLastBadge(null), 4000)

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 import { verifyToken } from '../lib/qrToken'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 
 export default function QRScanner({ employe, onSuccess, onClose }) {
   const scannerRef = useRef(null)
@@ -66,11 +67,11 @@ export default function QRScanner({ employe, onSuccess, onClose }) {
 
       if (dernierOuvert) {
         // Enregistrer le depart
-        await supabase.from('pointages').update({ heure_depart: timeStr }).eq('id', dernierOuvert.id)
+        await api.put(`/pointages/${dernierOuvert.id}`, { heure_depart: timeStr })
         onSuccess('depart', timeStr)
       } else {
         // Nouvelle arrivee
-        await supabase.from('pointages').insert({
+        await api.post('/pointages', {
           employe_id: employe.id,
           date: today,
           heure_arrivee: timeStr,

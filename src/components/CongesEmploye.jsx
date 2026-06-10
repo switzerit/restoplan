@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 
 const TYPES = [
   {id:'conge_paye',l:'Congé payé',emoji:'🏖️',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
@@ -42,12 +43,12 @@ export default function CongesEmploye({employe}) {
   },[employe.id])
 
   async function loadEmpData(){
-    const {data}=await supabase.from('employes').select('conges_total,conges_pris,rtt_total,rtt_pris').eq('id',employe.id).single()
+    const data=await api.get(`/employes/${employe.id}/solde`)
     if(data) setEmpData(e=>({...e,...data}))
   }
 
   async function loadConges(){
-    const {data}=await supabase.from('conges').select('*').eq('employe_id',employe.id).order('created_at',{ascending:false})
+    const data=await api.get(`/conges?restaurant_id=${employe.restaurant_id}&employe_id=${employe.id}`)
     setConges(data||[])
   }
 
@@ -55,7 +56,7 @@ export default function CongesEmploye({employe}) {
     if(!form.date_debut||!form.date_fin) return
     if(new Date(form.date_fin)<new Date(form.date_debut)){alert('La date de fin doit être après la date de début');return}
     setLoading(true)
-    await supabase.from('conges').insert({
+    await api.post('/conges', {
       employe_id:employe.id,
       restaurant_id:employe.restaurant_id,
       date_debut:form.date_debut,

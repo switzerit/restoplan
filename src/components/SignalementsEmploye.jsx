@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { api } from '../apiClient'
 
 const TYPES = {
   oubli_arrivee: { l: "Oubli d'arrivée", icon: '🕐' },
@@ -18,8 +19,7 @@ export default function SignalementsEmploye({ employe }) {
   useEffect(() => { if (employe) load() }, [employe?.id])
 
   async function load() {
-    const { data } = await supabase.from('signalements').select('*')
-      .eq('employe_id', employe.id).order('created_at', { ascending: false })
+    const data = await api.get(`/signalements?employe_id=${employe.id}`)
     setSignalements(data || [])
   }
 
@@ -28,7 +28,7 @@ export default function SignalementsEmploye({ employe }) {
   async function soumettre() {
     if (!form.date) { showToast('Choisis une date'); return }
     setLoading(true)
-    const { error } = await supabase.from('signalements').insert({
+    const result = await api.post('/signalements', {
       employe_id: employe.id, restaurant_id: employe.restaurant_id,
       date: form.date, type: form.type,
       heure_souhaitee: form.heure_souhaitee || null,
