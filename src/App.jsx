@@ -1,3 +1,4 @@
+import SetPassword from './pages/SetPassword'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
@@ -39,6 +40,7 @@ function App() {
         <Route path="/contact" element={<Login />} />
         <Route path="/legal" element={<Login />} />
         <Route path="/faq" element={<Login />} />
+        <Route path="/set-password" element={<SetPassword/>}/>
         <Route path="/login" element={<Login />} />
         <Route path="/borne" element={<Borne />} />
         <Route path="/gerant" element={<ProtectedGerant><Gerant /></ProtectedGerant>} />
