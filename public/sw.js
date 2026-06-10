@@ -1,4 +1,4 @@
-const CACHE = 'kronvo-v1'
+const CACHE = 'varman-v2'
 const ASSETS = ['/', '/index.html']
 
 self.addEventListener('install', e => {
@@ -12,7 +12,13 @@ self.addEventListener('activate', e => {
 })
 
 self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url)
+  // Ignorer les requêtes API et non-GET
   if(e.request.method !== 'GET') return
+  if(url.hostname === 'api.varman.ch') return
+  if(url.pathname.includes('favicon')) return
+  if(url.pathname.includes('icon')) return
+  // Pour les autres, réseau d'abord puis cache
   e.respondWith(
     fetch(e.request).catch(() => caches.match(e.request))
   )
