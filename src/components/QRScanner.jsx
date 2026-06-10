@@ -55,14 +55,9 @@ export default function QRScanner({ employe, onSuccess, onClose }) {
       const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0')
 
       // Chercher le dernier pointage du jour sans depart
-      const { data: pointages } = await supabase
-        .from('pointages')
-        .select('*')
-        .eq('employe_id', employe.id)
-        .eq('date', today)
-        .order('heure_arrivee', { ascending: false })
+      const pointages = await api.get(`/pointages?employe_id=${employe.id}&date=${today}`)
 
-      const dernierOuvert = pointages?.find(p => p.heure_arrivee && !p.heure_depart)
+      const dernierOuvert = (Array.isArray(pointages)?pointages:[])?.find(p => p.heure_arrivee && !p.heure_depart)
 
       if (dernierOuvert) {
         // Enregistrer le depart

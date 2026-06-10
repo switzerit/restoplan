@@ -20,9 +20,6 @@ export default function SignalementsGerant({ restaurant, employes }) {
 
   async function load() {
     const data = await api.get(`/signalements?restaurant_id=${restaurant.id}`)
-      .select('*, employes(prenom,nom)')
-      .eq('restaurant_id', restaurant.id)
-      .order('created_at', { ascending: false })
     setSignalements(data || [])
   }
 

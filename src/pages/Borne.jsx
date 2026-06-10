@@ -143,12 +143,7 @@ function PresencesLive({ restoId }) {
 
   const load = useCallback(async () => {
     const today = new Date().toISOString().split('T')[0]
-    const { data } = await supabase
-      .from('pointages')
-      .select('*, employes(prenom,nom,role)')
-      .eq('restaurant_id', restoId)
-      .eq('date', today)
-      .order('heure_arrivee', { ascending: false })
+    const data = await api.get(`/pointages?restaurant_id=${restoId}&date=${today}`)
     setPresences(data || [])
   }, [restoId])
 

@@ -335,10 +335,8 @@ export default function Gerant() {
     if(!destList.length){showToast('Choisissez au moins une semaine de destination');return}
     const from = fmtDateLocal(srcMonday)
     const to = fmtDateLocal(addDays(srcMonday,6))
-    let shiftsData = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
-    let q = shiftsData
-    if(copierForm.employe) q = q.eq('employe_id',copierForm.employe)
-    const {data:srcShifts} = await q
+    let srcShifts = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
+    if(copierForm.employe) srcShifts = srcShifts?.filter(s=>s.employe_id===copierForm.employe)
     if(!srcShifts?.length){showToast('Aucun shift sur cette semaine source');return}
     let count=0, skip=0
     for(const destWeekStr of destList){
@@ -432,8 +430,8 @@ export default function Gerant() {
       nom:editEmpForm.nom,
       email:editEmpForm.email,
       role:editEmpForm.role
-    }).eq('id',editEmpModal.id)
-    if(error){showToast('❌ Une erreur est survenue, réessayez');return}
+    })
+    if(result?.error){showToast('❌ Une erreur est survenue, réessayez');return}
     // Si mot de passe fourni
     if(editEmpForm.password && editEmpForm.password.length>=6){
       const aDejaUnCompte = !!profilsMap[editEmpModal.id]
