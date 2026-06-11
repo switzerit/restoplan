@@ -214,18 +214,22 @@ export default function Admin() {
     const restos = restaurants.filter(r=>r.gerant_id===g.user_id)
     const empCount = employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).length
     return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
-      <div style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+      <div className="gerant-detail-header" style={{background:"var(--surface)",boxShadow:"0 1px 3px rgba(0,0,0,.06)",padding:"14px 28px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",position:"sticky",top:0,zIndex:10}}>
+        <div className="gdh-identity" style={{display:"flex",alignItems:"center",gap:10,flex:1,minWidth:0}}>
         <button onClick={()=>setSelectedGerant(null)} style={btnSecondary}>← Retour</button>
         <div style={{width:36,height:36,background:"linear-gradient(135deg,#E11D48,#5856d6)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:"white"}}>{ini(g.prenom,g.nom)}</div>
         <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div><div style={{fontSize:11,color:"var(--text3)"}}>{g.entreprise||"—"} • {g.email}</div></div>
+        </div>
+        <div className="gdh-actions" style={{display:"flex",gap:8,flexWrap:"wrap"}}>
         <button onClick={()=>{setEditGerantForm({prenom:g.prenom,nom:g.nom,email:g.email,telephone:g.telephone||"",entreprise:g.entreprise||""});setEditGerantModal(g)}} style={btnSecondary}>✏️ Modifier</button>
         <button onClick={()=>{setResetPwdModal(g);setResetPwd("")}} style={btnSecondary}>🔑 MDP</button>
         
         <button onClick={()=>setDeleteConfirmModal(g)} style={{padding:"7px 14px",borderRadius:9,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:13,fontWeight:600,cursor:"pointer"}}>🗑️ Supprimer</button>
         <button onClick={deconnexion} style={{...btnSecondary,background:"transparent"}}>Deconnexion</button>
+        </div>
       </div>
       <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
+        <div className="gerant-detail-stats" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
           {[{icon:"🏪",label:"Établissements",value:restos.length},{icon:"👥",label:"Employés",value:empCount},{icon:"📊",label:"Statut",value:g.statut==='active'?'Actif':g.statut==='expired'?'Expiré':'Trial',color:g.statut==='active'?'var(--green)':g.statut==='expired'?'var(--red)':'#ea580c'}].map((s,i)=>(
             <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 20px"}}>
               <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
@@ -289,16 +293,18 @@ export default function Admin() {
             const nbEmp=employes.filter(e=>e.restaurant_id===r.id).length
             const secteurLabel = SECTEURS.find(s=>s.id===r.secteur)?.l||'🍽️ Établissement'
             return(
-              <div key={r.id} style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:12}}>
+              <div key={r.id} className="resto-row" style={{padding:"14px 20px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
                 <div style={{width:38,height:38,borderRadius:10,background:"var(--accent-bg)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{secteurLabel.split(' ')[0]}</div>
-                <div style={{flex:1}}>
+                <div className="resto-row-info" style={{flex:1,minWidth:140}}>
                   <div style={{fontSize:13,fontWeight:700}}>{r.nom}</div>
                   <div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{r.adresse||"—"} • {nbEmp} employé{nbEmp>1?"s":""} • PIN: {r.pin_borne} • {secteurLabel}</div>
                 </div>
+                <div className="resto-row-actions" style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                 <span style={{fontSize:10,fontWeight:700,padding:"2px 9px",borderRadius:20,background:r.actif?"var(--green-bg)":"var(--red-bg)",color:r.actif?"#1a6b35":"var(--red)"}}>{r.actif?"Actif":"Inactif"}</span>
                 <button onClick={()=>toggleResto(r)} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>{r.actif?"Pause":"Activer"}</button>
 {((gerants.find(g=>g.user_id===r.gerant_id)?.features||{badgeage:true}).badgeage!==false)&&<button onClick={()=>navigator.clipboard.writeText(window.location.origin+"/borne?token="+r.borne_token).then(()=>showToast("URL copiée !"))} style={{padding:"5px 10px",borderRadius:8,border:"1px solid var(--border2)",background:"var(--bg)",color:"var(--text2)",fontSize:11,fontWeight:600,cursor:"pointer"}}>URL borne</button>}
                 <button onClick={()=>deleteResto(r.id)} style={{padding:"5px 8px",borderRadius:8,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:11,cursor:"pointer"}}>🗑️</button>
+                </div>
               </div>
             )
           })}
