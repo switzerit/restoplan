@@ -496,6 +496,20 @@ export default function Admin() {
               </div>
               <div style={{color:"var(--text3)",fontSize:18}}>›</div>
             </div>
+            {(!g.statut||g.statut==='trial')&&g.trial_end_at&&(()=>{
+              const now=new Date(), end=new Date(g.trial_end_at)
+              const totalDays=14, daysLeft=Math.max(0,Math.ceil((end-now)/(1000*60*60*24)))
+              const pct=Math.min(100,Math.max(0,(daysLeft/totalDays)*100))
+              return <div style={{marginTop:14,paddingTop:12,borderTop:"1px solid var(--border)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"var(--text2)",marginBottom:5}}>
+                  <span>Période d'essai</span>
+                  <span style={{fontWeight:700,color:daysLeft<=3?"var(--red)":"#ea580c"}}>{daysLeft} jour{daysLeft>1?"s":""} restant{daysLeft>1?"s":""}</span>
+                </div>
+                <div style={{height:5,borderRadius:3,background:"var(--bg)",overflow:"hidden"}}>
+                  <div style={{height:"100%",width:`${pct}%`,borderRadius:3,background:daysLeft<=3?"var(--red)":"#ea580c",transition:"width .3s"}}/>
+                </div>
+              </div>
+            })()}
           </div>
         })}
       </div>
