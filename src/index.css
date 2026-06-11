@@ -12,3 +12,26 @@
 body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;}
 button{font-family:var(--font);cursor:pointer;}
 input,select{font-family:var(--font);}
+
+@media (max-width: 700px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .admin-client-row {
+    flex-wrap: wrap;
+  }
+  .admin-client-row > div:nth-child(3) {
+    order: 3;
+    margin-right: 0 !important;
+    width: 100%;
+    justify-content: flex-start !important;
+    gap: 24px !important;
+    margin-top: 8px;
+  }
+  .admin-client-row > div:nth-child(4) {
+    order: 4;
+    max-width: 100% !important;
+    width: 100%;
+    margin-top: 8px;
+  }
+}

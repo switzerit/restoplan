@@ -439,7 +439,7 @@ export default function Admin() {
       <button onClick={deconnexion} style={{padding:"8px 14px",borderRadius:10,border:"1px solid var(--border2)",background:"transparent",color:"var(--text2)",fontSize:13,cursor:"pointer",fontWeight:600}}>Deconnexion</button>
     </div>
     <div style={{maxWidth:960,margin:"0 auto",padding:28}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:28}}>
+      <div className="admin-stats-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:28}}>
         {[
           {icon:"👤",label:"Clients",value:gerants.length},
           {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length},
@@ -456,7 +456,6 @@ export default function Admin() {
         ))}
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
-      <div style={{display:"flex",flexDirection:"column",gap:10}}>
         {gerants.length===0&&<div style={{padding:60,textAlign:"center",background:"var(--surface)",border:"2px dashed var(--border2)",borderRadius:16}}>
           <div style={{fontSize:36,marginBottom:12}}>👤</div>
           <div style={{fontSize:16,fontWeight:700,marginBottom:6}}>Aucun client encore</div>
@@ -470,7 +469,7 @@ export default function Admin() {
           return <div key={g.id} onClick={()=>setSelectedGerant(g)} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"18px 22px",cursor:"pointer",transition:"all .15s"}}
             onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--accent)";e.currentTarget.style.boxShadow="0 4px 16px rgba(0,113,227,.08)"}}
             onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.boxShadow="none"}}>
-            <div style={{display:"flex",alignItems:"center",gap:14}}>
+            <div className="admin-client-row" style={{display:"flex",alignItems:"center",gap:14}}>
               <div style={{width:48,height:48,borderRadius:"50%",background:c.bg,color:c.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:800,flexShrink:0}}>{ini(g.prenom,g.nom)}</div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
