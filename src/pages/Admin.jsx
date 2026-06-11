@@ -497,8 +497,9 @@ export default function Admin() {
               <div style={{color:"var(--text3)",fontSize:18}}>›</div>
             </div>
             {(!g.statut||g.statut==='trial')&&g.trial_end_at&&(()=>{
-              const now=new Date(), end=new Date(g.trial_end_at)
-              const totalDays=14, daysLeft=Math.max(0,Math.ceil((end-now)/(1000*60*60*24)))
+              const now=new Date(), end=new Date(g.trial_end_at), start=new Date(g.created_at)
+              const totalDays=Math.max(1,Math.ceil((end-start)/(1000*60*60*24)))
+              const daysLeft=Math.max(0,Math.ceil((end-now)/(1000*60*60*24)))
               const pct=Math.min(100,Math.max(0,(daysLeft/totalDays)*100))
               return <div style={{marginTop:14,paddingTop:12,borderTop:"1px solid var(--border)"}}>
                 <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"var(--text2)",marginBottom:5}}>
