@@ -433,8 +433,8 @@ export default function Admin() {
 
   // VUE LISTE GÉRANTS
   return <div style={{minHeight:"100vh",background:"var(--bg)",fontFamily:"var(--font)"}}>
-    <div className="admin-header" style={{background:"var(--surface)",borderBottom:"1px solid var(--border)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-      <div className="admin-header-brand" style={{flex:1,minWidth:0}}><Logo height={24}/><div style={{fontSize:11,color:"var(--text3)",marginTop:2,whiteSpace:"nowrap"}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
+    <div className="admin-header" style={{background:"var(--surface)",boxShadow:"0 1px 3px rgba(0,0,0,.06)",padding:"14px 28px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",position:"sticky",top:0,zIndex:10}}>
+      <div className="admin-header-brand" style={{flex:1,minWidth:0}}><Logo height={24}/><div style={{fontSize:12,fontWeight:600,color:"var(--text2)",marginTop:3,whiteSpace:"nowrap"}}>{gerants.length} client{gerants.length>1?"s":""} • {restaurants.length} etablissement{restaurants.length>1?"s":""}</div></div>
       <div className="admin-header-actions" style={{display:"flex",gap:8}}>
         <button onClick={()=>setCreateModal(true)} style={{padding:"8px 18px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>+ Nouveau client</button>
         <button onClick={deconnexion} style={{padding:"8px 14px",borderRadius:10,border:"1px solid var(--border2)",background:"transparent",color:"var(--text2)",fontSize:13,cursor:"pointer",fontWeight:600,whiteSpace:"nowrap"}}>Deconnexion</button>
@@ -443,16 +443,16 @@ export default function Admin() {
     <div style={{maxWidth:960,margin:"0 auto",padding:28}}>
       <div className="admin-stats-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:28}}>
         {[
-          {icon:"👤",label:"Clients",value:gerants.length},
-          {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length},
-          {icon:"👥",label:"Employés",value:employes.length},
-          {icon:"✅",label:"Actifs",value:gerants.filter(g=>g.statut==='active').length},
-          {icon:"⏳",label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length},
-          {icon:"❌",label:"Expirés",value:gerants.filter(g=>g.statut==='expired'||(g.trial_end_at&&new Date(g.trial_end_at)<new Date())).length},
+          {icon:"👤",label:"Clients",value:gerants.length,accent:"#5856d6"},
+          {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length,accent:"#5856d6"},
+          {icon:"👥",label:"Employés",value:employes.length,accent:"#5856d6"},
+          {icon:"✅",label:"Actifs",value:gerants.filter(g=>g.statut==='active').length,accent:"#16a34a"},
+          {icon:"⏳",label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length,accent:"#ea580c"},
+          {icon:"❌",label:"Expirés",value:gerants.filter(g=>g.statut==='expired'||(g.trial_end_at&&new Date(g.trial_end_at)<new Date())).length,accent:"var(--red)"},
         ].map((s,i)=>(
-          <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 18px"}}>
+          <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderLeft:`3px solid ${s.accent}`,borderRadius:14,padding:"16px 18px"}}>
             <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
-            <div style={{fontSize:22,fontWeight:800}}>{s.value}</div>
+            <div style={{fontSize:22,fontWeight:800,color:s.value>0?s.accent:"var(--text)"}}>{s.value}</div>
             <div style={{fontSize:11,color:"var(--text2)",marginTop:2}}>{s.label}</div>
           </div>
         ))}
