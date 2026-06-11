@@ -498,9 +498,9 @@ export default function Admin() {
         })}
       </div>
     </div>
-    {createModal&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
-      <div onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:440,boxShadow:"0 20px 60px rgba(0,0,0,.2)",maxHeight:"90vh",overflowY:"auto"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+    {createModal&&<div className="modal-overlay" style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}}>
+      <div className="modal-card" onClick={e=>e.stopPropagation()} style={{background:"var(--surface)",borderRadius:20,padding:28,width:440,boxShadow:"0 20px 60px rgba(0,0,0,.2)",maxHeight:"90vh",overflowY:"auto",display:"flex",flexDirection:"column"}}>
+        <div className="modal-sticky-top" style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
             <div style={{fontSize:18,fontWeight:800}}>Nouveau client</div>
             <button onClick={()=>setCreateModal(false)} style={{width:32,height:32,borderRadius:8,border:"none",background:"var(--bg)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text3)",fontSize:20,lineHeight:1,fontWeight:300,transition:"all .15s"}}
               onMouseEnter={e=>{e.currentTarget.style.background="var(--border)";e.currentTarget.style.color="var(--text)"}}
@@ -508,6 +508,7 @@ export default function Admin() {
               ✕
             </button>
           </div>
+        <div className="modal-scroll-body">
         <div style={{fontSize:13,color:"var(--text2)",marginBottom:22}}>Créez l'établissement + compte gérant en une fois</div>
         <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>ÉTABLISSEMENT</div>
         <div style={{marginBottom:10}}>
@@ -565,7 +566,8 @@ export default function Admin() {
           </div>
         </div>
         <div style={{padding:"10px 14px",background:"var(--accent-bg)",borderRadius:10,marginBottom:16,fontSize:12,color:"var(--accent)"}}>Le PIN de la borne sera 1234 par défaut · Le secteur détermine les postes disponibles</div>
-        <div style={{display:"flex",gap:10}}>
+        </div>
+        <div className="modal-sticky-bottom" style={{display:"flex",gap:10}}>
           <button onClick={()=>setCreateModal(false)} style={{flex:1,height:44,borderRadius:12,border:"1px solid var(--border)",background:"var(--bg)",color:"var(--text2)",fontSize:14,fontWeight:600,cursor:"pointer"}}>Annuler</button>
           <button onClick={createClient} style={{flex:1,height:44,borderRadius:12,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>Créer le client</button>
         </div>
