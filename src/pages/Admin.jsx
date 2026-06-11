@@ -240,7 +240,7 @@ export default function Admin() {
         </div>
         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:20,marginBottom:20}}>
           <div style={{fontSize:13,fontWeight:700,marginBottom:12,color:"var(--text2)"}}>INFORMATIONS</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <div className="info-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
             {[{l:"Prenom",v:g.prenom},{l:"Nom",v:g.nom},{l:"Email",v:g.email},{l:"Téléphone",v:g.telephone||"—"},{l:"Entreprise",v:g.entreprise||"—"},{l:"Client depuis",v:new Date(g.created_at).toLocaleDateString("fr-FR")}].map(({l,v})=>(
               <div key={l} style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
                 <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>{l.toUpperCase()}</div>
