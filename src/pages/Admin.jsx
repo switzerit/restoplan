@@ -457,7 +457,7 @@ export default function Admin() {
           {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length,accent:"#64748b"},
           {icon:"👥",label:"Employés",value:employes.length,accent:"#64748b"},
           {icon:"✅",label:"Actifs",value:gerants.filter(g=>g.statut==='active').length,accent:"#16a34a"},
-          {icon:"⏳",label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length,accent:"#ea580c"},
+          {icon:"⏳",label:"En essai",value:gerants.filter(g=>!g.statut||g.statut==='trial').length,accent:"#ea580c"},
           {icon:"❌",label:"Expirés",value:gerants.filter(g=>g.statut==='expired'||(g.trial_end_at&&new Date(g.trial_end_at)<new Date())).length,accent:"var(--red)"},
         ].map((s,i)=>(
           <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderLeft:`3px solid ${s.accent}`,borderRadius:14,padding:"16px 18px"}}>
@@ -472,7 +472,7 @@ export default function Admin() {
         if(withDays.length===0) return null
         const urgent = withDays.some(g=>g._daysLeft<=1)
         return <div className="alert-banner" style={{display:"flex",alignItems:"flex-start",gap:10,padding:"12px 16px",background:urgent?"var(--red-bg)":"#fff7ed",border:`1px solid ${urgent?"#fecaca":"#fed7aa"}`,borderRadius:12,marginBottom:16,fontSize:13,color:urgent?"var(--red)":"#9a3412",fontWeight:600}}>
-          <span style={{fontSize:18,flexShrink:0,lineHeight:"18px"}}>{urgent?"🔴":"⚠️"}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,marginTop:1}}><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           <span>
             {withDays.length} période{withDays.length>1?"s":""} d'essai expire{withDays.length>1?"nt":""} dans 3 jours ou moins : {withDays.map(g=>`${g.prenom} ${g.nom} (${g._daysLeft}j)`).join(", ")}
           </span>
