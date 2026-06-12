@@ -409,6 +409,7 @@ export default function Gerant() {
       showToast(empForm.prenom+' ajouté — invitation envoyée !')
     }
     setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'',password:''});setCustomRole('')
+    if(showOnboarding) setOnboardingStep(3)
     loadAll()
   }
 
