@@ -2,7 +2,7 @@ import Logo from '../components/Logo'
 import { useEffect, useState } from 'react'
 import { api } from '../apiClient'
 import { useNavigate } from 'react-router-dom'
-const COLORS=[{bg:'#fff1f3',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},{bg:'#fff8ee',color:'#8a4a00'},{bg:'#f0f0fc',color:'#3a3880'},{bg:'#fff2f1',color:'#b02020'},{bg:'#fdf0f8',color:'#8a2060'}]
+const COLORS=[{bg:'#fdf0f3',color:'#9f1239'},{bg:'#f4f4f5',color:'#3f3f46'},{bg:'#fef1f2',color:'#be123c'},{bg:'#f5f5f5',color:'#52525b'},{bg:'#fdf0f3',color:'#881337'},{bg:'#f4f4f5',color:'#27272a'}]
 function ini(p,n){return((p?.[0]||"")+(n?.[0]||"")).toUpperCase()}
 
 const SECTEURS=[
@@ -452,9 +452,9 @@ export default function Admin() {
     <div style={{maxWidth:960,margin:"0 auto",padding:28}}>
       <div className="admin-stats-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:28}}>
         {[
-          {icon:"👤",label:"Clients",value:gerants.length,accent:"#5856d6"},
-          {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length,accent:"#5856d6"},
-          {icon:"👥",label:"Employés",value:employes.length,accent:"#5856d6"},
+          {icon:"👤",label:"Clients",value:gerants.length,accent:"#64748b"},
+          {icon:"🏪",label:"Etablissements",value:restaurants.filter(r=>r.actif&&r.gerant_id).length,accent:"#64748b"},
+          {icon:"👥",label:"Employés",value:employes.length,accent:"#64748b"},
           {icon:"✅",label:"Actifs",value:gerants.filter(g=>g.statut==='active').length,accent:"#16a34a"},
           {icon:"⏳",label:"En trial",value:gerants.filter(g=>!g.statut||g.statut==='trial').length,accent:"#ea580c"},
           {icon:"❌",label:"Expirés",value:gerants.filter(g=>g.statut==='expired'||(g.trial_end_at&&new Date(g.trial_end_at)<new Date())).length,accent:"var(--red)"},
