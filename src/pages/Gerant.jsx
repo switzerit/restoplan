@@ -96,6 +96,10 @@ export default function Gerant() {
   const [view, setView] = useState('planning')
   const [restaurants, setRestaurants] = useState([])
   const [currentResto, setCurrentResto] = useState(null)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [onboardingStep, setOnboardingStep] = useState(1)
+  const [onboardingNomResto, setOnboardingNomResto] = useState("")
+  const [gerantId, setGerantId] = useState(null)
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
   const [congesSemaine, setCongesSemaine] = useState([])
@@ -249,6 +253,7 @@ export default function Gerant() {
       setTrialStatut('active')
     }
     if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
+    if(gerantData&&gerantData.onboarding_complete===false){setShowOnboarding(true);setGerantId(gerantData.id)}
     } catch(e){
  setTrialStatut('active') }
   }
@@ -618,6 +623,44 @@ export default function Gerant() {
     </div>
   )
 
+  if(showOnboarding){
+    return <div style={{position:'fixed',inset:0,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:500,fontFamily:'var(--font)',padding:20}}>
+      <div style={{background:'var(--surface)',borderRadius:20,padding:32,maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,.15)',textAlign:'center'}}>
+        <div style={{display:'flex',justifyContent:'center',gap:6,marginBottom:24}}>
+          {[1,2,3].map(s=><div key={s} style={{width:s===onboardingStep?24:8,height:8,borderRadius:4,background:s<=onboardingStep?'var(--accent)':'var(--border)',transition:'all .2s'}}/>)}
+        </div>
+        {onboardingStep===1&&<>
+          <div style={{fontSize:40,marginBottom:12}}>👋</div>
+          <h2 style={{fontSize:20,fontWeight:800,margin:'0 0 8px'}}>Bienvenue sur Varman !</h2>
+          <p style={{fontSize:14,color:'var(--text2)',marginBottom:20,lineHeight:1.6}}>Pour commencer, donnez un nom a votre etablissement.</p>
+          <input autoFocus value={onboardingNomResto} onChange={e=>setOnboardingNomResto(e.target.value)} placeholder="Ex: Le Bistrot du Port"
+            style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:14,color:'var(--text)',outline:'none',boxSizing:'border-box',marginBottom:20,textAlign:'center',fontWeight:700}}/>
+          <button disabled={!onboardingNomResto.trim()} onClick={async()=>{
+            await api.put(`/restaurants/${currentResto.id}`,{nom:onboardingNomResto.trim()})
+            setCurrentResto(r=>({...r,nom:onboardingNomResto.trim()}))
+            setRestaurants(rs=>rs.map(r=>r.id===currentResto.id?{...r,nom:onboardingNomResto.trim()}:r))
+            setOnboardingStep(2)
+          }} style={{width:'100%',height:46,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:onboardingNomResto.trim()?'pointer':'not-allowed',opacity:onboardingNomResto.trim()?1:.5}}>Continuer</button>
+        </>}
+        {onboardingStep===2&&<>
+          <div style={{fontSize:40,marginBottom:12}}>👥</div>
+          <h2 style={{fontSize:20,fontWeight:800,margin:'0 0 8px'}}>Ajoutez votre equipe</h2>
+          <p style={{fontSize:14,color:'var(--text2)',marginBottom:20,lineHeight:1.6}}>Ajoutez vos premiers employes pour commencer a gerer les plannings et badgeages.</p>
+          <button onClick={()=>setEmpModal(true)} style={{width:'100%',height:46,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer',marginBottom:10}}>+ Ajouter un employe</button>
+          <button onClick={()=>setOnboardingStep(3)} style={{width:'100%',height:42,borderRadius:12,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Continuer</button>
+        </>}
+        {onboardingStep===3&&<>
+          <div style={{fontSize:40,marginBottom:12}}>🎉</div>
+          <h2 style={{fontSize:20,fontWeight:800,margin:'0 0 8px'}}>Tout est pret !</h2>
+          <p style={{fontSize:14,color:'var(--text2)',marginBottom:20,lineHeight:1.6}}>Vous pouvez maintenant gerer vos plannings, badgeages, conges et bien plus.</p>
+          <button onClick={async()=>{
+            if(gerantId) await api.put(`/gerants/${gerantId}`,{onboarding_complete:true})
+            setShowOnboarding(false)
+          }} style={{width:'100%',height:46,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Commencer</button>
+        </>}
+      </div>
+    </div>
+  }
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Signalements':'Paramètres'
 
 

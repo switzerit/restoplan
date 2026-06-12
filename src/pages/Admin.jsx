@@ -111,12 +111,13 @@ export default function Admin() {
   }
 
   async function createClient(){
-    const {nom_resto,adresse,secteur,prenom,nom,email,telephone,entreprise} = createForm
-    if(!nom_resto||!email||!prenom||!nom){showToast("Remplis tous les champs obligatoires");return}
+    const {adresse,secteur,prenom,nom,email,telephone,entreprise} = createForm
+    if(!email||!prenom||!nom){showToast("Remplis tous les champs obligatoires");return}
         showToast("Creation en cours...")
+    const secteurLabel = SECTEURS.find(s=>s.id===(secteur||'restaurant'))?.label?.replace(/^\S+\s/,'')||'Établissement'
     const data = await api.post('/auth/register-gerant', {
       email, prenom, nom, telephone, entreprise,
-      nom_resto, adresse, secteur:secteur||'restaurant',
+      nom_resto: `Nouvel ${secteurLabel}`, adresse, secteur:secteur||'restaurant',
       statut:createForm.compte_type, trial_days:createForm.trial_days,
       features:createForm.features
     })
@@ -562,7 +563,7 @@ export default function Admin() {
           <label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>Secteur d'activité *</label>
           <SecteurSelect value={createForm.secteur} onChange={v=>setCreateForm(f=>({...f,secteur:v}))}/>
         </div>
-        {[{f:"nom_resto",l:"Nom *",ph:"Le Bistrot du Port"},{f:"adresse",l:"Adresse",ph:"12 rue du Port, Marseille"}].map(({f,l,ph})=>(
+        {[{f:"adresse",l:"Adresse",ph:"12 rue du Port, Marseille"}].map(({f,l,ph})=>(
           <div key={f} style={{marginBottom:10}}><label style={{display:"block",fontSize:11,fontWeight:600,color:"var(--text2)",marginBottom:4}}>{l}</label><input placeholder={ph} value={createForm[f]} onChange={e=>setCreateForm(ff=>({...ff,[f]:e.target.value}))} style={inputStyle}/></div>
         ))}
         <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10,marginTop:18}}>GÉRANT</div>
