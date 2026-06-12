@@ -19,6 +19,9 @@ const SECTEURS=[
   {id:'autre',l:'🏢 Autre'},
 ]
 
+const IconEdit = ()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+const IconKey = ()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+const IconTrash = ()=><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
 export default function Admin() {
   const [loading, setLoading] = useState(true)
   const [gerants, setGerants] = useState([])
@@ -221,10 +224,10 @@ export default function Admin() {
         <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div><div style={{fontSize:11,color:"var(--text3)"}}>{g.entreprise||"—"} • {g.email}</div></div>
         </div>
         <div className="gdh-actions" style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-        <button onClick={()=>{setEditGerantForm({prenom:g.prenom,nom:g.nom,email:g.email,telephone:g.telephone||"",entreprise:g.entreprise||""});setEditGerantModal(g)}} style={btnSecondary}>✏️ Modifier</button>
-        <button onClick={()=>{setResetPwdModal(g);setResetPwd("")}} style={btnSecondary}>🔑 MDP</button>
+        <button onClick={()=>{setEditGerantForm({prenom:g.prenom,nom:g.nom,email:g.email,telephone:g.telephone||"",entreprise:g.entreprise||""});setEditGerantModal(g)}} style={{...btnSecondary,display:"flex",alignItems:"center",gap:6,justifyContent:"center"}}><IconEdit/> Modifier</button>
+        <button onClick={()=>{setResetPwdModal(g);setResetPwd("")}} style={{...btnSecondary,display:"flex",alignItems:"center",gap:6,justifyContent:"center"}}><IconKey/> Mot de passe</button>
         
-        <button onClick={()=>setDeleteConfirmModal(g)} style={{padding:"7px 14px",borderRadius:9,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:13,fontWeight:600,cursor:"pointer"}}>🗑️ Supprimer</button>
+        <button onClick={()=>setDeleteConfirmModal(g)} style={{padding:"7px 14px",borderRadius:9,border:"none",background:"var(--red-bg)",color:"var(--red)",fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",gap:6,justifyContent:"center"}}><IconTrash/> Supprimer</button>
         <button onClick={deconnexion} style={{...btnSecondary,background:"transparent"}}>Deconnexion</button>
         </div>
       </div>
