@@ -27,6 +27,7 @@ export default function Admin() {
   const [gerants, setGerants] = useState([])
   const [restaurants, setRestaurants] = useState([])
   const [employes, setEmployes] = useState([])
+  const [search, setSearch] = useState("")
   const [selectedGerant, setSelectedGerant] = useState(null)
   const [createModal, setCreateModal] = useState(false)
   const [createForm, setCreateForm] = useState({nom_resto:"",adresse:"",secteur:"restaurant",prenom:"",nom:"",email:"",telephone:"",entreprise:"",compte_type:'trial',trial_days:14,features:{badgeage:true,conges:true,signalements:true,export_paie:true}})
@@ -466,6 +467,18 @@ export default function Admin() {
           </div>
         ))}
       </div>
+      {(()=>{
+        const expiringSoon = gerants.filter(g=>(!g.statut||g.statut==='trial')&&g.trial_end_at&&Math.floor((new Date(g.trial_end_at)-new Date())/(1000*60*60*24))<=3&&Math.floor((new Date(g.trial_end_at)-new Date())/(1000*60*60*24))>=0)
+        if(expiringSoon.length===0) return null
+        return <div style={{display:"flex",alignItems:"center",gap:10,padding:"12px 16px",background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:12,marginBottom:16,fontSize:13,color:"#9a3412",fontWeight:600}}>
+          <span style={{fontSize:18}}>⚠️</span>
+          <span>{expiringSoon.length} trial{expiringSoon.length>1?"s":""} expire{expiringSoon.length>1?"nt":""} dans 3 jours ou moins : {expiringSoon.map(g=>`${g.prenom} ${g.nom}`).join(", ")}</span>
+        </div>
+      })()}
+      <div style={{marginBottom:16}}>
+        <input type="text" placeholder="Rechercher un client, email ou établissement..." value={search} onChange={e=>setSearch(e.target.value)}
+          style={{width:"100%",padding:"11px 16px",borderRadius:12,border:"1.5px solid var(--border2)",background:"var(--surface)",fontSize:13,color:"var(--text)",outline:"none",boxSizing:"border-box"}}/>
+      </div>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
         {gerants.length===0&&<div style={{padding:60,textAlign:"center",background:"var(--surface)",border:"2px dashed var(--border2)",borderRadius:16}}>
           <div style={{fontSize:36,marginBottom:12}}>👤</div>
@@ -473,7 +486,12 @@ export default function Admin() {
           <div style={{fontSize:13,color:"var(--text2)",marginBottom:20}}>Creez votre premier client pour commencer</div>
           <button onClick={()=>setCreateModal(true)} style={{padding:"10px 24px",borderRadius:10,border:"none",background:"var(--accent)",color:"white",fontSize:14,fontWeight:700,cursor:"pointer"}}>+ Nouveau client</button>
         </div>}
-        {gerants.map((g,i)=>{
+        {gerants.filter(g=>{
+          if(!search.trim()) return true
+          const q=search.toLowerCase()
+          const restos=restaurants.filter(r=>r.gerant_id===g.user_id)
+          return `${g.prenom} ${g.nom}`.toLowerCase().includes(q) || (g.email||"").toLowerCase().includes(q) || (g.entreprise||"").toLowerCase().includes(q) || restos.some(r=>r.nom.toLowerCase().includes(q))
+        }).map((g,i)=>{
           const restos=restaurants.filter(r=>r.gerant_id===g.user_id)
           const empCount=employes.filter(e=>restos.some(r=>r.id===e.restaurant_id)).length
           const c=COLORS[i%COLORS.length]
