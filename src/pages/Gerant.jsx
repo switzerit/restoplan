@@ -624,8 +624,7 @@ export default function Gerant() {
     </div>
   )
 
-  if(showOnboarding){
-    return <div style={{position:'fixed',inset:0,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:50,fontFamily:'var(--font)',padding:20}}>
+    const onboardingOverlay = !showOnboarding ? null : <div style={{position:'fixed',inset:0,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:50,fontFamily:'var(--font)',padding:20}}>
       <div style={{background:'var(--surface)',borderRadius:20,padding:32,maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,.15)',textAlign:'center'}}>
         <div style={{display:'flex',justifyContent:'center',gap:6,marginBottom:24}}>
           {[1,2,3].map(s=><div key={s} style={{width:s===onboardingStep?24:8,height:8,borderRadius:4,background:s<=onboardingStep?'var(--accent)':'var(--border)',transition:'all .2s'}}/>)}
@@ -678,7 +677,6 @@ export default function Gerant() {
         </>}
       </div>
     </div>
-  }
   const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Signalements':'Paramètres'
 
 
@@ -1618,6 +1616,7 @@ export default function Gerant() {
         )
       })()}
       {toast&&<div style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'var(--text)',color:'white',padding:'9px 20px',borderRadius:20,fontSize:13,fontWeight:600,zIndex:300,whiteSpace:'nowrap'}}>{toast}</div>}
+      {onboardingOverlay}
     </div>
   )
 }
