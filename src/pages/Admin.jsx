@@ -234,7 +234,7 @@ export default function Admin() {
       </div>
       <div style={{maxWidth:900,margin:"0 auto",padding:28}}>
         <div className="gerant-detail-stats" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
-          {[{icon:"🏪",label:"Établissements",value:restos.length},{icon:"👥",label:"Employés",value:empCount},{icon:"📊",label:"Statut",value:g.statut==='active'?'Actif':g.statut==='expired'?'Expiré':'Trial',color:g.statut==='active'?'var(--green)':g.statut==='expired'?'var(--red)':'#ea580c'}].map((s,i)=>(
+          {[{icon:"🏪",label:"Établissements",value:restos.length},{icon:"👥",label:"Employés",value:empCount},{icon:"📊",label:"Statut",value:g.statut==='active'?'Actif':g.statut==='expired'?'Expiré':'Essai',color:g.statut==='active'?'var(--green)':g.statut==='expired'?'var(--red)':'#ea580c'}].map((s,i)=>(
             <div key={i} style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:14,padding:"16px 20px"}}>
               <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
               <div style={{fontSize:24,fontWeight:800,color:s.color||"var(--text)"}}>{s.value}</div>
@@ -256,14 +256,14 @@ export default function Admin() {
         {/* TRIAL */}
         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:20,marginBottom:16}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-            <div style={{fontSize:13,fontWeight:700}}>⏱️ Abonnement / Trial</div>
+            <div style={{fontSize:13,fontWeight:700}}>⏱️ Abonnement / Essai</div>
             <button onClick={()=>{setTrialForm({statut:g.statut||'trial',days:14});setTrialModal(g)}} style={{padding:"6px 14px",borderRadius:9,border:"none",background:"var(--accent)",color:"white",fontSize:12,fontWeight:700,cursor:"pointer"}}>Gérer</button>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
             <div style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
               <div style={{fontSize:10,color:"var(--text3)",fontWeight:700,marginBottom:3}}>STATUT</div>
               <div style={{fontSize:13,fontWeight:700,color:g.statut==='active'?'#16a34a':g.statut==='expired'?'#dc2626':'#ea580c'}}>
-                {g.statut==='active'?'✅ Actif':g.statut==='expired'?'❌ Expiré':'⏳ Trial'}
+                {g.statut==='active'?'✅ Actif':g.statut==='expired'?'❌ Expiré':'⏳ Essai'}
               </div>
             </div>
             <div style={{padding:"10px 14px",background:"var(--bg)",borderRadius:10}}>
@@ -335,7 +335,7 @@ export default function Admin() {
           <div style={{marginBottom:16}}>
             <div style={{fontSize:11,fontWeight:700,color:"var(--text2)",marginBottom:8}}>STATUT</div>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {[{v:'trial',l:'⏳ Trial en cours',d:'Accès limité dans le temps'},{v:'active',l:'✅ Compte actif',d:'Accès complet sans limite'},{v:'expired',l:'❌ Expiré',d:'Accès bloqué'}].map(({v,l,d})=>(
+              {[{v:'trial',l:'⏳ Essai en cours',d:'Accès limité dans le temps'},{v:'active',l:'✅ Compte actif',d:'Accès complet sans limite'},{v:'expired',l:'❌ Expiré',d:'Accès bloqué'}].map(({v,l,d})=>(
                 <div key={v} onClick={()=>setTrialForm(f=>({...f,statut:v}))}
                   style={{padding:"10px 14px",borderRadius:10,border:`2px solid ${trialForm.statut===v?"var(--accent)":"var(--border)"}`,background:trialForm.statut===v?"var(--accent-bg)":"var(--bg)",cursor:"pointer"}}>
                   <div style={{fontSize:13,fontWeight:700,color:trialForm.statut===v?"var(--accent)":"var(--text)"}}>{l}</div>
@@ -468,11 +468,14 @@ export default function Admin() {
         ))}
       </div>
       {(()=>{
-        const expiringSoon = gerants.filter(g=>(!g.statut||g.statut==='trial')&&g.trial_end_at&&Math.floor((new Date(g.trial_end_at)-new Date())/(1000*60*60*24))<=3&&Math.floor((new Date(g.trial_end_at)-new Date())/(1000*60*60*24))>=0)
-        if(expiringSoon.length===0) return null
-        return <div style={{display:"flex",alignItems:"center",gap:10,padding:"12px 16px",background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:12,marginBottom:16,fontSize:13,color:"#9a3412",fontWeight:600}}>
-          <span style={{fontSize:18}}>⚠️</span>
-          <span>{expiringSoon.length} trial{expiringSoon.length>1?"s":""} expire{expiringSoon.length>1?"nt":""} dans 3 jours ou moins : {expiringSoon.map(g=>`${g.prenom} ${g.nom}`).join(", ")}</span>
+        const withDays = gerants.filter(g=>!g.statut||g.statut==='trial').filter(g=>g.trial_end_at).map(g=>({...g,_daysLeft:Math.floor((new Date(g.trial_end_at)-new Date())/(1000*60*60*24))})).filter(g=>g._daysLeft<=3&&g._daysLeft>=0)
+        if(withDays.length===0) return null
+        const urgent = withDays.some(g=>g._daysLeft<=1)
+        return <div className="alert-banner" style={{display:"flex",alignItems:"flex-start",gap:10,padding:"12px 16px",background:urgent?"var(--red-bg)":"#fff7ed",border:`1px solid ${urgent?"#fecaca":"#fed7aa"}`,borderRadius:12,marginBottom:16,fontSize:13,color:urgent?"var(--red)":"#9a3412",fontWeight:600}}>
+          <span style={{fontSize:18,flexShrink:0,lineHeight:"18px"}}>{urgent?"🔴":"⚠️"}</span>
+          <span>
+            {withDays.length} période{withDays.length>1?"s":""} d'essai expire{withDays.length>1?"nt":""} dans 3 jours ou moins : {withDays.map(g=>`${g.prenom} ${g.nom} (${g._daysLeft}j)`).join(", ")}
+          </span>
         </div>
       })()}
       <div style={{marginBottom:16}}>
@@ -506,7 +509,7 @@ export default function Admin() {
                   <span style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:20,
                     background:g.statut==='active'?"var(--green-bg)":g.statut==='expired'?"var(--red-bg)":"#fff7ed",
                     color:g.statut==='active'?"#1a6b35":g.statut==='expired'?"var(--red)":"#ea580c"
-                  }}>{g.statut==='active'?'✅ Actif':g.statut==='expired'?'❌ Expiré':'⏳ Trial'}</span>
+                  }}>{g.statut==='active'?'✅ Actif':g.statut==='expired'?'❌ Expiré':'⏳ Essai'}</span>
                 </div>
                 <div style={{fontSize:12,color:"var(--text2)",marginTop:3}}>{g.entreprise||"—"} • {g.email}</div>
                 {g.telephone&&<div style={{fontSize:11,color:"var(--text3)",marginTop:1}}>📞 {g.telephone}</div>}
@@ -524,10 +527,10 @@ export default function Admin() {
               <div style={{color:"var(--text3)",fontSize:18}}>›</div>
             </div>
             {(!g.statut||g.statut==='trial')&&g.trial_end_at&&(()=>{
-              const now=new Date(), end=new Date(g.trial_end_at), start=new Date(g.created_at)
-              const totalDays=Math.max(1,Math.ceil((end-start)/(1000*60*60*24)))
-              const daysLeft=Math.max(0,Math.ceil((end-now)/(1000*60*60*24)))
-              const pct=Math.min(100,Math.max(0,(daysLeft/totalDays)*100))
+              const now=new Date(), end=new Date(g.trial_end_at)
+              const daysLeft=Math.max(0,Math.floor((end-now)/(1000*60*60*24)))
+              const REFDAYS=14
+              const pct=Math.min(100,Math.max(0,(daysLeft/REFDAYS)*100))
               return <div style={{marginTop:14,paddingTop:12,borderTop:"1px solid var(--border)"}}>
                 <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"var(--text2)",marginBottom:5}}>
                   <span>Période d'essai</span>
@@ -574,7 +577,7 @@ export default function Admin() {
         <div style={{marginBottom:14}}>
           <div style={{fontSize:11,fontWeight:700,color:"var(--text3)",letterSpacing:".06em",marginBottom:10}}>TYPE DE COMPTE</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {[{v:'trial',l:'⏳ Trial',d:'Accès limité dans le temps'},{v:'active',l:'✅ Actif',d:'Accès complet sans limite'}].map(({v,l,d})=>(
+            {[{v:'trial',l:'⏳ Essai',d:'Accès limité dans le temps'},{v:'active',l:'✅ Actif',d:'Accès complet sans limite'}].map(({v,l,d})=>(
               <div key={v} onClick={()=>setCreateForm(f=>({...f,compte_type:v}))}
                 style={{padding:"10px 14px",borderRadius:10,border:`2px solid ${createForm.compte_type===v?"var(--accent)":"var(--border)"}`,background:createForm.compte_type===v?"var(--accent-bg)":"var(--bg)",cursor:"pointer"}}>
                 <div style={{fontSize:13,fontWeight:700,color:createForm.compte_type===v?"var(--accent)":"var(--text)"}}>{l}</div>
