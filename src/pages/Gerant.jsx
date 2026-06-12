@@ -100,6 +100,7 @@ export default function Gerant() {
   const [onboardingStep, setOnboardingStep] = useState(1)
   const [onboardingNomResto, setOnboardingNomResto] = useState("")
   const [gerantId, setGerantId] = useState(null)
+  const [gerantPrenom, setGerantPrenom] = useState("")
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
   const [congesSemaine, setCongesSemaine] = useState([])
@@ -253,7 +254,7 @@ export default function Gerant() {
       setTrialStatut('active')
     }
     if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
-    if(gerantData&&gerantData.onboarding_complete===false){setShowOnboarding(true);setGerantId(gerantData.id)}
+    if(gerantData&&gerantData.onboarding_complete===false){setShowOnboarding(true);setGerantId(gerantData.id);setGerantPrenom(gerantData.prenom||"")}
     } catch(e){
  setTrialStatut('active') }
   }
@@ -630,9 +631,18 @@ export default function Gerant() {
           {[1,2,3].map(s=><div key={s} style={{width:s===onboardingStep?24:8,height:8,borderRadius:4,background:s<=onboardingStep?'var(--accent)':'var(--border)',transition:'all .2s'}}/>)}
         </div>
         {onboardingStep===1&&<>
-          <div style={{fontSize:40,marginBottom:12}}>👋</div>
-          <h2 style={{fontSize:20,fontWeight:800,margin:'0 0 8px'}}>Bienvenue sur Varman !</h2>
-          <p style={{fontSize:14,color:'var(--text2)',marginBottom:20,lineHeight:1.6}}>Pour commencer, donnez un nom a votre etablissement.</p>
+          <div style={{fontSize:40,marginBottom:12}}>🎉</div>
+          <h2 style={{fontSize:21,fontWeight:800,margin:'0 0 8px'}}>Bienvenue{gerantPrenom?` ${gerantPrenom}`:''} !</h2>
+          <p style={{fontSize:14,color:'var(--text2)',marginBottom:16,lineHeight:1.6}}>Merci d'avoir choisi Varman pour simplifier la gestion de votre equipe.</p>
+          <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20,textAlign:'left',background:'var(--bg)',borderRadius:12,padding:14}}>
+            {[['📅','Planning','Organisez les horaires de votre equipe'],['📱','Badgeage QR','Vos employes pointent en un scan'],['🏖️','Conges','Gerez les demandes en quelques clics'],['🔔','Signalements','Restez informe en temps reel']].map(([icon,t,d])=>(
+              <div key={t} style={{display:'flex',alignItems:'flex-start',gap:10}}>
+                <span style={{fontSize:18}}>{icon}</span>
+                <div><div style={{fontSize:13,fontWeight:700}}>{t}</div><div style={{fontSize:12,color:'var(--text2)'}}>{d}</div></div>
+              </div>
+            ))}
+          </div>
+          <p style={{fontSize:14,color:'var(--text2)',marginBottom:12,lineHeight:1.6}}>Pour commencer, donnez un nom a votre etablissement :</p>
           <input autoFocus value={onboardingNomResto} onChange={e=>setOnboardingNomResto(e.target.value)} placeholder="Ex: Le Bistrot du Port"
             style={{width:'100%',padding:'12px 14px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:14,color:'var(--text)',outline:'none',boxSizing:'border-box',marginBottom:20,textAlign:'center',fontWeight:700}}/>
           <button disabled={!onboardingNomResto.trim()} onClick={async()=>{
@@ -650,13 +660,21 @@ export default function Gerant() {
           <button onClick={()=>setOnboardingStep(3)} style={{width:'100%',height:42,borderRadius:12,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Continuer</button>
         </>}
         {onboardingStep===3&&<>
-          <div style={{fontSize:40,marginBottom:12}}>🎉</div>
-          <h2 style={{fontSize:20,fontWeight:800,margin:'0 0 8px'}}>Tout est pret !</h2>
-          <p style={{fontSize:14,color:'var(--text2)',marginBottom:20,lineHeight:1.6}}>Vous pouvez maintenant gerer vos plannings, badgeages, conges et bien plus.</p>
+          <div style={{fontSize:40,marginBottom:12}}>🚀</div>
+          <h2 style={{fontSize:21,fontWeight:800,margin:'0 0 8px'}}>Tout est pret, {gerantPrenom||'a vous'} !</h2>
+          <p style={{fontSize:14,color:'var(--text2)',marginBottom:16,lineHeight:1.6}}>Voici ce que vous pouvez faire des maintenant :</p>
+          <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20,textAlign:'left',background:'var(--bg)',borderRadius:12,padding:14}}>
+            {[['📅','Creer le planning','Organisez les horaires de la semaine'],['📱','Activer la borne','Vos employes badgent a l\'arrivee'],['👥','Gerer votre equipe','Ajoutez, modifiez vos employes a tout moment']].map(([icon,t,d])=>(
+              <div key={t} style={{display:'flex',alignItems:'flex-start',gap:10}}>
+                <span style={{fontSize:18}}>{icon}</span>
+                <div><div style={{fontSize:13,fontWeight:700}}>{t}</div><div style={{fontSize:12,color:'var(--text2)'}}>{d}</div></div>
+              </div>
+            ))}
+          </div>
           <button onClick={async()=>{
             if(gerantId) await api.put(`/gerants/${gerantId}`,{onboarding_complete:true})
             setShowOnboarding(false)
-          }} style={{width:'100%',height:46,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Commencer</button>
+          }} style={{width:'100%',height:46,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Commencer a utiliser Varman</button>
         </>}
       </div>
     </div>
