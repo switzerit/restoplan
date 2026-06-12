@@ -624,7 +624,7 @@ export default function Gerant() {
   )
 
   if(showOnboarding){
-    return <div style={{position:'fixed',inset:0,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:500,fontFamily:'var(--font)',padding:20}}>
+    return <div style={{position:'fixed',inset:0,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:50,fontFamily:'var(--font)',padding:20}}>
       <div style={{background:'var(--surface)',borderRadius:20,padding:32,maxWidth:440,width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,.15)',textAlign:'center'}}>
         <div style={{display:'flex',justifyContent:'center',gap:6,marginBottom:24}}>
           {[1,2,3].map(s=><div key={s} style={{width:s===onboardingStep?24:8,height:8,borderRadius:4,background:s<=onboardingStep?'var(--accent)':'var(--border)',transition:'all .2s'}}/>)}
