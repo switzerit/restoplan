@@ -254,7 +254,7 @@ export default function Gerant() {
       setTrialStatut('active')
     }
     if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
-    if(gerantData&&gerantData.onboarding_complete===false){setShowOnboarding(true);setGerantId(gerantData.id);setGerantPrenom(gerantData.prenom||"")}
+    if(gerantData&&gerantData.onboarding_complete===false){setShowOnboarding(true);setGerantId(gerantData.id);setGerantPrenom(gerantData.prenom||"");setOnboardingStep(gerantData.onboarding_step||1)}
     } catch(e){
  setTrialStatut('active') }
   }
@@ -409,7 +409,7 @@ export default function Gerant() {
       showToast(empForm.prenom+' ajouté — invitation envoyée !')
     }
     setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'',password:''});setCustomRole('')
-    if(showOnboarding) setOnboardingStep(3)
+    if(showOnboarding){if(gerantId) await api.put(`/gerants/${gerantId}`,{onboarding_step:3});setOnboardingStep(3)}
     loadAll()
   }
 
@@ -649,6 +649,7 @@ export default function Gerant() {
             await api.put(`/restaurants/${currentResto.id}`,{nom:onboardingNomResto.trim()})
             setCurrentResto(r=>({...r,nom:onboardingNomResto.trim()}))
             setRestaurants(rs=>rs.map(r=>r.id===currentResto.id?{...r,nom:onboardingNomResto.trim()}:r))
+            if(gerantId) await api.put(`/gerants/${gerantId}`,{onboarding_step:2})
             setOnboardingStep(2)
           }} style={{width:'100%',height:46,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:onboardingNomResto.trim()?'pointer':'not-allowed',opacity:onboardingNomResto.trim()?1:.5}}>Continuer</button>
         </>}
@@ -657,7 +658,7 @@ export default function Gerant() {
           <h2 style={{fontSize:20,fontWeight:800,margin:'0 0 8px'}}>Ajoutez votre equipe</h2>
           <p style={{fontSize:14,color:'var(--text2)',marginBottom:20,lineHeight:1.6}}>Ajoutez vos premiers employes pour commencer a gerer les plannings et badgeages.</p>
           <button onClick={()=>setEmpModal(true)} style={{width:'100%',height:46,borderRadius:12,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer',marginBottom:10}}>+ Ajouter un employe</button>
-          <button onClick={()=>setOnboardingStep(3)} style={{width:'100%',height:42,borderRadius:12,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Continuer</button>
+          <button onClick={async()=>{if(gerantId) await api.put(`/gerants/${gerantId}`,{onboarding_step:3});setOnboardingStep(3)}} style={{width:'100%',height:42,borderRadius:12,border:'1px solid var(--border)',background:'transparent',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>Continuer</button>
         </>}
         {onboardingStep===3&&<>
           <div style={{fontSize:40,marginBottom:12}}>🚀</div>
