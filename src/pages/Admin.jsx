@@ -221,7 +221,7 @@ export default function Admin() {
       <div className="gerant-detail-header" style={{background:"var(--surface)",boxShadow:"0 1px 3px rgba(0,0,0,.06)",padding:"14px 28px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",position:"sticky",top:0,zIndex:10}}>
         <div className="gdh-identity" style={{display:"flex",alignItems:"center",gap:10,flex:1,minWidth:0}}>
         <button onClick={()=>setSelectedGerant(null)} style={btnSecondary}>← Retour</button>
-        <div style={{width:36,height:36,background:"linear-gradient(135deg,#E11D48,#5856d6)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:"white"}}>{ini(g.prenom,g.nom)}</div>
+        <div style={{width:36,height:36,background:"linear-gradient(135deg,#E11D48,#1e293b)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:800,color:"white"}}>{ini(g.prenom,g.nom)}</div>
         <div style={{flex:1}}><div style={{fontSize:15,fontWeight:800}}>{g.prenom} {g.nom}</div><div style={{fontSize:11,color:"var(--text3)"}}>{g.entreprise||"—"} • {g.email}</div></div>
         </div>
         <div className="gdh-actions" style={{display:"flex",gap:8,flexWrap:"wrap"}}>
