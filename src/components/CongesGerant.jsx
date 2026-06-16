@@ -202,7 +202,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
             return (
               <div key={c.id} style={{background:'var(--surface)',border:`2px solid ${type.bc}`,borderRadius:16,padding:16}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-                  <div style={{width:36,height:36,borderRadius:'50%',background:type.bg,color:type.c,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,flexShrink:0}}>{(emp?.prenom?.[0]||'')+(emp?.nom?.[0]||'')}</div>
+                  <div style={{width:36,height:36,borderRadius:'50%',background:'#fff1f3',color:'#E11D48',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,flexShrink:0}}>{(emp?.prenom?.[0]||'')+(emp?.nom?.[0]||'')}</div>
                   <div style={{flex:1}}>
                     <div style={{fontSize:14,fontWeight:700}}>{emp?.prenom} {emp?.nom}</div>
                     <div style={{fontSize:11,color:'var(--text2)'}}>{emp?.role}</div>
