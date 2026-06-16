@@ -51,8 +51,8 @@ export default function SignalementsEmploye({ employe }) {
   return (
     <div>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
-        <div style={{ fontSize:15, fontWeight:800 }}>🔔 Signalements</div>
-        <button onClick={() => setModal(true)} style={{ padding:'8px 16px', borderRadius:10, border:'none', background:'#E11D48', color:'white', fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Signaler</button>
+        <div style={{ fontSize:15, fontWeight:800 }}>⏱️ Mes pointages</div>
+        <button onClick={() => setModal(true)} style={{ padding:'8px 16px', borderRadius:10, border:'none', background:'#E11D48', color:'white', fontSize:13, fontWeight:700, cursor:'pointer' }}>+ Corriger un pointage</button>
       </div>
 
       {signalements.length === 0 ? (
