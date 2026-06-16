@@ -679,7 +679,7 @@ export default function Gerant() {
         </>}
       </div>
     </div>
-  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Signalements':'Paramètres'
+  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Corrections de pointage':'Paramètres'
 
 
   return (
@@ -726,7 +726,7 @@ export default function Gerant() {
           ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
           {id:'employes',icon:'👤',label:'Équipe'},
           ...(features.conges?[{id:'conges',icon:'🏖️',label:'Congés'}]:[]),
-          ...(features.signalements?[{id:'signalements',icon:'🔔',label:'Signalements'}]:[]),
+          ...(features.signalements?[{id:'signalements',icon:'⚡',label:'Corrections'}]:[]),
           {id:'parametres',icon:'⚙️',label:'Paramètres'},
         ].map(item=>(
           <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',alignItems:'center',gap:9,padding:'9px 10px',borderRadius:9,cursor:'pointer',fontSize:13,fontWeight:600,border:'none',width:'100%',textAlign:'left',background:view===item.id?'var(--accent-bg)':'transparent',color:view===item.id?'var(--accent)':'var(--text2)',marginBottom:2}}>
@@ -1184,7 +1184,7 @@ export default function Gerant() {
             ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
             {id:'employes',icon:'👤',label:'Équipe'},
             ...(features.conges?[{id:'conges',icon:'🏖️',label:'Congés'}]:[]),
-          ...(features.signalements?[{id:'signalements',icon:'🔔',label:'Signalements'}]:[]),
+          ...(features.signalements?[{id:'signalements',icon:'⚡',label:'Corrections'}]:[]),
             {id:'parametres',icon:'⚙️',label:'Réglages'},
           ].map(item=>(
             <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'2px 12px',border:'none',background:'transparent',cursor:'pointer',position:'relative'}}>
