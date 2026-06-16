@@ -75,6 +75,10 @@ export default function CongesEmploye({employe}) {
   const cpTotal=empData?.conges_total||25
   const cpPris=empData.conges_pris||0
   const cpSolde=cpTotal-cpPris
+  const cpReportes=empData?.conges_reportes||0
+  const cpReportPlafond=empData?.conges_report_plafond||0
+  const cpReportExpiration=empData?.conges_report_expiration||null
+  const reportExpire=cpReportExpiration&&new Date(cpReportExpiration)<new Date()
   const rttTotal=empData.rtt_total||0
   const rttPris=empData.rtt_pris||0
   const rttSolde=rttTotal-rttPris
