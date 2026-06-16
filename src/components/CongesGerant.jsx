@@ -4,6 +4,7 @@ import { api } from '../apiClient'
 
 const TYPES = {
   conge_paye:{l:'Congé payé',emoji:'🏖️',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
+  conges_reportes:{l:'Congés reportés N-1',emoji:'🔄',c:'#2563EB',bg:'#eff6ff',bc:'#bfdbfe'},
   maladie:{l:'Arrêt maladie',emoji:'🏥',c:'#dc2626',bg:'#fef2f2',bc:'#fecaca'},
   rtt:{l:'RTT',emoji:'⏰',c:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff'},
   sans_solde:{l:'Sans solde',emoji:'📋',c:'#ea580c',bg:'#fff7ed',bc:'#fed7aa'},
@@ -16,8 +17,8 @@ const STATUTS = {
   annule:{l:'Annulé',e:'🚫',c:'#6b7280',bg:'#f3f4f6',bc:'#e5e7eb'},
 }
 
-function fmtLabel(s){const d=new Date(s+'T00:00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}
-function fmtShort(s){const d=new Date(s+'T00:00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}
+function fmtLabel(s){if(!s)return '—';const str=typeof s==='string'?s:s.toISOString().split('T')[0];const d=new Date(str+'T00:00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}
+function fmtShort(s){if(!s)return '—';const str=typeof s==='string'?s:s.toISOString().split('T')[0];const d=new Date(str+'T00:00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}
 function nbJours(d1,d2){return Math.max(1,Math.round((new Date(d2)-new Date(d1))/(1000*60*60*24))+1)}
 
 function doExportPDF(conges, restaurant, employes, filtreEmp, dateDebut, dateFin){

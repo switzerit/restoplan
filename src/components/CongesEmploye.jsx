@@ -19,7 +19,9 @@ const STATUT_STYLE = {
 
 function fmtDate(d){return d.toISOString().split('T')[0]}
 function fmtLabel(s){
-  const d=new Date(s+'T00:00:00')
+  if(!s) return '—'
+  const str=typeof s==='string'?s:s.toISOString().split('T')[0]
+  const d=new Date(str+'T00:00:00')
   return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
 }
 function nbJours(d1,d2){
