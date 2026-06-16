@@ -104,9 +104,6 @@ export default function CongesGerant({restaurant, employes, showToast}) {
 
   async function loadConges(){
     const data=await api.get(`/conges?restaurant_id=${restaurant.id}`)
-      .select('*,employes(id,prenom,nom,email,role,conges_total,conges_pris,rtt_total,rtt_pris)')
-      .eq('restaurant_id',restaurant.id)
-      .order('created_at',{ascending:false})
     setConges(data||[])
   }
 
