@@ -113,23 +113,23 @@ export default function CongesGerant({restaurant, employes, showToast}) {
     const jours=nbJours(c.date_debut,c.date_fin)
     await api.put(`/conges/${id}`, {statut,commentaire_gerant:commentaire||null})
     if(statut==='accepte'){
-      if(c.type==='conge_paye') await api.put(`/employes/${c.employe_id}`, {conges_pris:(c.employes?.conges_pris||0)+jours})
-      if(c.type==='rtt') await api.put(`/employes/${c.employe_id}`, {rtt_pris:(c.employes?.rtt_pris||0)+jours})
+      if(c.type==='conge_paye') await api.put(`/employes/${c.employe_id}`, {conges_pris:(c.conges_pris||0)+jours})
+      if(c.type==='rtt') await api.put(`/employes/${c.employe_id}`, {rtt_pris:(c.rtt_pris||0)+jours})
       // Supprimer les shifts en conflit automatiquement
       await api.delete(`/shifts/employe/${c.employe_id}?from=${c.date_debut}&to=${c.date_fin}`)
     }
     if((statut==='refuse'||statut==='annule')&&c?.statut==='accepte'){
-      if(c.type==='conge_paye') await api.put(`/employes/${c.employe_id}`, {conges_pris:Math.max(0,(c.employes?.conges_pris||0)-jours)})
-      if(c.type==='rtt') await api.put(`/employes/${c.employe_id}`, {rtt_pris:Math.max(0,(c.employes?.rtt_pris||0)-jours)})
+      if(c.type==='conge_paye') await api.put(`/employes/${c.employe_id}`, {conges_pris:Math.max(0,(c.conges_pris||0)-jours)})
+      if(c.type==='rtt') await api.put(`/employes/${c.employe_id}`, {rtt_pris:Math.max(0,(c.rtt_pris||0)-jours)})
     }
     // Envoyer email notification à l'employé
-    const empEmail = c.employes?.email
+    const empEmail = c.email || c.employes?.email
     if(empEmail) {
       await api.post('/emails/conge', {
         body: {
           type: 'conge',
           to: empEmail,
-          prenom: c.employes?.prenom || '',
+          prenom: c.prenom || c.employes?.prenom || '',
           type_conge: c.type,
           statut,
           date_debut: c.date_debut,
