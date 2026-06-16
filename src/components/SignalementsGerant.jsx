@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { api } from '../apiClient'
 
 const TYPES = {
-  oubli_arrivee: "Oubli d'arrivée",
-  oubli_depart: "Oubli de départ",
+  oubli_arrivee: "Arrivée non pointée",
+  oubli_depart: "Départ non pointé",
   heure_incorrecte: "Heure incorrecte",
   autre: "Autre"
 }
@@ -28,6 +28,14 @@ export default function SignalementsGerant({ restaurant, employes }) {
     setSelected(null); setCommentaire(''); load()
   }
 
+  async function appliquerCorrection(s) {
+    const heure_type = s.type === 'heure_incorrecte'
+      ? (window.confirm('Corriger l\'heure d\'arrivée ? (Annuler = heure de départ)') ? 'arrivee' : 'depart')
+      : null
+    await api.post(`/signalements/${s.id}/appliquer`, { commentaire_gerant: commentaire||null, heure_type })
+    setSelected(null); setCommentaire(''); load()
+  }
+
   async function supprimer(id) {
     if (!confirm('Supprimer ce signalement ?')) return
     await api.delete(`/signalements/${id}`)
@@ -35,21 +43,19 @@ export default function SignalementsGerant({ restaurant, employes }) {
   }
 
   async function sauvegarderEdit() {
-    await api.put(`/signalements/${id}`, {
+    await api.put(`/signalements/${selected.id}`, {
       date: editForm.date,
       type: editForm.type,
       heure_souhaitee: editForm.heure_souhaitee || null,
       message: editForm.message || null,
       commentaire_gerant: editForm.commentaire_gerant || null
-    }).eq('id', selected.id)
+    })
     setEditMode(false); setSelected(null); load()
   }
 
   async function supprimerTousTraites() {
     if (!confirm('Supprimer tous les signalements traités et rejetés ?')) return
     await api.delete(`/signalements/restaurant/${restaurant.id}`)
-      .eq('restaurant_id', restaurant.id)
-      .in('statut', ['traite', 'rejete'])
     load()
   }
 
@@ -83,8 +89,7 @@ export default function SignalementsGerant({ restaurant, employes }) {
           <div style={{ fontSize: 13 }}>{filtre === 'en_attente' ? 'Aucun signalement en attente' : 'Aucun signalement'}</div>
         </div>
       ) : filtered.map(s => {
-        const emp = s.employes
-        const statutStyle = {
+                const statutStyle = {
           en_attente: { bg: '#fff7ed', c: '#ea580c', bc: '#fed7aa', l: '⏳ À traiter' },
           traite: { bg: '#f0fdf4', c: '#16a34a', bc: '#bbf7d0', l: '✅ Traité' },
           rejete: { bg: '#fef2f2', c: '#dc2626', bc: '#fecaca', l: '❌ Rejeté' }
@@ -95,7 +100,7 @@ export default function SignalementsGerant({ restaurant, employes }) {
             <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#fff1f3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>🔔</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 700 }}>{emp?.prenom} {emp?.nom}</div>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>{s.prenom} {s.nom}</div>
                 <div style={{ fontSize: 11, color: 'var(--text2)', marginTop: 2 }}>
                   {TYPES[s.type]} · {new Date(s.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                   {s.heure_souhaitee && ` · ${s.heure_souhaitee}`}
@@ -116,7 +121,7 @@ export default function SignalementsGerant({ restaurant, employes }) {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16, gap: 8 }}>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800 }}>🔔 Signalement</div>
-                <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>{selected.employes?.prenom} {selected.employes?.nom}</div>
+                <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>{selected.prenom} {selected.nom}</div>
               </div>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                 <button onClick={() => { setEditMode(!editMode); setCommentaire(selected.commentaire_gerant||'') }}
@@ -166,7 +171,7 @@ export default function SignalementsGerant({ restaurant, employes }) {
             ) : (
               <>
                 <div style={{ background: 'var(--bg)', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{selected.employes?.prenom} {selected.employes?.nom}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{selected.prenom} {selected.nom}</div>
                   <div style={{ fontSize: 12, color: 'var(--text2)' }}>Type : {TYPES[selected.type]}</div>
                   <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>Date : {new Date(selected.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
                   {selected.heure_souhaitee && <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 2 }}>Heure souhaitée : <strong>{selected.heure_souhaitee}</strong></div>}
@@ -180,9 +185,17 @@ export default function SignalementsGerant({ restaurant, employes }) {
                       <textarea value={commentaire} onChange={e => setCommentaire(e.target.value)} placeholder="Ex: Pointage corrigé à 17h00"
                         style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1.5px solid var(--border2)', background: 'var(--bg)', fontSize: 13, resize: 'none', height: 70, outline: 'none' }} />
                     </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button onClick={() => traiter(selected.id, 'rejete')} style={{ flex: 1, height: 44, borderRadius: 11, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>❌ Rejeter</button>
-                      <button onClick={() => traiter(selected.id, 'traite')} style={{ flex: 2, height: 44, borderRadius: 11, border: 'none', background: '#16a34a', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>✅ Traité</button>
+                    <div style={{ display: 'flex', flexDirection:'column', gap: 8 }}>
+                      {(selected.type==='oubli_arrivee'||selected.type==='oubli_depart'||selected.type==='heure_incorrecte')&&selected.heure_souhaitee&&(
+                        <button onClick={() => appliquerCorrection(selected)}
+                          style={{ width:'100%', height: 48, borderRadius: 11, border: 'none', background: '#2563EB', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                          ⚡ Appliquer la correction ({selected.heure_souhaitee})
+                        </button>
+                      )}
+                      <div style={{ display:'flex', gap:8 }}>
+                        <button onClick={() => traiter(selected.id, 'rejete')} style={{ flex: 1, height: 44, borderRadius: 11, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>❌ Rejeter</button>
+                        <button onClick={() => traiter(selected.id, 'traite')} style={{ flex: 2, height: 44, borderRadius: 11, border: 'none', background: '#16a34a', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>✅ Marquer traité</button>
+                      </div>
                     </div>
                   </>
                 )}

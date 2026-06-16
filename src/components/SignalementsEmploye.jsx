@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { api } from '../apiClient'
 
 const TYPES = {
-  oubli_arrivee: { l: "Oubli d'arrivée", icon: '🕐' },
-  oubli_depart: { l: "Oubli de départ", icon: '🕐' },
-  heure_incorrecte: { l: "Heure incorrecte", icon: '✏️' },
-  autre: { l: "Autre", icon: '❓' }
+  oubli_arrivee: { l: "Je n'ai pas pointé mon arrivée", icon: '🟢' },
+  oubli_depart: { l: "Je n'ai pas pointé mon départ", icon: '🔴' },
+  heure_incorrecte: { l: "Mon heure pointée est incorrecte", icon: '✏️' },
+  autre: { l: "Autre problème", icon: '❓' }
 }
 
 export default function SignalementsEmploye({ employe }) {
@@ -34,7 +34,7 @@ export default function SignalementsEmploye({ employe }) {
       message: form.message || null
     })
     setLoading(false)
-    if (error) { showToast('Erreur'); return }
+    if (!result) { showToast('Erreur lors de l\'envoi'); return }
     showToast('✅ Signalement envoyé !')
     setModal(false)
     load()
@@ -92,7 +92,7 @@ export default function SignalementsEmploye({ employe }) {
           <div onClick={() => setModal(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.5)', zIndex:199 }} />
           <div style={{ position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)', background:'var(--surface)', borderRadius:20, zIndex:200, width:'calc(100vw - 32px)', maxWidth:400, maxHeight:'85vh', overflowY:'auto', overflowX:'hidden', boxShadow:'0 20px 60px rgba(0,0,0,.3)' }}>
             <div style={{ padding:'18px 16px' }}>
-              <div style={{ fontSize:16, fontWeight:800, marginBottom:18 }}>🔔 Signaler une erreur</div>
+              <div style={{ fontSize:16, fontWeight:800, marginBottom:18 }}>⏱️ Corriger un pointage</div>
 
               {/* Type en premier — le plus important */}
               <div style={{ marginBottom:14 }}>
