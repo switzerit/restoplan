@@ -913,7 +913,7 @@ export default function Gerant() {
                               return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:'#fef2f2',color:'#dc2626',border:`1.5px solid ${hasShiftToo?'#dc2626':'#fecaca'}`,cursor:'default',position:'relative'}} onClick={e=>e.stopPropagation()}>
                                 {hasShiftToo&&<div style={{position:'absolute',top:-4,right:-4,width:14,height:14,borderRadius:'50%',background:'#dc2626',color:'white',fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',border:'1.5px solid white'}}>!</div>}
                                 <div>Congé</div>
-                                <div style={{fontWeight:400,opacity:.8,fontSize:9}}>{({conge_paye:'Payé',rtt:'RTT',maladie:'Maladie',sans_solde:'Sans solde',autre:'Autre'})[conge.type]||conge.type}</div>
+                                <div style={{fontWeight:400,opacity:.8,fontSize:9}}>{({conge_paye:'Payé',rtt:'RTT',maladie:'Maladie',sans_solde:'Sans solde',autre:'Autre',conges_reportes:'Reportés N-1'})[conge.type]||conge.type}</div>
                                 {hasShiftToo&&<div style={{fontSize:8,color:'#dc2626',fontWeight:700,marginTop:2}}>⚠️ Shift actif</div>}
                               </div>
                             }
