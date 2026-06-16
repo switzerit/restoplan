@@ -195,10 +195,10 @@ export default function CongesGerant({restaurant, employes, showToast}) {
           </div>
           :enAttente.map(c=>{
             const type=TYPES[c.type]||TYPES.autre
-            const emp=c.employes
+            const emp=c
             const jours=nbJours(c.date_debut,c.date_fin)
-            const cpSolde=(emp?.conges_total||25)-(emp?.conges_pris||0)
-            const rttSolde=(emp?.rtt_total||0)-(emp?.rtt_pris||0)
+            const cpSolde=(c.conges_total||25)-(c.conges_pris||0)
+            const rttSolde=(c.rtt_total||0)-(c.rtt_pris||0)
             return (
               <div key={c.id} style={{background:'var(--surface)',border:`2px solid ${type.bc}`,borderRadius:16,padding:16}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
