@@ -36,6 +36,14 @@ export default function SignalementsGerant({ restaurant, employes }) {
     setSelected(null); setCommentaire(''); load()
   }
 
+  async function appliquerCorrection(s) {
+    const heure_type = s.type === 'heure_incorrecte'
+      ? (window.confirm('Corriger l\'heure d\'arrivée ? (Annuler = heure de départ)') ? 'arrivee' : 'depart')
+      : null
+    await api.post(`/signalements/${s.id}/appliquer`, { commentaire_gerant: commentaire||null, heure_type })
+    setSelected(null); setCommentaire(''); load()
+  }
+
   async function supprimer(id) {
     if (!confirm('Supprimer ce signalement ?')) return
     await api.delete(`/signalements/${id}`)
