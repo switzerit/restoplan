@@ -4,6 +4,7 @@ import { api } from '../apiClient'
 
 const TYPES = [
   {id:'conge_paye',l:'Congé payé',emoji:'🏖️',c:'#E11D48',bg:'#fff1f3',bc:'#fecdd3'},
+  {id:'conges_reportes',l:'Congés reportés N-1',emoji:'🔄',c:'#2563EB',bg:'#eff6ff',bc:'#bfdbfe'},
   {id:'maladie',l:'Arrêt maladie',emoji:'🏥',c:'#dc2626',bg:'#fef2f2',bc:'#fecaca'},
   {id:'rtt',l:'RTT',emoji:'⏰',c:'#7c3aed',bg:'#faf5ff',bc:'#e9d5ff'},
   {id:'sans_solde',l:'Sans solde',emoji:'📋',c:'#ea580c',bg:'#fff7ed',bc:'#fed7aa'},
@@ -196,12 +197,13 @@ export default function CongesEmploye({employe}) {
           <div style={{marginBottom:14}}>
             <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:8}}>TYPE DE CONGÉ</div>
             <div style={{display:'flex',flexDirection:'column',gap:6}}>
-              {TYPES.map(t=>(
+              {TYPES.filter(t=>t.id!=='conges_reportes'||cpReportes>0).map(t=>(
                 <label key={t.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',background:form.type===t.id?t.bg:'var(--bg)',border:`1.5px solid ${form.type===t.id?t.bc:'var(--border)'}`,borderRadius:10,cursor:'pointer',transition:'all .15s'}}>
                   <input type="radio" name="type" value={t.id} checked={form.type===t.id} onChange={()=>setForm(f=>({...f,type:t.id}))} style={{accentColor:t.c}}/>
                   <span style={{fontSize:16}}>{t.emoji}</span>
                   <span style={{fontSize:13,fontWeight:600,color:form.type===t.id?t.c:'var(--text)'}}>{t.l}</span>
                   {t.id==='conge_paye'&&<span style={{marginLeft:'auto',fontSize:10,fontWeight:700,color:'#E11D48',background:'white',padding:'1px 7px',borderRadius:20,border:'1px solid #fecdd3'}}>{cpSolde}j restants</span>}
+                  {t.id==='conges_reportes'&&<span style={{marginLeft:'auto',fontSize:10,fontWeight:700,color:'#2563EB',background:'white',padding:'1px 7px',borderRadius:20,border:'1px solid #bfdbfe'}}>{cpReportes}j restants</span>}
                   {t.id==='rtt'&&rttTotal>0&&<span style={{marginLeft:'auto',fontSize:10,fontWeight:700,color:'#7c3aed',background:'white',padding:'1px 7px',borderRadius:20,border:'1px solid #e9d5ff'}}>{rttSolde}j restants</span>}
                 </label>
               ))}
