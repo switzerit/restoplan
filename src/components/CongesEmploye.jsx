@@ -34,12 +34,13 @@ export default function CongesEmploye({employe}) {
   const [sent,setSent]=useState(false)
 
   useEffect(()=>{
+    if(!employe?.id) return
     loadConges()
     loadEmpData()
     socket.connect()
-    socket.on('conge', load)
+    socket.on('conge', loadConges)
     return () => { socket.off('conge'); socket.disconnect() }
-  },[employe.id])
+  },[employe?.id])
 
   async function loadEmpData(){
     const data=await api.get(`/employes/${employe.id}/solde`)
@@ -70,7 +71,8 @@ export default function CongesEmploye({employe}) {
     loadConges()
   }
 
-  const cpTotal=empData.conges_total||25
+  if(!employe?.id) return null
+  const cpTotal=empData?.conges_total||25
   const cpPris=empData.conges_pris||0
   const cpSolde=cpTotal-cpPris
   const rttTotal=empData.rtt_total||0

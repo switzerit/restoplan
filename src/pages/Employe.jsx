@@ -346,7 +346,7 @@ export default function Employe() {
       )}
 
       {/* ── PLANNING MENSUEL ── */}
-      {tab==='planning'&&<PlanningMensuelEmploye employe={employe} today={today} getPosteColor={getPosteColor} supabase={supabase}/>}
+      {tab==='planning'&&<PlanningMensuelEmploye employe={employe} today={today} getPosteColor={getPosteColor}/>}
       {/* ── HISTORIQUE ── */}
       {tab==='historique'&&(
         <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:0}}>
@@ -492,7 +492,7 @@ export default function Employe() {
       )}
 
       {/* ── CONGÉS ── */}
-      {tab==='conges'&&<CongesEmploye employe={employe}/>}
+      {tab==='conges'&&employe&&<CongesEmploye employe={employe}/>}
 
       {/* ── SCANNER ── */}
       {features.badgeage&&showScanner&&(

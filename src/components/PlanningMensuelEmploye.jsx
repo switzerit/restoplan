@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { api } from '../apiClient'
 
-export default function PlanningMensuelEmploye({ employe, today, getPosteColor, supabase }) {
+export default function PlanningMensuelEmploye({ employe, today, getPosteColor }) {
   const [planMois, setPlanMois] = useState(new Date())
   const [shiftsMonth, setShiftsMonth] = useState([])
   const [selectedDay, setSelectedDay] = useState(null)
@@ -11,8 +11,7 @@ export default function PlanningMensuelEmploye({ employe, today, getPosteColor, 
     const y = planMois.getFullYear(), m = planMois.getMonth()
     const from = y + '-' + String(m+1).padStart(2,'0') + '-01'
     const to = y + '-' + String(m+1).padStart(2,'0') + '-' + String(new Date(y,m+1,0).getDate()).padStart(2,'0')
-    api.get(`/shifts?restaurant_id=${employe.restaurant_id}&from=${from}&to=${to}`).then(data => { setShifts(data||[]) })
-      .then(({data}) => setShiftsMonth(data || []))
+    api.get(`/shifts?restaurant_id=${employe.restaurant_id}&from=${from}&to=${to}`).then(data => { setShiftsMonth(data||[]) })
   }, [planMois, employe?.id])
 
   const y = planMois.getFullYear(), m = planMois.getMonth()
