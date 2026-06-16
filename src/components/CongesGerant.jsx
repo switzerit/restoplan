@@ -163,6 +163,9 @@ export default function CongesGerant({restaurant, employes, showToast}) {
       ...emp,
       cpPris:empD.conges_pris||0, cpTotal:empD.conges_total||25,
       rttPris:empD.rtt_pris||0, rttTotal:empD.rtt_total||0,
+      cpReportes:empD.conges_reportes||0,
+      cpReportPlafond:empD.conges_report_plafond||0,
+      cpReportExpiration:empD.conges_report_expiration||null,
     }
   })
 
@@ -287,10 +290,11 @@ export default function CongesGerant({restaurant, employes, showToast}) {
           </div>
           <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,overflow:'hidden'}}>
             {/* Header tableau */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 130px 130px',background:'var(--bg)',borderBottom:'2px solid var(--border)',padding:'10px 16px',gap:8}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 130px 130px 160px',background:'var(--bg)',borderBottom:'2px solid var(--border)',padding:'10px 16px',gap:8}}>
               <div style={{fontSize:11,fontWeight:700,color:'var(--text2)'}}>EMPLOYÉ</div>
               <div style={{fontSize:11,fontWeight:700,color:'#E11D48',textAlign:'center'}}>🏖️ CONGÉS PAYÉS</div>
               <div style={{fontSize:11,fontWeight:700,color:'#7c3aed',textAlign:'center'}}>⏰ RTT</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#2563EB',textAlign:'center'}}>🔄 REPORT N-1</div>
             </div>
             {soldesData.map((emp,i)=>{
               const cpS=emp.cpTotal-emp.cpPris
@@ -298,7 +302,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
               const cpPct=emp.cpTotal>0?Math.min(100,Math.round(emp.cpPris/emp.cpTotal*100)):0
               const rttPct=emp.rttTotal>0?Math.min(100,Math.round(emp.rttPris/emp.rttTotal*100)):0
               return (
-                <div key={emp.id} style={{display:'grid',gridTemplateColumns:'1fr 130px 130px',padding:'12px 16px',gap:8,borderBottom:i<soldesData.length-1?'1px solid var(--border)':'none',alignItems:'center'}}
+                <div key={emp.id} style={{display:'grid',gridTemplateColumns:'1fr 130px 130px 160px',padding:'12px 16px',gap:8,borderBottom:i<soldesData.length-1?'1px solid var(--border)':'none',alignItems:'center'}}
                   onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
                   onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                   {/* Nom */}
@@ -350,6 +354,47 @@ export default function CongesGerant({restaurant, employes, showToast}) {
                         <button onClick={()=>{setEditSolde({empId:emp.id,type:'rtt'});setSoldeTmp(String(emp.rttTotal))}} style={{border:'none',background:'transparent',color:'#7c3aed',fontWeight:700,fontSize:10,cursor:'pointer',textDecoration:'underline'}}>{emp.rttTotal}j ✏️</button>
                       )}
                     </div>
+                  </div>
+                  {/* REPORT N-1 */}
+                  <div style={{textAlign:'center'}}>
+                    <div style={{fontSize:11,fontWeight:700,color:'#2563EB',marginBottom:4}}>
+                      {emp.cpReportes>0?`${emp.cpReportes}j reportés`:'Aucun report'}
+                    </div>
+                    {/* Plafond */}
+                    <div style={{fontSize:10,color:'var(--text2)',marginBottom:4}}>
+                      Plafond :&nbsp;
+                      {editSolde?.empId===emp.id&&editSolde?.type==='report_plafond'?(
+                        <span style={{display:'inline-flex',gap:3,alignItems:'center'}}>
+                          <input type="number" value={soldeTmp} onChange={e=>setSoldeTmp(e.target.value)} min="0" max="365"
+                            style={{width:40,padding:'1px 4px',borderRadius:5,border:'1.5px solid #2563EB',fontSize:10,textAlign:'center',outline:'none'}}/>
+                          <button onClick={()=>saveSolde(emp.id,'report_plafond')} style={{padding:'1px 6px',borderRadius:5,border:'none',background:'#2563EB',color:'white',fontSize:10,fontWeight:700,cursor:'pointer'}}>✓</button>
+                          <button onClick={()=>setEditSolde(null)} style={{padding:'1px 5px',borderRadius:5,border:'1px solid var(--border)',background:'var(--bg)',fontSize:10,cursor:'pointer'}}>✕</button>
+                        </span>
+                      ):(
+                        <button onClick={()=>{setEditSolde({empId:emp.id,type:'report_plafond'});setSoldeTmp(String(emp.cpReportPlafond))}} style={{border:'none',background:'transparent',color:'#2563EB',fontWeight:700,fontSize:10,cursor:'pointer',textDecoration:'underline'}}>{emp.cpReportPlafond}j ✏️</button>
+                      )}
+                    </div>
+                    {/* Date expiration */}
+                    <div style={{fontSize:10,color:'var(--text2)'}}>
+                      Expire :&nbsp;
+                      {editSolde?.empId===emp.id&&editSolde?.type==='report_expiration'?(
+                        <span style={{display:'inline-flex',gap:3,alignItems:'center'}}>
+                          <input type="date" value={soldeTmp} onChange={e=>setSoldeTmp(e.target.value)}
+                            style={{padding:'1px 4px',borderRadius:5,border:'1.5px solid #2563EB',fontSize:10,outline:'none'}}/>
+                          <button onClick={()=>saveSolde(emp.id,'report_expiration')} style={{padding:'1px 6px',borderRadius:5,border:'none',background:'#2563EB',color:'white',fontSize:10,fontWeight:700,cursor:'pointer'}}>✓</button>
+                          <button onClick={()=>setEditSolde(null)} style={{padding:'1px 5px',borderRadius:5,border:'1px solid var(--border)',background:'var(--bg)',fontSize:10,cursor:'pointer'}}>✕</button>
+                        </span>
+                      ):(
+                        <button onClick={()=>{setEditSolde({empId:emp.id,type:'report_expiration'});setSoldeTmp(emp.cpReportExpiration?emp.cpReportExpiration.split('T')[0]:'')}} style={{border:'none',background:'transparent',color:'#2563EB',fontWeight:700,fontSize:10,cursor:'pointer',textDecoration:'underline'}}>
+                          {emp.cpReportExpiration?new Date(emp.cpReportExpiration).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'Non définie ✏️'}
+                        </button>
+                      )}
+                    </div>
+                    {/* Bouton reset annuel manuel */}
+                    <button onClick={()=>resetAnnuel(emp.id,emp.cpTotal,emp.cpPris,emp.cpReportPlafond)}
+                      style={{marginTop:6,padding:'3px 8px',borderRadius:6,border:'1px solid #bfdbfe',background:'#eff6ff',color:'#2563EB',fontSize:9,fontWeight:700,cursor:'pointer'}}>
+                      Reset annuel
+                    </button>
                   </div>
                 </div>
               )

@@ -140,6 +140,27 @@ export default function CongesEmploye({employe}) {
           </div>
         )}
 
+        {cpReportes>0&&(
+          <div style={{marginTop:12,borderTop:'1px solid var(--border)',paddingTop:12}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>
+              <span style={{fontSize:14}}>🔄</span>
+              <span style={{fontSize:12,fontWeight:700,color:reportExpire?'#6b7280':'#2563EB'}}>Reportés de l'année précédente</span>
+            </div>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',
+              background:reportExpire?'#f3f4f6':'#eff6ff',
+              border:`1px solid ${reportExpire?'#e5e7eb':'#bfdbfe'}`,
+              borderRadius:10,opacity:reportExpire?0.6:1}}>
+              <div style={{fontSize:22,fontWeight:900,color:reportExpire?'#6b7280':'#2563EB',textDecoration:reportExpire?'line-through':'none'}}>{cpReportes}j</div>
+              {cpReportExpiration&&(
+                <div style={{fontSize:11,color:reportExpire?'#6b7280':'#2563EB',fontWeight:600,textAlign:'right'}}>
+                  {reportExpire?'Expirés':'Expire le'}<br/>
+                  {new Date(cpReportExpiration).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {enAttenteCount>0&&(
           <div style={{marginTop:10,padding:'8px 12px',background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:9,fontSize:12,color:'#ea580c',fontWeight:500,textAlign:'center'}}>
             ⏳ {enAttenteCount} demande{enAttenteCount>1?'s':''} en attente de validation
