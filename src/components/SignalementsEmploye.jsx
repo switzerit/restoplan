@@ -14,8 +14,16 @@ export default function SignalementsEmploye({ employe }) {
   const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], type: 'oubli_depart', heure_souhaitee: '', heure_type: 'depart', message: '' })
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
+  const [pointageActuel, setPointageActuel] = useState(null)
 
   useEffect(() => { if (employe) load() }, [employe?.id])
+
+  useEffect(() => {
+    if (!employe || !form.date || !modal) { setPointageActuel(null); return }
+    api.get(`/pointages?employe_id=${employe.id}&date=${form.date}`).then(data => {
+      setPointageActuel(data?.[0] || null)
+    })
+  }, [form.date, modal, employe?.id])
 
   async function load() {
     const data = await api.get(`/signalements?employe_id=${employe.id}`)
@@ -38,6 +46,7 @@ export default function SignalementsEmploye({ employe }) {
     if (!result) { showToast('Erreur lors de l\'envoi'); return }
     showToast('✅ Signalement envoyé !')
     setModal(false)
+    setPointageActuel(null)
     load()
   }
 
@@ -140,6 +149,33 @@ export default function SignalementsEmploye({ employe }) {
                       </button>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Pointage actuel affiché */}
+              {form.type !== 'autre' && pointageActuel && (
+                <div style={{ marginBottom:14, padding:'10px 14px', background:'var(--bg)', borderRadius:10, border:'1px solid var(--border)' }}>
+                  <div style={{ fontSize:10, fontWeight:700, color:'var(--text3)', marginBottom:6 }}>VOTRE POINTAGE ACTUEL CE JOUR</div>
+                  <div style={{ display:'flex', gap:16 }}>
+                    <div style={{ textAlign:'center' }}>
+                      <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>Arrivée</div>
+                      <div style={{ fontSize:15, fontWeight:800, color: pointageActuel.heure_arrivee ? '#16a34a' : 'var(--text3)' }}>
+                        {pointageActuel.heure_arrivee ? pointageActuel.heure_arrivee.slice(0,5) : '—'}
+                      </div>
+                    </div>
+                    <div style={{ width:1, background:'var(--border)' }}/>
+                    <div style={{ textAlign:'center' }}>
+                      <div style={{ fontSize:11, color:'var(--text3)', marginBottom:2 }}>Départ</div>
+                      <div style={{ fontSize:15, fontWeight:800, color: pointageActuel.heure_depart ? '#dc2626' : 'var(--text3)' }}>
+                        {pointageActuel.heure_depart ? pointageActuel.heure_depart.slice(0,5) : '—'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {form.type !== 'autre' && !pointageActuel && form.date && (
+                <div style={{ marginBottom:14, padding:'10px 14px', background:'#fff7ed', borderRadius:10, border:'1px solid #fed7aa' }}>
+                  <div style={{ fontSize:12, color:'#ea580c', fontWeight:600 }}>Aucun pointage enregistré ce jour</div>
                 </div>
               )}
 
