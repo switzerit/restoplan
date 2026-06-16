@@ -11,7 +11,7 @@ const TYPES = {
 export default function SignalementsEmploye({ employe }) {
   const [signalements, setSignalements] = useState([])
   const [modal, setModal] = useState(false)
-  const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], type: 'oubli_depart', heure_souhaitee: '', message: '' })
+  const [form, setForm] = useState({ date: new Date().toISOString().split('T')[0], type: 'oubli_depart', heure_souhaitee: '', heure_type: 'depart', message: '' })
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
 
@@ -31,6 +31,7 @@ export default function SignalementsEmploye({ employe }) {
       employe_id: employe.id, restaurant_id: employe.restaurant_id,
       date: form.date, type: form.type,
       heure_souhaitee: form.heure_souhaitee || null,
+      heure_type: form.heure_type || null,
       message: form.message || null
     })
     setLoading(false)
@@ -117,12 +118,30 @@ export default function SignalementsEmploye({ employe }) {
                 </div>
                 {form.type !== 'autre' && (
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>HEURE</div>
+                    <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:6 }}>
+                      {form.type==="oubli_arrivee"?"HEURE D'ARRIVÉE":form.type==="oubli_depart"?"HEURE DE DÉPART":"HEURE CORRECTE"}
+                    </div>
                     <input type="time" value={form.heure_souhaitee} onChange={e => setForm(f=>({...f,heure_souhaitee:e.target.value}))}
                       style={{ width:'100%', padding:'9px 10px', borderRadius:10, border:'1.5px solid var(--border2)', background:'var(--bg)', fontSize:13, color:'var(--text)', outline:'none' }} />
                   </div>
                 )}
               </div>
+
+              {/* Sous-choix arrivée/départ pour heure incorrecte */}
+              {form.type === 'heure_incorrecte' && (
+                <div style={{ marginBottom:14 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--text2)', marginBottom:8 }}>QUELLE HEURE EST INCORRECTE ?</div>
+                  <div style={{ display:'flex', gap:8 }}>
+                    {[{id:'arrivee',l:"Mon arrivée",icon:'🟢'},{id:'depart',l:"Mon départ",icon:'🔴'}].map(t=>(
+                      <button key={t.id} onClick={() => setForm(f=>({...f,heure_type:t.id}))}
+                        style={{ flex:1, padding:'10px 8px', borderRadius:10, border:`2px solid ${form.heure_type===t.id?'#E11D48':'var(--border)'}`, background:form.heure_type===t.id?'#fff1f3':'var(--bg)', cursor:'pointer', display:'flex', alignItems:'center', gap:6, justifyContent:'center' }}>
+                        <span>{t.icon}</span>
+                        <span style={{ fontSize:12, fontWeight:form.heure_type===t.id?700:500, color:form.heure_type===t.id?'#E11D48':'var(--text)' }}>{t.l}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Message */}
               <div style={{ marginBottom:18 }}>
