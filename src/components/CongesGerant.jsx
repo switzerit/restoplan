@@ -86,6 +86,7 @@ ${cs.map(c=>`<tr>
 
 export default function CongesGerant({restaurant, employes, showToast}) {
   const [conges,setConges]=useState([])
+  const [soldesEmployes,setSoldesEmployes]=useState({})
   const [tab,setTab]=useState('attente')
   const [selected,setSelected]=useState(null)
   const [commentaire,setCommentaire]=useState('')
@@ -97,11 +98,22 @@ export default function CongesGerant({restaurant, employes, showToast}) {
 
   useEffect(()=>{
     if(!restaurant) return
+    loadSoldes()
     loadConges()
     socket.connect()
     socket.on('conge', loadConges)
     return () => { socket.off('conge'); socket.disconnect() }
   },[restaurant?.id])
+
+  async function loadSoldes(){
+    if(!restaurant?.id) return
+    const data = await api.get(`/employes/${restaurant.id}`)
+    if(data) {
+      const map = {}
+      data.forEach(e => { map[e.id] = e })
+      setSoldesEmployes(map)
+    }
+  }
 
   async function loadConges(){
     const data=await api.get(`/conges?restaurant_id=${restaurant.id}`)
@@ -159,7 +171,9 @@ export default function CongesGerant({restaurant, employes, showToast}) {
       body = {[type==='rtt'?'rtt_total':'conges_total']:val}
     }
     await api.put(`/employes/${empId}`, body)
-    setEditSolde(null);setSoldeTmp('');showToast('Solde mis à jour ✓');loadConges();if(onReloadEmployes)onReloadEmployes()
+    setEditSolde(null);setSoldeTmp('');showToast('Solde mis à jour ✓')
+    await Promise.all([loadConges(), loadSoldes()])
+    if(onReloadEmployes) onReloadEmployes()
   }
 
   const enAttente=conges.filter(c=>c.statut==='en_attente')
