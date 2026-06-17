@@ -159,7 +159,7 @@ export default function CongesGerant({restaurant, employes, showToast}) {
       body = {[type==='rtt'?'rtt_total':'conges_total']:val}
     }
     await api.put(`/employes/${empId}`, body)
-    setEditSolde(null);setSoldeTmp('');showToast('Solde mis à jour ✓');loadConges()
+    setEditSolde(null);setSoldeTmp('');showToast('Solde mis à jour ✓');loadConges();if(onReloadEmployes)onReloadEmployes()
   }
 
   const enAttente=conges.filter(c=>c.statut==='en_attente')
