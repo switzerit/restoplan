@@ -145,9 +145,20 @@ export default function CongesGerant({restaurant, employes, showToast}) {
   }
 
   async function saveSolde(empId,type){
-    const val=parseInt(soldeTmp)
-    if(isNaN(val)||val<0||val>365){showToast('Valeur invalide (0-365)');return}
-    await api.put(`/employes/${empId}`, {[type==='rtt'?'rtt_total':'conges_total']:val})
+    let body = {}
+    if(type==='report_expiration'){
+      if(!soldeTmp){showToast('Date invalide');return}
+      body = {conges_report_expiration: soldeTmp}
+    } else if(type==='report_plafond'){
+      const val=parseInt(soldeTmp)
+      if(isNaN(val)||val<0){showToast('Valeur invalide');return}
+      body = {conges_report_plafond: val}
+    } else {
+      const val=parseInt(soldeTmp)
+      if(isNaN(val)||val<0||val>365){showToast('Valeur invalide (0-365)');return}
+      body = {[type==='rtt'?'rtt_total':'conges_total']:val}
+    }
+    await api.put(`/employes/${empId}`, body)
     setEditSolde(null);setSoldeTmp('');showToast('Solde mis à jour ✓');loadConges()
   }
 
