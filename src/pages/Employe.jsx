@@ -124,6 +124,7 @@ export default function Employe() {
       }
     }
     setEmploye(emp)
+    loadPresencesEquipe(emp)
     // Enregistrer la dernière connexion
     await api.put(`/employes/${emp.id}`, {derniere_connexion: new Date().toISOString()})
     setLoading(false)
@@ -142,7 +143,17 @@ export default function Employe() {
   }
 
   const [shiftsMois, setShiftsMois] = useState([])
+  const [presencesEquipe, setPresencesEquipe] = useState({conges:[], pointages:[]})
   const [trialExpire, setTrialExpire] = useState(false)
+
+  async function loadPresencesEquipe(emp) {
+    if(!emp?.restaurant_id) return
+    const [congesData, pointagesData] = await Promise.all([
+      api.get(`/conges?restaurant_id=${emp.restaurant_id}&statut=accepte`),
+      api.get(`/pointages?restaurant_id=${emp.restaurant_id}&date=${fmtDate(new Date())}`)
+    ])
+    setPresencesEquipe({conges: congesData||[], pointages: pointagesData||[]})
+  }
   const [features, setFeatures] = useState({badgeage:true,conges:true,signalements:true,export_paie:true})
 
   async function loadShiftsMois(){
@@ -320,6 +331,62 @@ export default function Employe() {
               <div style={{fontSize:13,color:'var(--text3)',padding:'8px 0'}}>Pas de shift planifié aujourd'hui</div>
             )}
           </div>
+
+          {/* Présences du jour */}
+          {(()=>{
+            const todayStr = fmtDate(new Date())
+            const absents = presencesEquipe.conges.filter(c=>{
+              if(c.employe_id===employe?.id) return false
+              return c.date_debut<=todayStr && c.date_fin>=todayStr
+            })
+            const presents = presencesEquipe.pointages.filter(p=>{
+              if(p.employe_id===employe?.id) return false
+              return p.heure_arrivee && !p.heure_depart
+            })
+            if(absents.length===0&&presents.length===0) return null
+            return (
+              <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,padding:16}}>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--text2)',marginBottom:12}}>PRÉSENCES DU JOUR</div>
+                {presents.length>0&&(
+                  <div style={{marginBottom:absents.length>0?12:0}}>
+                    <div style={{fontSize:11,color:'#16a34a',fontWeight:700,marginBottom:6}}>PRÉSENTS</div>
+                    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                      {presents.map((p,i)=>(
+                        <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'#f0fdf4',borderRadius:10,border:'1px solid #bbf7d0'}}>
+                          <div style={{width:8,height:8,borderRadius:'50%',background:'#22c55e',flexShrink:0}}/>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:13,fontWeight:600,color:'#15803d'}}>{p.prenom} {p.nom}</div>
+                            <div style={{fontSize:11,color:'#16a34a'}}>Arrivé à {p.heure_arrivee?.slice(0,5)}</div>
+                          </div>
+                          <span style={{fontSize:10,fontWeight:700,color:'#16a34a',background:'white',border:'1px solid #bbf7d0',borderRadius:20,padding:'2px 8px'}}>Présent</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {absents.length>0&&(
+                  <div>
+                    <div style={{fontSize:11,color:'#E11D48',fontWeight:700,marginBottom:6}}>ABSENTS</div>
+                    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                      {absents.map((c,i)=>{
+                        const typeLabel = {conge_paye:'Congé payé',conges_reportes:'Reportés N-1',maladie:'Maladie',rtt:'RTT',sans_solde:'Sans solde',autre:'Absence'}[c.type]||'Absence'
+                        return(
+                          <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 10px',background:'#fff1f3',borderRadius:10,border:'1px solid #fecdd3'}}>
+                            <div style={{width:8,height:8,borderRadius:'50%',background:'#E11D48',flexShrink:0}}/>
+                            <div style={{flex:1}}>
+                              <div style={{fontSize:13,fontWeight:600,color:'#be123c'}}>{c.prenom} {c.nom}</div>
+                              <div style={{fontSize:11,color:'#E11D48'}}>{typeLabel} · jusqu'au {new Date(c.date_fin+'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</div>
+                            </div>
+                            <span style={{fontSize:10,fontWeight:700,color:'#E11D48',background:'white',border:'1px solid #fecdd3',borderRadius:20,padding:'2px 8px'}}>Absent</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
 
           {/* Semaine mini */}
           <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,padding:16}}>
