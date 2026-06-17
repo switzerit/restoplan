@@ -142,7 +142,10 @@ export default function Gerant() {
   const [notifsNonLues, setNotifsNonLues] = useState({})
   const [notifsDetail, setNotifsDetail] = useState(null) // {empId, notifs, nom}
   const [trialStatut, setTrialStatut] = useState('loading')
-  const [features, setFeatures] = useState({badgeage:true,conges:true,signalements:true,export_paie:true}) // loading | trial | active | expired
+  const [features, setFeatures] = useState({badgeage:true,conges:true,signalements:true,export_paie:true})
+  const [groupes, setGroupes] = useState([])
+  const [newGroupe, setNewGroupe] = useState({nom:'',couleur:'#E11D48'})
+  const [editGroupe, setEditGroupe] = useState(null) // loading | trial | active | expired
   const [trialDaysLeft, setTrialDaysLeft] = useState(null)
 
   async function loadNotifsDetail(empId, empNom){
@@ -263,6 +266,8 @@ export default function Gerant() {
     const dateToLoad = date || selectedDate || today
     const e = await api.get(`/employes/${currentResto.id}`)
     setEmployes(e||[])
+    const g = await api.get(`/groupes?restaurant_id=${currentResto.id}`)
+    setGroupes(g||[])
     const p = await api.get(`/pointages?restaurant_id=${currentResto.id}&date=${dateToLoad}`)
     const pMap={}
     p?.forEach(pt=>{if(!pMap[pt.employe_id])pMap[pt.employe_id]=[];pMap[pt.employe_id].push(pt)})
@@ -1103,6 +1108,72 @@ export default function Gerant() {
         {view==='parametres'&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{maxWidth:500}}>
+              {/* SECTION GROUPES */}
+              <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',marginBottom:16}}>
+                <div style={{padding:'14px 20px',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
+                  <div style={{fontSize:14,fontWeight:800}}>Groupes & Équipes</div>
+                  <div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>Organisez vos employés par groupe (Cuisine, Salle, Bar...)</div>
+                </div>
+                <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:10}}>
+                  {groupes.map(g=>(
+                    <div key={g.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',
+                      background:'var(--bg)',borderRadius:11,border:'1px solid var(--border)'}}>
+                      <div style={{width:14,height:14,borderRadius:'50%',background:g.couleur,flexShrink:0}}/>
+                      {editGroupe?.id===g.id?(
+                        <>
+                          <input value={editGroupe.nom} onChange={e=>setEditGroupe(eg=>({...eg,nom:e.target.value}))}
+                            style={{flex:1,padding:'5px 8px',borderRadius:7,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,outline:'none'}}/>
+                          <input type="color" value={editGroupe.couleur} onChange={e=>setEditGroupe(eg=>({...eg,couleur:e.target.value}))}
+                            style={{width:28,height:28,borderRadius:6,border:'none',padding:2,cursor:'pointer'}}/>
+                          <button onClick={async()=>{
+                            await api.put(`/groupes/${g.id}`,{nom:editGroupe.nom,couleur:editGroupe.couleur})
+                            const gg=await api.get(`/groupes?restaurant_id=${currentResto.id}`)
+                            setGroupes(gg||[]);setEditGroupe(null);showToast('Groupe modifié ✓')
+                          }} style={{padding:'5px 10px',borderRadius:7,border:'none',background:'#16a34a',color:'white',fontSize:12,fontWeight:700,cursor:'pointer'}}>✓</button>
+                          <button onClick={()=>setEditGroupe(null)}
+                            style={{padding:'5px 8px',borderRadius:7,border:'1px solid var(--border)',background:'var(--surface)',fontSize:12,cursor:'pointer'}}>✕</button>
+                        </>
+                      ):(
+                        <>
+                          <span style={{flex:1,fontSize:13,fontWeight:600}}>{g.nom}</span>
+                          <span style={{fontSize:11,color:'var(--text3)'}}>{employes.filter(e=>e.groupe_id===g.id).length} employé{employes.filter(e=>e.groupe_id===g.id).length!==1?'s':''}</span>
+                          <button onClick={()=>setEditGroupe({id:g.id,nom:g.nom,couleur:g.couleur})}
+                            style={{padding:'4px 8px',borderRadius:7,border:'1px solid var(--border)',background:'var(--surface)',fontSize:11,cursor:'pointer'}}>✏️</button>
+                          <button onClick={async()=>{
+                            if(!confirm('Supprimer ce groupe ?')) return
+                            await api.delete(`/groupes/${g.id}`)
+                            const gg=await api.get(`/groupes?restaurant_id=${currentResto.id}`)
+                            setGroupes(gg||[]);showToast('Groupe supprimé')
+                          }} style={{padding:'4px 8px',borderRadius:7,border:'1px solid #fecaca',background:'#fef2f2',color:'#dc2626',fontSize:11,cursor:'pointer'}}>🗑️</button>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                  {groupes.length===0&&(
+                    <div style={{textAlign:'center',padding:'16px',color:'var(--text3)',fontSize:13}}>
+                      Aucun groupe — créez votre premier groupe ci-dessous
+                    </div>
+                  )}
+                  <div style={{display:'flex',gap:8,marginTop:4}}>
+                    <input value={newGroupe.nom} onChange={e=>setNewGroupe(g=>({...g,nom:e.target.value}))}
+                      placeholder="Nom du groupe (ex: Cuisine)" onKeyDown={async e=>{if(e.key==='Enter'&&newGroupe.nom.trim()){
+                        await api.post('/groupes',{restaurant_id:currentResto.id,nom:newGroupe.nom.trim(),couleur:newGroupe.couleur})
+                        const gg=await api.get(`/groupes?restaurant_id=${currentResto.id}`)
+                        setGroupes(gg||[]);setNewGroupe({nom:'',couleur:'#E11D48'});showToast('Groupe créé ✓')
+                      }}}
+                      style={{flex:1,padding:'9px 12px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
+                    <input type="color" value={newGroupe.couleur} onChange={e=>setNewGroupe(g=>({...g,couleur:e.target.value}))}
+                      style={{width:38,height:38,borderRadius:9,border:'1.5px solid var(--border2)',padding:3,cursor:'pointer'}}/>
+                    <button onClick={async()=>{
+                      if(!newGroupe.nom.trim()){showToast('Nom requis');return}
+                      await api.post('/groupes',{restaurant_id:currentResto.id,nom:newGroupe.nom.trim(),couleur:newGroupe.couleur})
+                      const gg=await api.get(`/groupes?restaurant_id=${currentResto.id}`)
+                      setGroupes(gg||[]);setNewGroupe({nom:'',couleur:'#E11D48'});showToast('Groupe créé ✓')
+                    }} style={{padding:'9px 16px',borderRadius:10,border:'none',background:'#E11D48',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>+ Créer</button>
+                  </div>
+                </div>
+              </div>
+
               {features.badgeage&&<div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',marginBottom:16}}>
                 <div style={{padding:'14px 20px',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
                   <div style={{fontSize:14,fontWeight:800}}>Code PIN de la borne</div>
@@ -1315,6 +1386,16 @@ export default function Gerant() {
             </div>
             <div style={{display:'flex',gap:8}}>
               <button onClick={()=>setEmpModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              {groupes.length>0&&(
+                <div>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Groupe</label>
+                  <select value={empForm.groupe_id||''} onChange={e=>setEmpForm(f=>({...f,groupe_id:e.target.value||null}))}
+                    style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                    <option value="">Sans groupe</option>
+                    {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
+                  </select>
+                </div>
+              )}
               <button onClick={addEmploye} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Créer</button>
             </div>
           </div>
