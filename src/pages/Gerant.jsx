@@ -7,6 +7,7 @@ import CongesGerant from '../components/CongesGerant'
 import PlanningMois from '../components/PlanningMois'
 import NotifsGerant from '../components/NotifsGerant'
 import SignalementsGerant from '../components/SignalementsGerant'
+import AccueilGerant from '../components/AccueilGerant'
 
 const COLORS = [
   {bg:'#fff1f3',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},
@@ -93,7 +94,7 @@ function NoRestoForm({supabase, onCreated}) {
 }
 
 export default function Gerant() {
-  const [view, setView] = useState('planning')
+  const [view, setView] = useState('accueil')
   const [restaurants, setRestaurants] = useState([])
   const [currentResto, setCurrentResto] = useState(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -258,6 +259,8 @@ export default function Gerant() {
       setTrialStatut('active')
     }
     if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
+    if(gerantData?.prenom) setGerantPrenom(gerantData.prenom)
+    if(gerantData?.id) setGerantId(gerantData.id)
     if(gerantData&&gerantData.onboarding_complete===false){setShowOnboarding(true);setGerantId(gerantData.id);setGerantPrenom(gerantData.prenom||"");setOnboardingStep(gerantData.onboarding_step||1)}
     } catch(e){
  setTrialStatut('active') }
@@ -686,7 +689,7 @@ export default function Gerant() {
         </>}
       </div>
     </div>
-  const viewTitle = view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Corrections de pointage':'Paramètres'
+  const viewTitle = view==='accueil'?'Accueil':view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Corrections de pointage':'Paramètres'
 
 
   return (
@@ -729,6 +732,7 @@ export default function Gerant() {
           )}
         </div>
         {[
+          {id:'accueil',icon:'🏠',label:'Accueil'},
           {id:'planning',icon:'📅',label:'Planning'},
           ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
           {id:'employes',icon:'👤',label:'Équipe'},
@@ -783,6 +787,22 @@ export default function Gerant() {
             {viewTitle}
             <span style={{fontSize:12,fontWeight:400,color:'var(--text3)',marginLeft:8}}>{currentResto.nom}</span>
           </span>
+          {view==='accueil'&&(
+            <AccueilGerant
+              restaurant={currentResto}
+              employes={employes}
+              features={features}
+              trialStatut={trialStatut}
+              trialDaysLeft={trialDaysLeft}
+              presentCount={presentCount}
+              pointagesMap={pointages}
+              gerantPrenom={gerantPrenom}
+              onGoTo={(v)=>setView(v)}
+              onAddEmploye={()=>{setView('employes');setEmpModal(true)}}
+              onCreateShift={()=>setView('planning')}
+              onCorriger={()=>setView('presences')}
+            />
+          )}
           {view==='planning'&&<>
             <div style={{display:'flex',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,padding:2,gap:2}}>
               {['semaine','mois'].map(m=>(
@@ -1260,6 +1280,7 @@ export default function Gerant() {
       {isMobile && (
         <div style={{background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-around',paddingTop:4,paddingBottom:'max(8px, env(safe-area-inset-bottom))',flexShrink:0}}>
           {[
+            {id:'accueil',icon:'🏠',label:'Accueil'},
             {id:'planning',icon:'📅',label:'Planning'},
             ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
             {id:'employes',icon:'👤',label:'Équipe'},
