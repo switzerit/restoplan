@@ -787,22 +787,6 @@ export default function Gerant() {
             {viewTitle}
             <span style={{fontSize:12,fontWeight:400,color:'var(--text3)',marginLeft:8}}>{currentResto.nom}</span>
           </span>
-          {view==='accueil'&&(
-            <AccueilGerant
-              restaurant={currentResto}
-              employes={employes}
-              features={features}
-              trialStatut={trialStatut}
-              trialDaysLeft={trialDaysLeft}
-              presentCount={presentCount}
-              pointagesMap={pointages}
-              gerantPrenom={gerantPrenom}
-              onGoTo={(v)=>setView(v)}
-              onAddEmploye={()=>{setView('employes');setEmpModal(true)}}
-              onCreateShift={()=>setView('planning')}
-              onCorriger={()=>setView('presences')}
-            />
-          )}
           {view==='planning'&&<>
             <div style={{display:'flex',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:8,padding:2,gap:2}}>
               {['semaine','mois'].map(m=>(
@@ -860,6 +844,24 @@ export default function Gerant() {
         {/* TOPBAR MOBILE ACTION */}
         {isMobile && view==='employes' && <div style={{padding:'8px 12px',background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,fontWeight:700}}>{view==='planning'?'Planning':view==='presences'?'Présences':view==='employes'?'Équipe':'Paramètres'}</span><button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button></div>}
         {isMobile && view==='presences' && <div style={{padding:'8px 12px',background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,fontWeight:700}}>Présences</span><button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 PDF</button></div>}
+
+        {/* VUE ACCUEIL */}
+        {view==='accueil'&&(
+          <AccueilGerant
+            restaurant={currentResto}
+            employes={employes}
+            features={features}
+            trialStatut={trialStatut}
+            trialDaysLeft={trialDaysLeft}
+            presentCount={presentCount}
+            pointagesMap={pointages}
+            gerantPrenom={gerantPrenom}
+            onGoTo={(v)=>setView(v)}
+            onAddEmploye={()=>{setView('employes');setEmpModal(true)}}
+            onCreateShift={()=>setView('planning')}
+            onCorriger={()=>setView('presences')}
+          />
+        )}
 
         {/* VUE PLANNING */}
         {view==='planning'&&(
