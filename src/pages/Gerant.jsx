@@ -134,7 +134,7 @@ export default function Gerant() {
   const [addPointageModal, setAddPointageModal] = useState(null)
   const [addPointageForm, setAddPointageForm] = useState({date:'',heure_arrivee:'',heure_depart:''})
   const [editEmpModal, setEditEmpModal] = useState(null)
-  const [editEmpForm, setEditEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:''})
+  const [editEmpForm, setEditEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:'',groupe_id:null})
   const [profilsMap, setProfilsMap] = useState({})
   const today = fmtDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
@@ -431,7 +431,7 @@ export default function Gerant() {
   function openEditEmp(emp){
     const postes = POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre
     const isCustom = emp.role && !postes.includes(emp.role)
-    setEditEmpForm({prenom:emp.prenom,nom:emp.nom,email:emp.email,role:isCustom?'__autre__':emp.role,password:''})
+    setEditEmpForm({prenom:emp.prenom,nom:emp.nom,email:emp.email,role:isCustom?'__autre__':emp.role,password:'',groupe_id:emp.groupe_id||null})
     setEditCustomRole(isCustom?emp.role:'')
     setEditEmpModal(emp)
   }
@@ -441,7 +441,8 @@ export default function Gerant() {
       prenom:editEmpForm.prenom,
       nom:editEmpForm.nom,
       email:editEmpForm.email,
-      role:editEmpForm.role
+      role:editEmpForm.role,
+      groupe_id:editEmpForm.groupe_id||null
     })
     if(result?.error){showToast('❌ Une erreur est survenue, réessayez');return}
     // Si mot de passe fourni
