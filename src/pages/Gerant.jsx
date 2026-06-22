@@ -1518,6 +1518,16 @@ export default function Gerant() {
                   autoFocus style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--accent)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               )}
             </div>
+            {groupes.length>0&&(
+              <div style={{marginBottom:12}}>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Groupe</label>
+                <select value={editEmpForm.groupe_id||''} onChange={e=>setEditEmpForm(f=>({...f,groupe_id:e.target.value||null}))}
+                  style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                  <option value="">Sans groupe</option>
+                  {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
+                </select>
+              </div>
+            )}
             {!profilsMap[editEmpModal.id] ? (
               <div style={{marginBottom:16}}>
                 <div style={{padding:'10px 14px',background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)',marginBottom:8,fontSize:12,color:'var(--text2)'}}>
