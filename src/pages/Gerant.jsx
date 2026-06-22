@@ -113,6 +113,7 @@ export default function Gerant() {
   const [planningMode, setPlanningMode] = useState('semaine')
   const [moisDate, setMoisDate] = useState(new Date())
   const [filtreEmploye, setFiltreEmploye] = useState('')
+  const [filtreGroupe, setFiltreGroupe] = useState('')
   const [copierModal, setCopierModal] = useState(false)
   const [copierForm, setCopierForm] = useState({sourceWeek:'', employe:''})
   const [calPicker, setCalPicker] = useState(null) // 'source' | 'dest' | null
@@ -801,7 +802,14 @@ export default function Gerant() {
               <button onClick={()=>setMoisDate(new Date(moisDate.getFullYear(),moisDate.getMonth()+1,1))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>›</button>
             </div>}
             {/* Filtre employé */}
-            <select value={filtreEmploye} onChange={e=>setFiltreEmploye(e.target.value)} style={{height:34,padding:'0 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:12,color:'var(--text)',cursor:'pointer'}}>
+            {groupes.length>0&&(
+              <select value={filtreGroupe} onChange={e=>{setFiltreGroupe(e.target.value);setFiltreEmploye('')}}
+                style={{height:34,padding:'0 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:12,color:'var(--text)',cursor:'pointer'}}>
+                <option value=''>Tous les groupes</option>
+                {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
+              </select>
+            )}
+            <select value={filtreEmploye} onChange={e=>{setFiltreEmploye(e.target.value);setFiltreGroupe('')}} style={{height:34,padding:'0 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:12,color:'var(--text)',cursor:'pointer'}}>
               <option value=''>Tous les employés</option>
               {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
             </select>
@@ -895,7 +903,7 @@ export default function Gerant() {
                 })}
               </div>
               {employes.length===0&&<div style={{padding:40,textAlign:'center',color:'var(--text3)',fontSize:14}}>Aucun employé — <button onClick={()=>setEmpModal(true)} style={{color:'var(--accent)',background:'none',border:'none',cursor:'pointer',fontWeight:600,fontSize:14}}>en ajouter un</button></div>}
-              {employes.filter(e=>!filtreEmploye||e.id===filtreEmploye).map((emp,ei)=>{
+              {employes.filter(e=>(!filtreEmploye||e.id===filtreEmploye)&&(!filtreGroupe||e.groupe_id===filtreGroupe)).map((emp,ei)=>{
                 const c=COLORS[ei%COLORS.length]
                 return (
                   <div key={emp.id} style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)'}}>
