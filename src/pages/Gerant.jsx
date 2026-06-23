@@ -138,6 +138,8 @@ export default function Gerant() {
   const [editEmpModal, setEditEmpModal] = useState(null)
   const [editEmpForm, setEditEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:'',groupe_id:null})
   const [profilsMap, setProfilsMap] = useState({})
+  const [empSearch, setEmpSearch] = useState('')
+  const [empFiltreGroupe, setEmpFiltreGroupe] = useState('__all__')
   const today = fmtDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
@@ -1036,87 +1038,141 @@ export default function Gerant() {
         )}
 
         {/* VUE EQUIPE */}
-        {view==='employes'&&(
-          <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
-            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,overflow:'hidden'}}>
-              {!isMobile&&(
-                <div style={{display:'grid',gridTemplateColumns:'1fr 80px 100px 140px 130px',padding:'9px 16px',background:'var(--bg)',borderBottom:'2px solid var(--border)',gap:8}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)'}}>EMPLOYÉ</div>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>SHIFTS</div>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>PRÉSENCE</div>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>CONNEXION APP</div>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',textAlign:'center'}}>ACTIONS</div>
+        {view==='employes'&&(()=>{
+          const q=(empSearch||'').toLowerCase().trim()
+          const filtered=employes.filter(e=>{
+            if(empFiltreGroupe==='__all__') {} 
+            else if(empFiltreGroupe==='__none__'){ if(e.groupe_id) return false }
+            else if(e.groupe_id!==empFiltreGroupe) return false
+            if(q){ return (e.prenom+' '+e.nom+' '+(e.role||'')).toLowerCase().includes(q) }
+            return true
+          })
+          // Grouper par groupe quand "Tous"
+          const grouped=[]
+          if(empFiltreGroupe==='__all__'&&!q){
+            groupes.forEach(g=>{
+              const membres=filtered.filter(e=>e.groupe_id===g.id)
+              if(membres.length>0) grouped.push({groupe:g,membres})
+            })
+            const sansGroupe=filtered.filter(e=>!e.groupe_id)
+            if(sansGroupe.length>0) grouped.push({groupe:null,membres:sansGroupe})
+          } else {
+            grouped.push({groupe:null,membres:filtered,flat:true})
+          }
+
+          function connInfo(emp){
+            const hasAccount=profilsMap[emp.id]
+            const lastSeen=emp.derniere_connexion?new Date(emp.derniere_connexion):null
+            const diffH=lastSeen?Math.floor((new Date()-lastSeen)/(1000*60*60)):null
+            const diffDays=lastSeen?Math.floor(diffH/24):null
+            let label,color,bg,bc
+            if(!hasAccount){label='Sans compte';color='#6b7280';bg='#f3f4f6';bc='#e5e7eb'}
+            else if(lastSeen===null){label='Jamais connecté';color='#ea580c';bg='#fff7ed';bc='#fed7aa'}
+            else if(diffH<1){label='À l\'instant';color='#16a34a';bg='#f0fdf4';bc='#bbf7d0'}
+            else if(diffH<24){label=`Vu il y a ${diffH}h`;color='#16a34a';bg='#f0fdf4';bc='#bbf7d0'}
+            else if(diffDays<7){label=`Vu il y a ${diffDays}j`;color='#E11D48';bg='#fff1f3';bc='#fecdd3'}
+            else {label=`Vu il y a ${diffDays}j`;color='#6b7280';bg='#f3f4f6';bc='#e5e7eb'}
+            return {label,color,bg,bc}
+          }
+
+          function EmpRow(emp,i,total){
+            const c=COLORS[i%COLORS.length]
+            const sc=shifts.filter(s=>s.employe_id===emp.id).length
+            const present=isPresent(emp.id)
+            const conn=connInfo(emp)
+            const nonLues=notifsNonLues[emp.id]||0
+            return (
+              <div key={emp.id} style={{padding:'12px 16px',display:'flex',alignItems:'center',gap:12,borderBottom:i<total-1?'1px solid var(--border)':'none',transition:'background .1s'}}
+                onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
+                onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                <div style={{position:'relative',flexShrink:0}}>
+                  <div style={{width:38,height:38,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
+                  {features.badgeage&&present&&<div style={{position:'absolute',bottom:0,right:0,width:10,height:10,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--surface)'}}/>}
+                </div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+                    <span style={{fontSize:14,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</span>
+                    {features.badgeage&&present&&<span style={{fontSize:10,fontWeight:700,padding:'1px 8px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0'}}>● Présent</span>}
+                    {nonLues>0&&<span onClick={e=>{e.stopPropagation();loadNotifsDetail(emp.id,emp.prenom+' '+emp.nom)}} style={{fontSize:9,fontWeight:700,padding:'1px 7px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',cursor:'pointer'}}>🔔 {nonLues}</span>}
+                  </div>
+                  <div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>
+                    {emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):'—'} · {sc} shift{sc>1?'s':''}/sem
+                  </div>
+                </div>
+                {!isMobile&&<span style={{fontSize:11,fontWeight:600,padding:'4px 10px',borderRadius:20,background:conn.bg,color:conn.color,border:`1px solid ${conn.bc}`,flexShrink:0,whiteSpace:'nowrap'}}>{conn.label}</span>}
+                <div style={{display:'flex',gap:5,flexShrink:0}}>
+                  <button onClick={()=>openEditEmp(emp)} style={{padding:'7px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>{isMobile?'✏️':'✏️ Modifier'}</button>
+                  {!isMobile&&<button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'7px 9px',borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:12,cursor:'pointer'}}>🗑️</button>}
+                </div>
+              </div>
+            )
+          }
+
+          return (
+            <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch',display:'flex',flexDirection:'column',gap:14}}>
+              {/* Recherche */}
+              <div style={{position:'relative'}}>
+                <span style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',fontSize:14,color:'var(--text3)',pointerEvents:'none'}}>🔍</span>
+                <input value={empSearch} onChange={e=>setEmpSearch(e.target.value)} placeholder="Rechercher un employé..."
+                  style={{width:'100%',padding:'10px 12px 10px 34px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+              </div>
+
+              {/* Filtres groupe */}
+              {groupes.length>0&&(
+                <div style={{display:'flex',gap:6,overflowX:'auto',paddingBottom:2}}>
+                  {[{id:'__all__',nom:'Tous',couleur:null},...groupes,{id:'__none__',nom:'Sans groupe',couleur:'#9ca3af'}].map(g=>{
+                    const actif=empFiltreGroupe===g.id
+                    return (
+                      <button key={g.id} onClick={()=>setEmpFiltreGroupe(g.id)} style={{
+                        flexShrink:0,padding:'6px 14px',borderRadius:20,cursor:'pointer',fontSize:12,fontWeight:actif?700:500,
+                        border:`1.5px solid ${actif?'#E11D48':'var(--border)'}`,
+                        background:actif?'#E11D48':'var(--surface)',
+                        color:actif?'white':'var(--text2)',
+                        display:'flex',alignItems:'center',gap:6,transition:'all .15s'}}>
+                        {g.couleur&&<span style={{width:8,height:8,borderRadius:'50%',background:g.couleur}}/>}
+                        {g.nom}
+                      </button>
+                    )
+                  })}
                 </div>
               )}
-              {employes.map((emp,i)=>{
-                const c=COLORS[i%COLORS.length]
-                const sc=shifts.filter(s=>s.employe_id===emp.id).length
-                const hasAccount=profilsMap[emp.id]
-                const present=isPresent(emp.id)
-                const lastSeen=emp.derniere_connexion?new Date(emp.derniere_connexion):null
-                const diffDays=lastSeen?Math.floor((new Date()-lastSeen)/(1000*60*60*24)):null
-                const connLabel=!hasAccount?'Sans compte':lastSeen===null?'Jamais':
-                  lastSeen.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' '+lastSeen.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})
-                const connColor=!hasAccount?'#6b7280':lastSeen===null?'#ea580c':diffDays<=1?'#16a34a':diffDays<=7?'#E11D48':'#6b7280'
-                const connBg=!hasAccount?'#f3f4f6':lastSeen===null?'#fff7ed':diffDays<=1?'#f0fdf4':diffDays<=7?'#fff1f3':'#f3f4f6'
-                const connBc=!hasAccount?'#e5e7eb':lastSeen===null?'#fed7aa':diffDays<=1?'#bbf7d0':diffDays<=7?'#fecdd3':'#e5e7eb'
-  if(isMobile) return (
-                  <div key={emp.id} style={{padding:'11px 14px',borderBottom:'1px solid var(--border)',display:'flex',alignItems:'center',gap:10}}>
-                    <div style={{position:'relative',flexShrink:0}}>
-                      <div style={{width:34,height:34,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
-                      {present&&<div style={{position:'absolute',bottom:0,right:0,width:8,height:8,borderRadius:'50%',background:'#22c55e',border:'1.5px solid var(--surface)'}}/>}
+
+              {/* Liste */}
+              {filtered.length===0?(
+                <div style={{textAlign:'center',padding:'48px 20px',background:'var(--surface)',borderRadius:16,border:'1px solid var(--border)',color:'var(--text3)'}}>
+                  <div style={{fontSize:36,marginBottom:10}}>{q?'🔍':'👤'}</div>
+                  <div style={{fontSize:14,fontWeight:600}}>{q?'Aucun résultat':'Aucun employé'}</div>
+                </div>
+              ):grouped.map((grp,gi)=>(
+                <div key={gi}>
+                  {grp.groupe&&(
+                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'0 2px',marginBottom:8}}>
+                      <span style={{width:10,height:10,borderRadius:'50%',background:grp.groupe.couleur}}/>
+                      <span style={{fontSize:12,fontWeight:700,color:'var(--text2)'}}>{grp.groupe.nom} · {grp.membres.length}</span>
                     </div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
-                      <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div>
+                  )}
+                  {grouped.length>1&&!grp.groupe&&(
+                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'0 2px',marginBottom:8}}>
+                      <span style={{width:10,height:10,borderRadius:'50%',background:'#9ca3af'}}/>
+                      <span style={{fontSize:12,fontWeight:700,color:'var(--text2)'}}>Sans groupe · {grp.membres.length}</span>
                     </div>
-                    <span style={{fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:20,background:connBg,color:connColor,border:`1px solid ${connBc}`,flexShrink:0}}>{connLabel}</span>
-                    <button onClick={()=>openEditEmp(emp)} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,cursor:'pointer',flexShrink:0}}>✏️</button>
+                  )}
+                  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,overflow:'hidden'}}>
+                    {grp.membres.map((emp,i)=>EmpRow(emp,i,grp.membres.length))}
                   </div>
-                )
-                return (
-                  <div key={emp.id} style={{display:'grid',gridTemplateColumns:'1fr 80px 100px 140px 130px',padding:'9px 16px',borderBottom:'1px solid var(--border)',gap:8,alignItems:'center',transition:'background .1s'}}
-                  onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-                  onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                    <div style={{display:'flex',alignItems:'center',gap:10,minWidth:0}}>
-                      <div style={{position:'relative',flexShrink:0}}>
-                        <div style={{width:32,height:32,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
-                        {present&&<div style={{position:'absolute',bottom:0,right:0,width:8,height:8,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--surface)'}}/>}
-                      </div>
-                      <div style={{minWidth:0}}>
-                        <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
-                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div>
-                    {notifsNonLues[emp.id]>0&&<span onClick={e=>{e.stopPropagation();loadNotifsDetail(emp.id,emp.prenom+' '+emp.nom)}} style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',marginLeft:4,cursor:'pointer'}}>🔔 {notifsNonLues[emp.id]} non lu{notifsNonLues[emp.id]>1?'es':''}</span>}
-                      </div>
-                    </div>
-                    <div style={{textAlign:'center'}}>
-                      <span style={{fontSize:13,fontWeight:800,color:'var(--accent)'}}>{sc}</span>
-                      <span style={{fontSize:10,color:'var(--text3)'}}>/sem</span>
-                    </div>
-                    <div style={{textAlign:'center'}}>
-                      {present
-                        ?<span style={{fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0'}}>● Présent</span>
-                        :<span style={{fontSize:11,color:'var(--text3)'}}>—</span>}
-                    </div>
-                    <div style={{textAlign:'center'}}>
-                      <span style={{fontSize:11,fontWeight:600,padding:'3px 10px',borderRadius:20,background:connBg,color:connColor,border:`1px solid ${connBc}`}}>{connLabel}</span>
-                    </div>
-                    <div style={{display:'flex',gap:5,justifyContent:'center'}}>
-                      <button onClick={()=>openEditEmp(emp)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️ Modifier</button>
-                      <button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'5px 8px',borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:11,cursor:'pointer'}}>🗑️</button>
-                    </div>
-                  </div>
-                )
-              })}
-              <div onClick={()=>setEmpModal(true)} style={{padding:'11px 16px',display:'flex',alignItems:'center',gap:10,cursor:'pointer',color:'var(--accent)',transition:'background .1s'}}
-              onMouseEnter={e=>e.currentTarget.style.background='var(--accent-bg)'}
-              onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                <div style={{width:32,height:32,borderRadius:'50%',border:'2px dashed var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,color:'var(--accent)',flexShrink:0}}>+</div>
-                <span style={{fontSize:13,fontWeight:600}}>Ajouter un employé</span>
-              </div>
+                </div>
+              ))}
+
+              {/* Ajouter */}
+              <button onClick={()=>setEmpModal(true)} style={{
+                display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'14px',
+                background:'var(--surface)',border:'2px dashed var(--accent)',borderRadius:14,
+                color:'var(--accent)',fontSize:14,fontWeight:700,cursor:'pointer'}}>
+                <span style={{fontSize:18}}>+</span> Ajouter un employé
+              </button>
             </div>
-          </div>
-        )}
+          )
+        })()}
         {/* VUE PARAMETRES */}
         {view==='notifs'&&(
           <div style={{flex:1,overflowY:'auto',padding:20}}>
