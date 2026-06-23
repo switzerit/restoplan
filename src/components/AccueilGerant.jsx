@@ -54,12 +54,10 @@ export default function AccueilGerant({
   if(aTraiter>0){
     stats.push({icon:'⏳',l:'À traiter',v:aTraiter,bg:'#fff7ed',c:'#c2410c'})
   }
-  // Toujours afficher shifts ou employés
-  if(features.badgeage||features.conges){
-    stats.push({icon:'📅',l:"Shifts auj.",v:shiftsAujourdhui.length,bg:'var(--bg)',c:'var(--text)'})
-  } else {
+  stats.push({icon:'📅',l:'Shifts auj.',v:shiftsAujourdhui.length,bg:'var(--bg)',c:'var(--text)'})
+  // Si moins de 3 cartes, ajouter "Employés" pour équilibrer
+  if(stats.length<3){
     stats.push({icon:'👤',l:'Employés',v:employes.length,bg:'var(--bg)',c:'var(--text)'})
-    stats.push({icon:'📅',l:'Shifts auj.',v:shiftsAujourdhui.length,bg:'var(--bg)',c:'var(--text)'})
   }
 
   // Actions rapides selon flags
@@ -68,7 +66,7 @@ export default function AccueilGerant({
     {icon:'👤',l:'Ajouter employé',onClick:onAddEmploye},
   ]
   if(features.badgeage) actions.push({icon:'⏱️',l:'Corriger pointage',onClick:()=>onGoTo('presences')})
-  if(features.export_paie) actions.push({icon:'📄',l:'Export paie',onClick:()=>onGoTo('presences')})
+  if(features.badgeage&&features.export_paie) actions.push({icon:'📄',l:'Export paie',onClick:()=>onGoTo('presences')})
 
   return(
     <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:20,WebkitOverflowScrolling:'touch'}}>
