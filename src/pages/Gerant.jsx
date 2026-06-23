@@ -1075,34 +1075,39 @@ export default function Gerant() {
             return {label,color,bg,bc}
           }
 
-          function EmpRow(emp,i,total){
-            const c=COLORS[i%COLORS.length]
+          const groupeMap={}
+          groupes.forEach(g=>{groupeMap[g.id]=g})
+          function EmpCard(emp){
+            const c=COLORS[employes.findIndex(e=>e.id===emp.id)%COLORS.length]
             const sc=shifts.filter(s=>s.employe_id===emp.id).length
             const present=isPresent(emp.id)
             const conn=connInfo(emp)
             const nonLues=notifsNonLues[emp.id]||0
+            const grpEmp=emp.groupe_id?groupeMap[emp.groupe_id]:null
             return (
-              <div key={emp.id} style={{padding:'12px 16px',display:'flex',alignItems:'center',gap:12,borderBottom:i<total-1?'1px solid var(--border)':'none',transition:'background .1s'}}
-                onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-                onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                <div style={{position:'relative',flexShrink:0}}>
-                  <div style={{width:38,height:38,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
-                  {features.badgeage&&present&&<div style={{position:'absolute',bottom:0,right:0,width:10,height:10,borderRadius:'50%',background:'#22c55e',border:'2px solid var(--surface)'}}/>}
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
-                    <span style={{fontSize:14,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</span>
-                    {features.badgeage&&present&&<span style={{fontSize:10,fontWeight:700,padding:'1px 8px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0'}}>● Présent</span>}
-                    {nonLues>0&&<span onClick={e=>{e.stopPropagation();loadNotifsDetail(emp.id,emp.prenom+' '+emp.nom)}} style={{fontSize:9,fontWeight:700,padding:'1px 7px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',cursor:'pointer'}}>🔔 {nonLues}</span>}
+              <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:14,display:'flex',flexDirection:'column',gap:11,transition:'box-shadow .15s,border-color .15s'}}
+                onMouseEnter={e=>{e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,.06)';e.currentTarget.style.borderColor='var(--border2)'}}
+                onMouseLeave={e=>{e.currentTarget.style.boxShadow='none';e.currentTarget.style.borderColor='var(--border)'}}>
+                <div style={{display:'flex',alignItems:'center',gap:11}}>
+                  <div style={{position:'relative',flexShrink:0}}>
+                    <div style={{width:42,height:42,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:800}}>{ini(emp.prenom,emp.nom)}</div>
+                    {features.badgeage&&present&&<div style={{position:'absolute',bottom:0,right:0,width:11,height:11,borderRadius:'50%',background:'#22c55e',border:'2.5px solid var(--surface)'}}/>}
                   </div>
-                  <div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>
-                    {emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):'—'} · {sc} shift{sc>1?'s':''}/sem
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:14,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
+                    <div style={{fontSize:12,color:'var(--text2)',marginTop:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                      {emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):'—'} · {sc} sh/sem
+                    </div>
                   </div>
                 </div>
-                {!isMobile&&<span style={{fontSize:11,fontWeight:600,padding:'4px 10px',borderRadius:20,background:conn.bg,color:conn.color,border:`1px solid ${conn.bc}`,flexShrink:0,whiteSpace:'nowrap'}}>{conn.label}</span>}
-                <div style={{display:'flex',gap:5,flexShrink:0}}>
-                  <button onClick={()=>openEditEmp(emp)} style={{padding:'7px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>{isMobile?'✏️':'✏️ Modifier'}</button>
-                  {!isMobile&&<button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'7px 9px',borderRadius:8,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:12,cursor:'pointer'}}>🗑️</button>}
+                <div style={{display:'flex',gap:6,flexWrap:'wrap',minHeight:22}}>
+                  {features.badgeage&&present&&<span style={{fontSize:10,fontWeight:700,padding:'2px 9px',borderRadius:20,background:'#f0fdf4',color:'#16a34a',border:'1px solid #bbf7d0'}}>● Présent</span>}
+                  <span style={{fontSize:10,fontWeight:600,padding:'2px 9px',borderRadius:20,background:conn.bg,color:conn.color,border:`1px solid ${conn.bc}`}}>{conn.label}</span>
+                  {nonLues>0&&<span onClick={e=>{e.stopPropagation();loadNotifsDetail(emp.id,emp.prenom+' '+emp.nom)}} style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',cursor:'pointer'}}>🔔 {nonLues}</span>}
+                </div>
+                <div style={{display:'flex',gap:6}}>
+                  <button onClick={()=>openEditEmp(emp)} style={{flex:1,padding:'8px',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>✏️ Modifier</button>
+                  <button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'8px 11px',borderRadius:9,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:12,cursor:'pointer'}}>🗑️</button>
                 </div>
               </div>
             )
@@ -1157,8 +1162,8 @@ export default function Gerant() {
                       <span style={{fontSize:12,fontWeight:700,color:'var(--text2)'}}>Sans groupe · {grp.membres.length}</span>
                     </div>
                   )}
-                  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,overflow:'hidden'}}>
-                    {grp.membres.map((emp,i)=>EmpRow(emp,i,grp.membres.length))}
+                  <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(260px,1fr))',gap:10}}>
+                    {grp.membres.map((emp)=>EmpCard(emp))}
                   </div>
                 </div>
               ))}
