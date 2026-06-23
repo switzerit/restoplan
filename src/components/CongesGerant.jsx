@@ -235,16 +235,16 @@ export default function CongesGerant({restaurant,employes,showToast,onReloadEmpl
       </div>
     )
 
-    // Overlay + positionnement
+    // Overlay + positionnement : modal centré (desktop) / bottom-sheet (mobile)
     return (
       <div onClick={()=>{setSelected(null);setCommentaire('')}}
         style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',backdropFilter:'blur(4px)',zIndex:300,display:'flex',
-          alignItems:isMobile?'flex-end':'stretch',justifyContent:'flex-end'}}>
+          alignItems:isMobile?'flex-end':'center',justifyContent:'center',padding:isMobile?0:20}}>
         <div onClick={e=>e.stopPropagation()} style={isMobile
           ?{width:'100%',maxHeight:'90vh',background:'var(--surface)',borderRadius:'20px 20px 0 0',overflow:'hidden',boxShadow:'0 -8px 40px rgba(0,0,0,.2)'}
-          :{width:440,maxWidth:'92vw',height:'100%',background:'var(--surface)',boxShadow:'-8px 0 40px rgba(0,0,0,.16)'}}>
+          :{width:460,maxWidth:'94vw',maxHeight:'88vh',background:'var(--surface)',borderRadius:20,overflow:'hidden',boxShadow:'0 12px 48px rgba(0,0,0,.22)'}}>
           {isMobile&&<div style={{display:'flex',justifyContent:'center',padding:'10px 0 4px'}}><div style={{width:36,height:4,borderRadius:2,background:'var(--border2)'}}/></div>}
-          <div style={{height:isMobile?'calc(90vh - 18px)':'100%'}}>{panelInner}</div>
+          <div style={{height:isMobile?'calc(90vh - 18px)':'auto',maxHeight:isMobile?'none':'88vh'}}>{panelInner}</div>
         </div>
       </div>
     )
