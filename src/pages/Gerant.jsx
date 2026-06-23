@@ -8,6 +8,7 @@ import PlanningMois from '../components/PlanningMois'
 import NotifsGerant from '../components/NotifsGerant'
 import SignalementsGerant from '../components/SignalementsGerant'
 import AccueilGerant from '../components/AccueilGerant'
+import MesAbsencesGerant from '../components/MesAbsencesGerant'
 
 const COLORS = [
   {bg:'#fff1f3',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},
@@ -102,6 +103,8 @@ export default function Gerant() {
   const [onboardingNomResto, setOnboardingNomResto] = useState("")
   const [gerantId, setGerantId] = useState(null)
   const [gerantPrenom, setGerantPrenom] = useState("")
+  const [gerantNom, setGerantNom] = useState("")
+  const [gerantEmployeId, setGerantEmployeId] = useState(null)
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
   const [congesSemaine, setCongesSemaine] = useState([])
@@ -265,6 +268,8 @@ export default function Gerant() {
     if(gerantData?.features) setFeatures({...{badgeage:true,conges:true,signalements:true,export_paie:true},...gerantData.features})
     if(gerantData?.prenom) setGerantPrenom(gerantData.prenom)
     if(gerantData?.id) setGerantId(gerantData.id)
+    if(gerantData?.nom) setGerantNom(gerantData.nom)
+    if(gerantData?.employe_id) setGerantEmployeId(gerantData.employe_id)
     if(gerantData&&gerantData.onboarding_complete===false){setShowOnboarding(true);setGerantId(gerantData.id);setGerantPrenom(gerantData.prenom||"");setOnboardingStep(gerantData.onboarding_step||1)}
     } catch(e){
  setTrialStatut('active') }
@@ -1260,6 +1265,19 @@ export default function Gerant() {
         {view==='parametres'&&(
           <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
             <div style={{maxWidth:500}}>
+              {/* SECTION MES ABSENCES */}
+              {features.conges&&(
+                <MesAbsencesGerant
+                  gerantId={gerantId}
+                  gerantPrenom={gerantPrenom}
+                  gerantNom={gerantNom}
+                  restaurant={currentResto}
+                  employeId={gerantEmployeId}
+                  onProfilCreated={(id)=>{setGerantEmployeId(id);loadAll()}}
+                  showToast={showToast}
+                />
+              )}
+
               {/* SECTION GROUPES */}
               <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,overflow:'hidden',marginBottom:16}}>
                 <div style={{padding:'14px 20px',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
