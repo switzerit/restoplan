@@ -18,6 +18,8 @@ export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, re
   const [form, setForm] = useState({type:'conge_paye', date_debut:'', date_fin:'', message:''})
   const [activForm, setActivForm] = useState({prenom:gerantPrenom||'', nom:gerantNom||'', role:'Gérant', visible_equipe:true})
   const [loading, setLoading] = useState(false)
+  const [editInfos, setEditInfos] = useState(false)
+  const [infosForm, setInfosForm] = useState({prenom:'', nom:'', role:''})
 
   useEffect(()=>{
     if(employeId) loadProfil()
@@ -79,6 +81,19 @@ export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, re
       showToast('Absence enregistrée ✓')
       loadProfil()
     } else showToast('Erreur')
+  }
+
+  async function saveInfos(){
+    if(!infosForm.prenom.trim()||!infosForm.nom.trim()){showToast('Nom et prénom requis');return}
+    await api.put(`/gerants/${gerantId}/profil-employe`, {
+      prenom: infosForm.prenom.trim(),
+      nom: infosForm.nom.trim(),
+      role: infosForm.role||'Gérant'
+    })
+    setProfil(p=>({...p, prenom:infosForm.prenom.trim(), nom:infosForm.nom.trim(), role:infosForm.role}))
+    setEditInfos(false)
+    showToast('Infos mises à jour ✓')
+    loadProfil()
   }
 
   async function supprimerAbsence(id){
@@ -145,6 +160,45 @@ export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, re
       </div>
 
       <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:14}}>
+        {/* Infos profil + bouton modifier */}
+        <div style={{display:'flex',alignItems:'center',gap:10,padding:'11px 14px',background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)'}}>
+          <div style={{width:38,height:38,borderRadius:'50%',background:'var(--accent-bg)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,flexShrink:0}}>
+            {((profil.prenom?.[0]||'')+(profil.nom?.[0]||'')).toUpperCase()}
+          </div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:14,fontWeight:700}}>{profil.prenom} {profil.nom}</div>
+            <div style={{fontSize:12,color:'var(--text2)'}}>{profil.role||'Gérant'}</div>
+          </div>
+          <button onClick={()=>{setInfosForm({prenom:profil.prenom,nom:profil.nom,role:profil.role||'Gérant'});setEditInfos(true)}}
+            style={{padding:'6px 12px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--surface)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer',flexShrink:0}}>
+            ✏️ Modifier
+          </button>
+        </div>
+
+        {/* Form édition infos */}
+        {editInfos&&(
+          <div style={{background:'var(--bg)',borderRadius:12,border:'1px solid var(--border)',padding:16,display:'flex',flexDirection:'column',gap:12}}>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Prénom</label>
+                <input value={infosForm.prenom} onChange={e=>setInfosForm(f=>({...f,prenom:e.target.value}))} style={inp}/>
+              </div>
+              <div>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Nom</label>
+                <input value={infosForm.nom} onChange={e=>setInfosForm(f=>({...f,nom:e.target.value}))} style={inp}/>
+              </div>
+            </div>
+            <div>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Poste affiché</label>
+              <input value={infosForm.role} onChange={e=>setInfosForm(f=>({...f,role:e.target.value}))} style={inp}/>
+            </div>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setEditInfos(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--surface)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
+              <button onClick={saveInfos} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
+            </div>
+          </div>
+        )}
+
         {/* Toggle visibilité */}
         <label style={{display:'flex',alignItems:'center',gap:10,padding:'11px 14px',background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)',cursor:'pointer'}}>
           <input type="checkbox" checked={visible} onChange={toggleVisible} style={{width:18,height:18,cursor:'pointer'}}/>
