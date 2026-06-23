@@ -1261,7 +1261,7 @@ export default function Gerant() {
         )}
         {view==='conges'&&features.conges&&(
           <div style={{padding:16}}>
-            <CongesGerant restaurant={currentResto} employes={employes} onReloadEmployes={async()=>{const e=await api.get(`/employes/${currentResto.id}`);setEmployes(e||[])}} showToast={showToast}/>
+            <CongesGerant restaurant={currentResto} employes={employes} onReloadEmployes={async()=>{const e=await api.get(`/employes/${currentResto.id}`);setEmployes(e||[])}} showToast={showToast} isMobile={isMobile}/>
           </div>
         )}
         {view==='parametres'&&(
