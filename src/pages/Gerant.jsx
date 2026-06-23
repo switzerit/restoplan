@@ -140,6 +140,8 @@ export default function Gerant() {
   const [profilsMap, setProfilsMap] = useState({})
   const [empSearch, setEmpSearch] = useState('')
   const [empFiltreGroupe, setEmpFiltreGroupe] = useState('__all__')
+  const [presSearch, setPresSearch] = useState('')
+  const [presFiltreGroupe, setPresFiltreGroupe] = useState('__all__')
   const today = fmtDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
@@ -969,73 +971,131 @@ export default function Gerant() {
         )}
 
         {/* VUE PRESENCES */}
-        {view==='presences'&&features.badgeage&&(
-          <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch'}}>
-            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16,background:'var(--surface)',borderRadius:12,padding:'12px 16px',border:'1px solid var(--border)'}}>
-              <span style={{fontSize:13,fontWeight:600,color:'var(--text2)'}}>Pointages du</span>
-              <input type='date' value={selectedDate} onChange={e=>{setSelectedDate(e.target.value)}} style={{padding:'6px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',cursor:'pointer'}}/>
-              <button onClick={()=>setSelectedDate(today)} style={{padding:'6px 12px',borderRadius:8,border:'1px solid var(--border2)',background:selectedDate===today?'var(--accent)':'var(--bg)',color:selectedDate===today?'white':'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Aujourd'hui</button>
-              <button onClick={()=>{const d=new Date(selectedDate);d.setDate(d.getDate()-1);setSelectedDate(fmtDate(d))}} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:14,cursor:'pointer'}}>‹</button>
-              <button onClick={()=>{const d=new Date(selectedDate);d.setDate(d.getDate()+1);setSelectedDate(fmtDate(d))}} style={{padding:'6px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:14,cursor:'pointer'}}>›</button>
-              <span style={{fontSize:12,color:'var(--text3)',marginLeft:'auto'}}>{new Date(selectedDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span>
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:10,marginBottom:18}}>
-              {[{n:presentCount,l:'Présents',c:'var(--green)'},{n:employes.length-presentCount,l:'Absents',c:'var(--text)'},{n:employes.filter(e=>{const pts=getPointages(e.id);return pts.length>0&&!pts.some(p=>!p.heure_depart)}).length,l:'Partis',c:'var(--text2)'},{n:0,l:'Retards',c:'var(--orange)'}].map((s,i)=>(
-                <div key={i} style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',padding:'14px 16px'}}>
-                  <div style={{fontSize:26,fontWeight:800,color:s.c}}>{s.n}</div>
-                  <div style={{fontSize:11,color:'var(--text2)',marginTop:3}}>{s.l}</div>
+        {view==='presences'&&features.badgeage&&(()=>{
+          const q=(presSearch||'').toLowerCase().trim()
+          let filtered=employes.filter(e=>{
+            if(presFiltreGroupe==='__all__'){}
+            else if(presFiltreGroupe==='__none__'){if(e.groupe_id)return false}
+            else if(e.groupe_id!==presFiltreGroupe)return false
+            if(q)return (e.prenom+' '+e.nom+' '+(e.role||'')).toLowerCase().includes(q)
+            return true
+          })
+          // Stats
+          const nbPresents=filtered.filter(e=>isPresent(e.id)).length
+          const nbPartis=filtered.filter(e=>{const pts=getPointages(e.id);return pts.length>0&&pts.every(p=>p.heure_depart)}).length
+          const nbAbsents=filtered.filter(e=>getPointages(e.id).length===0).length
+          const totalMins=filtered.reduce((acc,e)=>acc+calcPointageMins(getPointages(e.id)),0)
+
+          return (
+            <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch',display:'flex',flexDirection:'column',gap:14}}>
+              {/* Sélecteur date */}
+              <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--surface)',borderRadius:12,padding:'10px 14px',border:'1px solid var(--border)',flexWrap:'wrap'}}>
+                <span style={{fontSize:13,fontWeight:600,color:'var(--text2)'}}>Pointages du</span>
+                <input type='date' value={selectedDate} onChange={e=>setSelectedDate(e.target.value)} style={{padding:'6px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',cursor:'pointer'}}/>
+                <button onClick={()=>setSelectedDate(today)} style={{padding:'6px 12px',borderRadius:8,border:'1px solid var(--border2)',background:selectedDate===today?'var(--accent)':'var(--bg)',color:selectedDate===today?'white':'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Aujourd'hui</button>
+                <button onClick={()=>{const d=new Date(selectedDate);d.setDate(d.getDate()-1);setSelectedDate(fmtDate(d))}} style={{width:32,height:32,borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:14,cursor:'pointer'}}>‹</button>
+                <button onClick={()=>{const d=new Date(selectedDate);d.setDate(d.getDate()+1);setSelectedDate(fmtDate(d))}} style={{width:32,height:32,borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:14,cursor:'pointer'}}>›</button>
+                {!isMobile&&<span style={{fontSize:12,color:'var(--text3)',marginLeft:'auto',textTransform:'capitalize'}}>{new Date(selectedDate).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span>}
+              </div>
+
+              {/* Stats */}
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':'repeat(4,1fr)',gap:8}}>
+                <div style={{background:'#f0fdf4',border:'1.5px solid #bbf7d0',borderRadius:14,padding:'14px 16px'}}>
+                  <div style={{fontSize:26,fontWeight:800,color:'#15803d',lineHeight:1}}>{nbPresents}</div>
+                  <div style={{fontSize:11,color:'#15803d',marginTop:3,fontWeight:600}}>Présents</div>
                 </div>
-              ))}
-            </div>
-            <div style={{display:'flex',flexDirection:'column',gap:7}}>
-              {employes.map((emp,i)=>{
-                const c=COLORS[i%COLORS.length]
-                const p=getPointage(emp.id)
-                const present=isPresent(emp.id)
-                const pts=(pointages[emp.id]||[])
-                const parti=pts.length>0&&pts.every(p=>p.heure_depart)
-                return (
-                  <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:10,overflow:'hidden'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px'}}>
-                      <div style={{width:8,height:8,borderRadius:'50%',background:present?'var(--green)':parti?'var(--orange)':'var(--border2)',flexShrink:0,boxShadow:present?'0 0 0 3px rgba(52,199,89,.15)':'none'}}></div>
-                      <div style={{width:32,height:32,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:13,fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{emp.prenom} {emp.nom}</div>
-                        <div style={{fontSize:11,color:'var(--text2)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div>
+                <div style={{background:'#fff7ed',border:'1.5px solid #fed7aa',borderRadius:14,padding:'14px 16px'}}>
+                  <div style={{fontSize:26,fontWeight:800,color:'#c2410c',lineHeight:1}}>{nbPartis}</div>
+                  <div style={{fontSize:11,color:'#c2410c',marginTop:3,fontWeight:600}}>Partis</div>
+                </div>
+                <div style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:14,padding:'14px 16px'}}>
+                  <div style={{fontSize:26,fontWeight:800,color:'var(--text)',lineHeight:1}}>{nbAbsents}</div>
+                  <div style={{fontSize:11,color:'var(--text2)',marginTop:3,fontWeight:600}}>Absents</div>
+                </div>
+                <div style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:14,padding:'14px 16px'}}>
+                  <div style={{fontSize:26,fontWeight:800,color:'var(--text)',lineHeight:1}}>{minsToHHMM(totalMins)}</div>
+                  <div style={{fontSize:11,color:'var(--text2)',marginTop:3,fontWeight:600}}>Total pointé</div>
+                </div>
+              </div>
+
+              {/* Recherche */}
+              <div style={{position:'relative'}}>
+                <span style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',fontSize:14,color:'var(--text3)',pointerEvents:'none'}}>🔍</span>
+                <input value={presSearch} onChange={e=>setPresSearch(e.target.value)} placeholder="Rechercher un employé..."
+                  style={{width:'100%',padding:'10px 12px 10px 34px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+              </div>
+
+              {/* Filtres groupe */}
+              {groupes.length>0&&(
+                <div style={{display:'flex',gap:6,overflowX:'auto',paddingBottom:2}}>
+                  {[{id:'__all__',nom:'Tous',couleur:null},...groupes,{id:'__none__',nom:'Sans groupe',couleur:'#9ca3af'}].map(g=>{
+                    const actif=presFiltreGroupe===g.id
+                    return (
+                      <button key={g.id} onClick={()=>setPresFiltreGroupe(g.id)} style={{
+                        flexShrink:0,padding:'6px 14px',borderRadius:20,cursor:'pointer',fontSize:12,fontWeight:actif?700:500,
+                        border:`1.5px solid ${actif?'#E11D48':'var(--border)'}`,
+                        background:actif?'#E11D48':'var(--surface)',color:actif?'white':'var(--text2)',
+                        display:'flex',alignItems:'center',gap:6,transition:'all .15s'}}>
+                        {g.couleur&&<span style={{width:8,height:8,borderRadius:'50%',background:g.couleur}}/>}
+                        {g.nom}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Liste */}
+              {filtered.length===0?(
+                <div style={{textAlign:'center',padding:'48px 20px',background:'var(--surface)',borderRadius:16,border:'1px solid var(--border)',color:'var(--text3)'}}>
+                  <div style={{fontSize:36,marginBottom:10}}>{q?'🔍':'👥'}</div>
+                  <div style={{fontSize:14,fontWeight:600}}>{q?'Aucun résultat':'Aucun employé'}</div>
+                </div>
+              ):(
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                  {filtered.map((emp)=>{
+                    const c=COLORS[employes.findIndex(e=>e.id===emp.id)%COLORS.length]
+                    const present=isPresent(emp.id)
+                    const pts=getPointages(emp.id)
+                    const parti=pts.length>0&&pts.every(p=>p.heure_depart)
+                    const sh=getShiftForDate(emp.id,selectedDate)
+                    const shM=calcShiftMins(sh)
+                    const ptM=calcPointageMins(pts)
+                    const ec=ptM-shM
+                    const statut=present?'Présent':parti?'Parti':'Absent'
+                    const dotColor=present?'#22c55e':parti?'#ea580c':'var(--border2)'
+                    const badgeStyle=present?{bg:'#f0fdf4',c:'#15803d',bc:'#bbf7d0'}:parti?{bg:'#fff7ed',c:'#c2410c',bc:'#fed7aa'}:{bg:'var(--bg)',c:'var(--text3)',bc:'var(--border)'}
+                    return (
+                      <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:13,padding:'13px 14px',display:'flex',alignItems:'center',gap:11}}>
+                        <div style={{width:9,height:9,borderRadius:'50%',background:dotColor,flexShrink:0,boxShadow:present?'0 0 0 3px rgba(34,197,94,.18)':'none'}}/>
+                        <div style={{width:38,height:38,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:14,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom} {emp.nom}</div>
+                          <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>
+                            {pts.length>0
+                              ?pts.map((pt,idx)=>`${pt.heure_arrivee?.slice(0,5)}${pt.heure_depart?' → '+pt.heure_depart.slice(0,5):' → en cours'}`).join('  ·  ')
+                              :<span style={{color:'var(--text3)'}}>Pas de pointage</span>}
+                          </div>
+                        </div>
+                        {(shM>0||ptM>0)&&(
+                          <div style={{textAlign:'right',flexShrink:0}}>
+                            {shM>0&&<div style={{fontSize:10,color:'var(--text3)'}}>Prévu {minsToHHMM(shM)}</div>}
+                            {shM>0&&ptM>0&&<span style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:ec>=0?'#f0fdf4':'#fef2f2',color:ec>=0?'#15803d':'#dc2626',border:`1px solid ${ec>=0?'#bbf7d0':'#fecaca'}`,display:'inline-block',marginTop:2}}>{ec>=0?'+':'-'}{minsToHHMM(Math.abs(ec))}</span>}
+                            {shM===0&&ptM>0&&<div style={{fontSize:12,fontWeight:700}}>{minsToHHMM(ptM)}</div>}
+                          </div>
+                        )}
+                        <span style={{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:20,flexShrink:0,background:badgeStyle.bg,color:badgeStyle.c,border:`1px solid ${badgeStyle.bc}`}}>{statut}</span>
+                        <div style={{display:'flex',gap:5,flexShrink:0}}>
+                          <button onClick={()=>openCorrection(emp)} style={{padding:'6px 9px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer'}}>✏️</button>
+                          <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:selectedDate,heure_arrivee:'',heure_depart:''})}} style={{padding:'6px 9px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer'}}>+</button>
+                        </div>
                       </div>
-                      {(()=>{
-                        const pts=getPointages(emp.id)
-                        const sh=getShiftForDate(emp.id,selectedDate)
-                        const shM=calcShiftMins(sh)
-                        const ptM=calcPointageMins(pts)
-                        const ec=ptM-shM
-                        if(!shM&&!ptM) return null
-                        return <div style={{textAlign:'right',flexShrink:0,marginRight:4}}>
-                          {shM>0&&<div style={{fontSize:10,color:'var(--text3)'}}>Prévu {minsToHHMM(shM)}</div>}
-                          {ptM>0&&<div style={{fontSize:11,fontWeight:700}}>{minsToHHMM(ptM)}</div>}
-                          {shM>0&&ptM>0&&<div style={{fontSize:10,fontWeight:700,color:ec>=0?'#1a6b35':'var(--red)'}}>{ec>=0?'+':''}{minsToHHMM(Math.abs(ec))}</div>}
-                        </div>
-                      })()}
-                      
-                      <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:20,flexShrink:0,background:present?'var(--green-bg)':parti?'var(--orange-bg)':'var(--bg)',color:present?'#1a6b35':parti?'#8a4a00':'var(--text3)'}}>{present?'Présent':parti?'Parti':'Absent'}</span>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px 10px',borderTop:'1px solid var(--border)'}}>
-                      {(()=>{
-                        const pts=getPointages(emp.id)
-                        if(!pts.length) return <span style={{fontSize:11,color:'var(--text3)',flex:1}}>Pas de pointage</span>
-                        return <div style={{flex:1,display:'flex',flexDirection:'column',gap:2}}>
-                          {pts.map((pt,idx)=><span key={idx} style={{fontSize:11,color:'var(--text2)',fontWeight:500}}>🕐 {pt.heure_arrivee?.slice(0,5)}{pt.heure_depart?' → '+pt.heure_depart.slice(0,5):' → en cours'}</span>)}
-                        </div>
-                      })()}
-                      <button onClick={()=>openCorrection(emp)} style={{padding:'5px 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0}}>✏️ Corriger</button>
-                      <button onClick={()=>{setAddPointageModal({empId:emp.id,nom:emp.prenom+' '+emp.nom});setAddPointageForm({date:selectedDate,heure_arrivee:'',heure_depart:''})}} style={{padding:'5px 10px',borderRadius:8,border:'none',background:'var(--accent-bg)',color:'var(--accent)',fontSize:11,fontWeight:600,cursor:'pointer',flexShrink:0}}>+ Ajouter</button>
-                    </div>
-                  </div>
-                )
-              })}
+                    )
+                  })}
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* VUE EQUIPE */}
         {view==='employes'&&(()=>{
