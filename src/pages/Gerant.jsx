@@ -979,6 +979,7 @@ export default function Gerant() {
         {view==='presences'&&features.badgeage&&(()=>{
           const q=(presSearch||'').toLowerCase().trim()
           let filtered=employes.filter(e=>{
+            if(e.est_gerant) return false
             if(presFiltreGroupe==='__all__'){}
             else if(presFiltreGroupe==='__none__'){if(e.groupe_id)return false}
             else if(e.groupe_id!==presFiltreGroupe)return false
@@ -1106,6 +1107,7 @@ export default function Gerant() {
         {view==='employes'&&(()=>{
           const q=(empSearch||'').toLowerCase().trim()
           const filtered=employes.filter(e=>{
+            if(e.est_gerant) return false
             if(empFiltreGroupe==='__all__') {} 
             else if(empFiltreGroupe==='__none__'){ if(e.groupe_id) return false }
             else if(e.groupe_id!==empFiltreGroupe) return false
