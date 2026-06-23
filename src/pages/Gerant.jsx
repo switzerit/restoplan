@@ -1274,6 +1274,7 @@ export default function Gerant() {
                   restaurant={currentResto}
                   employeId={gerantEmployeId}
                   onProfilCreated={(id)=>{setGerantEmployeId(id);loadAll()}}
+                  onReloadEmployes={async()=>{const e=await api.get(`/employes/${currentResto.id}`);setEmployes(e||[])}}
                   showToast={showToast}
                 />
               )}

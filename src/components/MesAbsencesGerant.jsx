@@ -10,7 +10,7 @@ const TYPES = {
 function fmtD(s){if(!s)return'—';const str=typeof s==='string'?s:s.toISOString().split('T')[0];return new Date(str+'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})}
 function nbJ(d1,d2){return Math.max(1,Math.round((new Date(d2)-new Date(d1))/(1000*60*60*24))+1)}
 
-export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, restaurant, employeId, onProfilCreated, showToast}){
+export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, restaurant, employeId, onProfilCreated, onReloadEmployes, showToast}){
   const [profil, setProfil] = useState(null)
   const [absences, setAbsences] = useState([])
   const [visible, setVisible] = useState(true)
@@ -48,6 +48,7 @@ export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, re
     if(res?.id){
       setProfil(res); setVisible(res.visible_equipe!==false)
       if(onProfilCreated) onProfilCreated(res.id)
+      if(onReloadEmployes) onReloadEmployes()
       showToast('Profil activé ✓')
     } else showToast('Erreur')
   }
@@ -58,6 +59,7 @@ export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, re
     await api.put(`/gerants/${gerantId}/profil-employe/visibilite`, {visible_equipe:nv})
     showToast(nv?'Visible par l\'équipe':'Masqué de l\'équipe')
     if(profil) setProfil({...profil, visible_equipe:nv})
+    if(onReloadEmployes) onReloadEmployes()
   }
 
   async function poserAbsence(){
@@ -80,6 +82,7 @@ export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, re
       setForm({type:'conge_paye', date_debut:'', date_fin:'', message:''})
       showToast('Absence enregistrée ✓')
       loadProfil()
+      if(onReloadEmployes) onReloadEmployes()
     } else showToast('Erreur')
   }
 
@@ -94,6 +97,7 @@ export default function MesAbsencesGerant({gerantId, gerantPrenom, gerantNom, re
     setEditInfos(false)
     showToast('Infos mises à jour ✓')
     loadProfil()
+    if(onReloadEmployes) onReloadEmployes()
   }
 
   async function supprimerAbsence(id){
