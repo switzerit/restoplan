@@ -816,18 +816,6 @@ export default function Gerant() {
               <span style={{fontSize:13,fontWeight:600,padding:'0 8px',textTransform:'capitalize'}}>{moisDate.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</span>
               <button onClick={()=>setMoisDate(new Date(moisDate.getFullYear(),moisDate.getMonth()+1,1))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>›</button>
             </div>}
-            {/* Filtre employé */}
-            {groupes.length>0&&(
-              <select value={filtreGroupe} onChange={e=>{setFiltreGroupe(e.target.value);setFiltreEmploye('')}}
-                style={{height:34,padding:'0 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:12,color:'var(--text)',cursor:'pointer'}}>
-                <option value=''>Tous les groupes</option>
-                {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
-              </select>
-            )}
-            <select value={filtreEmploye} onChange={e=>{setFiltreEmploye(e.target.value);setFiltreGroupe('')}} style={{height:34,padding:'0 10px',borderRadius:8,border:'1px solid var(--border2)',background:'var(--bg)',fontSize:12,color:'var(--text)',cursor:'pointer'}}>
-              <option value=''>Tous les employés</option>
-              {employes.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
-            </select>
             {/* Copier semaine */}
             {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDateLocal(weekStart),destWeeks:[],employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
             <button onClick={async()=>{
@@ -937,6 +925,27 @@ export default function Gerant() {
             })
             return (
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              {/* Recherche + filtres groupe */}
+              <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+                <div style={{position:'relative',flex:1,minWidth:180}}>
+                  <span style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',fontSize:14,color:'var(--text3)',pointerEvents:'none'}}>🔍</span>
+                  <input value={planSearch} onChange={e=>setPlanSearch(e.target.value)} placeholder="Rechercher un employé..."
+                    style={{width:'100%',padding:'9px 12px 9px 33px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+                </div>
+                {groupes.length>0&&[{id:'__all__',nom:'Tous',couleur:null},...groupes,{id:'__none__',nom:'Sans groupe',couleur:'#9ca3af'}].map(g=>{
+                  const actif=planFiltreGroupe===g.id
+                  return (
+                    <button key={g.id} onClick={()=>setPlanFiltreGroupe(g.id)} style={{
+                      flexShrink:0,padding:'7px 14px',borderRadius:20,cursor:'pointer',fontSize:12,fontWeight:actif?700:500,
+                      border:`1.5px solid ${actif?'#E11D48':'var(--border)'}`,
+                      background:actif?'#E11D48':'var(--surface)',color:actif?'white':'var(--text2)',
+                      display:'flex',alignItems:'center',gap:6,transition:'all .15s'}}>
+                      {g.couleur&&<span style={{width:8,height:8,borderRadius:'50%',background:g.couleur}}/>}
+                      {g.nom}
+                    </button>
+                  )
+                })}
+              </div>
               <div style={{background:'var(--surface)',borderRadius:16,border:'1px solid var(--border)',overflow:'hidden'}}>
                 <div style={{display:'grid',gridTemplateColumns:'140px repeat(7,1fr)',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
                   <div style={{padding:'11px 14px',fontSize:11,fontWeight:600,color:'var(--text3)'}}>Équipe</div>
