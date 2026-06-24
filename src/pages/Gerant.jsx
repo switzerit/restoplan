@@ -1002,12 +1002,6 @@ export default function Gerant() {
                   )
                 })}
               </div>
-              {/* Légende */}
-              <div style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',fontSize:11,color:'var(--text3)',padding:'0 4px'}}>
-                <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:7,height:7,borderRadius:'50%',background:'#E11D48'}}/>Brouillon non publié</span>
-                <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:11,height:'1px',background:'var(--text3)'}}/>Shift coupé (matin + soir)</span>
-                <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:14,height:14,borderRadius:'50%',background:'#dc2626',color:'white',fontSize:9,display:'flex',alignItems:'center',justifyContent:'center'}}>!</span>Conflit congé / shift</span>
-              </div>
             </div>
             )
           })()}
