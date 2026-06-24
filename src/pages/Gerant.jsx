@@ -113,6 +113,7 @@ export default function Gerant() {
   const [shiftsMonth, setShiftsMonth] = useState([])
   const [congesMonth, setCongesMonth] = useState([])
   const [pendingEmp, setPendingEmp] = useState(new Set())
+  const [nbBrouillons, setNbBrouillons] = useState(0)
   const [weekStart, setWeekStart] = useState(getMonday(new Date()))
   const [planningMode, setPlanningMode] = useState('semaine')
   const [moisDate, setMoisDate] = useState(new Date())
@@ -302,6 +303,7 @@ export default function Gerant() {
     const to = fmtDate(addDays(weekStart,6))
     const data = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
     setShifts(data||[])
+    setNbBrouillons((data||[]).filter(s=>s.publie===false||s.supprime_en_attente).length)
     // Charger les congés acceptés de la semaine
     const cData = await api.get(`/conges?restaurant_id=${currentResto.id}&statut=accepte&date_fin_gte=${from}&date_debut_lte=${to}`)
     setCongesSemaine(cData||[])
@@ -833,8 +835,8 @@ export default function Gerant() {
               setPendingEmp(new Set())
               loadShifts()
               showToast('✅ Planning publié — '+empANotifier.size+' employé'+(empANotifier.size>1?'s':'')+' notifié'+(empANotifier.size>1?'s':''))
-            }} style={{height:34,padding:'0 14px',background:pendingEmp.size>0?'var(--accent)':'var(--border)',color:pendingEmp.size>0?'white':'var(--text2)',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',position:'relative'}}>
-              Publier{pendingEmp.size>0&&<span style={{position:'absolute',top:-6,right:-6,minWidth:18,height:18,borderRadius:9,background:'#dc2626',color:'white',fontSize:10,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',border:'2px solid white',padding:'0 3px'}}>{pendingEmp.size}</span>}
+            }} style={{height:34,padding:'0 14px',background:(pendingEmp.size>0||nbBrouillons>0)?'var(--accent)':'var(--border)',color:(pendingEmp.size>0||nbBrouillons>0)?'white':'var(--text2)',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:(pendingEmp.size>0||nbBrouillons>0)?'pointer':'not-allowed',position:'relative'}}>
+              Publier{(pendingEmp.size>0||nbBrouillons>0)&&<span style={{position:'absolute',top:-6,right:-6,minWidth:18,height:18,borderRadius:9,background:'#dc2626',color:'white',fontSize:10,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center',border:'2px solid white',padding:'0 3px'}}>{Math.max(pendingEmp.size,nbBrouillons)}</span>}
             </button>
           </>}
           {view==='presences'&&features.export_paie&&<button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 Exporter PDF</button>}
