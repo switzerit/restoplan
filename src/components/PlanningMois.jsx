@@ -17,8 +17,12 @@ export default function PlanningMois({employes,shifts,congesSemaine,shiftColors,
   for(let i=1;i<=mEnd.getDate();i++)cells.push(new Date(y,m,i))
   while(cells.length%7!==0)cells.push(null)
 
-  const fShifts=filtreEmploye?shifts.filter(s=>s.employe_id===filtreEmploye):shifts
-  const fConges=filtreEmploye?congesSemaine.filter(c=>c.employe_id===filtreEmploye):congesSemaine
+  // Exclure le profil gérant (est_gerant) du planning
+  const gerantIds=new Set(employes.filter(e=>e.est_gerant).map(e=>e.id))
+  const baseShifts=shifts.filter(s=>!gerantIds.has(s.employe_id))
+  const baseConges=congesSemaine.filter(c=>!gerantIds.has(c.employe_id))
+  const fShifts=filtreEmploye?baseShifts.filter(s=>s.employe_id===filtreEmploye):baseShifts
+  const fConges=filtreEmploye?baseConges.filter(c=>c.employe_id===filtreEmploye):baseConges
   const mDates=cells.filter(Boolean).map(d=>fmtDate(d))
   const mShifts=fShifts.filter(s=>mDates.includes(s.date))
   const mConges=fConges.filter(c=>mDates.some(d=>c.date_debut<=d&&c.date_fin>=d))
