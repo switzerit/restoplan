@@ -142,6 +142,8 @@ export default function Gerant() {
   const [editEmpForm, setEditEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:'',groupe_id:null})
   const [profilsMap, setProfilsMap] = useState({})
   const [empSearch, setEmpSearch] = useState('')
+  const [planSearch, setPlanSearch] = useState('')
+  const [planFiltreGroupe, setPlanFiltreGroupe] = useState('__all__')
   const [empFiltreGroupe, setEmpFiltreGroupe] = useState('__all__')
   const [presSearch, setPresSearch] = useState('')
   const [presFiltreGroupe, setPresFiltreGroupe] = useState('__all__')
@@ -923,55 +925,83 @@ export default function Gerant() {
               </div>
             </div>
           )}
-          {planningMode==='semaine'&&!isMobile&&(
-            /* VUE DESKTOP PLANNING - grille semaine */
-            <div style={{background:'var(--surface)',borderRadius:14,border:'1px solid var(--border)',overflow:'hidden'}}>
-              <div style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
-                <div style={{padding:'9px 12px',fontSize:11,fontWeight:700,color:'var(--text2)'}}>Employé</div>
-                {weekDays.map((d,i)=>{
-                  const isToday=fmtDate(d)===today
-                  return <div key={i} style={{padding:'9px 8px',fontSize:11,fontWeight:700,color:isToday?'var(--accent)':'var(--text2)',textAlign:'center'}}>{DAYS[i]}<br/><span style={{fontSize:10,opacity:.7}}>{fmtLabel(d)}</span></div>
+          {planningMode==='semaine'&&!isMobile&&(()=>{
+            /* VUE DESKTOP PLANNING - grille semaine moderne */
+            const pq=(planSearch||'').toLowerCase().trim()
+            const list=employes.filter(e=>{
+              if(e.est_gerant) return false
+              if(planFiltreGroupe==='__none__'){if(e.groupe_id)return false}
+              else if(planFiltreGroupe!=='__all__'&&e.groupe_id!==planFiltreGroupe) return false
+              if(pq) return (e.prenom+' '+e.nom+' '+(e.role||'')).toLowerCase().includes(pq)
+              return true
+            })
+            return (
+            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+              <div style={{background:'var(--surface)',borderRadius:16,border:'1px solid var(--border)',overflow:'hidden'}}>
+                <div style={{display:'grid',gridTemplateColumns:'140px repeat(7,1fr)',borderBottom:'1px solid var(--border)',background:'var(--bg)'}}>
+                  <div style={{padding:'11px 14px',fontSize:11,fontWeight:600,color:'var(--text3)'}}>Équipe</div>
+                  {weekDays.map((d,i)=>{
+                    const isToday=fmtDate(d)===today
+                    return <div key={i} style={{padding:'11px 4px',fontSize:11,fontWeight:isToday?700:500,color:isToday?'#E11D48':'var(--text2)',textAlign:'center',background:isToday?'rgba(225,29,72,.05)':'transparent'}}>{DAYS[i]} <span style={{opacity:isToday?.7:.5}}>{d.getDate()}</span></div>
+                  })}
+                </div>
+                {list.length===0&&<div style={{padding:40,textAlign:'center',color:'var(--text3)',fontSize:14}}>{pq||planFiltreGroupe!=='__all__'?'Aucun employé ne correspond':'Aucun employé — '}{!pq&&planFiltreGroupe==='__all__'&&<button onClick={()=>setEmpModal(true)} style={{color:'var(--accent)',background:'none',border:'none',cursor:'pointer',fontWeight:600,fontSize:14}}>en ajouter un</button>}</div>}
+                {list.map((emp,ei)=>{
+                  const c=COLORS[ei%COLORS.length]
+                  return (
+                    <div key={emp.id} style={{display:'grid',gridTemplateColumns:'140px repeat(7,1fr)',borderBottom:ei<list.length-1?'1px solid var(--border)':'none'}}>
+                      <div style={{padding:'9px 14px',display:'flex',alignItems:'center',gap:9,borderRight:'1px solid var(--border)',background:'var(--surface)'}}>
+                        <div style={{width:30,height:30,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
+                        <div style={{minWidth:0}}><div style={{fontSize:12,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{emp.prenom}</div>{emp.groupe_nom&&<div style={{fontSize:10,color:'var(--text3)',display:'flex',alignItems:'center',gap:3}}><span style={{width:6,height:6,borderRadius:'50%',background:emp.groupe_couleur||'#9ca3af',display:'inline-block'}}/>{emp.groupe_nom}</div>}</div>
+                      </div>
+                      {weekDays.map((d,di)=>{
+                        const sh=getShift(emp.id,di)
+                        const isToday=fmtDate(d)===today
+                        const sc=sh?shiftColors[sh.poste]:null
+                        const isCoupe=sh&&sh.heure_debut_2&&sh.heure_fin_2
+                        return (
+                          <div key={di} onClick={()=>openShift(emp.id,di)} style={{padding:5,borderRight:di<6?'1px solid var(--border)':'none',display:'flex',alignItems:'center',minHeight:60,cursor:'pointer',background:isToday?'rgba(225,29,72,.025)':'transparent',transition:'background .12s'}}
+                          onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
+                          onMouseLeave={e=>e.currentTarget.style.background=isToday?'rgba(225,29,72,.025)':'transparent'}>
+                            {(()=>{
+                              const conge=getConge(emp.id,di)
+                              if(sh){
+                                const draft=sh.publie===false&&!sh.supprime_en_attente
+                                const aRetirer=sh.supprime_en_attente
+                                return <div style={{borderRadius:8,padding:'6px 9px',width:'100%',background:aRetirer?'#fef2f2':sc.bg,color:aRetirer?'#dc2626':sc.color,border:`1px solid ${aRetirer?'#fecaca':sc.border}`,opacity:aRetirer?.6:1,position:'relative',textDecoration:aRetirer?'line-through':'none',lineHeight:1.35}}>
+                                  {draft&&<div style={{position:'absolute',top:-5,right:-3,width:7,height:7,borderRadius:'50%',background:'#E11D48',border:'1.5px solid var(--surface)'}}/>}
+                                  {aRetirer&&<div style={{position:'absolute',top:-6,right:-3,fontSize:8,fontWeight:800,background:'#dc2626',color:'white',borderRadius:4,padding:'1px 4px',border:'1px solid var(--surface)'}}>retiré</div>}
+                                  <div style={{fontWeight:600,fontSize:11}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>
+                                  {isCoupe&&<><div style={{height:'0.5px',background:sc.border,margin:'3px 0'}}/><div style={{fontWeight:600,fontSize:11}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div></>}
+                                  <div style={{fontWeight:400,fontSize:9,opacity:.7,textTransform:'uppercase',letterSpacing:'.3px',marginTop:1}}>{sh.poste}{isCoupe?' · coupé':''}</div>
+                                </div>
+                              }
+                              if(conge){
+                                const hasShiftToo=!!sh
+                                return <div style={{borderRadius:8,padding:'6px 9px',width:'100%',fontSize:11,fontWeight:600,background:'#fef2f2',color:'#dc2626',border:`1px solid ${hasShiftToo?'#dc2626':'#fecaca'}`,cursor:'default',position:'relative',lineHeight:1.35}} onClick={e=>e.stopPropagation()}>
+                                  {hasShiftToo&&<div style={{position:'absolute',top:-5,right:-3,width:14,height:14,borderRadius:'50%',background:'#dc2626',color:'white',fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',border:'1.5px solid var(--surface)'}}>!</div>}
+                                  <div>{({conge_paye:'Congé payé',rtt:'RTT',maladie:'Maladie',sans_solde:'Sans solde',autre:'Absence',conges_reportes:'Reportés N-1'})[conge.type]||'Congé'}</div>
+                                  {hasShiftToo&&<div style={{fontSize:8,fontWeight:700,marginTop:2}}>⚠️ Shift actif</div>}
+                                </div>
+                              }
+                              return <div style={{width:'100%',height:30,border:'1px dashed var(--border2)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:16,opacity:.5}}>+</div>
+                            })()}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
                 })}
               </div>
-              {employes.length===0&&<div style={{padding:40,textAlign:'center',color:'var(--text3)',fontSize:14}}>Aucun employé — <button onClick={()=>setEmpModal(true)} style={{color:'var(--accent)',background:'none',border:'none',cursor:'pointer',fontWeight:600,fontSize:14}}>en ajouter un</button></div>}
-              {employes.filter(e=>(!filtreEmploye||e.id===filtreEmploye)&&(!filtreGroupe||e.groupe_id===filtreGroupe)).map((emp,ei)=>{
-                const c=COLORS[ei%COLORS.length]
-                return (
-                  <div key={emp.id} style={{display:'grid',gridTemplateColumns:'150px repeat(7,1fr)',borderBottom:'1px solid var(--border)'}}>
-                    <div style={{padding:'10px 12px',display:'flex',alignItems:'center',gap:8,borderRight:'1px solid var(--border)',background:'var(--surface)'}}>
-                      <div style={{width:28,height:28,borderRadius:'50%',background:c.bg,color:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{ini(emp.prenom,emp.nom)}</div>
-                      <div><div style={{fontSize:12,fontWeight:700}}>{emp.prenom}</div><div style={{fontSize:10,color:'var(--text3)'}}>{emp.role?emp.role.charAt(0).toUpperCase()+emp.role.slice(1):''}</div></div>
-                    </div>
-                    {weekDays.map((d,di)=>{
-                      const sh=getShift(emp.id,di)
-                      const isToday=fmtDate(d)===today
-                      const sc=sh?shiftColors[sh.poste]:null
-                      return (
-                        <div key={di} onClick={()=>openShift(emp.id,di)} style={{padding:4,borderRight:'1px solid var(--border)',display:'flex',alignItems:'center',minHeight:56,cursor:'pointer',background:isToday?'rgba(0,113,227,.02)':'transparent'}}
-                        onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-                        onMouseLeave={e=>e.currentTarget.style.background=isToday?'rgba(0,113,227,.02)':'transparent'}>
-                          {(()=>{
-                            const conge=getConge(emp.id,di)
-                            if(sh) return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:sh.supprime_en_attente?'#fef2f2':sc.bg,color:sh.supprime_en_attente?'#dc2626':sc.color,border:`1.5px solid ${sh.supprime_en_attente?'#fecaca':sh.publie===false?'#E11D48':sc.border}`,opacity:sh.supprime_en_attente?.6:sh.publie===false?.8:1,position:'relative',textDecoration:sh.supprime_en_attente?'line-through':'none'}}>{sh.publie===false&&!sh.supprime_en_attente&&<div style={{position:'absolute',top:-4,right:-4,fontSize:8,fontWeight:800,background:'#E11D48',color:'white',borderRadius:4,padding:'1px 4px',border:'1px solid white'}}>Brouillon</div>}{sh.supprime_en_attente&&<div style={{position:'absolute',top:-4,right:-4,fontSize:8,fontWeight:800,background:'#dc2626',color:'white',borderRadius:4,padding:'1px 4px',border:'1px solid white'}}>À retirer</div>}<div>{sh.poste[0].toUpperCase()+sh.poste.slice(1)}</div><div style={{fontWeight:400,opacity:.75,fontSize:9}}>{sh.heure_debut.slice(0,5)}–{sh.heure_fin.slice(0,5)}</div>{sh.heure_debut_2&&sh.heure_fin_2&&<div style={{fontWeight:400,opacity:.65,fontSize:9,borderTop:`1px solid ${sc.border}`,marginTop:2,paddingTop:2}}>{sh.heure_debut_2.slice(0,5)}–{sh.heure_fin_2.slice(0,5)}</div>}</div>
-                            if(conge){
-                              const hasShiftToo = !!sh
-                              return <div style={{borderRadius:7,padding:'5px 7px',width:'100%',fontSize:10,fontWeight:700,background:'#fef2f2',color:'#dc2626',border:`1.5px solid ${hasShiftToo?'#dc2626':'#fecaca'}`,cursor:'default',position:'relative'}} onClick={e=>e.stopPropagation()}>
-                                {hasShiftToo&&<div style={{position:'absolute',top:-4,right:-4,width:14,height:14,borderRadius:'50%',background:'#dc2626',color:'white',fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',border:'1.5px solid white'}}>!</div>}
-                                <div>Congé</div>
-                                <div style={{fontWeight:400,opacity:.8,fontSize:9}}>{({conge_paye:'Payé',rtt:'RTT',maladie:'Maladie',sans_solde:'Sans solde',autre:'Autre',conges_reportes:'Reportés N-1'})[conge.type]||conge.type}</div>
-                                {hasShiftToo&&<div style={{fontSize:8,color:'#dc2626',fontWeight:700,marginTop:2}}>⚠️ Shift actif</div>}
-                              </div>
-                            }
-                            return <div style={{width:'100%',height:30,border:'1.5px dashed var(--border2)',borderRadius:7,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:18}}>+</div>
-                          })()}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )
-              })}
+              {/* Légende */}
+              <div style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',fontSize:11,color:'var(--text3)',padding:'0 4px'}}>
+                <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:7,height:7,borderRadius:'50%',background:'#E11D48'}}/>Brouillon non publié</span>
+                <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:11,height:'1px',background:'var(--text3)'}}/>Shift coupé (matin + soir)</span>
+                <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:14,height:14,borderRadius:'50%',background:'#dc2626',color:'white',fontSize:9,display:'flex',alignItems:'center',justifyContent:'center'}}>!</span>Conflit congé / shift</span>
+              </div>
             </div>
-          )}
+            )
+          })()}
           </div>
         )}
 
