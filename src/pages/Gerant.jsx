@@ -50,7 +50,7 @@ function getSecteurLabel(secteur){
 }
 function getMonday(d){const dt=new Date(d);const day=dt.getDay();const diff=dt.getDate()-day+(day===0?-6:1);return new Date(dt.setDate(diff))}
 function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt}
-function fmtDate(d){return d.toISOString().split('T')[0]}
+function fmtDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${da}`}
 function fmtDateLocal(d){
   const y=d.getFullYear()
   const m=String(d.getMonth()+1).padStart(2,'0')
