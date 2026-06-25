@@ -108,6 +108,7 @@ export default function Gerant() {
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
   const loadShiftsSeq = useRef('')
+  const weekStartRef = useRef(null)
   const [congesSemaine, setCongesSemaine] = useState([])
   const [pointages, setPointages] = useState({})
   const [congesVersion, setCongesVersion] = useState(0)
@@ -223,6 +224,7 @@ export default function Gerant() {
     })
   },[])
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
+  useEffect(()=>{weekStartRef.current=weekStart},[weekStart])
   useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto,congesVersion])
   useEffect(()=>{if(currentResto&&planningMode==='mois'){loadMonthData(moisDate)}},[moisDate,currentResto,planningMode,congesVersion])
   useEffect(()=>{
@@ -301,8 +303,9 @@ export default function Gerant() {
   }
 
   async function loadShifts(){
-    const from = fmtDate(weekStart)
-    const to = fmtDate(addDays(weekStart,6))
+    const ws = weekStartRef.current || weekStart
+    const from = fmtDate(ws)
+    const to = fmtDate(addDays(ws,6))
     loadShiftsSeq.current = from  // clé = semaine demandée
     console.log('[LOADSHIFTS] début, from=',from)
     const data = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
