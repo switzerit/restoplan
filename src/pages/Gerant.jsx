@@ -1833,7 +1833,7 @@ export default function Gerant() {
               const selMonday = getMonday(parseL(currentWeekStr))
               const selLabel = fmtLabel(selMonday)+' – '+fmtLabel(addDays(selMonday,6))
 
-              // Calendrier mensuel picker
+              // Calendrier mensuel — grille cliquable par semaine
               const CalPicker = ()=>{
                 const cy=calMonth.getFullYear(), cm=calMonth.getMonth()
                 const mStart=new Date(cy,cm,1), mEnd=new Date(cy,cm+1,0)
@@ -1842,39 +1842,62 @@ export default function Gerant() {
                 for(let i=0;i<firstDow;i++)cells.push(null)
                 for(let i=1;i<=mEnd.getDate();i++)cells.push(new Date(cy,cm,i))
                 while(cells.length%7!==0)cells.push(null)
-                // Grouper par semaine
                 const weeks=[]
                 for(let i=0;i<cells.length;i+=7){
-                  const wDays=cells.slice(i,i+7).filter(Boolean)
-                  if(wDays.length>0) weeks.push(getMonday(wDays[0]))
+                  const row=cells.slice(i,i+7)
+                  const firstReal=row.find(Boolean)
+                  weeks.push({mon:getMonday(firstReal),days:row})
                 }
+                const todayStr=fmtDateLocal(new Date())
                 return (
-                  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:12,padding:14,marginBottom:12}}>
-                    <div style={{display:'flex',alignItems:'center',marginBottom:10}}>
-                      <button onClick={()=>setCalMonth(new Date(cy,cm-1,1))} style={{width:28,height:28,borderRadius:7,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:14}}>‹</button>
-                      <div style={{flex:1,textAlign:'center',fontSize:13,fontWeight:700,textTransform:'capitalize'}}>{calMonth.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</div>
-                      <button onClick={()=>setCalMonth(new Date(cy,cm+1,1))} style={{width:28,height:28,borderRadius:7,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:14}}>›</button>
+                  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:14,marginBottom:12}}>
+                    <div style={{display:'flex',alignItems:'center',marginBottom:12}}>
+                      <button onClick={()=>setCalMonth(new Date(cy,cm-1,1))} style={{width:32,height:32,borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',cursor:'pointer',fontSize:15,color:'var(--text2)'}}>‹</button>
+                      <div style={{flex:1,textAlign:'center',fontSize:14,fontWeight:700,textTransform:'capitalize'}}>{calMonth.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</div>
+                      <button onClick={()=>setCalMonth(new Date(cy,cm+1,1))} style={{width:32,height:32,borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',cursor:'pointer',fontSize:15,color:'var(--text2)'}}>›</button>
                     </div>
-                    <div style={{display:'flex',flexDirection:'column',gap:3}}>
-                      {weeks.map((wMon,wi)=>{
-                        const wLabel=fmtLabel(wMon)+' – '+fmtLabel(addDays(wMon,6))
-                        const isSelected=fmtDateLocal(wMon)===fmtDateLocal(selMonday)
-                        const isSelDest = !isSource && (copierForm.destWeeks||[]).includes(fmtDateLocal(wMon))
-                        return <button key={wi} onClick={()=>{
-                          if(isSource){setCopierForm(f=>({...f,sourceWeek:fmtDateLocal(wMon)}));setCalPicker(null)}
-                          else {
-                            setCopierForm(f=>{
-                              const dws=f.destWeeks||[]
-                              const k=fmtDateLocal(wMon)
-                              return {...f,destWeeks:dws.includes(k)?dws.filter(x=>x!==k):[...dws,k]}
-                            })
-                          }
-                        }} style={{padding:'8px 12px',borderRadius:8,border:'none',background:(isSelected&&isSource)||isSelDest?'var(--accent)':'var(--bg)',color:(isSelected&&isSource)||isSelDest?'white':'var(--text)',fontSize:12,fontWeight:(isSelected&&isSource)||isSelDest?700:500,cursor:'pointer',textAlign:'left',transition:'background .1s',display:'flex',alignItems:'center',gap:8}}
-                        onMouseEnter={e=>{if(!(isSelected&&isSource)&&!isSelDest)e.currentTarget.style.background='var(--border)'}}
-                        onMouseLeave={e=>{if(!(isSelected&&isSource)&&!isSelDest)e.currentTarget.style.background='var(--bg)'}}>
-                          {!isSource&&<div style={{width:16,height:16,borderRadius:4,border:'2px solid '+(isSelDest?'white':'var(--border2)'),background:isSelDest?'white':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{isSelDest&&<span style={{color:'var(--accent)',fontSize:10,fontWeight:900}}>✓</span>}</div>}
-                          {wLabel}
-                        </button>
+                    <div style={{display:'grid',gridTemplateColumns:'26px repeat(7,1fr)',gap:3,marginBottom:5}}>
+                      <div/>
+                      {['L','M','M','J','V','S','D'].map((d,i)=><div key={i} style={{textAlign:'center',fontSize:10,fontWeight:700,color:'var(--text3)'}}>{d}</div>)}
+                    </div>
+                    <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                      {weeks.map((w,wi)=>{
+                        const k=fmtDateLocal(w.mon)
+                        const isSelected=isSource&&k===fmtDateLocal(selMonday)
+                        const isSelDest=!isSource&&(copierForm.destWeeks||[]).includes(k)
+                        const active=isSelected||isSelDest
+                        const onPick=()=>{
+                          if(isSource){setCopierForm(f=>({...f,sourceWeek:k}));setCalPicker(null)}
+                          else setCopierForm(f=>{const dws=f.destWeeks||[];return {...f,destWeeks:dws.includes(k)?dws.filter(x=>x!==k):[...dws,k]}})
+                        }
+                        return (
+                          <div key={wi} onClick={onPick} style={{
+                            display:'grid',gridTemplateColumns:'26px repeat(7,1fr)',gap:3,padding:'3px',borderRadius:10,cursor:'pointer',
+                            background:active?'var(--accent-bg)':'transparent',
+                            border:`1.5px solid ${active?'var(--accent)':'transparent'}`,
+                            transition:'all .12s'}}
+                            onMouseEnter={e=>{if(!active)e.currentTarget.style.background='var(--bg)'}}
+                            onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent'}}>
+                            <div style={{display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,borderRadius:6,color:active?'var(--accent)':'var(--text3)',background:active?'transparent':'var(--bg)'}}>
+                              S{(()=>{const d=new Date(w.mon);d.setHours(0,0,0,0);d.setDate(d.getDate()+3);const w1=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-w1)/86400000-3+(w1.getDay()+6)%7)/7)})()}
+                            </div>
+                            {w.days.map((day,di)=>{
+                              if(!day) return <div key={di}/>
+                              const dStr=fmtDateLocal(day)
+                              const isToday=dStr===todayStr
+                              const inMonth=day.getMonth()===cm
+                              return (
+                                <div key={di} style={{
+                                  minHeight:34,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,borderRadius:7,
+                                  fontWeight:isToday?800:active?700:400,
+                                  color:!inMonth?'var(--text3)':active?'var(--accent)':isToday?'var(--accent)':'var(--text)',
+                                  opacity:inMonth?1:.4}}>
+                                  {day.getDate()}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )
                       })}
                     </div>
                   </div>
