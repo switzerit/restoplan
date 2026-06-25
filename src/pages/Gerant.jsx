@@ -1814,7 +1814,7 @@ export default function Gerant() {
             {step===1&&<>
               <div style={{fontSize:15,fontWeight:800,marginBottom:16}}>Pour qui dupliquer ?</div>
               <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:24,maxHeight:280,overflowY:'auto'}}>
-                {[{id:'',label:"Toute l'équipe",sub:'Tous les employés',icon:'👥'},...employes.map((e,i)=>({id:e.id,label:e.prenom+' '+e.nom,sub:e.role,icon:null,c:COLORS[i%COLORS.length]}))].map(item=>(
+                {[{id:'',label:"Toute l'équipe",sub:'Tous les employés',icon:'👥'},...employes.filter(e=>!e.est_gerant).map((e,i)=>({id:e.id,label:e.prenom+' '+e.nom,sub:e.role,icon:null,c:COLORS[i%COLORS.length]}))].map(item=>(
                   <div key={item.id} onClick={()=>setCopierForm(f=>({...f,employe:item.id}))} style={{padding:'12px 14px',borderRadius:12,border:'2px solid '+(copierForm.employe===item.id?'var(--accent)':'var(--border)'),background:copierForm.employe===item.id?'var(--accent-bg)':'var(--bg)',cursor:'pointer',display:'flex',alignItems:'center',gap:10}}>
                     {item.icon?<div style={{width:32,height:32,borderRadius:'50%',background:'var(--accent-bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>{item.icon}</div>
                     :<div style={{width:32,height:32,borderRadius:'50%',background:item.c?.bg,color:item.c?.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,flexShrink:0}}>{item.label.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()}</div>}
