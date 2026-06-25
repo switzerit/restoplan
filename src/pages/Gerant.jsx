@@ -401,6 +401,33 @@ export default function Gerant() {
     showToast(count>0?'✅ '+count+' shifts dupliqués sur '+destList.length+' sem. pour '+who:skip>0?'Shifts déjà présents':'Aucun shift source')
   }
 
+  async function executerCopieJour(){
+    const srcDay = copierForm.sourceDay
+    const destDays = copierForm.destDays||[]
+    if(!srcDay){showToast('Choisissez le jour à copier');return}
+    if(!destDays.length){showToast('Choisissez au moins un jour de destination');return}
+    // Charger les shifts du jour source
+    let srcShifts = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${srcDay}&to=${srcDay}`)
+    if(copierForm.employe) srcShifts = srcShifts?.filter(s=>s.employe_id===copierForm.employe)
+    if(!srcShifts?.length){showToast('Aucun shift ce jour-là');return}
+    let count=0, skip=0
+    for(const destDay of destDays){
+      if(destDay===srcDay){continue}
+      // Shifts existants du jour destination
+      const existing=await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${destDay}&to=${destDay}`)
+      const existingSet=new Set((existing||[]).map(e=>e.employe_id+'_'+e.date))
+      for(const s of srcShifts){
+        if(existingSet.has(s.employe_id+'_'+destDay)){skip++;continue}
+        await api.post('/shifts', {employe_id:s.employe_id,date:destDay,poste:s.poste,heure_debut:s.heure_debut,heure_fin:s.heure_fin,heure_debut_2:s.heure_debut_2||null,heure_fin_2:s.heure_fin_2||null,restaurant_id:currentResto.id,publie:true,supprime_en_attente:false})
+        count++
+      }
+    }
+    setCopierModal(false)
+    const empsDupliques=new Set(srcShifts.map(s=>s.employe_id))
+    setPendingEmp(prev=>new Set([...prev,...empsDupliques]))
+    loadShifts()
+    showToast(count>0?'✅ '+count+' shift'+(count>1?'s':'')+' dupliqué'+(count>1?'s':'')+' sur '+destDays.length+' jour'+(destDays.length>1?'s':''):skip>0?'Shifts déjà présents':'Aucun shift source')
+  }
   async function deleteShift(){
     const _dEmpId = shiftModal.empId
     const existing = getShift(shiftModal.empId,shiftModal.dayIdx)
@@ -819,7 +846,7 @@ export default function Gerant() {
               <button onClick={()=>setMoisDate(new Date(moisDate.getFullYear(),moisDate.getMonth()+1,1))} style={{width:26,height:26,borderRadius:6,border:'none',background:'transparent',cursor:'pointer',fontSize:14,color:'var(--text2)'}}>›</button>
             </div>}
             {/* Copier semaine */}
-            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({sourceWeek:fmtDateLocal(weekStart),destWeeks:[],employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
+            {planningMode==='semaine'&&<button onClick={()=>{setCopierForm({mode:'semaine',sourceWeek:fmtDateLocal(weekStart),destWeeks:[],sourceDay:'',destDays:[],employe:filtreEmploye||'',step:1});setCopierModal(true)}} style={{height:34,padding:'0 12px',background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border2)',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer'}}>⟳ Dupliquer</button>}
             <button onClick={async()=>{
               // Publier tous les shifts en brouillon
               const brouillons=await api.get(`/shifts?restaurant_id=${currentResto.id}&publie=false`)
@@ -1800,7 +1827,7 @@ export default function Gerant() {
 
             {/* Indicateur étapes */}
             <div style={{display:'flex',alignItems:'center',marginBottom:24}}>
-              {[{n:1,l:'Pour qui'},{n:2,l:'Semaine source'},{n:3,l:'Destination'}].map((s,i)=>(
+              {[{n:1,l:'Pour qui'},{n:2,l:copierForm.mode==='jour'?'Jour source':'Semaine source'},{n:3,l:'Destination'}].map((s,i)=>(
                 <div key={s.n} style={{display:'flex',alignItems:'center',flex:i<2?1:'auto'}}>
                   <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
                     <div style={{width:28,height:28,borderRadius:'50%',background:step>s.n?'#16a34a':step===s.n?'var(--accent)':'var(--border)',color:step>=s.n?'white':'var(--text3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>{step>s.n?'✓':s.n}</div>
@@ -1812,7 +1839,23 @@ export default function Gerant() {
             </div>
 
             {step===1&&<>
-              <div style={{fontSize:15,fontWeight:800,marginBottom:16}}>Pour qui dupliquer ?</div>
+              <div style={{fontSize:15,fontWeight:800,marginBottom:12}}>Que veux-tu dupliquer ?</div>
+              <div style={{display:'flex',gap:8,marginBottom:20}}>
+                {[{id:'semaine',l:'Une semaine',ic:'📅',sub:'7 jours d\'un coup'},{id:'jour',l:'Un jour',ic:'📆',sub:'Vers d\'autres jours'}].map(m=>{
+                  const actif=(copierForm.mode||'semaine')===m.id
+                  return (
+                    <button key={m.id} onClick={()=>setCopierForm(f=>({...f,mode:m.id}))} style={{
+                      flex:1,padding:'14px 12px',borderRadius:13,cursor:'pointer',textAlign:'left',
+                      border:`2px solid ${actif?'var(--accent)':'var(--border)'}`,
+                      background:actif?'var(--accent-bg)':'var(--bg)',transition:'all .15s'}}>
+                      <div style={{fontSize:22,marginBottom:5}}>{m.ic}</div>
+                      <div style={{fontSize:13,fontWeight:700,color:actif?'var(--accent)':'var(--text)'}}>{m.l}</div>
+                      <div style={{fontSize:11,color:'var(--text3)',marginTop:1}}>{m.sub}</div>
+                    </button>
+                  )
+                })}
+              </div>
+              <div style={{fontSize:14,fontWeight:800,marginBottom:12}}>Pour qui ?</div>
               <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:24,maxHeight:280,overflowY:'auto'}}>
                 {[{id:'',label:"Toute l'équipe",sub:'Tous les employés',icon:'👥'},...employes.filter(e=>!e.est_gerant).map((e,i)=>({id:e.id,label:e.prenom+' '+e.nom,sub:e.role,icon:null,c:COLORS[i%COLORS.length]}))].map(item=>(
                   <div key={item.id} onClick={()=>setCopierForm(f=>({...f,employe:item.id}))} style={{padding:'12px 14px',borderRadius:12,border:'2px solid '+(copierForm.employe===item.id?'var(--accent)':'var(--border)'),background:copierForm.employe===item.id?'var(--accent-bg)':'var(--bg)',cursor:'pointer',display:'flex',alignItems:'center',gap:10}}>
