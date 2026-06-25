@@ -1796,7 +1796,7 @@ export default function Gerant() {
         const empNom=copierForm.employe?(employes.find(e=>e.id===copierForm.employe)?.prenom||''):'Toute l\'équipe'
         return (
         <div onClick={()=>setCopierModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.35)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:28,width:400,boxShadow:'0 8px 40px rgba(0,0,0,.15)',maxHeight:'90vh',overflowY:'auto'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:isMobile?20:26,width:isMobile?'92vw':440,maxWidth:'94vw',boxShadow:'0 8px 40px rgba(0,0,0,.15)',maxHeight:'92vh',overflowY:'auto',scrollbarWidth:'none',msOverflowStyle:'none'}}>
 
             {/* Indicateur étapes */}
             <div style={{display:'flex',alignItems:'center',marginBottom:24}}>
