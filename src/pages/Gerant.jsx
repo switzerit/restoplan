@@ -1,5 +1,5 @@
 import Logo from '../components/Logo'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { generatePDF } from '../lib/exportPDF'
 import socket from '../socketClient'
 import { api } from '../apiClient'
@@ -107,6 +107,7 @@ export default function Gerant() {
   const [gerantEmployeId, setGerantEmployeId] = useState(null)
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
+  const loadShiftsSeq = useRef(0)
   const [congesSemaine, setCongesSemaine] = useState([])
   const [pointages, setPointages] = useState({})
   const [congesVersion, setCongesVersion] = useState(0)
@@ -299,13 +300,16 @@ export default function Gerant() {
   }
 
   async function loadShifts(){
+    const seq = ++loadShiftsSeq.current
     const from = fmtDate(weekStart)
     const to = fmtDate(addDays(weekStart,6))
     const data = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
+    if(seq!==loadShiftsSeq.current) return  // réponse périmée, ignorer
     setShifts(data||[])
     setNbBrouillons((data||[]).filter(s=>s.publie===false||s.supprime_en_attente).length)
     // Charger les congés acceptés de la semaine
     const cData = await api.get(`/conges?restaurant_id=${currentResto.id}&statut=accepte&date_fin_gte=${from}&date_debut_lte=${to}`)
+    if(seq!==loadShiftsSeq.current) return  // réponse périmée, ignorer
     setCongesSemaine(cData||[])
   }
 
