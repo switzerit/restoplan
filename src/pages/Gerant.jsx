@@ -204,7 +204,7 @@ export default function Gerant() {
   // Recharger quand l'app revient au premier plan
   useEffect(()=>{
     if(!currentResto) return
-    const refresh=()=>loadAll()
+    const refresh=()=>{console.log('[REFRESH] retour onglet, weekStart=',fmtDate(weekStart));loadAll()}
     const onVisible=()=>{if(document.visibilityState==='visible')refresh()}
     document.addEventListener('visibilitychange',onVisible)
     window.addEventListener('focus',refresh)
@@ -304,8 +304,10 @@ export default function Gerant() {
     const from = fmtDate(weekStart)
     const to = fmtDate(addDays(weekStart,6))
     loadShiftsSeq.current = from  // clé = semaine demandée
+    console.log('[LOADSHIFTS] début, from=',from)
     const data = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
-    if(loadShiftsSeq.current!==from) return  // une autre semaine a été demandée entre-temps
+    console.log('[LOADSHIFTS] reçu',data?.length,'shifts pour',from,'| guard actuel=',loadShiftsSeq.current)
+    if(loadShiftsSeq.current!==from){console.log('[LOADSHIFTS] IGNORÉ (garde)');return}
     setShifts(data||[])
     setNbBrouillons((data||[]).filter(s=>s.publie===false||s.supprime_en_attente).length)
     // Charger les congés acceptés de la semaine
