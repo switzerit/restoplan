@@ -1871,13 +1871,15 @@ export default function Gerant() {
 
             {(step===2||step===3)&&(()=>{
               const isSource = step===2
+              const modeJour = (copierForm.mode||'semaine')==='jour'
+
+              // ── MODE SEMAINE (existant) ──────────────────────────────────────
               const currentWeekStr = isSource ? (copierForm.sourceWeek||fmtDateLocal(weekStart)) : fmtDateLocal(weekStart)
               const parseL = s=>{ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d) }
               const selMonday = getMonday(parseL(currentWeekStr))
               const selLabel = fmtLabel(selMonday)+' – '+fmtLabel(addDays(selMonday,6))
 
-              // Calendrier mensuel — grille cliquable par semaine
-              const CalPicker = ()=>{
+              const CalPickerSemaine = ()=>{
                 const cy=calMonth.getFullYear(), cm=calMonth.getMonth()
                 const mStart=new Date(cy,cm,1), mEnd=new Date(cy,cm+1,0)
                 const firstDow=mStart.getDay()===0?6:mStart.getDay()-1
@@ -1947,11 +1949,111 @@ export default function Gerant() {
                 )
               }
 
+              // ── MODE JOUR ────────────────────────────────────────────────────
+              const CalPickerJour = ()=>{
+                const cy=calMonth.getFullYear(), cm=calMonth.getMonth()
+                const mStart=new Date(cy,cm,1), mEnd=new Date(cy,cm+1,0)
+                const firstDow=mStart.getDay()===0?6:mStart.getDay()-1
+                const cells=[]
+                for(let i=0;i<firstDow;i++)cells.push(null)
+                for(let i=1;i<=mEnd.getDate();i++)cells.push(new Date(cy,cm,i))
+                while(cells.length%7!==0)cells.push(null)
+                const weeks=[]
+                for(let i=0;i<cells.length;i+=7){
+                  const row=cells.slice(i,i+7)
+                  weeks.push(row)
+                }
+                const todayStr=fmtDateLocal(new Date())
+                const srcDay=copierForm.sourceDay||''
+                const destDays=copierForm.destDays||[]
+                return (
+                  <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:14,marginBottom:12}}>
+                    <div style={{display:'flex',alignItems:'center',marginBottom:12}}>
+                      <button onClick={()=>setCalMonth(new Date(cy,cm-1,1))} style={{width:32,height:32,borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',cursor:'pointer',fontSize:15,color:'var(--text2)'}}>‹</button>
+                      <div style={{flex:1,textAlign:'center',fontSize:14,fontWeight:700,textTransform:'capitalize'}}>{calMonth.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</div>
+                      <button onClick={()=>setCalMonth(new Date(cy,cm+1,1))} style={{width:32,height:32,borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',cursor:'pointer',fontSize:15,color:'var(--text2)'}}>›</button>
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:3,marginBottom:5}}>
+                      {['L','M','M','J','V','S','D'].map((d,i)=><div key={i} style={{textAlign:'center',fontSize:10,fontWeight:700,color:'var(--text3)'}}>{d}</div>)}
+                    </div>
+                    <div style={{display:'flex',flexDirection:'column',gap:3}}>
+                      {weeks.map((row,wi)=>(
+                        <div key={wi} style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:3}}>
+                          {row.map((day,di)=>{
+                            if(!day) return <div key={di}/>
+                            const dStr=fmtDateLocal(day)
+                            const isToday=dStr===todayStr
+                            const inMonth=day.getMonth()===cm
+                            const isSrc=isSource&&dStr===srcDay
+                            const isDst=!isSource&&destDays.includes(dStr)
+                            const active=isSrc||isDst
+                            const onPick=()=>{
+                              if(!inMonth)return
+                              if(isSource){setCopierForm(f=>({...f,sourceDay:dStr}));setCalPicker(null)}
+                              else setCopierForm(f=>{const dd=f.destDays||[];return{...f,destDays:dd.includes(dStr)?dd.filter(x=>x!==dStr):[...dd,dStr]}})
+                            }
+                            return (
+                              <div key={di} onClick={onPick} style={{
+                                minHeight:36,display:'flex',alignItems:'center',justifyContent:'center',
+                                fontSize:13,borderRadius:8,cursor:inMonth?'pointer':'default',
+                                fontWeight:active?800:isToday?700:400,
+                                background:active?'var(--accent)':'transparent',
+                                color:!inMonth?'var(--text3)':active?'white':isToday?'var(--accent)':'var(--text)',
+                                opacity:inMonth?1:.35,
+                                border:isToday&&!active?'1.5px solid var(--accent)':'1.5px solid transparent',
+                                transition:'all .12s'}}
+                                onMouseEnter={e=>{if(!active&&inMonth)e.currentTarget.style.background='var(--bg)'}}
+                                onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent'}}>
+                                {day.getDate()}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+
+              // Résumé jour source pour affichage dans le bouton
+              const srcDayLabel = copierForm.sourceDay
+                ? new Date(...copierForm.sourceDay.split('-').map((v,i)=>i===1?v-1:+v)).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
+                : 'Aucun jour choisi'
+              const destDaysCount = (copierForm.destDays||[]).length
+
+              if(modeJour) return <>
+                <div style={{fontSize:15,fontWeight:800,marginBottom:6}}>{isSource?'Jour à copier':'Jours de destination'}</div>
+                <div style={{fontSize:13,color:'var(--text2)',marginBottom:16}}>{isSource?'Pour : ':'Copie de '}<strong>{isSource?empNom:srcDayLabel}</strong></div>
+
+                <div onClick={()=>{setCalPicker(isSource?'source':'dest');setCalMonth(isSource?(copierForm.sourceDay?parseL(copierForm.sourceDay):new Date()):new Date())}}
+                  style={{display:'flex',alignItems:'center',gap:8,background:isSource?'var(--bg)':'var(--accent-bg)',border:`1.5px solid ${isSource?'var(--border2)':'var(--accent)'}`,borderRadius:12,padding:'14px 16px',marginBottom:8,cursor:'pointer',transition:'all .15s'}}
+                  onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
+                  onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+                  <span style={{fontSize:20}}>📆</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:14,fontWeight:700,color:isSource?'var(--text)':'var(--accent)'}}>
+                      {isSource?srcDayLabel:(destDaysCount>0?destDaysCount+' jour'+(destDaysCount>1?'s':'')+' sélectionné'+(destDaysCount>1?'s':''):'Aucun jour choisi')}
+                    </div>
+                    <div style={{fontSize:11,color:'var(--text3)',marginTop:1}}>{isSource?'Cliquez pour choisir':'Cochez les jours à remplir'}</div>
+                  </div>
+                  <span style={{fontSize:12,color:'var(--text3)'}}>▼</span>
+                </div>
+
+                {calPicker===(isSource?'source':'dest')&&<CalPickerJour/>}
+
+                <div style={{display:'flex',gap:8,marginTop:8}}>
+                  <button onClick={()=>{setCopierForm(f=>({...f,step:isSource?1:2}));setCalPicker(null)}} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>← Retour</button>
+                  {isSource
+                    ?<button onClick={()=>{setCopierForm(f=>({...f,step:3}));setCalPicker(null)}} style={{flex:2,height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Suivant →</button>
+                    :<button onClick={executerCopieJour} style={{flex:2,height:44,borderRadius:11,border:'none',background:'#16a34a',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Dupliquer</button>
+                  }
+                </div>
+              </>
+
               return <>
                 <div style={{fontSize:15,fontWeight:800,marginBottom:6}}>{isSource?'Semaine à copier':'Semaine de destination'}</div>
                 <div style={{fontSize:13,color:'var(--text2)',marginBottom:16}}>{isSource?`Pour : `:'Copie de '}<strong>{isSource?empNom:srcLabel}</strong></div>
 
-                {/* Sélecteur semaine — cliquable pour ouvrir calendrier */}
                 <div onClick={()=>{setCalPicker(isSource?'source':'dest');setCalMonth(selMonday)}}
                   style={{display:'flex',alignItems:'center',gap:8,background:isSource?'var(--bg)':'var(--accent-bg)',border:`1.5px solid ${isSource?'var(--border2)':'var(--accent)'}`,borderRadius:12,padding:'14px 16px',marginBottom:8,cursor:'pointer',transition:'all .15s'}}
                   onMouseEnter={e=>e.currentTarget.style.opacity='.85'}
@@ -1966,14 +2068,13 @@ export default function Gerant() {
                   <span style={{fontSize:12,color:'var(--text3)'}}>▼</span>
                 </div>
 
-                {/* Calendrier picker */}
-                {calPicker===(isSource?'source':'dest')&&<CalPicker/>}
+                {calPicker===(isSource?'source':'dest')&&<CalPickerSemaine/>}
 
                 <div style={{display:'flex',gap:8,marginTop:8}}>
                   <button onClick={()=>{setCopierForm(f=>({...f,step:isSource?1:2}));setCalPicker(null)}} style={{flex:1,height:44,borderRadius:11,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:600,cursor:'pointer'}}>← Retour</button>
                   {isSource
                     ?<button onClick={()=>{setCopierForm(f=>({...f,step:3}));setCalPicker(null)}} style={{flex:2,height:44,borderRadius:11,border:'none',background:'var(--accent)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Suivant →</button>
-                    :<button onClick={executerCopie} style={{flex:2,height:44,borderRadius:11,border:'none',background:'#16a34a',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>✓ Dupliquer</button>
+                    :<button onClick={executerCopie} style={{flex:2,height:44,borderRadius:11,border:'none',background:'#16a34a',color:'white',fontSize:14,fontWeight:700,cursor:'pointer'}}>Dupliquer</button>
                   }
                 </div>
               </>
