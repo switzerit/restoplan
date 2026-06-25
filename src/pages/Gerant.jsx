@@ -107,7 +107,7 @@ export default function Gerant() {
   const [gerantEmployeId, setGerantEmployeId] = useState(null)
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
-  const loadShiftsSeq = useRef(0)
+  const loadShiftsSeq = useRef('')
   const [congesSemaine, setCongesSemaine] = useState([])
   const [pointages, setPointages] = useState({})
   const [congesVersion, setCongesVersion] = useState(0)
@@ -204,7 +204,7 @@ export default function Gerant() {
   // Recharger quand l'app revient au premier plan
   useEffect(()=>{
     if(!currentResto) return
-    const refresh=()=>{loadAll();loadShifts()}
+    const refresh=()=>loadAll()
     const onVisible=()=>{if(document.visibilityState==='visible')refresh()}
     document.addEventListener('visibilitychange',onVisible)
     window.addEventListener('focus',refresh)
@@ -301,16 +301,16 @@ export default function Gerant() {
   }
 
   async function loadShifts(){
-    const seq = ++loadShiftsSeq.current
     const from = fmtDate(weekStart)
     const to = fmtDate(addDays(weekStart,6))
+    loadShiftsSeq.current = from  // clé = semaine demandée
     const data = await api.get(`/shifts?restaurant_id=${currentResto.id}&from=${from}&to=${to}`)
-    if(seq!==loadShiftsSeq.current) return  // réponse périmée, ignorer
+    if(loadShiftsSeq.current!==from) return  // une autre semaine a été demandée entre-temps
     setShifts(data||[])
     setNbBrouillons((data||[]).filter(s=>s.publie===false||s.supprime_en_attente).length)
     // Charger les congés acceptés de la semaine
     const cData = await api.get(`/conges?restaurant_id=${currentResto.id}&statut=accepte&date_fin_gte=${from}&date_debut_lte=${to}`)
-    if(seq!==loadShiftsSeq.current) return  // réponse périmée, ignorer
+    if(loadShiftsSeq.current!==from) return  // une autre semaine a été demandée entre-temps
     setCongesSemaine(cData||[])
   }
 
