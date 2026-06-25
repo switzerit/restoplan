@@ -204,12 +204,13 @@ export default function Gerant() {
   // Recharger quand l'app revient au premier plan
   useEffect(()=>{
     if(!currentResto) return
-    const refresh=()=>loadAll()
-    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh()})
+    const refresh=()=>{loadAll();loadShifts()}
+    const onVisible=()=>{if(document.visibilityState==='visible')refresh()}
+    document.addEventListener('visibilitychange',onVisible)
     window.addEventListener('focus',refresh)
     window.addEventListener('pageshow',refresh)
     return()=>{
-      document.removeEventListener('visibilitychange',refresh)
+      document.removeEventListener('visibilitychange',onVisible)
       window.removeEventListener('focus',refresh)
       window.removeEventListener('pageshow',refresh)
     }
