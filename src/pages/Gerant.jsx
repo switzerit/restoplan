@@ -125,6 +125,7 @@ export default function Gerant() {
   const [copierForm, setCopierForm] = useState({sourceWeek:'', employe:''})
   const [calPicker, setCalPicker] = useState(null) // 'source' | 'dest' | null
   const [calMonth, setCalMonth] = useState(new Date())
+  const [calShifts, setCalShifts] = useState([])
   const [shiftModal, setShiftModal] = useState(null)
   const [empModal, setEmpModal] = useState(false)
   const [correctModal, setCorrectModal] = useState(null)
@@ -226,6 +227,15 @@ export default function Gerant() {
   useEffect(()=>{if(currentResto){loadAll()}},[currentResto])
   useEffect(()=>{weekStartRef.current=weekStart},[weekStart])
   useEffect(()=>{if(currentResto){loadShifts()}},[weekStart,currentResto,congesVersion])
+  useEffect(()=>{
+    if(!currentResto||!calPicker){setCalShifts([]);return}
+    const cy=calMonth.getFullYear(), cm=calMonth.getMonth()
+    const mFrom=fmtDate(new Date(cy,cm,1))
+    const mTo=fmtDate(new Date(cy,cm+1,0))
+    let cancelled=false
+    api.get(`/shifts?restaurant_id=${currentResto.id}&from=${mFrom}&to=${mTo}`).then(d=>{if(!cancelled)setCalShifts(d||[])})
+    return()=>{cancelled=true}
+  },[calPicker,calMonth,currentResto])
   useEffect(()=>{if(currentResto&&planningMode==='mois'){loadMonthData(moisDate)}},[moisDate,currentResto,planningMode,congesVersion])
   useEffect(()=>{
     if(!currentResto) return
@@ -1995,6 +2005,7 @@ export default function Gerant() {
                             const isSrc=isSource&&dStr===srcDay
                             const isDst=!isSource&&destDays.includes(dStr)
                             const active=isSrc||isDst
+                            const hasShift=calShifts.some(s=>s.date===dStr&&(!copierForm.employe||s.employe_id===copierForm.employe))
                             const onPick=()=>{
                               if(!inMonth)return
                               if(isSource){setCopierForm(f=>({...f,sourceDay:dStr}));setCalPicker(null)}
@@ -2002,7 +2013,7 @@ export default function Gerant() {
                             }
                             return (
                               <div key={di} onClick={onPick} style={{
-                                minHeight:36,display:'flex',alignItems:'center',justifyContent:'center',
+                                minHeight:36,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2,
                                 fontSize:13,borderRadius:8,cursor:inMonth?'pointer':'default',
                                 fontWeight:active?800:isToday?700:400,
                                 background:active?'var(--accent)':'transparent',
@@ -2012,7 +2023,8 @@ export default function Gerant() {
                                 transition:'all .12s'}}
                                 onMouseEnter={e=>{if(!active&&inMonth)e.currentTarget.style.background='var(--bg)'}}
                                 onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent'}}>
-                                {day.getDate()}
+                                <span style={{lineHeight:1}}>{day.getDate()}</span>
+                                <span style={{width:4,height:4,borderRadius:'50%',background:hasShift&&inMonth?(active?'white':'var(--accent)'):'transparent'}}/>
                               </div>
                             )
                           })}
