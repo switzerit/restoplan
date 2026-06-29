@@ -52,19 +52,12 @@ export default function AccueilGerant({
   // Construire les stats selon les flags
   const stats=[]
   if(features.badgeage){
-    stats.push({icon:'👥',l:'Présents',v:`${presentCount}/${nbEmployesReels}`,bg:'var(--bg)',c:'var(--text)'})
+    stats.push({icon:'👥',l:'Présents',v:`${presentCount}/${nbEmployesReels}`,ic:'#16a34a'})
   }
   if(features.conges){
-    stats.push({icon:'🏖️',l:'Absents',v:absentsAujourdhui.length,bg:'var(--bg)',c:'var(--text)'})
+    stats.push({icon:'🏖️',l:'Absents',v:absentsAujourdhui.length,ic:'#ea580c'})
   }
-  if(aTraiter>0){
-    stats.push({icon:'⏳',l:'À traiter',v:aTraiter,bg:'#fff7ed',c:'#c2410c'})
-  }
-  stats.push({icon:'📅',l:'Shifts auj.',v:shiftsAujourdhui.length,bg:'var(--bg)',c:'var(--text)'})
-  // Si moins de 3 cartes, ajouter "Employés" pour équilibrer
-  if(stats.length<3){
-    stats.push({icon:'👤',l:'Employés',v:nbEmployesReels,bg:'var(--bg)',c:'var(--text)'})
-  }
+  stats.push({icon:'📅',l:"Shifts aujourd'hui",v:shiftsAujourdhui.length,ic:'#7c3aed'})
 
   // Actions rapides selon flags
   const actions=[
@@ -99,49 +92,29 @@ export default function AccueilGerant({
         </div>
       )}
 
-      {/* Bannière d'accueil */}
-      <div style={{background:'var(--accent)',borderRadius:18,padding:isMobile?'16px 18px':'22px 26px',position:'relative',overflow:'hidden'}}>
-        <div style={{position:'absolute',right:isMobile?-18:170,top:isMobile?-18:-40,width:isMobile?90:140,height:isMobile?90:140,borderRadius:'50%',background:'rgba(255,255,255,0.07)'}}/>
-        <div style={{position:'absolute',right:isMobile?18:30,bottom:isMobile?-26:-50,width:isMobile?60:110,height:isMobile?60:110,borderRadius:'50%',background:'rgba(245,158,11,0.20)'}}/>
-        <div style={{position:'relative'}}>
-          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:10}}>
-            <div>
-              <div style={{fontSize:isMobile?12:13,color:'#FBEAF0',marginBottom:isMobile?3:4,textTransform:'capitalize'}}>{dateLabel} · {restaurant?.nom}</div>
-              <div style={{fontSize:isMobile?19:24,fontWeight:800,color:'#fff',letterSpacing:'-.02em'}}>Bonjour, {gerantPrenom||'Gérant'} 👋</div>
-            </div>
-            <div style={{textAlign:'right',flexShrink:0,marginLeft:12}}>
-              <div style={{fontSize:isMobile?22:34,fontWeight:800,color:'#fff',lineHeight:1,letterSpacing:'-.02em'}}>{heure}</div>
-              <div style={{fontSize:isMobile?11:12,color:'#FBEAF0',marginTop:isMobile?1:2}}>{isMobile?'Sem. ':'Semaine '}{numSemaine}</div>
-            </div>
-          </div>
-          <div style={{display:'flex',gap:isMobile?14:18,paddingTop:10,borderTop:'1px solid rgba(255,255,255,0.18)'}}>
-            <div style={{display:'flex',alignItems:'center',gap:6}}>
-              <span style={{fontSize:14}}>🕐</span>
-              <span style={{fontSize:isMobile?12:13,color:'#fff'}}><strong style={{fontWeight:800}}>{shiftsAujourdhui.length}</strong> shift{shiftsAujourdhui.length>1?'s':''} {isMobile?'auj.':"aujourd'hui"}</span>
-            </div>
-            {features.badgeage&&(
-              <div style={{display:'flex',alignItems:'center',gap:6}}>
-                <span style={{fontSize:14}}>👥</span>
-                <span style={{fontSize:isMobile?12:13,color:'#fff'}}><strong style={{fontWeight:800}}>{presentCount}/{nbEmployesReels}</strong> présent{nbEmployesReels>1?'s':''}</span>
-              </div>
-            )}
-          </div>
+      {/* En-tête accueil */}
+      <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+        <div>
+          <div style={{fontSize:isMobile?20:22,fontWeight:800,color:'var(--text)',letterSpacing:'-.02em'}}>Bonjour, {gerantPrenom||'Gérant'} 👋</div>
+          <div style={{fontSize:13,color:'var(--text2)',marginTop:4,textTransform:'capitalize'}}>{dateLabel} · {restaurant?.nom}</div>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:8,background:'var(--bg)',border:'1px solid var(--border)',padding:'7px 13px',borderRadius:10}}>
+          <span style={{width:7,height:7,borderRadius:'50%',background:'#16a34a',display:'inline-block'}}/>
+          <span style={{fontSize:13,color:'var(--text2)'}}>{heure} · Semaine {numSemaine}</span>
         </div>
       </div>
-
       {/* Stats */}
-      <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(stats.length,4)},1fr)`,gap:8}}>
+      <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(stats.length,3)},1fr)`,gap:isMobile?8:12}}>
         {stats.map((s,i)=>(
-          <div key={i} style={{background:s.bg,border:'1px solid var(--border)',borderRadius:13,padding:'13px 14px'}}>
-            <div style={{display:'flex',alignItems:'center',gap:5,marginBottom:6}}>
-              <span style={{fontSize:13}}>{s.icon}</span>
-              <span style={{fontSize:11,color:s.c===('var(--text)')?'var(--text2)':s.c,fontWeight:600}}>{s.l}</span>
+          <div key={i} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:isMobile?'13px 14px':'16px 18px'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:isMobile?8:12}}>
+              <span style={{fontSize:isMobile?11:13,color:'var(--text2)'}}>{s.l}</span>
+              <span style={{fontSize:isMobile?15:18}}>{s.icon}</span>
             </div>
-            <div style={{fontSize:24,fontWeight:800,color:s.c,letterSpacing:'-.02em'}}>{s.v}</div>
+            <div style={{fontSize:isMobile?24:28,fontWeight:800,color:'var(--text)',lineHeight:1,letterSpacing:'-.02em'}}>{s.v}</div>
           </div>
         ))}
       </div>
-
       {/* À faire maintenant — seulement si conges OU signalements actifs ET qu'il y a qqch */}
       {(features.conges||features.signalements)&&aTraiter>0&&(
         <div>
