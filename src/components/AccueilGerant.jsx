@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { api } from '../apiClient'
 
 function ini(p,n){return((p?.[0]||'')+(n?.[0]||'')).toUpperCase()}
-function todayStr(){return new Date().toISOString().split('T')[0]}
+function todayStr(){const d=new Date();const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${da}`}
 
 const CONGE_LABELS={conge_paye:'Congé payé',conges_reportes:'Reportés N-1',maladie:'Maladie',rtt:'RTT',sans_solde:'Sans solde',autre:'Absence'}
 
@@ -30,12 +30,14 @@ export default function AccueilGerant({
   }
 
   const today=todayStr()
+  const nbEmployesReels=employes.filter(e=>!e.est_gerant).length
   const congesEnAttente=conges.filter(c=>c.statut==='en_attente')
   const absentsAujourdhui=conges.filter(c=>c.statut==='accepte'&&c.date_debut<=today&&c.date_fin>=today)
   const aTraiter=congesEnAttente.length+signalements.length
 
   // Présents aujourd'hui (depuis pointagesMap)
   const presents=employes.filter(e=>{
+    if(e.est_gerant) return false
     const pts=pointagesMap?.[e.id]||[]
     return pts.some(p=>p.heure_arrivee&&!p.heure_depart)
   })
@@ -46,7 +48,7 @@ export default function AccueilGerant({
   // Construire les stats selon les flags
   const stats=[]
   if(features.badgeage){
-    stats.push({icon:'👥',l:'Présents',v:`${presentCount}/${employes.length}`,bg:'var(--bg)',c:'var(--text)'})
+    stats.push({icon:'👥',l:'Présents',v:`${presentCount}/${nbEmployesReels}`,bg:'var(--bg)',c:'var(--text)'})
   }
   if(features.conges){
     stats.push({icon:'🏖️',l:'Absents',v:absentsAujourdhui.length,bg:'var(--bg)',c:'var(--text)'})
@@ -57,7 +59,7 @@ export default function AccueilGerant({
   stats.push({icon:'📅',l:'Shifts auj.',v:shiftsAujourdhui.length,bg:'var(--bg)',c:'var(--text)'})
   // Si moins de 3 cartes, ajouter "Employés" pour équilibrer
   if(stats.length<3){
-    stats.push({icon:'👤',l:'Employés',v:employes.length,bg:'var(--bg)',c:'var(--text)'})
+    stats.push({icon:'👤',l:'Employés',v:nbEmployesReels,bg:'var(--bg)',c:'var(--text)'})
   }
 
   // Actions rapides selon flags
