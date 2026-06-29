@@ -52,20 +52,20 @@ export default function AccueilGerant({
   // Construire les stats selon les flags
   const stats=[]
   if(features.badgeage){
-    stats.push({icon:'👥',l:'Présents',v:`${presentCount}/${nbEmployesReels}`,ic:'#16a34a'})
+    stats.push({icon:'👥',l:'Présents',v:`${presentCount}/${nbEmployesReels}`,bg:'#e1f5ee'})
   }
   if(features.conges){
-    stats.push({icon:'🏖️',l:'Absents',v:absentsAujourdhui.length,ic:'#ea580c'})
+    stats.push({icon:'🏖️',l:'Absents',v:absentsAujourdhui.length,bg:'#faece7'})
   }
-  stats.push({icon:'📅',l:"Shifts aujourd'hui",v:shiftsAujourdhui.length,ic:'#7c3aed'})
+  stats.push({icon:'📅',l:'Shifts auj.',v:shiftsAujourdhui.length,bg:'#eeedfe'})
 
   // Actions rapides selon flags
   const actions=[
-    {icon:'📅',l:'Créer un shift',onClick:onCreateShift},
-    {icon:'👤',l:'Ajouter employé',onClick:onAddEmploye},
+    {icon:'📅',l:'Créer un shift',bg:'#fbeaf0',onClick:onCreateShift},
+    {icon:'👤',l:'Employé',bg:'#eeedfe',onClick:onAddEmploye},
   ]
-  if(features.badgeage) actions.push({icon:'⏱️',l:'Corriger pointage',onClick:()=>onGoTo('presences')})
-  if(features.badgeage&&features.export_paie) actions.push({icon:'📄',l:'Export paie',onClick:()=>onGoTo('presences')})
+  if(features.badgeage) actions.push({icon:'⏱️',l:'Pointage',bg:'#e1f5ee',onClick:()=>onGoTo('presences')})
+  if(features.badgeage&&features.export_paie) actions.push({icon:'📄',l:'Export paie',bg:'#faece7',onClick:()=>onGoTo('presences')})
 
   return(
     <div style={{flex:1,overflowY:'auto',padding:16,display:'flex',flexDirection:'column',gap:20,WebkitOverflowScrolling:'touch'}}>
@@ -104,14 +104,14 @@ export default function AccueilGerant({
         </div>
       </div>
       {/* Stats */}
-      <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(stats.length,3)},1fr)`,gap:isMobile?8:12}}>
+      <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(stats.length,3)},1fr)`,gap:isMobile?8:10}}>
         {stats.map((s,i)=>(
-          <div key={i} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:isMobile?'13px 14px':'16px 18px'}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:isMobile?8:12}}>
-              <span style={{fontSize:isMobile?11:13,color:'var(--text2)'}}>{s.l}</span>
-              <span style={{fontSize:isMobile?15:18}}>{s.icon}</span>
+          <div key={i} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:13,padding:isMobile?'12px 13px':'14px 16px',display:'flex',alignItems:'center',gap:isMobile?10:13}}>
+            <div style={{width:isMobile?36:40,height:isMobile?36:40,borderRadius:10,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:isMobile?17:20,flexShrink:0}}>{s.icon}</div>
+            <div>
+              <div style={{fontSize:isMobile?20:22,fontWeight:800,color:'var(--text)',lineHeight:1,letterSpacing:'-.02em'}}>{s.v}</div>
+              <div style={{fontSize:isMobile?11:12,color:'var(--text2)',marginTop:3}}>{s.l}</div>
             </div>
-            <div style={{fontSize:isMobile?24:28,fontWeight:800,color:'var(--text)',lineHeight:1,letterSpacing:'-.02em'}}>{s.v}</div>
           </div>
         ))}
       </div>
@@ -156,18 +156,16 @@ export default function AccueilGerant({
 
       {/* Accès rapide */}
       <div>
-        <div style={{fontSize:12,fontWeight:700,color:'var(--text2)',marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
-          ⚡ Accès rapide
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(actions.length,4)},1fr)`,gap:8}}>
+        <div style={{fontSize:isMobile?12:13,fontWeight:700,color:'var(--text2)',marginBottom:10}}>Actions rapides</div>
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'repeat(2,1fr)':`repeat(${Math.min(actions.length,4)},1fr)`,gap:isMobile?8:10}}>
           {actions.map((a,i)=>(
             <button key={i} onClick={a.onClick} style={{
-              background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'16px 12px',
-              cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:8,transition:'all .15s'}}
+              background:'var(--surface)',border:'1px solid var(--border)',borderRadius:12,padding:isMobile?'12px 13px':'13px 14px',
+              cursor:'pointer',display:'flex',alignItems:'center',gap:10,transition:'all .15s',textAlign:'left'}}
               onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
               onMouseLeave={e=>e.currentTarget.style.background='var(--surface)'}>
-              <span style={{fontSize:24}}>{a.icon}</span>
-              <span style={{fontSize:12,fontWeight:600,textAlign:'center',color:'var(--text)'}}>{a.l}</span>
+              <div style={{width:32,height:32,borderRadius:9,background:a.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:17,flexShrink:0}}>{a.icon}</div>
+              <span style={{fontSize:isMobile?12:13,fontWeight:600,color:'var(--text)'}}>{a.l}</span>
             </button>
           ))}
         </div>
