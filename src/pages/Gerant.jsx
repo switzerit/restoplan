@@ -1949,13 +1949,15 @@ export default function Gerant() {
                               const dStr=fmtDateLocal(day)
                               const isToday=dStr===todayStr
                               const inMonth=day.getMonth()===cm
+                              const hasShift=calShifts.some(s=>s.date===dStr&&(!copierForm.employe||s.employe_id===copierForm.employe))
                               return (
                                 <div key={di} style={{
-                                  minHeight:34,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,borderRadius:7,
+                                  minHeight:34,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2,fontSize:13,borderRadius:7,
                                   fontWeight:isToday?800:active?700:400,
                                   color:!inMonth?'var(--text3)':active?'var(--accent)':isToday?'var(--accent)':'var(--text)',
                                   opacity:inMonth?1:.4}}>
-                                  {day.getDate()}
+                                  <span style={{lineHeight:1}}>{day.getDate()}</span>
+                                  <span style={{width:4,height:4,borderRadius:'50%',background:hasShift&&inMonth?'var(--accent)':'transparent'}}/>
                                 </div>
                               )
                             })}
