@@ -894,6 +894,7 @@ export default function Gerant() {
         {/* VUE ACCUEIL */}
         {view==='accueil'&&(
           <AccueilGerant
+            isMobile={isMobile}
             restaurant={currentResto}
             employes={employes}
             features={features}

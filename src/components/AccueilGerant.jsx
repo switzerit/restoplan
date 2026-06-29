@@ -7,6 +7,7 @@ function todayStr(){const d=new Date();const y=d.getFullYear(),m=String(d.getMon
 const CONGE_LABELS={conge_paye:'Congé payé',conges_reportes:'Reportés N-1',maladie:'Maladie',rtt:'RTT',sans_solde:'Sans solde',autre:'Absence'}
 
 export default function AccueilGerant({
+  isMobile,
   restaurant, employes, features, trialStatut, trialDaysLeft,
   presentCount, pointagesMap, gerantPrenom,
   onGoTo, onAddEmploye, onCreateShift, onCorriger
@@ -14,6 +15,8 @@ export default function AccueilGerant({
   const [conges,setConges]=useState([])
   const [signalements,setSignalements]=useState([])
   const [shiftsAujourdhui,setShiftsAujourdhui]=useState([])
+  const [heure,setHeure]=useState(()=>new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}))
+  useEffect(()=>{const t=setInterval(()=>setHeure(new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})),30000);return()=>clearInterval(t)},[])
 
   useEffect(()=>{
     if(!restaurant?.id) return
@@ -44,6 +47,7 @@ export default function AccueilGerant({
 
   const now=new Date()
   const dateLabel=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
+  const numSemaine=(()=>{const d=new Date(now);d.setHours(0,0,0,0);d.setDate(d.getDate()+3-((d.getDay()+6)%7));const w1=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-w1)/86400000-3+((w1.getDay()+6)%7))/7)})()
 
   // Construire les stats selon les flags
   const stats=[]
@@ -95,10 +99,34 @@ export default function AccueilGerant({
         </div>
       )}
 
-      {/* Salutation */}
-      <div>
-        <div style={{fontSize:22,fontWeight:800,letterSpacing:'-.02em'}}>Bonjour, {gerantPrenom||'Gérant'} 👋</div>
-        <div style={{fontSize:13,color:'var(--text2)',marginTop:3,textTransform:'capitalize'}}>{dateLabel} · {restaurant?.nom}</div>
+      {/* Bannière d'accueil */}
+      <div style={{background:'var(--accent)',borderRadius:18,padding:isMobile?'16px 18px':'22px 26px',position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',right:isMobile?-18:170,top:isMobile?-18:-40,width:isMobile?90:140,height:isMobile?90:140,borderRadius:'50%',background:'rgba(255,255,255,0.07)'}}/>
+        <div style={{position:'absolute',right:isMobile?18:30,bottom:isMobile?-26:-50,width:isMobile?60:110,height:isMobile?60:110,borderRadius:'50%',background:'rgba(245,158,11,0.20)'}}/>
+        <div style={{position:'relative'}}>
+          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:10}}>
+            <div>
+              <div style={{fontSize:isMobile?12:13,color:'#FBEAF0',marginBottom:isMobile?3:4,textTransform:'capitalize'}}>{dateLabel} · {restaurant?.nom}</div>
+              <div style={{fontSize:isMobile?19:24,fontWeight:800,color:'#fff',letterSpacing:'-.02em'}}>Bonjour, {gerantPrenom||'Gérant'} 👋</div>
+            </div>
+            <div style={{textAlign:'right',flexShrink:0,marginLeft:12}}>
+              <div style={{fontSize:isMobile?22:34,fontWeight:800,color:'#fff',lineHeight:1,letterSpacing:'-.02em'}}>{heure}</div>
+              <div style={{fontSize:isMobile?11:12,color:'#FBEAF0',marginTop:isMobile?1:2}}>{isMobile?'Sem. ':'Semaine '}{numSemaine}</div>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:isMobile?14:18,paddingTop:10,borderTop:'1px solid rgba(255,255,255,0.18)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <span style={{fontSize:14}}>🕐</span>
+              <span style={{fontSize:isMobile?12:13,color:'#fff'}}><strong style={{fontWeight:800}}>{shiftsAujourdhui.length}</strong> shift{shiftsAujourdhui.length>1?'s':''} {isMobile?'auj.':"aujourd'hui"}</span>
+            </div>
+            {features.badgeage&&(
+              <div style={{display:'flex',alignItems:'center',gap:6}}>
+                <span style={{fontSize:14}}>👥</span>
+                <span style={{fontSize:isMobile?12:13,color:'#fff'}}><strong style={{fontWeight:800}}>{presentCount}/{nbEmployesReels}</strong> présent{nbEmployesReels>1?'s':''}</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Stats */}
