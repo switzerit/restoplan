@@ -162,6 +162,9 @@ export default function Gerant() {
   const [features, setFeatures] = useState({badgeage:true,conges:true,signalements:true,export_paie:true})
   const [groupes, setGroupes] = useState([])
   const [newGroupe, setNewGroupe] = useState({nom:'',couleur:'#E11D48'})
+  const [inlineGroupe, setInlineGroupe] = useState(null) // null | 'creer' (modal édition)
+  const [inlineGroupeForm, setInlineGroupeForm] = useState({nom:'',couleur:'#E11D48'})
+  const [inlineGroupeCreer, setInlineGroupeCreer] = useState(null) // pour le modal création
   const [editGroupe, setEditGroupe] = useState(null) // loading | trial | active | expired
   const [trialDaysLeft, setTrialDaysLeft] = useState(null)
 
@@ -495,6 +498,17 @@ export default function Gerant() {
     showToast('Restaurant ajouté !')
   }
 
+  async function creerGroupeInline(){
+    const nom=(inlineGroupeForm.nom||'').trim()
+    if(!nom){showToast('Nom du groupe requis');return null}
+    const g=await api.post('/groupes',{restaurant_id:currentResto.id,nom,couleur:inlineGroupeForm.couleur})
+    if(g?.error){showToast('Erreur création groupe');return null}
+    const gg=await api.get(`/groupes?restaurant_id=${currentResto.id}`)
+    setGroupes(gg||[])
+    setInlineGroupeForm({nom:'',couleur:'#E11D48'})
+    showToast('Groupe créé')
+    return g?.id||null
+  }
   function openEditEmp(emp){
     const postes = POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre
     const isCustom = emp.role && !postes.includes(emp.role)
@@ -1660,16 +1674,31 @@ export default function Gerant() {
                   autoFocus style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--accent)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               )}
             </div>
-            {groupes.length>0&&(
-              <div style={{marginBottom:16}}>
-                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Groupe</label>
-                <select value={empForm.groupe_id||''} onChange={e=>setEmpForm(f=>({...f,groupe_id:e.target.value||null}))}
+            <div style={{marginBottom:16}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Groupe</label>
+              {inlineGroupeCreer===null?(
+                <select value={empForm.groupe_id||''} onChange={e=>{if(e.target.value==='__creer__'){setInlineGroupeCreer('creer');setInlineGroupeForm({nom:'',couleur:'#E11D48'})}else setEmpForm(f=>({...f,groupe_id:e.target.value||null}))}}
                   style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
                   <option value="">Sans groupe</option>
                   {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
+                  <option value="__creer__">+ Créer un groupe</option>
                 </select>
-              </div>
-            )}
+              ):(
+                <div style={{border:'1.5px solid var(--accent)',borderRadius:10,padding:12,background:'var(--bg)'}}>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--accent)',marginBottom:8}}>Nouveau groupe</div>
+                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                    <input value={inlineGroupeForm.nom} onChange={e=>setInlineGroupeForm(g=>({...g,nom:e.target.value}))} placeholder="Nom (ex: Cuisine)" autoFocus
+                      style={{flex:1,padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+                    <input type="color" value={inlineGroupeForm.couleur} onChange={e=>setInlineGroupeForm(g=>({...g,couleur:e.target.value}))}
+                      style={{width:38,height:38,borderRadius:8,border:'1.5px solid var(--border2)',padding:3,cursor:'pointer',flexShrink:0}}/>
+                  </div>
+                  <div style={{display:'flex',gap:8,marginTop:8}}>
+                    <button onClick={()=>setInlineGroupeCreer(null)} style={{flex:1,padding:'8px',borderRadius:8,border:'1px solid var(--border)',background:'var(--surface)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Annuler</button>
+                    <button onClick={async()=>{const id=await creerGroupeInline();if(id){setEmpForm(f=>({...f,groupe_id:id}));setInlineGroupeCreer(null)}}} style={{flex:1,padding:'8px',borderRadius:8,border:'none',background:'var(--accent)',color:'white',fontSize:12,fontWeight:700,cursor:'pointer'}}>Créer</button>
+                  </div>
+                </div>
+              )}
+            </div>
             </>}
 
             {creerTab==='coord'&&<>
@@ -1838,16 +1867,31 @@ export default function Gerant() {
                   autoFocus style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--accent)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               )}
             </div>
-            {groupes.length>0&&(
-              <div style={{marginBottom:12}}>
-                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Groupe</label>
-                <select value={editEmpForm.groupe_id||''} onChange={e=>setEditEmpForm(f=>({...f,groupe_id:e.target.value||null}))}
+            <div style={{marginBottom:12}}>
+              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Groupe</label>
+              {inlineGroupe===null?(
+                <select value={editEmpForm.groupe_id||''} onChange={e=>{if(e.target.value==='__creer__'){setInlineGroupe('creer');setInlineGroupeForm({nom:'',couleur:'#E11D48'})}else setEditEmpForm(f=>({...f,groupe_id:e.target.value||null}))}}
                   style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
                   <option value="">Sans groupe</option>
                   {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
+                  <option value="__creer__">+ Créer un groupe</option>
                 </select>
-              </div>
-            )}
+              ):(
+                <div style={{border:'1.5px solid var(--accent)',borderRadius:10,padding:12,background:'var(--bg)'}}>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--accent)',marginBottom:8}}>Nouveau groupe</div>
+                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                    <input value={inlineGroupeForm.nom} onChange={e=>setInlineGroupeForm(g=>({...g,nom:e.target.value}))} placeholder="Nom (ex: Cuisine)" autoFocus
+                      style={{flex:1,padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+                    <input type="color" value={inlineGroupeForm.couleur} onChange={e=>setInlineGroupeForm(g=>({...g,couleur:e.target.value}))}
+                      style={{width:38,height:38,borderRadius:8,border:'1.5px solid var(--border2)',padding:3,cursor:'pointer',flexShrink:0}}/>
+                  </div>
+                  <div style={{display:'flex',gap:8,marginTop:8}}>
+                    <button onClick={()=>setInlineGroupe(null)} style={{flex:1,padding:'8px',borderRadius:8,border:'1px solid var(--border)',background:'var(--surface)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer'}}>Annuler</button>
+                    <button onClick={async()=>{const id=await creerGroupeInline();if(id){setEditEmpForm(f=>({...f,groupe_id:id}));setInlineGroupe(null)}}} style={{flex:1,padding:'8px',borderRadius:8,border:'none',background:'var(--accent)',color:'white',fontSize:12,fontWeight:700,cursor:'pointer'}}>Créer</button>
+                  </div>
+                </div>
+              )}
+            </div>
             {!profilsMap[editEmpModal.id] ? (
               <div style={{marginBottom:16}}>
                 <div style={{padding:'10px 14px',background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)',marginBottom:8,fontSize:12,color:'var(--text2)'}}>
