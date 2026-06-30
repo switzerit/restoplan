@@ -1288,25 +1288,53 @@ export default function Gerant() {
             )
           }
 
+          // Forcer liste plate (filtres au lieu de regroupement)
+          const liste = filtered
           return (
-            <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch',display:'flex',flexDirection:'column',gap:14}}>
-              {/* Recherche */}
-              <div style={{position:'relative'}}>
-                <span style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',fontSize:14,color:'var(--text3)',pointerEvents:'none'}}>🔍</span>
-                <input value={empSearch} onChange={e=>setEmpSearch(e.target.value)} placeholder="Rechercher un employé..."
-                  style={{width:'100%',padding:'10px 12px 10px 34px',borderRadius:10,border:'1.5px solid var(--border2)',background:'var(--surface)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+            <div style={{flex:1,overflowY:'auto',padding:isMobile?12:20,WebkitOverflowScrolling:'touch',display:'flex',flexDirection:'column',gap:16}}>
+
+              {/* Bandeau recherche */}
+              <div style={{background:'linear-gradient(135deg,var(--accent),#b5183a)',borderRadius:16,padding:isMobile?'20px 18px':'24px 26px',position:'relative',overflow:'hidden'}}>
+                <div style={{position:'absolute',right:-20,top:-30,width:120,height:120,borderRadius:'50%',background:'rgba(255,255,255,0.06)'}}/>
+                <div style={{position:'absolute',right:60,bottom:-40,width:80,height:80,borderRadius:'50%',background:'rgba(245,158,11,0.18)'}}/>
+                <div style={{position:'relative',textAlign:'center'}}>
+                  <div style={{fontSize:isMobile?15:17,fontWeight:700,color:'#fff',marginBottom:14}}>Rechercher un collaborateur</div>
+                  <div style={{display:'flex',alignItems:'center',gap:10,background:'#fff',borderRadius:11,padding:'11px 16px',maxWidth:380,margin:'0 auto'}}>
+                    <span style={{fontSize:16,color:'var(--text3)'}}>🔍</span>
+                    <input value={empSearch} onChange={e=>setEmpSearch(e.target.value)} placeholder="ex : Vithushanth" style={{flex:1,border:'none',outline:'none',background:'transparent',fontSize:13,color:'var(--text)'}}/>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mon dossier */}
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:'var(--text2)',marginBottom:10}}>Mon dossier</div>
+                <div onClick={()=>{const g=employes.find(e=>e.est_gerant);if(g)openEditEmp(g)}} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'14px 16px',display:'flex',alignItems:'center',gap:12,cursor:'pointer'}}>
+                  <div style={{width:40,height:40,borderRadius:'50%',background:'var(--accent-bg)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700}}>{ini(gerantPrenom||'G','')}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>{gerantPrenom||'Gérant'} (vous)</div>
+                    <div style={{fontSize:12,color:'var(--text2)'}}>Administrateur · {currentResto?.nom}</div>
+                  </div>
+                  <span style={{fontSize:18,color:'var(--text3)'}}>›</span>
+                </div>
+              </div>
+
+              {/* En-tête collaborateurs + bouton */}
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div style={{fontSize:13,fontWeight:700,color:'var(--text2)'}}>Collaborateurs <span style={{color:'var(--text3)'}}>· {liste.length}</span></div>
+                <button onClick={()=>setEmpModal(true)} style={{display:'flex',alignItems:'center',gap:6,background:'var(--accent)',color:'#fff',padding:'8px 14px',borderRadius:10,border:'none',fontSize:13,fontWeight:700,cursor:'pointer'}}><span style={{fontSize:15}}>+</span>Nouveau collaborateur</button>
               </div>
 
               {/* Filtres groupe */}
               {groupes.length>0&&(
-                <div style={{display:'flex',gap:6,overflowX:'auto',paddingBottom:2}}>
+                <div style={{display:'flex',gap:6,overflowX:'auto',paddingBottom:2,marginTop:-6}}>
                   {[{id:'__all__',nom:'Tous',couleur:null},...groupes,{id:'__none__',nom:'Sans groupe',couleur:'#9ca3af'}].map(g=>{
                     const actif=empFiltreGroupe===g.id
                     return (
                       <button key={g.id} onClick={()=>setEmpFiltreGroupe(g.id)} style={{
                         flexShrink:0,padding:'6px 14px',borderRadius:20,cursor:'pointer',fontSize:12,fontWeight:actif?700:500,
-                        border:`1.5px solid ${actif?'#E11D48':'var(--border)'}`,
-                        background:actif?'#E11D48':'var(--surface)',
+                        border:`1.5px solid ${actif?'var(--accent)':'var(--border)'}`,
+                        background:actif?'var(--accent)':'var(--surface)',
                         color:actif?'white':'var(--text2)',
                         display:'flex',alignItems:'center',gap:6,transition:'all .15s'}}>
                         {g.couleur&&<span style={{width:8,height:8,borderRadius:'50%',background:g.couleur}}/>}
@@ -1317,39 +1345,17 @@ export default function Gerant() {
                 </div>
               )}
 
-              {/* Liste */}
-              {filtered.length===0?(
+              {/* Liste plate */}
+              {liste.length===0?(
                 <div style={{textAlign:'center',padding:'48px 20px',background:'var(--surface)',borderRadius:16,border:'1px solid var(--border)',color:'var(--text3)'}}>
                   <div style={{fontSize:36,marginBottom:10}}>{q?'🔍':'👤'}</div>
-                  <div style={{fontSize:14,fontWeight:600}}>{q?'Aucun résultat':'Aucun employé'}</div>
+                  <div style={{fontSize:14,fontWeight:600}}>{q?'Aucun résultat':'Aucun collaborateur'}</div>
                 </div>
-              ):grouped.map((grp,gi)=>(
-                <div key={gi}>
-                  {grp.groupe&&(
-                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'0 2px',marginBottom:8}}>
-                      <span style={{width:10,height:10,borderRadius:'50%',background:grp.groupe.couleur}}/>
-                      <span style={{fontSize:12,fontWeight:700,color:'var(--text2)'}}>{grp.groupe.nom} · {grp.membres.length}</span>
-                    </div>
-                  )}
-                  {grouped.length>1&&!grp.groupe&&(
-                    <div style={{display:'flex',alignItems:'center',gap:8,padding:'0 2px',marginBottom:8}}>
-                      <span style={{width:10,height:10,borderRadius:'50%',background:'#9ca3af'}}/>
-                      <span style={{fontSize:12,fontWeight:700,color:'var(--text2)'}}>Sans groupe · {grp.membres.length}</span>
-                    </div>
-                  )}
-                  <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(260px,1fr))',gap:10}}>
-                    {grp.membres.map((emp)=>EmpCard(emp))}
-                  </div>
+              ):(
+                <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(auto-fill,minmax(260px,1fr))',gap:10}}>
+                  {liste.map((emp)=>EmpCard(emp))}
                 </div>
-              ))}
-
-              {/* Ajouter */}
-              <button onClick={()=>setEmpModal(true)} style={{
-                display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'14px',
-                background:'var(--surface)',border:'2px dashed var(--accent)',borderRadius:14,
-                color:'var(--accent)',fontSize:14,fontWeight:700,cursor:'pointer'}}>
-                <span style={{fontSize:18}}>+</span> Ajouter un employé
-              </button>
+              )}
             </div>
           )
         })()}
