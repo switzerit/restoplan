@@ -1666,7 +1666,7 @@ export default function Gerant() {
               <select value={empForm.role===''?'':((POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).includes(empForm.role)?empForm.role:'__autre__')}
                 onChange={e=>setEmpForm(f=>({...f,role:e.target.value==='__autre__'?'__autre__':e.target.value}))}
                 style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',marginBottom:6}}>
-                <option value="">— Choisir un poste</option>
+                <option value="">Choisir un poste</option>
                 {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(r=><option key={r} value={r}>{r.charAt(0).toUpperCase()+r.slice(1)}</option>)}
                 <option value="__autre__">Autre</option>
               </select>
@@ -1861,7 +1861,7 @@ export default function Gerant() {
               <select value={(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).includes(editEmpForm.role)?editEmpForm.role:editEmpForm.role&&editEmpForm.role!=='__autre__'?'__autre__':editEmpForm.role}
                 onChange={e=>setEditEmpForm(f=>({...f,role:e.target.value==='__autre__'?'__autre__':e.target.value}))}
                 style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',marginBottom:6}}>
-                <option value="">— Choisir un poste</option>
+                <option value="">Choisir un poste</option>
                 {(POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre).map(r=><option key={r} value={r}>{r.charAt(0).toUpperCase()+r.slice(1)}</option>)}
                 <option value="__autre__">Autre</option>
               </select>
