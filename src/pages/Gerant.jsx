@@ -106,6 +106,8 @@ export default function Gerant() {
   const [gerantPrenom, setGerantPrenom] = useState("")
   const [gerantNom, setGerantNom] = useState("")
   const [gerantEmployeId, setGerantEmployeId] = useState(null)
+  const [gerantInfo, setGerantInfo] = useState(null)
+  const [monDossierModal, setMonDossierModal] = useState(false)
   const [employes, setEmployes] = useState([])
   const [shifts, setShifts] = useState([])
   const loadShiftsSeq = useRef('')
@@ -293,6 +295,7 @@ export default function Gerant() {
     if(gerantData?.id) setGerantId(gerantData.id)
     if(gerantData?.nom) setGerantNom(gerantData.nom)
     if(gerantData?.employe_id) setGerantEmployeId(gerantData.employe_id)
+    if(gerantData) setGerantInfo(gerantData)
     if(gerantData&&gerantData.onboarding_complete===false){setShowOnboarding(true);setGerantId(gerantData.id);setGerantPrenom(gerantData.prenom||"");setOnboardingStep(gerantData.onboarding_step||1)}
     } catch(e){
  setTrialStatut('active') }
@@ -1309,7 +1312,7 @@ export default function Gerant() {
               {/* Mon dossier */}
               <div>
                 <div style={{fontSize:13,fontWeight:700,color:'var(--text2)',marginBottom:10}}>Mon dossier</div>
-                <div onClick={()=>{const g=employes.find(e=>e.est_gerant);if(g)openEditEmp(g)}} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'14px 16px',display:'flex',alignItems:'center',gap:12,cursor:'pointer'}}>
+                <div onClick={()=>setMonDossierModal(true)} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'14px 16px',display:'flex',alignItems:'center',gap:12,cursor:'pointer'}}>
                   <div style={{width:40,height:40,borderRadius:'50%',background:'var(--accent-bg)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700}}>{ini(gerantPrenom||'G','')}</div>
                   <div style={{flex:1}}>
                     <div style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>{gerantPrenom||'Gérant'} (vous)</div>
@@ -1839,6 +1842,40 @@ export default function Gerant() {
       )}
 
       {/* MODAL EDIT EMPLOYE */}
+      {monDossierModal&&(
+        <div onClick={()=>setMonDossierModal(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:0,width:isMobile?'92vw':420,boxShadow:'0 8px 40px rgba(0,0,0,.14)',maxHeight:'90vh',overflowY:'auto',scrollbarWidth:'none',overflow:'hidden'}}>
+            <div style={{background:'linear-gradient(135deg,var(--accent),#b5183a)',padding:'22px 24px',position:'relative'}}>
+              <button onClick={()=>setMonDossierModal(false)} style={{position:'absolute',top:14,right:14,width:28,height:28,borderRadius:8,border:'none',background:'rgba(255,255,255,0.2)',color:'#fff',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+              <div style={{display:'flex',alignItems:'center',gap:13}}>
+                <div style={{width:52,height:52,borderRadius:'50%',background:'rgba(255,255,255,0.95)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:800}}>{ini(gerantInfo?.prenom||gerantPrenom||'G',gerantInfo?.nom||gerantNom||'')}</div>
+                <div>
+                  <div style={{fontSize:17,fontWeight:800,color:'#fff'}}>{gerantInfo?.prenom||gerantPrenom} {gerantInfo?.nom||gerantNom}</div>
+                  <div style={{fontSize:12,color:'#FBEAF0',marginTop:1}}>Administrateur · {gerantInfo?.entreprise||currentResto?.nom}</div>
+                </div>
+              </div>
+            </div>
+            <div style={{padding:'18px 24px 24px'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:12,textTransform:'uppercase',letterSpacing:'.04em'}}>Mes informations</div>
+              {[
+                {l:'Nom complet',v:`${gerantInfo?.prenom||gerantPrenom} ${gerantInfo?.nom||gerantNom}`},
+                {l:'Email',v:gerantInfo?.email||'—'},
+                {l:'Téléphone',v:gerantInfo?.telephone||'Non renseigné'},
+                {l:'Entreprise',v:gerantInfo?.entreprise||'—'},
+              ].map((r,i)=>(
+                <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'11px 0',borderBottom:i<3?'1px solid var(--border)':'none'}}>
+                  <span style={{fontSize:13,color:'var(--text2)'}}>{r.l}</span>
+                  <span style={{fontSize:13,fontWeight:600,color:'var(--text)',textAlign:'right',maxWidth:'60%',wordBreak:'break-word'}}>{r.v}</span>
+                </div>
+              ))}
+              <div style={{marginTop:16,padding:'10px 14px',background:'var(--bg)',borderRadius:10,border:'1px solid var(--border)',fontSize:12,color:'var(--text3)'}}>
+                Pour modifier ces informations, rendez-vous dans les Paramètres de votre compte.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {editEmpModal&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
           <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:isMobile?'92vw':440,boxShadow:'0 8px 40px rgba(0,0,0,.14)',maxHeight:'90vh',overflowY:'auto',scrollbarWidth:'none'}}>
