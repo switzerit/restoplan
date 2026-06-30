@@ -132,7 +132,7 @@ export default function AccueilGerant({
         ))}
       </div>
       {/* Rangée équipe + à traiter */}
-      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1.5fr 1fr',gap:isMobile?12:14}}>
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:isMobile?12:14}}>
         {/* L'équipe aujourd'hui */}
         <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:isMobile?'14px 16px':'16px 18px'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
@@ -146,11 +146,11 @@ export default function AccueilGerant({
             return(
               <div key={it.sh.id||i} style={{display:'flex',alignItems:'center',gap:11,padding:'11px 0',borderTop:'1px solid var(--border)'}}>
                 <div style={{width:34,height:34,borderRadius:'50%',background:'var(--accent-bg)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,flexShrink:0}}>{ini(it.emp.prenom,it.emp.nom)}</div>
-                <div style={{flex:1,minWidth:0}}>
+                <div style={{minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>{it.emp.prenom} {it.emp.nom}</div>
                   <div style={{fontSize:11,color:'var(--text2)'}}>{it.emp.role}</div>
                 </div>
-                <div style={{textAlign:'right',flexShrink:0}}>
+                <div style={{textAlign:'right',flexShrink:0,marginLeft:'auto'}}>
                   <div style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>{(it.sh.heure_debut||'').slice(0,5)} – {(it.sh.heure_fin||'').slice(0,5)}</div>
                   <div style={{fontSize:11,color:stColor,marginTop:1}}>{it.statutLabel}</div>
                 </div>
