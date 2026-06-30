@@ -143,6 +143,7 @@ export default function Gerant() {
   const [addPointageModal, setAddPointageModal] = useState(null)
   const [addPointageForm, setAddPointageForm] = useState({date:'',heure_arrivee:'',heure_depart:''})
   const [editEmpModal, setEditEmpModal] = useState(null)
+  const [ficheTab, setFicheTab] = useState('general')
   const [editEmpForm, setEditEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:'',groupe_id:null})
   const [profilsMap, setProfilsMap] = useState({})
   const [empSearch, setEmpSearch] = useState('')
@@ -493,8 +494,12 @@ export default function Gerant() {
   function openEditEmp(emp){
     const postes = POSTES_PAR_SECTEUR[currentResto?.secteur||'restaurant']||POSTES_PAR_SECTEUR.autre
     const isCustom = emp.role && !postes.includes(emp.role)
-    setEditEmpForm({prenom:emp.prenom,nom:emp.nom,email:emp.email,role:isCustom?'__autre__':emp.role,password:'',groupe_id:emp.groupe_id||null})
+    setEditEmpForm({prenom:emp.prenom,nom:emp.nom,email:emp.email,role:isCustom?'__autre__':emp.role,password:'',groupe_id:emp.groupe_id||null,
+      telephone:emp.telephone||'',adresse:emp.adresse||'',code_postal:emp.code_postal||'',ville:emp.ville||'',pays:emp.pays||'',contact_urgence_nom:emp.contact_urgence_nom||'',contact_urgence_tel:emp.contact_urgence_tel||'',
+      type_contrat:emp.type_contrat||'',date_embauche:emp.date_embauche||'',date_fin_contrat:emp.date_fin_contrat||'',taux_horaire:emp.taux_horaire||'',heures_semaine:emp.heures_semaine||'',fonction:emp.fonction||'',
+      date_naissance:emp.date_naissance||'',lieu_naissance:emp.lieu_naissance||'',nationalite:emp.nationalite||'',num_securite_sociale:emp.num_securite_sociale||'',iban:emp.iban||''})
     setEditCustomRole(isCustom?emp.role:'')
+    setFicheTab('general')
     setEditEmpModal(emp)
   }
 
@@ -504,7 +509,10 @@ export default function Gerant() {
       nom:editEmpForm.nom,
       email:editEmpForm.email,
       role:editEmpForm.role,
-      groupe_id:editEmpForm.groupe_id||null
+      groupe_id:editEmpForm.groupe_id||null,
+      telephone:editEmpForm.telephone||null,adresse:editEmpForm.adresse||null,code_postal:editEmpForm.code_postal||null,ville:editEmpForm.ville||null,pays:editEmpForm.pays||null,contact_urgence_nom:editEmpForm.contact_urgence_nom||null,contact_urgence_tel:editEmpForm.contact_urgence_tel||null,
+      type_contrat:editEmpForm.type_contrat||null,date_embauche:editEmpForm.date_embauche||null,date_fin_contrat:editEmpForm.date_fin_contrat||null,taux_horaire:editEmpForm.taux_horaire||null,heures_semaine:editEmpForm.heures_semaine||null,fonction:editEmpForm.fonction||null,
+      date_naissance:editEmpForm.date_naissance||null,lieu_naissance:editEmpForm.lieu_naissance||null,nationalite:editEmpForm.nationalite||null,num_securite_sociale:editEmpForm.num_securite_sociale||null,iban:editEmpForm.iban||null
     })
     if(result?.error){showToast('❌ Une erreur est survenue, réessayez');return}
     // Si mot de passe fourni
@@ -1746,12 +1754,21 @@ export default function Gerant() {
       {/* MODAL EDIT EMPLOYE */}
       {editEmpModal&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)',maxHeight:'90vh',overflowY:'auto'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:isMobile?'92vw':440,boxShadow:'0 8px 40px rgba(0,0,0,.14)',maxHeight:'90vh',overflowY:'auto',scrollbarWidth:'none'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
                   <div style={{fontSize:17,fontWeight:800}}>Modifier l'employé</div>
                   <button onClick={()=>{setEditEmpModal(false);setEditCustomRole('')}} style={{width:28,height:28,borderRadius:6,border:'none',background:'var(--bg)',cursor:'pointer',fontSize:18,color:'var(--text3)',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
                 </div>
-            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{editEmpModal.prenom} {editEmpModal.nom}</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:16}}>{editEmpModal.prenom} {editEmpModal.nom}</div>
+
+            {/* Onglets fiche RH */}
+            <div style={{display:'flex',gap:4,marginBottom:18,background:'var(--bg)',padding:4,borderRadius:10,overflowX:'auto',scrollbarWidth:'none'}}>
+              {[{id:'general',l:'Général'},{id:'coord',l:'Coordonnées'},{id:'contrat',l:'Contrat'},{id:'identite',l:'Identité'}].map(t=>(
+                <button key={t.id} onClick={()=>setFicheTab(t.id)} style={{flex:'1 0 auto',padding:'7px 12px',borderRadius:7,border:'none',cursor:'pointer',fontSize:12,fontWeight:ficheTab===t.id?700:600,whiteSpace:'nowrap',background:ficheTab===t.id?'var(--surface)':'transparent',color:ficheTab===t.id?'var(--accent)':'var(--text2)',boxShadow:ficheTab===t.id?'0 1px 3px rgba(0,0,0,.08)':'none',transition:'all .15s'}}>{t.l}</button>
+              ))}
+            </div>
+
+            {ficheTab==='general'&&<>
             {[{f:'prenom',l:'Prénom',t:'text'},{f:'nom',l:'Nom',t:'text'},{f:'email',l:'Email',t:'email'}].map(({f,l,t})=>(
               <div key={f} style={{marginBottom:12}}>
                 <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
@@ -1801,7 +1818,43 @@ export default function Gerant() {
                 </button>
               </div>
             )}
-            <div style={{display:'flex',gap:8}}>
+            </>}
+
+            {ficheTab==='coord'&&<>
+              {[{f:'telephone',l:'Téléphone',t:'tel'},{f:'adresse',l:'Adresse',t:'text'},{f:'code_postal',l:'Code postal',t:'text'},{f:'ville',l:'Ville',t:'text'},{f:'pays',l:'Pays',t:'text'},{f:'contact_urgence_nom',l:'Contact d\'urgence (nom)',t:'text'},{f:'contact_urgence_tel',l:'Contact d\'urgence (tél.)',t:'tel'}].map(({f,l,t})=>(
+                <div key={f} style={{marginBottom:12}}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
+                  <input type={t} value={editEmpForm[f]||''} onChange={e=>setEditEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+                </div>
+              ))}
+            </>}
+
+            {ficheTab==='contrat'&&<>
+              <div style={{marginBottom:12}}>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Type de contrat</label>
+                <select value={editEmpForm.type_contrat||''} onChange={e=>setEditEmpForm(f=>({...f,type_contrat:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                  <option value="">— Choisir</option>
+                  {['CDI','CDD','Intérim','Extra','Stage','Apprentissage','Saisonnier','Freelance'].map(o=><option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+              {[{f:'fonction',l:'Fonction / poste',t:'text'},{f:'date_embauche',l:'Date d\'embauche',t:'date'},{f:'date_fin_contrat',l:'Date de fin (si CDD)',t:'date'},{f:'taux_horaire',l:'Taux horaire',t:'number'},{f:'heures_semaine',l:'Heures par semaine',t:'number'}].map(({f,l,t})=>(
+                <div key={f} style={{marginBottom:12}}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
+                  <input type={t} value={editEmpForm[f]||''} onChange={e=>setEditEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+                </div>
+              ))}
+            </>}
+
+            {ficheTab==='identite'&&<>
+              {[{f:'date_naissance',l:'Date de naissance',t:'date'},{f:'lieu_naissance',l:'Lieu de naissance',t:'text'},{f:'nationalite',l:'Nationalité',t:'text'},{f:'num_securite_sociale',l:'N° sécurité sociale / AVS',t:'text'},{f:'iban',l:'IBAN',t:'text'}].map(({f,l,t})=>(
+                <div key={f} style={{marginBottom:12}}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
+                  <input type={t} value={editEmpForm[f]||''} onChange={e=>setEditEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+                </div>
+              ))}
+            </>}
+
+            <div style={{display:'flex',gap:8,marginTop:8}}>
               <button onClick={()=>setEditEmpModal(null)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
               <button onClick={updateEmploye} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Enregistrer</button>
             </div>
