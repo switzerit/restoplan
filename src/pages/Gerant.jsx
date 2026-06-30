@@ -774,7 +774,7 @@ export default function Gerant() {
         </>}
       </div>
     </div>
-  const viewTitle = view==='accueil'?'Accueil':view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Équipe':view==='conges'?'Congés':view==='signalements'?'Corrections de pointage':'Paramètres'
+  const viewTitle = view==='accueil'?'Accueil':view==='planning'?'Planning':view==='presences'?'Présences du jour':view==='employes'?'Espace RH':view==='conges'?'Congés':view==='signalements'?'Corrections de pointage':'Paramètres'
 
 
   return (
@@ -820,7 +820,7 @@ export default function Gerant() {
           {id:'accueil',icon:'🏠',label:'Accueil'},
           {id:'planning',icon:'📅',label:'Planning'},
           ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
-          {id:'employes',icon:'👤',label:'Équipe'},
+          {id:'employes',icon:'👤',label:'Espace RH'},
           ...(features.conges?[{id:'conges',icon:'🏖️',label:'Congés'}]:[]),
           ...(features.badgeage&&features.signalements?[{id:'signalements',icon:'⚡',label:'Corrections'}]:[]),
           {id:'parametres',icon:'⚙️',label:'Paramètres'},
@@ -915,7 +915,7 @@ export default function Gerant() {
           {view==='employes'&&<button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button>}
         </div>}
         {/* TOPBAR MOBILE ACTION */}
-        {isMobile && view==='employes' && <div style={{padding:'8px 12px',background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,fontWeight:700}}>{view==='planning'?'Planning':view==='presences'?'Présences':view==='employes'?'Équipe':'Paramètres'}</span><button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button></div>}
+        {isMobile && view==='employes' && <div style={{padding:'8px 12px',background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,fontWeight:700}}>{view==='planning'?'Planning':view==='presences'?'Présences':view==='employes'?'Espace RH':'Paramètres'}</span><button onClick={()=>setEmpModal(true)} style={{height:34,padding:'0 14px',background:'var(--accent)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>+ Ajouter</button></div>}
         {isMobile && view==='presences' && <div style={{padding:'8px 12px',background:'var(--surface)',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{fontSize:14,fontWeight:700}}>Présences</span><button onClick={()=>setExportModal(true)} style={{height:34,padding:'0 14px',background:'var(--green)',color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer'}}>📄 PDF</button></div>}
 
         {/* VUE ACCUEIL */}
@@ -1535,7 +1535,7 @@ export default function Gerant() {
             {id:'accueil',icon:'🏠',label:'Accueil'},
             {id:'planning',icon:'📅',label:'Planning'},
             ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
-            {id:'employes',icon:'👤',label:'Équipe'},
+            {id:'employes',icon:'👤',label:'Espace RH'},
             ...(features.conges?[{id:'conges',icon:'🏖️',label:'Congés'}]:[]),
           ...(features.badgeage&&features.signalements?[{id:'signalements',icon:'⚡',label:'Corrections'}]:[]),
             {id:'parametres',icon:'⚙️',label:'Réglages'},
