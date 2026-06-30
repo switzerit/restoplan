@@ -45,6 +45,22 @@ export default function AccueilGerant({
     return pts.some(p=>p.heure_arrivee&&!p.heure_depart)
   })
 
+  // L'équipe qui travaille aujourd'hui (depuis les shifts du jour)
+  const equipeAujourdhui=shiftsAujourdhui
+    .map(sh=>{
+      const emp=employes.find(e=>e.id===sh.employe_id&&!e.est_gerant)
+      if(!emp) return null
+      const pts=pointagesMap?.[emp.id]||[]
+      const enCours=pts.find(p=>p.heure_arrivee&&!p.heure_depart)
+      const fini=pts.length>0&&pts.every(p=>p.heure_depart)
+      let statut='attente', statutLabel='Pas encore badgé'
+      if(enCours){statut='present';statutLabel='Présent depuis '+enCours.heure_arrivee.slice(0,5)}
+      else if(fini){statut='parti';statutLabel='Journée terminée'}
+      return {emp,sh,statut,statutLabel}
+    })
+    .filter(Boolean)
+    .sort((a,b)=>(a.sh.heure_debut||'').localeCompare(b.sh.heure_debut||''))
+
   const now=new Date()
   const dateLabel=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})
   const numSemaine=(()=>{const d=new Date(now);d.setHours(0,0,0,0);d.setDate(d.getDate()+3-((d.getDay()+6)%7));const w1=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-w1)/86400000-3+((w1.getDay()+6)%7))/7)})()
@@ -115,45 +131,67 @@ export default function AccueilGerant({
           </div>
         ))}
       </div>
-      {/* À faire maintenant — seulement si conges OU signalements actifs ET qu'il y a qqch */}
-      {(features.conges||features.signalements)&&aTraiter>0&&(
-        <div>
-          <div style={{fontSize:12,fontWeight:700,color:'var(--text2)',marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
-            🔔 À faire maintenant
+      {/* Rangée équipe + à traiter */}
+      <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1.5fr 1fr',gap:isMobile?12:14}}>
+        {/* L'équipe aujourd'hui */}
+        <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:isMobile?'14px 16px':'16px 18px'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+            <div style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>L'équipe aujourd'hui</div>
+            <span onClick={()=>onGoTo('planning')} style={{fontSize:12,color:'var(--accent)',cursor:'pointer',fontWeight:600}}>Planning →</span>
           </div>
-          <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {features.conges&&congesEnAttente.length>0&&(
-              <div onClick={()=>onGoTo('conges')} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'13px 16px',display:'flex',alignItems:'center',gap:12,cursor:'pointer'}}
-                onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-                onMouseLeave={e=>e.currentTarget.style.background='var(--surface)'}>
-                <div style={{width:38,height:38,borderRadius:10,background:'#fff7ed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>🏖️</div>
+          {equipeAujourdhui.length===0?(
+            <div style={{fontSize:13,color:'var(--text2)',paddingTop:11,borderTop:'1px solid var(--border)'}}>Aucun shift planifié aujourd'hui</div>
+          ):equipeAujourdhui.map((it,i)=>{
+            const stColor=it.statut==='present'?'#15803d':it.statut==='parti'?'var(--text3)':'#b45309'
+            return(
+              <div key={it.sh.id||i} style={{display:'flex',alignItems:'center',gap:11,padding:'11px 0',borderTop:'1px solid var(--border)'}}>
+                <div style={{width:34,height:34,borderRadius:'50%',background:'var(--accent-bg)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,flexShrink:0}}>{ini(it.emp.prenom,it.emp.nom)}</div>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:14,fontWeight:700}}>{congesEnAttente.length} demande{congesEnAttente.length>1?'s':''} de congé en attente</div>
-                  <div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>
-                    {congesEnAttente.slice(0,3).map(c=>c.prenom).join(', ')}{congesEnAttente.length>3?'...':''} attend{congesEnAttente.length>1?'ent':''} une réponse
-                  </div>
+                  <div style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>{it.emp.prenom} {it.emp.nom}</div>
+                  <div style={{fontSize:11,color:'var(--text2)'}}>{it.emp.role}</div>
                 </div>
-                <span style={{fontSize:18,color:'var(--text3)',flexShrink:0}}>›</span>
-              </div>
-            )}
-            {features.signalements&&signalements.length>0&&(
-              <div onClick={()=>onGoTo('signalements')} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'13px 16px',display:'flex',alignItems:'center',gap:12,cursor:'pointer'}}
-                onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-                onMouseLeave={e=>e.currentTarget.style.background='var(--surface)'}>
-                <div style={{width:38,height:38,borderRadius:10,background:'#eff6ff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>⚡</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:14,fontWeight:700}}>{signalements.length} correction{signalements.length>1?'s':''} de pointage</div>
-                  <div style={{fontSize:12,color:'var(--text2)',marginTop:2}}>
-                    {signalements.slice(0,3).map(s=>s.prenom).join(', ')}{signalements.length>3?'...':''} à traiter
-                  </div>
+                <div style={{textAlign:'right',flexShrink:0}}>
+                  <div style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>{(it.sh.heure_debut||'').slice(0,5)} – {(it.sh.heure_fin||'').slice(0,5)}</div>
+                  <div style={{fontSize:11,color:stColor,marginTop:1}}>{it.statutLabel}</div>
                 </div>
-                <span style={{fontSize:18,color:'var(--text3)',flexShrink:0}}>›</span>
               </div>
-            )}
-          </div>
+            )
+          })}
         </div>
-      )}
-
+        {/* À traiter */}
+        <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:isMobile?'14px 16px':'16px 18px'}}>
+          <div style={{fontSize:14,fontWeight:700,color:'var(--text)',marginBottom:12}}>À traiter</div>
+          {aTraiter===0?(
+            <div style={{display:'flex',alignItems:'center',gap:9,paddingTop:11,borderTop:'1px solid var(--border)'}}>
+              <span style={{fontSize:18}}>✅</span>
+              <div style={{fontSize:13,color:'var(--text2)'}}>Tout est à jour</div>
+            </div>
+          ):(
+            <div style={{display:'flex',flexDirection:'column'}}>
+              {features.conges&&congesEnAttente.length>0&&(
+                <div onClick={()=>onGoTo('conges')} style={{display:'flex',alignItems:'center',gap:10,padding:'11px 0',borderTop:'1px solid var(--border)',cursor:'pointer'}}>
+                  <div style={{width:32,height:32,borderRadius:9,background:'#fff7ed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>🏖️</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>{congesEnAttente.length} congé{congesEnAttente.length>1?'s':''}</div>
+                    <div style={{fontSize:11,color:'var(--text2)'}}>en attente</div>
+                  </div>
+                  <span style={{fontSize:16,color:'var(--text3)'}}>›</span>
+                </div>
+              )}
+              {features.signalements&&signalements.length>0&&(
+                <div onClick={()=>onGoTo('signalements')} style={{display:'flex',alignItems:'center',gap:10,padding:'11px 0',borderTop:'1px solid var(--border)',cursor:'pointer'}}>
+                  <div style={{width:32,height:32,borderRadius:9,background:'#eff6ff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>⚡</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:600,color:'var(--text)'}}>{signalements.length} correction{signalements.length>1?'s':''}</div>
+                    <div style={{fontSize:11,color:'var(--text2)'}}>de pointage</div>
+                  </div>
+                  <span style={{fontSize:16,color:'var(--text3)'}}>›</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
       {/* Accès rapide */}
       <div>
         <div style={{fontSize:isMobile?12:13,fontWeight:700,color:'var(--text2)',marginBottom:10}}>Actions rapides</div>
@@ -171,48 +209,6 @@ export default function AccueilGerant({
         </div>
       </div>
 
-      {/* L'équipe aujourd'hui — seulement si badgeage OU conges */}
-      {(features.badgeage||features.conges)&&(presents.length>0||absentsAujourdhui.length>0)&&(
-        <div>
-          <div style={{fontSize:12,fontWeight:700,color:'var(--text2)',marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
-            👥 L'équipe aujourd'hui
-          </div>
-          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,overflow:'hidden'}}>
-            {features.badgeage&&presents.map((e,i)=>{
-              const pts=pointagesMap?.[e.id]||[]
-              const actif=pts.find(p=>p.heure_arrivee&&!p.heure_depart)
-              return(
-                <div key={e.id} style={{padding:'11px 16px',display:'flex',alignItems:'center',gap:10,
-                  borderBottom:(i<presents.length-1||absentsAujourdhui.length>0)?'1px solid var(--border)':'none'}}>
-                  <div style={{width:32,height:32,borderRadius:'50%',background:'#f0fdf4',color:'#15803d',
-                    display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>
-                    {ini(e.prenom,e.nom)}
-                  </div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:600}}>{e.prenom} {e.nom}</div>
-                    <div style={{fontSize:11,color:'var(--text2)'}}>{e.role}{actif?.heure_arrivee?` · arrivée ${actif.heure_arrivee.slice(0,5)}`:''}</div>
-                  </div>
-                  <span style={{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:20,background:'#f0fdf4',color:'#15803d',border:'1px solid #bbf7d0',flexShrink:0}}>Présent</span>
-                </div>
-              )
-            })}
-            {features.conges&&absentsAujourdhui.map((c,i)=>(
-              <div key={c.id} style={{padding:'11px 16px',display:'flex',alignItems:'center',gap:10,
-                borderBottom:i<absentsAujourdhui.length-1?'1px solid var(--border)':'none'}}>
-                <div style={{width:32,height:32,borderRadius:'50%',background:'#fff1f3',color:'#be123c',
-                  display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>
-                  {ini(c.prenom,c.nom)}
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:600}}>{c.prenom} {c.nom}</div>
-                  <div style={{fontSize:11,color:'var(--text2)'}}>{CONGE_LABELS[c.type]||'Absence'} · retour le {new Date(c.date_fin+'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</div>
-                </div>
-                <span style={{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:20,background:'#fff1f3',color:'#be123c',border:'1px solid #fecdd3',flexShrink:0}}>Absent</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
