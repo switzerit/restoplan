@@ -131,7 +131,8 @@ export default function Gerant() {
   const [correctModal, setCorrectModal] = useState(null)
   const [restoModal, setRestoModal] = useState(false)
   const [form, setForm] = useState({poste:'cuisine',heure_debut:'09:00',heure_fin:'17:00',coupe:false,heure_debut_2:'',heure_fin_2:''})
-  const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:''})
+  const [empForm, setEmpForm] = useState({prenom:'',nom:'',email:'',role:'',password:'',groupe_id:null,telephone:'',adresse:'',code_postal:'',ville:'',pays:'',contact_urgence_nom:'',contact_urgence_tel:'',type_contrat:'',date_embauche:'',date_fin_contrat:'',taux_horaire:'',heures_semaine:'',fonction:'',date_naissance:'',lieu_naissance:'',nationalite:'',num_securite_sociale:'',iban:''})
+  const [creerTab, setCreerTab] = useState('general')
   const [customRole, setCustomRole] = useState('')
   const [editCustomRole, setEditCustomRole] = useState('')
   const [restoForm, setRestoForm] = useState({nom:'',adresse:''})
@@ -463,7 +464,10 @@ export default function Gerant() {
     const existingGerantList = await api.get(`/gerants/check-email?email=${encodeURIComponent(empForm.email)}`)
     const existingGerant = existingGerantList?.[0] || null
     if(existingGerant){showToast('Cet email est déjà utilisé sur Varman');return}
-    const empData = await api.post('/employes', {prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role==='__autre__'?customRole:empForm.role,restaurant_id:currentResto.id})
+    const empData = await api.post('/employes', {prenom:empForm.prenom,nom:empForm.nom,email:empForm.email,role:empForm.role==='__autre__'?customRole:empForm.role,restaurant_id:currentResto.id,groupe_id:empForm.groupe_id||null,
+      telephone:empForm.telephone||null,adresse:empForm.adresse||null,code_postal:empForm.code_postal||null,ville:empForm.ville||null,pays:empForm.pays||null,contact_urgence_nom:empForm.contact_urgence_nom||null,contact_urgence_tel:empForm.contact_urgence_tel||null,
+      type_contrat:empForm.type_contrat||null,date_embauche:empForm.date_embauche||null,date_fin_contrat:empForm.date_fin_contrat||null,taux_horaire:empForm.taux_horaire||null,heures_semaine:empForm.heures_semaine||null,fonction:empForm.fonction||null,
+      date_naissance:empForm.date_naissance||null,lieu_naissance:empForm.lieu_naissance||null,nationalite:empForm.nationalite||null,num_securite_sociale:empForm.num_securite_sociale||null,iban:empForm.iban||null})
     const error = empData?.error || null
     if(error){showToast('❌ Une erreur est survenue, réessayez');return}
     showToast("Envoi de l'invitation...")
@@ -476,7 +480,7 @@ export default function Gerant() {
       await api.put(`/employes/${empData.id}`, {a_un_compte:true})
       showToast(empForm.prenom+' ajouté — invitation envoyée !')
     }
-    setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'',password:''});setCustomRole('')
+    setEmpModal(false);setEmpForm({prenom:'',nom:'',email:'',role:'',password:'',groupe_id:null,telephone:'',adresse:'',code_postal:'',ville:'',pays:'',contact_urgence_nom:'',contact_urgence_tel:'',type_contrat:'',date_embauche:'',date_fin_contrat:'',taux_horaire:'',heures_semaine:'',fonction:'',date_naissance:'',lieu_naissance:'',nationalite:'',num_securite_sociale:'',iban:''});setCustomRole('');setCreerTab('general')
     if(showOnboarding){if(gerantId) await api.put(`/gerants/${gerantId}`,{onboarding_step:3});setOnboardingStep(3)}
     loadAll()
   }
@@ -1621,12 +1625,21 @@ export default function Gerant() {
 
       {empModal&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.2)',backdropFilter:'blur(6px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:340,boxShadow:'0 8px 40px rgba(0,0,0,.14)'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:20,padding:26,width:isMobile?'92vw':440,boxShadow:'0 8px 40px rgba(0,0,0,.14)',maxHeight:'90vh',overflowY:'auto',scrollbarWidth:'none'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
                   <div style={{fontSize:17,fontWeight:800}}>Nouvel employé</div>
                   <button onClick={()=>{setEmpModal(false);setCustomRole('')}} style={{width:28,height:28,borderRadius:6,border:'none',background:'var(--bg)',cursor:'pointer',fontSize:18,color:'var(--text3)',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
                 </div>
-            <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>Pour {currentResto.nom}</div>
+            <div style={{fontSize:13,color:'var(--text2)',marginBottom:16}}>Pour {currentResto.nom}</div>
+
+            {/* Onglets création RH */}
+            <div style={{display:'flex',gap:4,marginBottom:18,background:'var(--bg)',padding:4,borderRadius:10,overflowX:'auto',scrollbarWidth:'none'}}>
+              {[{id:'general',l:'Général'},{id:'coord',l:'Coordonnées'},{id:'contrat',l:'Contrat'},{id:'identite',l:'Identité'}].map(t=>(
+                <button key={t.id} onClick={()=>setCreerTab(t.id)} style={{flex:'1 0 auto',padding:'7px 12px',borderRadius:7,border:'none',cursor:'pointer',fontSize:12,fontWeight:creerTab===t.id?700:600,whiteSpace:'nowrap',background:creerTab===t.id?'var(--surface)':'transparent',color:creerTab===t.id?'var(--accent)':'var(--text2)',boxShadow:creerTab===t.id?'0 1px 3px rgba(0,0,0,.08)':'none',transition:'all .15s'}}>{t.l}</button>
+              ))}
+            </div>
+
+            {creerTab==='general'&&<>
             {[{f:'prenom',l:'Prénom',t:'text',ph:'Sophie'},{f:'nom',l:'Nom',t:'text',ph:'Martin'},{f:'email',l:'Email',t:'email',ph:'sophie@bistrot.fr'}].map(({f,l,t,ph})=>(
               <div key={f} style={{marginBottom:12}}>
                 <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
@@ -1647,18 +1660,54 @@ export default function Gerant() {
                   autoFocus style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--accent)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}/>
               )}
             </div>
-            <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>setEmpModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
-              {groupes.length>0&&(
-                <div>
-                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:6}}>Groupe</label>
-                  <select value={empForm.groupe_id||''} onChange={e=>setEmpForm(f=>({...f,groupe_id:e.target.value||null}))}
-                    style={{width:'100%',padding:'9px 12px',borderRadius:9,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
-                    <option value="">Sans groupe</option>
-                    {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
-                  </select>
+            {groupes.length>0&&(
+              <div style={{marginBottom:16}}>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Groupe</label>
+                <select value={empForm.groupe_id||''} onChange={e=>setEmpForm(f=>({...f,groupe_id:e.target.value||null}))}
+                  style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                  <option value="">Sans groupe</option>
+                  {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
+                </select>
+              </div>
+            )}
+            </>}
+
+            {creerTab==='coord'&&<>
+              {[{f:'telephone',l:'Téléphone',t:'tel'},{f:'adresse',l:'Adresse',t:'text'},{f:'code_postal',l:'Code postal',t:'text'},{f:'ville',l:'Ville',t:'text'},{f:'pays',l:'Pays',t:'text'},{f:'contact_urgence_nom',l:'Contact d\'urgence (nom)',t:'text'},{f:'contact_urgence_tel',l:'Contact d\'urgence (tél.)',t:'tel'}].map(({f,l,t})=>(
+                <div key={f} style={{marginBottom:12}}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
+                  <input type={t} value={empForm[f]||''} onChange={e=>setEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
                 </div>
-              )}
+              ))}
+            </>}
+
+            {creerTab==='contrat'&&<>
+              <div style={{marginBottom:12}}>
+                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Type de contrat</label>
+                <select value={empForm.type_contrat||''} onChange={e=>setEmpForm(f=>({...f,type_contrat:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none'}}>
+                  <option value="">— Choisir</option>
+                  {['CDI','CDD','Intérim','Extra','Stage','Apprentissage','Saisonnier','Freelance'].map(o=><option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+              {[{f:'fonction',l:'Fonction / poste',t:'text'},{f:'date_embauche',l:'Date d\'embauche',t:'date'},{f:'date_fin_contrat',l:'Date de fin (si CDD)',t:'date'},{f:'taux_horaire',l:'Taux horaire',t:'number'},{f:'heures_semaine',l:'Heures par semaine',t:'number'}].map(({f,l,t})=>(
+                <div key={f} style={{marginBottom:12}}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
+                  <input type={t} value={empForm[f]||''} onChange={e=>setEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+                </div>
+              ))}
+            </>}
+
+            {creerTab==='identite'&&<>
+              {[{f:'date_naissance',l:'Date de naissance',t:'date'},{f:'lieu_naissance',l:'Lieu de naissance',t:'text'},{f:'nationalite',l:'Nationalité',t:'text'},{f:'num_securite_sociale',l:'N° sécurité sociale / AVS',t:'text'},{f:'iban',l:'IBAN',t:'text'}].map(({f,l,t})=>(
+                <div key={f} style={{marginBottom:12}}>
+                  <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{l}</label>
+                  <input type={t} value={empForm[f]||''} onChange={e=>setEmpForm(ff=>({...ff,[f]:e.target.value}))} style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}}/>
+                </div>
+              ))}
+            </>}
+
+            <div style={{display:'flex',gap:8,marginTop:8}}>
+              <button onClick={()=>setEmpModal(false)} style={{flex:1,height:42,borderRadius:10,border:'1px solid var(--border)',background:'var(--bg)',color:'var(--text2)',fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
               <button onClick={addEmploye} style={{flex:1,height:42,borderRadius:10,border:'none',background:'var(--accent)',color:'white',fontSize:13,fontWeight:700,cursor:'pointer'}}>Créer</button>
             </div>
           </div>
