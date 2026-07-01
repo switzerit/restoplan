@@ -99,6 +99,7 @@ function NoRestoForm({supabase, onCreated}) {
 export default function Gerant() {
   const [view, setView] = useState('accueil')
   const [ficheEmploye, setFicheEmploye] = useState(null)
+  const [ficheEditMode, setFicheEditMode] = useState(false)
   const [restaurants, setRestaurants] = useState([])
   const [currentResto, setCurrentResto] = useState(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -527,6 +528,18 @@ export default function Gerant() {
     setEditEmpModal(emp)
   }
 
+  async function saveEmployeRH(empId, data){
+    const result = await api.put(`/employes/${empId}`, {
+      prenom:data.prenom,nom:data.nom,email:data.email,role:data.role,groupe_id:data.groupe_id||null,
+      telephone:data.telephone||null,adresse:data.adresse||null,code_postal:data.code_postal||null,ville:data.ville||null,pays:data.pays||null,contact_urgence_nom:data.contact_urgence_nom||null,contact_urgence_tel:data.contact_urgence_tel||null,
+      type_contrat:data.type_contrat||null,date_embauche:data.date_embauche||null,date_fin_contrat:data.date_fin_contrat||null,taux_horaire:data.taux_horaire||null,heures_semaine:data.heures_semaine||null,fonction:data.fonction||null,
+      date_naissance:data.date_naissance||null,lieu_naissance:data.lieu_naissance||null,nationalite:data.nationalite||null,num_securite_sociale:data.num_securite_sociale||null,iban:data.iban||null
+    })
+    if(result?.error){showToast('Une erreur est survenue, reessayez');return false}
+    await loadAll(selectedDate)
+    showToast((data.prenom||'Collaborateur')+' mis a jour')
+    return true
+  }
   async function updateEmploye(){
     const result = await api.put(`/employes/${editEmpModal.id}`, {
       prenom:editEmpForm.prenom,
@@ -1220,12 +1233,14 @@ export default function Gerant() {
         {view==='employes'&&ficheEmploye&&(
           <FicheEmploye
             emp={employes.find(e=>e.id===ficheEmploye.id)||ficheEmploye}
-            groupe={ficheEmploye.groupe_id?groupes.find(g=>g.id===ficheEmploye.groupe_id):null}
+            groupe={(employes.find(e=>e.id===ficheEmploye.id)||ficheEmploye).groupe_id?groupes.find(g=>g.id===(employes.find(e=>e.id===ficheEmploye.id)||ficheEmploye).groupe_id):null}
+            groupes={groupes}
             present={isPresent(ficheEmploye.id)}
             isMobile={isMobile}
             features={features}
-            onBack={()=>setFicheEmploye(null)}
-            onEdit={()=>openEditEmp(employes.find(e=>e.id===ficheEmploye.id)||ficheEmploye)}
+            startEdit={ficheEditMode}
+            onBack={()=>{setFicheEmploye(null);setFicheEditMode(false)}}
+            onSave={saveEmployeRH}
           />
         )}
         {view==='employes'&&!ficheEmploye&&(()=>{
@@ -1276,7 +1291,7 @@ export default function Gerant() {
             const nonLues=notifsNonLues[emp.id]||0
             const grpEmp=emp.groupe_id?groupeMap[emp.groupe_id]:null
             return (
-              <div key={emp.id} onClick={()=>setFicheEmploye(emp)} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:14,display:'flex',flexDirection:'column',gap:11,transition:'box-shadow .15s,border-color .15s',cursor:'pointer'}}
+              <div key={emp.id} onClick={()=>{setFicheEmploye(emp);setFicheEditMode(false)}} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:14,display:'flex',flexDirection:'column',gap:11,transition:'box-shadow .15s,border-color .15s',cursor:'pointer'}}
                 onMouseEnter={e=>{e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,.06)';e.currentTarget.style.borderColor='var(--border2)'}}
                 onMouseLeave={e=>{e.currentTarget.style.boxShadow='none';e.currentTarget.style.borderColor='var(--border)'}}>
                 <div style={{display:'flex',alignItems:'center',gap:11}}>
@@ -1297,7 +1312,7 @@ export default function Gerant() {
                   {nonLues>0&&<span onClick={e=>{e.stopPropagation();loadNotifsDetail(emp.id,emp.prenom+' '+emp.nom)}} style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',cursor:'pointer'}}>🔔 {nonLues}</span>}
                 </div>
                 <div style={{display:'flex',gap:6}}>
-                  <button onClick={e=>{e.stopPropagation();openEditEmp(emp)}} style={{flex:1,padding:'8px',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>✏️ Modifier</button>
+                  <button onClick={e=>{e.stopPropagation();setFicheEmploye(emp);setFicheEditMode(true)}} style={{flex:1,padding:'8px',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>✏️ Modifier</button>
                   <button onClick={e=>{e.stopPropagation();supprimerEmploye(emp.id)}} style={{padding:'8px 11px',borderRadius:9,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:12,cursor:'pointer'}}>🗑️</button>
                 </div>
               </div>
