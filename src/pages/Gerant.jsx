@@ -9,6 +9,7 @@ import NotifsGerant from '../components/NotifsGerant'
 import SignalementsGerant from '../components/SignalementsGerant'
 import AccueilGerant from '../components/AccueilGerant'
 import MesAbsencesGerant from '../components/MesAbsencesGerant'
+import FicheEmploye from '../components/FicheEmploye'
 
 const COLORS = [
   {bg:'#fff1f3',color:'#0051a8'},{bg:'#f0faf3',color:'#1a6b35'},
@@ -97,6 +98,7 @@ function NoRestoForm({supabase, onCreated}) {
 
 export default function Gerant() {
   const [view, setView] = useState('accueil')
+  const [ficheEmploye, setFicheEmploye] = useState(null)
   const [restaurants, setRestaurants] = useState([])
   const [currentResto, setCurrentResto] = useState(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -1215,7 +1217,18 @@ export default function Gerant() {
         })()}
 
         {/* VUE EQUIPE */}
-        {view==='employes'&&(()=>{
+        {view==='employes'&&ficheEmploye&&(
+          <FicheEmploye
+            emp={employes.find(e=>e.id===ficheEmploye.id)||ficheEmploye}
+            groupe={ficheEmploye.groupe_id?groupes.find(g=>g.id===ficheEmploye.groupe_id):null}
+            present={isPresent(ficheEmploye.id)}
+            isMobile={isMobile}
+            features={features}
+            onBack={()=>setFicheEmploye(null)}
+            onEdit={()=>openEditEmp(employes.find(e=>e.id===ficheEmploye.id)||ficheEmploye)}
+          />
+        )}
+        {view==='employes'&&!ficheEmploye&&(()=>{
           const q=(empSearch||'').toLowerCase().trim()
           const filtered=employes.filter(e=>{
             if(e.est_gerant) return false
@@ -1263,7 +1276,7 @@ export default function Gerant() {
             const nonLues=notifsNonLues[emp.id]||0
             const grpEmp=emp.groupe_id?groupeMap[emp.groupe_id]:null
             return (
-              <div key={emp.id} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:14,display:'flex',flexDirection:'column',gap:11,transition:'box-shadow .15s,border-color .15s'}}
+              <div key={emp.id} onClick={()=>setFicheEmploye(emp)} style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:14,display:'flex',flexDirection:'column',gap:11,transition:'box-shadow .15s,border-color .15s',cursor:'pointer'}}
                 onMouseEnter={e=>{e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,.06)';e.currentTarget.style.borderColor='var(--border2)'}}
                 onMouseLeave={e=>{e.currentTarget.style.boxShadow='none';e.currentTarget.style.borderColor='var(--border)'}}>
                 <div style={{display:'flex',alignItems:'center',gap:11}}>
@@ -1284,8 +1297,8 @@ export default function Gerant() {
                   {nonLues>0&&<span onClick={e=>{e.stopPropagation();loadNotifsDetail(emp.id,emp.prenom+' '+emp.nom)}} style={{fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:20,background:'#fef2f2',color:'#dc2626',border:'1px solid #fecaca',cursor:'pointer'}}>🔔 {nonLues}</span>}
                 </div>
                 <div style={{display:'flex',gap:6}}>
-                  <button onClick={()=>openEditEmp(emp)} style={{flex:1,padding:'8px',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>✏️ Modifier</button>
-                  <button onClick={()=>supprimerEmploye(emp.id)} style={{padding:'8px 11px',borderRadius:9,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:12,cursor:'pointer'}}>🗑️</button>
+                  <button onClick={e=>{e.stopPropagation();openEditEmp(emp)}} style={{flex:1,padding:'8px',borderRadius:9,border:'1px solid var(--border2)',background:'var(--bg)',color:'var(--text2)',fontSize:12,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>✏️ Modifier</button>
+                  <button onClick={e=>{e.stopPropagation();supprimerEmploye(emp.id)}} style={{padding:'8px 11px',borderRadius:9,border:'none',background:'var(--red-bg)',color:'var(--red)',fontSize:12,cursor:'pointer'}}>🗑️</button>
                 </div>
               </div>
             )
