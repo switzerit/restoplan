@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import PhoneField from './PhoneField'
 
 function ini(p,n){return((p?.[0]||'')+(n?.[0]||'')).toUpperCase()}
 
@@ -240,13 +241,19 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                 )}
                 {editSection==='coord'&&(
                   <div style={gridStyle}>
-                    {Field('Téléphone','telephone','tel')}
+                    <div>
+                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Téléphone</label>
+                      <PhoneField value={form.telephone||''} onChange={v=>setForm(f=>({...f,telephone:v}))}/>
+                    </div>
                     {Field('Code postal','code_postal')}
                     {Field('Adresse','adresse',null,true)}
                     {Field('Ville','ville')}
                     {Field('Pays','pays')}
                     {Field('Contact d\'urgence','contact_urgence_nom')}
-                    {Field('Tél. d\'urgence','contact_urgence_tel','tel')}
+                    <div>
+                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Tél. d'urgence</label>
+                      <PhoneField value={form.contact_urgence_tel||''} onChange={v=>setForm(f=>({...f,contact_urgence_tel:v}))}/>
+                    </div>
                   </div>
                 )}
                 {editSection==='contrat'&&(
