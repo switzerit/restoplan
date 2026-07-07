@@ -83,10 +83,10 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
   )
 
   const inputStyle={width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}
-  const Field=({label,k,type='text',full})=>(
-    <div style={{gridColumn:full?'1 / -1':'auto'}}>
+  const Field=(label,k,type,full)=>(
+    <div key={k} style={{gridColumn:full?'1 / -1':'auto'}}>
       <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>{label}</label>
-      <input type={type} value={form[k]||''} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))} style={inputStyle}/>
+      <input type={type||'text'} value={form[k]||''} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))} style={inputStyle}/>
     </div>
   )
 
@@ -223,10 +223,10 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
               <div style={{padding:isMobile?'16px 18px':'18px 24px',overflowY:'auto',flex:1,scrollbarWidth:'none'}}>
                 {editSection==='general'&&(
                   <div style={gridStyle}>
-                    <Field label="Prénom" k="prenom"/>
-                    <Field label="Nom" k="nom"/>
-                    <Field label="Email" k="email" type="email" full/>
-                    <Field label="Fonction / poste" k="fonction"/>
+                    {Field('Prénom','prenom')}
+                    {Field('Nom','nom')}
+                    {Field('Email','email','email',true)}
+                    {Field('Fonction / poste','fonction')}
                     {groupes&&groupes.length>0&&(
                       <div>
                         <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Groupe</label>
@@ -240,13 +240,13 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                 )}
                 {editSection==='coord'&&(
                   <div style={gridStyle}>
-                    <Field label="Téléphone" k="telephone" type="tel"/>
-                    <Field label="Code postal" k="code_postal"/>
-                    <Field label="Adresse" k="adresse" full/>
-                    <Field label="Ville" k="ville"/>
-                    <Field label="Pays" k="pays"/>
-                    <Field label="Contact d'urgence" k="contact_urgence_nom"/>
-                    <Field label="Tél. d'urgence" k="contact_urgence_tel" type="tel"/>
+                    {Field('Téléphone','telephone','tel')}
+                    {Field('Code postal','code_postal')}
+                    {Field('Adresse','adresse',null,true)}
+                    {Field('Ville','ville')}
+                    {Field('Pays','pays')}
+                    {Field('Contact d\'urgence','contact_urgence_nom')}
+                    {Field('Tél. d\'urgence','contact_urgence_tel','tel')}
                   </div>
                 )}
                 {editSection==='contrat'&&(
@@ -258,20 +258,20 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                         {TYPES_CONTRAT.map(o=><option key={o} value={o}>{o}</option>)}
                       </select>
                     </div>
-                    <Field label="Fonction" k="fonction"/>
-                    <Field label="Date d'embauche" k="date_embauche" type="date"/>
-                    <Field label="Date de fin (CDD)" k="date_fin_contrat" type="date"/>
-                    <Field label="Taux horaire" k="taux_horaire" type="number"/>
-                    <Field label="Heures / semaine" k="heures_semaine" type="number"/>
+                    {Field('Fonction','fonction')}
+                    {Field('Date d\'embauche','date_embauche','date')}
+                    {Field('Date de fin (CDD)','date_fin_contrat','date')}
+                    {Field('Taux horaire','taux_horaire','number')}
+                    {Field('Heures / semaine','heures_semaine','number')}
                   </div>
                 )}
                 {editSection==='identite'&&(
                   <div style={gridStyle}>
-                    <Field label="Date de naissance" k="date_naissance" type="date"/>
-                    <Field label="Lieu de naissance" k="lieu_naissance"/>
-                    <Field label="Nationalité" k="nationalite"/>
-                    <Field label="N° AVS" k="num_securite_sociale"/>
-                    <Field label="IBAN" k="iban" full/>
+                    {Field('Date de naissance','date_naissance','date')}
+                    {Field('Lieu de naissance','lieu_naissance')}
+                    {Field('Nationalité','nationalite')}
+                    {Field('N° AVS','num_securite_sociale')}
+                    {Field('IBAN','iban',null,true)}
                   </div>
                 )}
               </div>
