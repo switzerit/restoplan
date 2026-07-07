@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
 
 function ini(p,n){return((p?.[0]||'')+(n?.[0]||'')).toUpperCase()}
 
@@ -242,19 +240,13 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                 )}
                 {editSection==='coord'&&(
                   <div style={gridStyle}>
-                    <div>
-                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Téléphone</label>
-                      <PhoneInput country={'ch'} value={form.telephone||''} onChange={v=>setForm(f=>({...f,telephone:v}))} preferredCountries={['ch','fr','be','lu','de','it']} enableSearch searchPlaceholder="Rechercher un pays" inputStyle={{width:'100%',height:38,fontSize:13,borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',color:'var(--text)'}} buttonStyle={{borderRadius:'8px 0 0 8px',border:'1.5px solid var(--border2)',background:'var(--bg)'}} dropdownStyle={{borderRadius:8}}/>
-                    </div>
+                    {Field('Téléphone','telephone','tel')}
                     {Field('Code postal','code_postal')}
                     {Field('Adresse','adresse',null,true)}
                     {Field('Ville','ville')}
                     {Field('Pays','pays')}
                     {Field('Contact d\'urgence','contact_urgence_nom')}
-                    <div>
-                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Tél. d'urgence</label>
-                      <PhoneInput country={'ch'} value={form.contact_urgence_tel||''} onChange={v=>setForm(f=>({...f,contact_urgence_tel:v}))} preferredCountries={['ch','fr','be','lu','de','it']} enableSearch searchPlaceholder="Rechercher un pays" inputStyle={{width:'100%',height:38,fontSize:13,borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',color:'var(--text)'}} buttonStyle={{borderRadius:'8px 0 0 8px',border:'1.5px solid var(--border2)',background:'var(--bg)'}} dropdownStyle={{borderRadius:8}}/>
-                    </div>
+                    {Field('Tél. d\'urgence','contact_urgence_tel','tel')}
                   </div>
                 )}
                 {editSection==='contrat'&&(
