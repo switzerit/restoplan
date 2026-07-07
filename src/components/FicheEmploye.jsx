@@ -15,9 +15,17 @@ function fmtDateFr(s){
 
 const RH_KEYS=['prenom','nom','email','role','groupe_id','telephone','adresse','code_postal','ville','pays','contact_urgence_nom','contact_urgence_tel','type_contrat','date_embauche','date_fin_contrat','taux_horaire','heures_semaine','fonction','date_naissance','lieu_naissance','nationalite','num_securite_sociale','iban']
 
+const SECTIONS=[
+  {id:'general',l:'Général',icon:'👤'},
+  {id:'coord',l:'Coordonnées',icon:'📞'},
+  {id:'contrat',l:'Contrat',icon:'📄'},
+  {id:'identite',l:'Identité',icon:'🪪'},
+]
+
 export default function FicheEmploye({emp, groupe, groupes, present, isMobile, onBack, onSave, features, startEdit}){
   const [tab,setTab]=useState('apercu')
   const [edition,setEdition]=useState(!!startEdit)
+  const [editSection,setEditSection]=useState('general')
   const [form,setForm]=useState({})
   const [saving,setSaving]=useState(false)
 
@@ -26,6 +34,7 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
     RH_KEYS.forEach(k=>{ f[k]=emp?.[k]??'' })
     setForm(f)
     setEdition(!!startEdit)
+    setEditSection('general')
     setTab('apercu')
   },[emp?.id])
 
@@ -52,6 +61,7 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
     const f={}
     RH_KEYS.forEach(k=>{ f[k]=emp?.[k]??'' })
     setForm(f)
+    setEditSection('general')
     setEdition(true)
   }
 
@@ -73,26 +83,20 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
   )
 
   const inputStyle={width:'100%',padding:'9px 12px',borderRadius:8,border:'1.5px solid var(--border2)',background:'var(--bg)',fontSize:13,color:'var(--text)',outline:'none',boxSizing:'border-box'}
-  const Field=({label,k,type='text'})=>(
-    <div style={{marginBottom:12}}>
-      <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>{label}</label>
+  const Field=({label,k,type='text',full})=>(
+    <div style={{gridColumn:full?'1 / -1':'auto'}}>
+      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>{label}</label>
       <input type={type} value={form[k]||''} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))} style={inputStyle}/>
     </div>
   )
 
-  const EditCard=({icon,bg,title,children})=>(
-    <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:isMobile?'16px 18px':'18px 20px'}}>
-      <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14}}>
-        <div style={{width:30,height:30,borderRadius:8,background:bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>{icon}</div>
-        <span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>{title}</span>
-      </div>
-      {children}
-    </div>
-  )
+  const gridStyle={display:'grid',gridTemplateColumns:'1fr 1fr',gap:15}
+  const sectionTitre={general:'Informations générales',coord:'Coordonnées',contrat:'Contrat',identite:'Identité'}[editSection]
 
   return (
     <div style={{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',display:'flex',flexDirection:'column'}}>
 
+      {/* En-tête */}
       <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:isMobile?'14px 14px':'18px 22px',display:'flex',alignItems:'center',gap:13,position:'sticky',top:0,zIndex:5}}>
         <button onClick={onBack} style={{width:34,height:34,borderRadius:9,border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:17,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>←</button>
         <div style={{position:'relative',flexShrink:0}}>
@@ -106,151 +110,185 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
             {groupe&&<><span style={{width:3,height:3,borderRadius:'50%',background:'var(--border2)'}}/><span style={{display:'flex',alignItems:'center',gap:4}}><span style={{width:8,height:8,borderRadius:'50%',background:groupe.couleur}}/>{groupe.nom}</span></>}
           </div>
         </div>
-        {edition?(
-          <div style={{display:'flex',gap:8,flexShrink:0}}>
-            <button onClick={()=>setEdition(false)} style={{background:'var(--bg)',color:'var(--text2)',border:'1px solid var(--border)',padding:isMobile?'8px 12px':'9px 16px',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer'}}>Annuler</button>
-            <button onClick={handleSave} disabled={saving} style={{background:'var(--accent)',color:'#fff',border:'none',padding:isMobile?'8px 12px':'9px 16px',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',opacity:saving?0.6:1}}>{saving?'...':'Enregistrer'}</button>
+        <button onClick={startEdition} style={{background:'var(--accent)',color:'#fff',border:'none',padding:isMobile?'8px 12px':'9px 16px',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',flexShrink:0}}>Modifier</button>
+      </div>
+
+      {/* Onglets (lecture) */}
+      <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:isMobile?'0 8px':'0 22px',display:'flex',gap:2,overflowX:'auto',scrollbarWidth:'none'}}>
+        {tabs.map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:'12px 14px',border:'none',background:'transparent',cursor:'pointer',fontSize:13,fontWeight:tab===t.id?700:600,whiteSpace:'nowrap',color:tab===t.id?'var(--accent)':'var(--text2)',borderBottom:tab===t.id?'2px solid var(--accent)':'2px solid transparent',marginBottom:-1,transition:'all .15s'}}>{t.l}</button>
+        ))}
+      </div>
+
+      {/* Contenu lecture */}
+      <div style={{padding:isMobile?14:22,display:'flex',flexDirection:'column',gap:14}}>
+        {tab==='apercu'&&(
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
+            <Card icon="📄" bg="#fbeaf0" title="Contrat">
+              <Row label="Type" value={emp.type_contrat}/>
+              <Row label="Fonction" value={emp.fonction}/>
+              <Row label="Embauche" value={fmtDateFr(emp.date_embauche)}/>
+              <Row label="Taux horaire" value={emp.taux_horaire?`${emp.taux_horaire} CHF`:null}/>
+            </Card>
+            <Card icon="📞" bg="#eeedfe" title="Coordonnées">
+              <Row label="Téléphone" value={emp.telephone}/>
+              <Row label="Ville" value={emp.ville}/>
+              <Row label="Urgence" value={emp.contact_urgence_nom}/>
+            </Card>
+            <Card icon="🪪" bg="#e1f5ee" title="Identité">
+              <Row label="Naissance" value={fmtDateFr(emp.date_naissance)}/>
+              <Row label="Nationalité" value={emp.nationalite}/>
+            </Card>
+            {features?.conges&&(
+              <Card icon="🌴" bg="#faece7" title="Congés">
+                <Row label="Solde" value={`${(emp.conges_total||0)-(emp.conges_pris||0)} / ${emp.conges_total||0} jours`}/>
+                <Row label="Pris" value={`${emp.conges_pris||0} jours`}/>
+              </Card>
+            )}
           </div>
-        ):(
-          <button onClick={startEdition} style={{background:'var(--accent)',color:'#fff',border:'none',padding:isMobile?'8px 12px':'9px 16px',borderRadius:10,fontSize:13,fontWeight:700,cursor:'pointer',flexShrink:0}}>Modifier</button>
+        )}
+        {tab==='coord'&&(
+          <Card icon="📞" bg="#eeedfe" title="Coordonnées">
+            <Row label="Téléphone" value={emp.telephone}/>
+            <Row label="Adresse" value={emp.adresse}/>
+            <Row label="Code postal" value={emp.code_postal}/>
+            <Row label="Ville" value={emp.ville}/>
+            <Row label="Pays" value={emp.pays}/>
+            <Row label="Contact d'urgence" value={emp.contact_urgence_nom}/>
+            <Row label="Tél. d'urgence" value={emp.contact_urgence_tel}/>
+          </Card>
+        )}
+        {tab==='contrat'&&(
+          <Card icon="📄" bg="#fbeaf0" title="Contrat">
+            <Row label="Type de contrat" value={emp.type_contrat}/>
+            <Row label="Fonction" value={emp.fonction}/>
+            <Row label="Date d'embauche" value={fmtDateFr(emp.date_embauche)}/>
+            <Row label="Date de fin" value={fmtDateFr(emp.date_fin_contrat)}/>
+            <Row label="Taux horaire" value={emp.taux_horaire?`${emp.taux_horaire} CHF`:null}/>
+            <Row label="Heures / semaine" value={emp.heures_semaine?`${emp.heures_semaine}h`:null}/>
+          </Card>
+        )}
+        {tab==='identite'&&(
+          <Card icon="🪪" bg="#e1f5ee" title="Identité">
+            <Row label="Date de naissance" value={fmtDateFr(emp.date_naissance)}/>
+            <Row label="Lieu de naissance" value={emp.lieu_naissance}/>
+            <Row label="Nationalité" value={emp.nationalite}/>
+            <Row label="N° sécurité sociale / AVS" value={emp.num_securite_sociale}/>
+            <Row label="IBAN" value={emp.iban}/>
+          </Card>
+        )}
+        {tab==='conges'&&features?.conges&&(
+          <Card icon="🌴" bg="#faece7" title="Congés">
+            <Row label="Solde total" value={`${emp.conges_total||0} jours`}/>
+            <Row label="Pris" value={`${emp.conges_pris||0} jours`}/>
+            <Row label="Restant" value={`${(emp.conges_total||0)-(emp.conges_pris||0)} jours`}/>
+          </Card>
         )}
       </div>
 
-      {!edition&&(
-        <div style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:isMobile?'0 8px':'0 22px',display:'flex',gap:2,overflowX:'auto',scrollbarWidth:'none'}}>
-          {tabs.map(t=>(
-            <button key={t.id} onClick={()=>setTab(t.id)} style={{padding:'12px 14px',border:'none',background:'transparent',cursor:'pointer',fontSize:13,fontWeight:tab===t.id?700:600,whiteSpace:'nowrap',color:tab===t.id?'var(--accent)':'var(--text2)',borderBottom:tab===t.id?'2px solid var(--accent)':'2px solid transparent',marginBottom:-1,transition:'all .15s'}}>{t.l}</button>
-          ))}
+      {/* Modal édition */}
+      {edition&&(
+        <div onClick={()=>setEdition(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',backdropFilter:'blur(4px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,padding:isMobile?12:20}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'var(--surface)',borderRadius:18,width:isMobile?'100%':620,maxWidth:'100%',maxHeight:'90vh',boxShadow:'0 12px 48px rgba(0,0,0,.18)',overflow:'hidden',display:'flex',flexDirection:isMobile?'column':'row'}}>
+
+            {/* Sidebar desktop / onglets mobile */}
+            {!isMobile?(
+              <div style={{width:180,background:'var(--bg)',borderRight:'1px solid var(--border)',padding:'22px 0',flexShrink:0,display:'flex',flexDirection:'column'}}>
+                <div style={{padding:'0 20px 18px',borderBottom:'1px solid var(--border)',marginBottom:14}}>
+                  <div style={{width:44,height:44,borderRadius:'50%',background:'var(--accent-bg)',color:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:800,marginBottom:11}}>{ini(form.prenom,form.nom)}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--text)',lineHeight:1.3}}>{form.prenom} {form.nom}</div>
+                  {groupe&&<div style={{fontSize:12,color:'var(--text2)',marginTop:3,display:'flex',alignItems:'center',gap:5}}><span style={{width:7,height:7,borderRadius:'50%',background:groupe.couleur}}/>{groupe.nom}</div>}
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:2,padding:'0 12px'}}>
+                  {SECTIONS.map(s=>(
+                    <button key={s.id} onClick={()=>setEditSection(s.id)} style={{padding:'9px 12px',fontSize:13,fontWeight:editSection===s.id?700:600,color:editSection===s.id?'var(--accent)':'var(--text2)',background:editSection===s.id?'var(--surface)':'transparent',border:'none',borderRadius:8,cursor:'pointer',display:'flex',alignItems:'center',gap:9,textAlign:'left'}}><span style={{fontSize:15}}>{s.icon}</span>{s.l}</button>
+                  ))}
+                </div>
+              </div>
+            ):(
+              <div style={{display:'flex',gap:2,padding:'12px 12px 0',overflowX:'auto',scrollbarWidth:'none',borderBottom:'1px solid var(--border)'}}>
+                {SECTIONS.map(s=>(
+                  <button key={s.id} onClick={()=>setEditSection(s.id)} style={{padding:'8px 12px',fontSize:12,fontWeight:editSection===s.id?700:600,whiteSpace:'nowrap',color:editSection===s.id?'var(--accent)':'var(--text2)',background:'transparent',border:'none',borderBottom:editSection===s.id?'2px solid var(--accent)':'2px solid transparent',cursor:'pointer',marginBottom:-1}}>{s.l}</button>
+                ))}
+              </div>
+            )}
+
+            {/* Contenu droite */}
+            <div style={{flex:1,display:'flex',flexDirection:'column',minWidth:0}}>
+              <div style={{padding:isMobile?'16px 18px 0':'20px 24px 0',display:'flex',alignItems:'flex-start',justifyContent:'space-between'}}>
+                <div style={{fontSize:15,fontWeight:700,color:'var(--text)'}}>{sectionTitre}</div>
+                <button onClick={()=>setEdition(false)} style={{width:30,height:30,borderRadius:8,border:'none',background:'var(--bg)',cursor:'pointer',fontSize:16,color:'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+              </div>
+
+              <div style={{padding:isMobile?'16px 18px':'18px 24px',overflowY:'auto',flex:1,scrollbarWidth:'none'}}>
+                {editSection==='general'&&(
+                  <div style={gridStyle}>
+                    <Field label="Prénom" k="prenom"/>
+                    <Field label="Nom" k="nom"/>
+                    <Field label="Email" k="email" type="email" full/>
+                    <Field label="Fonction / poste" k="fonction"/>
+                    {groupes&&groupes.length>0&&(
+                      <div>
+                        <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Groupe</label>
+                        <select value={form.groupe_id||''} onChange={e=>setForm(f=>({...f,groupe_id:e.target.value||null}))} style={inputStyle}>
+                          <option value="">Sans groupe</option>
+                          {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {editSection==='coord'&&(
+                  <div style={gridStyle}>
+                    <Field label="Téléphone" k="telephone" type="tel"/>
+                    <Field label="Code postal" k="code_postal"/>
+                    <Field label="Adresse" k="adresse" full/>
+                    <Field label="Ville" k="ville"/>
+                    <Field label="Pays" k="pays"/>
+                    <Field label="Contact d'urgence" k="contact_urgence_nom"/>
+                    <Field label="Tél. d'urgence" k="contact_urgence_tel" type="tel"/>
+                  </div>
+                )}
+                {editSection==='contrat'&&(
+                  <div style={gridStyle}>
+                    <div>
+                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Type de contrat</label>
+                      <select value={form.type_contrat||''} onChange={e=>setForm(f=>({...f,type_contrat:e.target.value}))} style={inputStyle}>
+                        <option value="">Choisir</option>
+                        {TYPES_CONTRAT.map(o=><option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </div>
+                    <Field label="Fonction" k="fonction"/>
+                    <Field label="Date d'embauche" k="date_embauche" type="date"/>
+                    <Field label="Date de fin (CDD)" k="date_fin_contrat" type="date"/>
+                    <Field label="Taux horaire" k="taux_horaire" type="number"/>
+                    <Field label="Heures / semaine" k="heures_semaine" type="number"/>
+                  </div>
+                )}
+                {editSection==='identite'&&(
+                  <div style={gridStyle}>
+                    <Field label="Date de naissance" k="date_naissance" type="date"/>
+                    <Field label="Lieu de naissance" k="lieu_naissance"/>
+                    <Field label="Nationalité" k="nationalite"/>
+                    <Field label="N° AVS" k="num_securite_sociale"/>
+                    <Field label="IBAN" k="iban" full/>
+                  </div>
+                )}
+              </div>
+
+              <div style={{padding:isMobile?'14px 18px':'15px 24px',background:'var(--bg)',borderTop:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',gap:10}}>
+                {!isMobile&&<span style={{fontSize:12,color:'var(--text3)'}}>Modifie une section à la fois</span>}
+                <div style={{display:'flex',gap:10,marginLeft:'auto'}}>
+                  <button onClick={()=>setEdition(false)} style={{padding:'9px 16px',borderRadius:8,border:'1px solid var(--border)',background:'var(--surface)',fontSize:13,fontWeight:700,cursor:'pointer',color:'var(--text2)'}}>Annuler</button>
+                  <button onClick={handleSave} disabled={saving} style={{padding:'9px 20px',borderRadius:8,border:'none',background:'var(--accent)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',opacity:saving?0.6:1}}>{saving?'...':'Enregistrer'}</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       )}
 
-      <div style={{padding:isMobile?14:22,display:'flex',flexDirection:'column',gap:14}}>
-
-        {!edition&&(<>
-          {tab==='apercu'&&(
-            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
-              <Card icon="📄" bg="#fbeaf0" title="Contrat">
-                <Row label="Type" value={emp.type_contrat}/>
-                <Row label="Fonction" value={emp.fonction}/>
-                <Row label="Embauche" value={fmtDateFr(emp.date_embauche)}/>
-                <Row label="Taux horaire" value={emp.taux_horaire?`${emp.taux_horaire} CHF`:null}/>
-              </Card>
-              <Card icon="📞" bg="#eeedfe" title="Coordonnées">
-                <Row label="Téléphone" value={emp.telephone}/>
-                <Row label="Ville" value={emp.ville}/>
-                <Row label="Urgence" value={emp.contact_urgence_nom}/>
-              </Card>
-              <Card icon="🪪" bg="#e1f5ee" title="Identité">
-                <Row label="Naissance" value={fmtDateFr(emp.date_naissance)}/>
-                <Row label="Nationalité" value={emp.nationalite}/>
-              </Card>
-              {features?.conges&&(
-                <Card icon="🌴" bg="#faece7" title="Congés">
-                  <Row label="Solde" value={`${(emp.conges_total||0)-(emp.conges_pris||0)} / ${emp.conges_total||0} jours`}/>
-                  <Row label="Pris" value={`${emp.conges_pris||0} jours`}/>
-                </Card>
-              )}
-            </div>
-          )}
-          {tab==='coord'&&(
-            <Card icon="📞" bg="#eeedfe" title="Coordonnées">
-              <Row label="Téléphone" value={emp.telephone}/>
-              <Row label="Adresse" value={emp.adresse}/>
-              <Row label="Code postal" value={emp.code_postal}/>
-              <Row label="Ville" value={emp.ville}/>
-              <Row label="Pays" value={emp.pays}/>
-              <Row label="Contact d'urgence" value={emp.contact_urgence_nom}/>
-              <Row label="Tél. d'urgence" value={emp.contact_urgence_tel}/>
-            </Card>
-          )}
-          {tab==='contrat'&&(
-            <Card icon="📄" bg="#fbeaf0" title="Contrat">
-              <Row label="Type de contrat" value={emp.type_contrat}/>
-              <Row label="Fonction" value={emp.fonction}/>
-              <Row label="Date d'embauche" value={fmtDateFr(emp.date_embauche)}/>
-              <Row label="Date de fin" value={fmtDateFr(emp.date_fin_contrat)}/>
-              <Row label="Taux horaire" value={emp.taux_horaire?`${emp.taux_horaire} CHF`:null}/>
-              <Row label="Heures / semaine" value={emp.heures_semaine?`${emp.heures_semaine}h`:null}/>
-            </Card>
-          )}
-          {tab==='identite'&&(
-            <Card icon="🪪" bg="#e1f5ee" title="Identité">
-              <Row label="Date de naissance" value={fmtDateFr(emp.date_naissance)}/>
-              <Row label="Lieu de naissance" value={emp.lieu_naissance}/>
-              <Row label="Nationalité" value={emp.nationalite}/>
-              <Row label="N° sécurité sociale / AVS" value={emp.num_securite_sociale}/>
-              <Row label="IBAN" value={emp.iban}/>
-            </Card>
-          )}
-          {tab==='conges'&&features?.conges&&(
-            <Card icon="🌴" bg="#faece7" title="Congés">
-              <Row label="Solde total" value={`${emp.conges_total||0} jours`}/>
-              <Row label="Pris" value={`${emp.conges_pris||0} jours`}/>
-              <Row label="Restant" value={`${(emp.conges_total||0)-(emp.conges_pris||0)} jours`}/>
-            </Card>
-          )}
-        </>)}
-
-        {edition&&(<>
-          <EditCard icon="👤" bg="#fbeaf0" title="Général">
-            <Field label="Prénom" k="prenom"/>
-            <Field label="Nom" k="nom"/>
-            <Field label="Email" k="email" type="email"/>
-            <Field label="Fonction / poste" k="fonction"/>
-            {groupes&&groupes.length>0&&(
-              <div style={{marginBottom:0}}>
-                <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Groupe</label>
-                <select value={form.groupe_id||''} onChange={e=>setForm(f=>({...f,groupe_id:e.target.value||null}))} style={inputStyle}>
-                  <option value="">Sans groupe</option>
-                  {groupes.map(g=><option key={g.id} value={g.id}>{g.nom}</option>)}
-                </select>
-              </div>
-            )}
-          </EditCard>
-
-          <EditCard icon="📞" bg="#eeedfe" title="Coordonnées">
-            <Field label="Téléphone" k="telephone" type="tel"/>
-            <Field label="Adresse" k="adresse"/>
-            <Field label="Code postal" k="code_postal"/>
-            <Field label="Ville" k="ville"/>
-            <Field label="Pays" k="pays"/>
-            <Field label="Contact d'urgence (nom)" k="contact_urgence_nom"/>
-            <div style={{marginBottom:0}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Contact d'urgence (tél.)</label>
-              <input type="tel" value={form.contact_urgence_tel||''} onChange={e=>setForm(f=>({...f,contact_urgence_tel:e.target.value}))} style={inputStyle}/>
-            </div>
-          </EditCard>
-
-          <EditCard icon="📄" bg="#faece7" title="Contrat">
-            <div style={{marginBottom:12}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Type de contrat</label>
-              <select value={form.type_contrat||''} onChange={e=>setForm(f=>({...f,type_contrat:e.target.value}))} style={inputStyle}>
-                <option value="">Choisir</option>
-                {TYPES_CONTRAT.map(o=><option key={o} value={o}>{o}</option>)}
-              </select>
-            </div>
-            <Field label="Date d'embauche" k="date_embauche" type="date"/>
-            <Field label="Date de fin (si CDD)" k="date_fin_contrat" type="date"/>
-            <Field label="Taux horaire" k="taux_horaire" type="number"/>
-            <div style={{marginBottom:0}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>Heures par semaine</label>
-              <input type="number" value={form.heures_semaine||''} onChange={e=>setForm(f=>({...f,heures_semaine:e.target.value}))} style={inputStyle}/>
-            </div>
-          </EditCard>
-
-          <EditCard icon="🪪" bg="#e1f5ee" title="Identité">
-            <Field label="Date de naissance" k="date_naissance" type="date"/>
-            <Field label="Lieu de naissance" k="lieu_naissance"/>
-            <Field label="Nationalité" k="nationalite"/>
-            <Field label="N° sécurité sociale / AVS" k="num_securite_sociale"/>
-            <div style={{marginBottom:0}}>
-              <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--text2)',marginBottom:5}}>IBAN</label>
-              <input type="text" value={form.iban||''} onChange={e=>setForm(f=>({...f,iban:e.target.value}))} style={inputStyle}/>
-            </div>
-          </EditCard>
-        </>)}
-
-      </div>
     </div>
   )
 }
