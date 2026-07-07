@@ -240,19 +240,41 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                   </div>
                 )}
                 {editSection==='coord'&&(
-                  <div style={gridStyle}>
+                  <div style={{display:'flex',flexDirection:'column',gap:20}}>
                     <div>
-                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Téléphone</label>
+                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:7}}>Téléphone</label>
                       <PhoneField value={form.telephone||''} onChange={v=>setForm(f=>({...f,telephone:v}))}/>
                     </div>
-                    {Field('Code postal','code_postal')}
-                    {Field('Adresse','adresse',null,true)}
-                    {Field('Ville','ville')}
-                    {Field('Pays','pays')}
-                    {Field('Contact d\'urgence','contact_urgence_nom')}
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px 18px'}}>
+                      <div>
+                        <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:7}}>Code postal</label>
+                        <input value={form.code_postal||''} onChange={e=>setForm(f=>({...f,code_postal:e.target.value}))} style={inputStyle}/>
+                      </div>
+                      <div>
+                        <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:7}}>Ville</label>
+                        <input value={form.ville||''} onChange={e=>setForm(f=>({...f,ville:e.target.value}))} style={inputStyle}/>
+                      </div>
+                    </div>
                     <div>
-                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Tél. d'urgence</label>
-                      <PhoneField value={form.contact_urgence_tel||''} onChange={v=>setForm(f=>({...f,contact_urgence_tel:v}))}/>
+                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:7}}>Adresse</label>
+                      <input value={form.adresse||''} onChange={e=>setForm(f=>({...f,adresse:e.target.value}))} style={inputStyle}/>
+                    </div>
+                    <div>
+                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:7}}>Pays</label>
+                      <input value={form.pays||''} onChange={e=>setForm(f=>({...f,pays:e.target.value}))} style={inputStyle}/>
+                    </div>
+                    <div style={{borderTop:'1px solid var(--border)',paddingTop:18}}>
+                      <div style={{fontSize:12,fontWeight:700,color:'var(--text3)',marginBottom:14}}>Contact d'urgence</div>
+                      <div style={{display:'flex',flexDirection:'column',gap:16}}>
+                        <div>
+                          <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:7}}>Nom</label>
+                          <input value={form.contact_urgence_nom||''} onChange={e=>setForm(f=>({...f,contact_urgence_nom:e.target.value}))} style={inputStyle}/>
+                        </div>
+                        <div>
+                          <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:7}}>Téléphone</label>
+                          <PhoneField value={form.contact_urgence_tel||''} onChange={v=>setForm(f=>({...f,contact_urgence_tel:v}))}/>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
