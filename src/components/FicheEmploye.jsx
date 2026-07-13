@@ -245,18 +245,12 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
         )}
         {tab==='identite'&&(
           <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 20px'}}>
-            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}><div style={{width:32,height:32,borderRadius:9,background:'#e1f5ee',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🪪</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Identité</span></div>
+            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:18}}><div style={{width:32,height:32,borderRadius:9,background:'#e1f5ee',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🪪</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Identité</span></div>
             <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
-              {[['🎂','Date de naissance',fmtDateFr(emp.date_naissance)],['📍','Lieu de naissance',emp.lieu_naissance],['🌍','Nationalité',emp.nationalite],['🔢','N° AVS',emp.num_securite_sociale]].map((r,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',gap:11,padding:'4px 0'}}>
-                  <span style={{fontSize:15,width:20,textAlign:'center'}}>{r[0]}</span>
-                  <div style={{flex:1}}><div style={{fontSize:11,color:'var(--text3)'}}>{r[1]}</div><div style={{fontSize:13,color:r[2]?'var(--text)':'var(--text3)'}}>{r[2]||'Non renseigné'}</div></div>
-                </div>
+              {[['Date de naissance',fmtDateFr(emp.date_naissance)],['Lieu de naissance',emp.lieu_naissance],['Nationalité',emp.nationalite],['N° sécurité sociale / AVS',emp.num_securite_sociale]].map((r,i)=>(
+                <div key={i} style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>{r[0]}</div><div style={{fontSize:14,fontWeight:600,color:r[1]?'var(--text)':'var(--text3)'}}>{r[1]||'Non renseigné'}</div></div>
               ))}
-            </div>
-            <div style={{marginTop:6,paddingTop:14,borderTop:'1px solid var(--border)',display:'flex',alignItems:'center',gap:11}}>
-              <span style={{fontSize:15,width:20,textAlign:'center'}}>🏦</span>
-              <div style={{flex:1}}><div style={{fontSize:11,color:'var(--text3)'}}>IBAN</div><div style={{fontSize:13,color:emp.iban?'var(--text)':'var(--text3)'}}>{emp.iban||'Non renseigné'}</div></div>
+              <div style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px',gridColumn:isMobile?'auto':'1 / -1'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>IBAN</div><div style={{fontSize:14,fontWeight:600,color:emp.iban?'var(--text)':'var(--text3)'}}>{emp.iban||'Non renseigné'}</div></div>
             </div>
           </div>
         )}
