@@ -66,6 +66,24 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
     setEdition(true)
   }
 
+  function calcAnciennete(dateStr){
+    if(!dateStr) return null
+    const d=new Date(dateStr+'T00:00:00'); if(isNaN(d)) return null
+    const now=new Date()
+    let mois=(now.getFullYear()-d.getFullYear())*12+(now.getMonth()-d.getMonth())
+    if(now.getDate()<d.getDate()) mois--
+    if(mois<0) return null
+    const ans=Math.floor(mois/12); const m=mois%12
+    if(ans===0&&m===0) return "moins d'un mois"
+    if(ans===0) return m+' mois'
+    if(m===0) return ans+(ans>1?' ans':' an')
+    return ans+(ans>1?' ans ':' an ')+m+' mois'
+  }
+  function calcCompletion(e){
+    const champs=['telephone','adresse','code_postal','ville','pays','contact_urgence_nom','contact_urgence_tel','type_contrat','date_embauche','taux_horaire','heures_semaine','fonction','date_naissance','lieu_naissance','nationalite','num_securite_sociale','iban']
+    const remplis=champs.filter(k=>e[k]!==null&&e[k]!==undefined&&e[k]!=='').length
+    return Math.round(remplis/champs.length*100)
+  }
   const Row=({label,value})=>(
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:'1px solid var(--border)',gap:12}}>
       <span style={{fontSize:13,color:'var(--text2)',flexShrink:0}}>{label}</span>
@@ -124,28 +142,57 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
       {/* Contenu lecture */}
       <div style={{padding:isMobile?14:22,display:'flex',flexDirection:'column',gap:14}}>
         {tab==='apercu'&&(
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
-            <Card icon="📄" bg="#fbeaf0" title="Contrat">
-              <Row label="Type" value={emp.type_contrat}/>
-              <Row label="Fonction" value={emp.fonction}/>
-              <Row label="Embauche" value={fmtDateFr(emp.date_embauche)}/>
-              <Row label="Taux horaire" value={emp.taux_horaire?`${emp.taux_horaire} CHF`:null}/>
-            </Card>
-            <Card icon="📞" bg="#eeedfe" title="Coordonnées">
-              <Row label="Téléphone" value={emp.telephone}/>
-              <Row label="Ville" value={emp.ville}/>
-              <Row label="Urgence" value={emp.contact_urgence_nom}/>
-            </Card>
-            <Card icon="🪪" bg="#e1f5ee" title="Identité">
-              <Row label="Naissance" value={fmtDateFr(emp.date_naissance)}/>
-              <Row label="Nationalité" value={emp.nationalite}/>
-            </Card>
-            {features?.conges&&(
-              <Card icon="🌴" bg="#faece7" title="Congés">
-                <Row label="Solde" value={`${(emp.conges_total||0)-(emp.conges_pris||0)} / ${emp.conges_total||0} jours`}/>
-                <Row label="Pris" value={`${emp.conges_pris||0} jours`}/>
-              </Card>
-            )}
+          <div style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div style={{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:14,padding:isMobile?'14px 16px':'16px 20px',display:'flex',gap:isMobile?18:28,flexWrap:'wrap',alignItems:'flex-start'}}>
+              <div>
+                <div style={{fontSize:11,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.04em',marginBottom:3}}>Contrat</div>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>{emp.type_contrat||'—'}</div>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.04em',marginBottom:3}}>Depuis</div>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>{fmtDateFr(emp.date_embauche)||'—'}</div>
+              </div>
+              {calcAnciennete(emp.date_embauche)&&(
+                <div>
+                  <div style={{fontSize:11,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.04em',marginBottom:3}}>Ancienneté</div>
+                  <div style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>{calcAnciennete(emp.date_embauche)}</div>
+                </div>
+              )}
+              <div style={{marginLeft:isMobile?0:'auto',textAlign:isMobile?'left':'right'}}>
+                <div style={{fontSize:11,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.04em',marginBottom:5}}>Dossier complété</div>
+                <div style={{display:'flex',alignItems:'center',gap:8,justifyContent:isMobile?'flex-start':'flex-end'}}>
+                  <div style={{width:90,height:6,background:'var(--border)',borderRadius:3,overflow:'hidden'}}><div style={{width:calcCompletion(emp)+'%',height:'100%',background:'var(--accent)'}}/></div>
+                  <span style={{fontSize:12,fontWeight:700,color:'var(--text2)'}}>{calcCompletion(emp)}%</span>
+                </div>
+              </div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
+              <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'16px 18px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:12}}><div style={{width:32,height:32,borderRadius:9,background:'#fbeaf0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>📄</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Contrat</span></div>
+                <Row label="Type" value={emp.type_contrat}/>
+                <Row label="Fonction" value={emp.fonction}/>
+                <Row label="Taux horaire" value={emp.taux_horaire?`${emp.taux_horaire} CHF`:null}/>
+              </div>
+              <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'16px 18px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:12}}><div style={{width:32,height:32,borderRadius:9,background:'#eeedfe',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>📞</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Coordonnées</span></div>
+                <Row label="Téléphone" value={emp.telephone}/>
+                <Row label="Ville" value={emp.ville}/>
+                <Row label="Urgence" value={emp.contact_urgence_nom}/>
+              </div>
+              <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'16px 18px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:12}}><div style={{width:32,height:32,borderRadius:9,background:'#e1f5ee',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🪪</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Identité</span></div>
+                <Row label="Naissance" value={fmtDateFr(emp.date_naissance)}/>
+                <Row label="Nationalité" value={emp.nationalite}/>
+              </div>
+              {features?.conges&&(
+                <div style={{background:'linear-gradient(135deg,#fbeaf0,#fcf3f5)',border:'1px solid var(--border)',borderRadius:14,padding:'16px 18px'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}><div style={{width:32,height:32,borderRadius:9,background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🌴</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Congés</span></div>
+                  <div style={{display:'flex',alignItems:'baseline',gap:6,marginBottom:10}}><span style={{fontSize:26,fontWeight:800,color:'var(--text)'}}>{(emp.conges_total||0)-(emp.conges_pris||0)}</span><span style={{fontSize:14,color:'var(--text2)'}}>/ {emp.conges_total||0} jours restants</span></div>
+                  <div style={{width:'100%',height:8,background:'rgba(0,0,0,0.06)',borderRadius:4,overflow:'hidden',marginBottom:6}}><div style={{width:((emp.conges_total||0)?Math.round(((emp.conges_total-(emp.conges_pris||0))/emp.conges_total)*100):0)+'%',height:'100%',background:'var(--accent)',borderRadius:4}}/></div>
+                  <div style={{fontSize:12,color:'var(--text2)'}}>{emp.conges_pris||0} jours pris cette année</div>
+                </div>
+              )}
+            </div>
           </div>
         )}
         {tab==='coord'&&(
