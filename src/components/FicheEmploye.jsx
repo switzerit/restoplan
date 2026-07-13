@@ -80,7 +80,7 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
     return ans+(ans>1?' ans ':' an ')+m+' mois'
   }
   function calcCompletion(e){
-    const champs=['telephone','adresse','code_postal','ville','pays','contact_urgence_nom','contact_urgence_tel','type_contrat','date_embauche','taux_horaire','heures_semaine','fonction','date_naissance','lieu_naissance','nationalite','num_securite_sociale','iban']
+    const champs=['telephone','adresse','code_postal','ville','pays','contact_urgence_nom','contact_urgence_tel','type_contrat','date_embauche','heures_semaine','fonction','date_naissance','lieu_naissance','nationalite','num_securite_sociale','iban']
     const remplis=champs.filter(k=>e[k]!==null&&e[k]!==undefined&&e[k]!=='').length
     return Math.round(remplis/champs.length*100)
   }
@@ -171,7 +171,7 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                 <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:12}}><div style={{width:32,height:32,borderRadius:9,background:'#fbeaf0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>📄</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Contrat</span></div>
                 <Row label="Type" value={emp.type_contrat}/>
                 <Row label="Fonction" value={emp.fonction}/>
-                <Row label="Taux horaire" value={emp.taux_horaire?`${emp.taux_horaire} CHF`:null}/>
+                <Row label="Heures / semaine" value={emp.heures_semaine?`${emp.heures_semaine}h`:null}/>
               </div>
               <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'16px 18px'}}>
                 <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:12}}><div style={{width:32,height:32,borderRadius:9,background:'#eeedfe',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>📞</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Coordonnées</span></div>
@@ -212,7 +212,6 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
             <Row label="Fonction" value={emp.fonction}/>
             <Row label="Date d'embauche" value={fmtDateFr(emp.date_embauche)}/>
             <Row label="Date de fin" value={fmtDateFr(emp.date_fin_contrat)}/>
-            <Row label="Taux horaire" value={emp.taux_horaire?`${emp.taux_horaire} CHF`:null}/>
             <Row label="Heures / semaine" value={emp.heures_semaine?`${emp.heures_semaine}h`:null}/>
           </Card>
         )}
@@ -337,7 +336,6 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                     {Field('Fonction','fonction')}
                     {Field('Date d\'embauche','date_embauche','date')}
                     {Field('Date de fin (CDD)','date_fin_contrat','date')}
-                    {Field('Taux horaire','taux_horaire','number')}
                     {Field('Heures / semaine','heures_semaine','number')}
                   </div>
                 )}
