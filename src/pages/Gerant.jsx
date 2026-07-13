@@ -1239,6 +1239,7 @@ export default function Gerant() {
             isMobile={isMobile}
             features={features}
             startEdit={ficheEditMode}
+            restaurantId={currentResto?.id}
             onBack={()=>{setFicheEmploye(null);setFicheEditMode(false)}}
             onSave={saveEmployeRH}
           />

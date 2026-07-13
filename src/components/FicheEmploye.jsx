@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { api } from '../apiClient'
 import PhoneField from './PhoneField'
 
 function ini(p,n){return((p?.[0]||'')+(n?.[0]||'')).toUpperCase()}
@@ -23,12 +24,23 @@ const SECTIONS=[
   {id:'identite',l:'Identité',icon:'🪪'},
 ]
 
-export default function FicheEmploye({emp, groupe, groupes, present, isMobile, onBack, onSave, features, startEdit}){
+export default function FicheEmploye({emp, groupe, groupes, present, isMobile, onBack, onSave, features, startEdit, restaurantId}){
   const [tab,setTab]=useState('apercu')
   const [edition,setEdition]=useState(!!startEdit)
   const [editSection,setEditSection]=useState('general')
   const [form,setForm]=useState({})
   const [saving,setSaving]=useState(false)
+  const [historiqueConges,setHistoriqueConges]=useState([])
+
+  useEffect(()=>{
+    let annule=false
+    if(features?.conges && restaurantId && emp?.id){
+      api.get(`/conges?restaurant_id=${restaurantId}&employe_id=${emp.id}&statut=accepte`).then(d=>{
+        if(!annule) setHistoriqueConges(Array.isArray(d)?d:[])
+      }).catch(()=>{})
+    }
+    return ()=>{annule=true}
+  },[emp?.id, restaurantId])
 
   useEffect(()=>{
     const f={}
@@ -66,6 +78,9 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
     setEdition(true)
   }
 
+  const TYPE_CONGE_LABELS={conge_paye:'Congés payés',conges_reportes:'Congés reportés',rtt:'RTT',maladie:'Maladie',sans_solde:'Sans solde',autre:'Absence'}
+  function nbJours(d1,d2){try{const a=new Date(d1+'T00:00:00'),b=new Date(d2+'T00:00:00');return Math.round((b-a)/86400000)+1}catch(e){return 1}}
+  function fmtPeriode(d1,d2){const f=s=>{const d=new Date(s+'T00:00:00');return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})};return d1===d2?f(d1):`${f(d1)} – ${f(d2)}`}
   function calcAnciennete(dateStr){
     if(!dateStr) return null
     const d=new Date(dateStr+'T00:00:00'); if(isNaN(d)) return null
@@ -196,40 +211,85 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
           </div>
         )}
         {tab==='coord'&&(
-          <Card icon="📞" bg="#eeedfe" title="Coordonnées">
-            <Row label="Téléphone" value={emp.telephone}/>
-            <Row label="Adresse" value={emp.adresse}/>
-            <Row label="Code postal" value={emp.code_postal}/>
-            <Row label="Ville" value={emp.ville}/>
-            <Row label="Pays" value={emp.pays}/>
-            <Row label="Contact d'urgence" value={emp.contact_urgence_nom}/>
-            <Row label="Tél. d'urgence" value={emp.contact_urgence_tel}/>
-          </Card>
+          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
+            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 20px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14}}><div style={{width:32,height:32,borderRadius:9,background:'#eeedfe',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>📍</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Adresse</span></div>
+              {[['📞','Téléphone',emp.telephone],['🏠','Adresse',emp.adresse],['🏙️','Ville',emp.code_postal||emp.ville?`${emp.code_postal||''} ${emp.ville||''}`.trim():null],['🌍','Pays',emp.pays]].map((r,i)=>(
+                <div key={i} style={{display:'flex',alignItems:'center',gap:11,padding:'9px 0'}}>
+                  <span style={{fontSize:15,width:20,textAlign:'center'}}>{r[0]}</span>
+                  <div style={{flex:1}}><div style={{fontSize:11,color:'var(--text3)'}}>{r[1]}</div><div style={{fontSize:13,color:r[2]?'var(--text)':'var(--text3)'}}>{r[2]||'Non renseigné'}</div></div>
+                </div>
+              ))}
+            </div>
+            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 20px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14}}><div style={{width:32,height:32,borderRadius:9,background:'#faece7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🆘</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Contact d'urgence</span></div>
+              {[['👤','Nom',emp.contact_urgence_nom],['📞','Téléphone',emp.contact_urgence_tel]].map((r,i)=>(
+                <div key={i} style={{display:'flex',alignItems:'center',gap:11,padding:'9px 0'}}>
+                  <span style={{fontSize:15,width:20,textAlign:'center'}}>{r[0]}</span>
+                  <div style={{flex:1}}><div style={{fontSize:11,color:'var(--text3)'}}>{r[1]}</div><div style={{fontSize:13,color:r[2]?'var(--text)':'var(--text3)'}}>{r[2]||'Non renseigné'}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
         {tab==='contrat'&&(
-          <Card icon="📄" bg="#fbeaf0" title="Contrat">
-            <Row label="Type de contrat" value={emp.type_contrat}/>
-            <Row label="Fonction" value={emp.fonction}/>
-            <Row label="Date d'embauche" value={fmtDateFr(emp.date_embauche)}/>
-            <Row label="Date de fin" value={fmtDateFr(emp.date_fin_contrat)}/>
-            <Row label="Heures / semaine" value={emp.heures_semaine?`${emp.heures_semaine}h`:null}/>
-          </Card>
+          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 20px'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:18}}>
+              <div style={{display:'flex',alignItems:'center',gap:9}}><div style={{width:32,height:32,borderRadius:9,background:'#fbeaf0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>📄</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Contrat de travail</span></div>
+              {emp.type_contrat&&<span style={{fontSize:12,fontWeight:700,color:'#0F6E56',background:'#e1f5ee',padding:'4px 12px',borderRadius:20}}>{emp.type_contrat}</span>}
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
+              {[['Fonction',emp.fonction],['Heures / semaine',emp.heures_semaine?`${emp.heures_semaine}h`:null],["Date d'embauche",fmtDateFr(emp.date_embauche)],['Fin de contrat',fmtDateFr(emp.date_fin_contrat)]].map((r,i)=>(
+                <div key={i} style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>{r[0]}</div><div style={{fontSize:14,fontWeight:600,color:r[1]?'var(--text)':'var(--text3)'}}>{r[1]||'—'}</div></div>
+              ))}
+            </div>
+          </div>
         )}
         {tab==='identite'&&(
-          <Card icon="🪪" bg="#e1f5ee" title="Identité">
-            <Row label="Date de naissance" value={fmtDateFr(emp.date_naissance)}/>
-            <Row label="Lieu de naissance" value={emp.lieu_naissance}/>
-            <Row label="Nationalité" value={emp.nationalite}/>
-            <Row label="N° sécurité sociale / AVS" value={emp.num_securite_sociale}/>
-            <Row label="IBAN" value={emp.iban}/>
-          </Card>
+          <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 20px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:16}}><div style={{width:32,height:32,borderRadius:9,background:'#e1f5ee',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🪪</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Identité</span></div>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
+              {[['🎂','Date de naissance',fmtDateFr(emp.date_naissance)],['📍','Lieu de naissance',emp.lieu_naissance],['🌍','Nationalité',emp.nationalite],['🔢','N° AVS',emp.num_securite_sociale]].map((r,i)=>(
+                <div key={i} style={{display:'flex',alignItems:'center',gap:11,padding:'4px 0'}}>
+                  <span style={{fontSize:15,width:20,textAlign:'center'}}>{r[0]}</span>
+                  <div style={{flex:1}}><div style={{fontSize:11,color:'var(--text3)'}}>{r[1]}</div><div style={{fontSize:13,color:r[2]?'var(--text)':'var(--text3)'}}>{r[2]||'Non renseigné'}</div></div>
+                </div>
+              ))}
+            </div>
+            <div style={{marginTop:6,paddingTop:14,borderTop:'1px solid var(--border)',display:'flex',alignItems:'center',gap:11}}>
+              <span style={{fontSize:15,width:20,textAlign:'center'}}>🏦</span>
+              <div style={{flex:1}}><div style={{fontSize:11,color:'var(--text3)'}}>IBAN</div><div style={{fontSize:13,color:emp.iban?'var(--text)':'var(--text3)'}}>{emp.iban||'Non renseigné'}</div></div>
+            </div>
+          </div>
         )}
         {tab==='conges'&&features?.conges&&(
-          <Card icon="🌴" bg="#faece7" title="Congés">
-            <Row label="Solde total" value={`${emp.conges_total||0} jours`}/>
-            <Row label="Pris" value={`${emp.conges_pris||0} jours`}/>
-            <Row label="Restant" value={`${(emp.conges_total||0)-(emp.conges_pris||0)} jours`}/>
-          </Card>
+          <div style={{display:'flex',flexDirection:'column',gap:14}}>
+            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:20}}>
+              <div style={{display:'flex',gap:24,alignItems:'center',flexWrap:'wrap'}}>
+                <div style={{textAlign:'center',flexShrink:0}}>
+                  <div style={{fontSize:34,fontWeight:800,color:'var(--text)',lineHeight:1}}>{(emp.conges_total||0)-(emp.conges_pris||0)}</div>
+                  <div style={{fontSize:12,color:'var(--text2)',marginTop:3}}>jours restants</div>
+                </div>
+                <div style={{flex:1,minWidth:180}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'var(--text2)',marginBottom:6}}><span>{emp.conges_pris||0} pris</span><span>{emp.conges_total||0} au total</span></div>
+                  <div style={{width:'100%',height:10,background:'rgba(0,0,0,0.06)',borderRadius:5,overflow:'hidden'}}><div style={{width:((emp.conges_total||0)?Math.round(((emp.conges_pris||0)/emp.conges_total)*100):0)+'%',height:'100%',background:'var(--accent)',borderRadius:5}}/></div>
+                  <div style={{fontSize:12,color:'var(--text3)',marginTop:8}}>Solde mis à jour à chaque congé validé</div>
+                </div>
+              </div>
+            </div>
+            <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 20px'}}>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--text)',marginBottom:14}}>Historique récent</div>
+              {historiqueConges.length===0?(
+                <div style={{fontSize:13,color:'var(--text3)',padding:'8px 0'}}>Aucun congé pris pour le moment</div>
+              ):historiqueConges.slice(0,8).map((c,i)=>(
+                <div key={c.id||i} style={{display:'flex',alignItems:'center',gap:12,padding:'10px 0',borderBottom:i<Math.min(historiqueConges.length,8)-1?'1px solid var(--border)':'none'}}>
+                  <div style={{width:34,height:34,borderRadius:9,background:'#e1f5ee',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,flexShrink:0}}>🌴</div>
+                  <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,color:'var(--text)'}}>{TYPE_CONGE_LABELS[c.type]||'Absence'}</div><div style={{fontSize:12,color:'var(--text2)'}}>{fmtPeriode(c.date_debut,c.date_fin)}</div></div>
+                  <span style={{fontSize:12,fontWeight:600,color:'var(--text2)',flexShrink:0}}>{nbJours(c.date_debut,c.date_fin)} j</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
