@@ -211,24 +211,22 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
           </div>
         )}
         {tab==='coord'&&(
-          <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
+          <div style={{display:'flex',flexDirection:'column',gap:14}}>
             <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 20px'}}>
-              <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14}}><div style={{width:32,height:32,borderRadius:9,background:'#eeedfe',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>📍</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Adresse</span></div>
-              {[['📞','Téléphone',emp.telephone],['🏠','Adresse',emp.adresse],['🏙️','Ville',emp.code_postal||emp.ville?`${emp.code_postal||''} ${emp.ville||''}`.trim():null],['🌍','Pays',emp.pays]].map((r,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',gap:11,padding:'9px 0'}}>
-                  <span style={{fontSize:15,width:20,textAlign:'center'}}>{r[0]}</span>
-                  <div style={{flex:1}}><div style={{fontSize:11,color:'var(--text3)'}}>{r[1]}</div><div style={{fontSize:13,color:r[2]?'var(--text)':'var(--text3)'}}>{r[2]||'Non renseigné'}</div></div>
-                </div>
-              ))}
+              <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:18}}><div style={{width:32,height:32,borderRadius:9,background:'#eeedfe',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>📞</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Coordonnées</span></div>
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
+                <div style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>Téléphone</div><div style={{fontSize:14,fontWeight:600,color:emp.telephone?'var(--text)':'var(--text3)'}}>{emp.telephone||'Non renseigné'}</div></div>
+                <div style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>Ville</div><div style={{fontSize:14,fontWeight:600,color:(emp.code_postal||emp.ville)?'var(--text)':'var(--text3)'}}>{(emp.code_postal||emp.ville)?`${emp.code_postal||''} ${emp.ville||''}`.trim():'Non renseigné'}</div></div>
+                <div style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px',gridColumn:isMobile?'auto':'1 / -1'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>Adresse</div><div style={{fontSize:14,fontWeight:600,color:emp.adresse?'var(--text)':'var(--text3)'}}>{emp.adresse||'Non renseigné'}</div></div>
+                <div style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>Pays</div><div style={{fontSize:14,fontWeight:600,color:emp.pays?'var(--text)':'var(--text3)'}}>{emp.pays||'Non renseigné'}</div></div>
+              </div>
             </div>
             <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:14,padding:'18px 20px'}}>
-              <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:14}}><div style={{width:32,height:32,borderRadius:9,background:'#faece7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🆘</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Contact d'urgence</span></div>
-              {[['👤','Nom',emp.contact_urgence_nom],['📞','Téléphone',emp.contact_urgence_tel]].map((r,i)=>(
-                <div key={i} style={{display:'flex',alignItems:'center',gap:11,padding:'9px 0'}}>
-                  <span style={{fontSize:15,width:20,textAlign:'center'}}>{r[0]}</span>
-                  <div style={{flex:1}}><div style={{fontSize:11,color:'var(--text3)'}}>{r[1]}</div><div style={{fontSize:13,color:r[2]?'var(--text)':'var(--text3)'}}>{r[2]||'Non renseigné'}</div></div>
-                </div>
-              ))}
+              <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:18}}><div style={{width:32,height:32,borderRadius:9,background:'#faece7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>🆘</div><span style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>Contact d'urgence</span></div>
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14}}>
+                <div style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>Nom</div><div style={{fontSize:14,fontWeight:600,color:emp.contact_urgence_nom?'var(--text)':'var(--text3)'}}>{emp.contact_urgence_nom||'Non renseigné'}</div></div>
+                <div style={{background:'var(--bg)',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'var(--text3)',marginBottom:3}}>Téléphone</div><div style={{fontSize:14,fontWeight:600,color:emp.contact_urgence_tel?'var(--text)':'var(--text3)'}}>{emp.contact_urgence_tel||'Non renseigné'}</div></div>
+              </div>
             </div>
           </div>
         )}
