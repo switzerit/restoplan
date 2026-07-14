@@ -835,18 +835,32 @@ export default function Gerant() {
           )}
         </div>
         {[
-          {id:'accueil',icon:'🏠',label:'Accueil'},
-          {id:'planning',icon:'📅',label:'Planning'},
-          ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
-          {id:'employes',icon:'👤',label:'Espace RH'},
-          ...(features.conges?[{id:'conges',icon:'🏖️',label:'Congés'}]:[]),
-          ...(features.badgeage&&features.signalements?[{id:'signalements',icon:'⚡',label:'Corrections'}]:[]),
-          {id:'parametres',icon:'⚙️',label:'Paramètres'},
-        ].map(item=>(
-          <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',alignItems:'center',gap:9,padding:'9px 10px',borderRadius:9,cursor:'pointer',fontSize:13,fontWeight:600,border:'none',width:'100%',textAlign:'left',background:view===item.id?'var(--accent-bg)':'transparent',color:view===item.id?'var(--accent)':'var(--text2)',marginBottom:2}}>
-            {item.icon} {item.label}
-            {item.badge>0&&<span style={{marginLeft:'auto',background:'var(--green)',color:'white',fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:20}}>{item.badge}</span>}
-          </button>
+          {section:'Gérer',items:[
+            {id:'accueil',icon:'🏠',label:'Accueil'},
+            {id:'planning',icon:'📅',label:'Planning'},
+            ...(features.badgeage?[{id:'presences',icon:'👥',label:'Présences',badge:presentCount}]:[]),
+          ]},
+          {section:'Équipe',items:[
+            {id:'employes',icon:'👤',label:'Espace RH'},
+            ...(features.conges?[{id:'conges',icon:'🏖️',label:'Congés'}]:[]),
+            ...(features.badgeage&&features.signalements?[{id:'signalements',icon:'⚡',label:'Corrections'}]:[]),
+          ]},
+          {section:'Compte',items:[
+            {id:'parametres',icon:'⚙️',label:'Paramètres'},
+          ]},
+        ].map(grp=>(
+          <div key={grp.section} style={{marginBottom:8}}>
+            <div style={{fontSize:10,fontWeight:700,color:'var(--text3)',textTransform:'uppercase',letterSpacing:'.05em',padding:'0 12px',marginBottom:6}}>{grp.section}</div>
+            {grp.items.map(item=>{
+              const actif=view===item.id
+              return (
+                <button key={item.id} onClick={()=>setView(item.id)} style={{display:'flex',alignItems:'center',gap:9,padding:'9px 10px 9px 13px',borderRadius:9,cursor:'pointer',fontSize:13,fontWeight:actif?700:600,border:'none',borderLeft:actif?'3px solid var(--accent)':'3px solid transparent',width:'100%',textAlign:'left',background:actif?'var(--accent-bg)':'transparent',color:actif?'var(--accent)':'var(--text2)',marginBottom:2}}>
+                  {item.icon} {item.label}
+                  {item.badge>0&&<span style={{marginLeft:'auto',background:'var(--green)',color:'white',fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:20}}>{item.badge}</span>}
+                </button>
+              )
+            })}
+          </div>
         ))}
         <div style={{marginTop:'auto',paddingTop:12,borderTop:'1px solid var(--border)'}}>
           <div style={{display:'flex',alignItems:'center',gap:9,padding:'8px 10px'}}>
