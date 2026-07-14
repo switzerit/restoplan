@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '../apiClient'
+import { PAYS_LISTE, NATIONALITES_LISTE } from './paysData'
 import PhoneField from './PhoneField'
 
 function ini(p,n){return((p?.[0]||'')+(n?.[0]||'')).toUpperCase()}
@@ -359,7 +360,10 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                     </div>
                     <div>
                       <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:7}}>Pays</label>
-                      <input value={form.pays||''} onChange={e=>setForm(f=>({...f,pays:e.target.value}))} style={inputStyle}/>
+                      <select value={form.pays||''} onChange={e=>setForm(f=>({...f,pays:e.target.value}))} style={inputStyle}>
+                        <option value="">Sélectionner un pays</option>
+                        {PAYS_LISTE.map(p=><option key={p} value={p}>{p}</option>)}
+                      </select>
                     </div>
                     <div style={{borderTop:'1px solid var(--border)',paddingTop:18}}>
                       <div style={{fontSize:12,fontWeight:700,color:'var(--text3)',marginBottom:14}}>Contact d'urgence</div>
@@ -395,7 +399,13 @@ export default function FicheEmploye({emp, groupe, groupes, present, isMobile, o
                   <div style={gridStyle}>
                     {Field('Date de naissance','date_naissance','date')}
                     {Field('Lieu de naissance','lieu_naissance')}
-                    {Field('Nationalité','nationalite')}
+                    <div>
+                      <label style={{display:'block',fontSize:12,color:'var(--text2)',marginBottom:6}}>Nationalité</label>
+                      <select value={form.nationalite||''} onChange={e=>setForm(f=>({...f,nationalite:e.target.value}))} style={inputStyle}>
+                        <option value="">Sélectionner une nationalité</option>
+                        {NATIONALITES_LISTE.map(n=><option key={n} value={n}>{n}</option>)}
+                      </select>
+                    </div>
                     {Field('N° AVS','num_securite_sociale')}
                     {Field('IBAN','iban',null,true)}
                   </div>
